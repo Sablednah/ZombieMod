@@ -1,0 +1,21 @@
+# Default ZombieMod Config file
+# 
+#  
+# 
+# debugMode: [true|false] Enable extra debugging messages in server logs.
+
+
+debugMode: false
+dayspawner: true
+blocknaturalspawns: true
+chunklimit: 4
+zombiespawnratio: 50
+spawnmultiplier: 0
+allowedbreaks:
+    - STONE
+    - DIRT
+    - GRASS
+    - GRAVEL
+    - GLASS
+    - THIN_GLASS
+    - MYCEL
