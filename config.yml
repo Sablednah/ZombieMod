@@ -6,16 +6,30 @@
 
 
 debugMode: false
-dayspawner: true
+
 blocknaturalspawns: true
+
+dayspawner: true
 chunklimit: 4
 zombiespawnratio: 50
 spawnmultiplier: 0
+
+givezombieplayeritems: true
+
 allowedbreaks:
-    - STONE
-    - DIRT
-    - GRASS
-    - GRAVEL
-    - GLASS
-    - THIN_GLASS
-    - MYCEL
+- STONE
+- DIRT
+- GRASS
+- GRAVEL
+- GLASS
+- THIN_GLASS
+- MYCEL
+- SAND
+- CACTUS
+- CLAY
+- LEAVES
+- LOG
+- SOUL_SAND
+- WOOD
+- TORCH
+- SPONGE
