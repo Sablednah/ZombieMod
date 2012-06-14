@@ -43,13 +43,13 @@ public class Animations implements Runnable {
 				z = ZombieType.getZombie(e);
 				if (z != null) {
 					Location l=e.getLocation();
-					z.lastLoc = l;
+					
 					if (z.species.equals("PlayerZombie")) {
+						z.lastLoc = l;
 						Chunk c = l.getChunk();
 						String cid = c.getX() + "|"+c.getZ();
 						z.cid=cid;
 					}
-
 
 					// play effects
 					if (z.effects != null) {
@@ -200,7 +200,7 @@ public class Animations implements Runnable {
 					if (z.abilities != null) {
 						if (z.abilities.contains("EXPLODE")){//kaboom
 							Boolean kaboom = false;
-							List<Entity> entlist = e.getNearbyEntities(2,2,2);
+							List<Entity> entlist = e.getNearbyEntities(3,2,3);
 							for (Entity ent : entlist) {
 								if (ent instanceof Player) {
 									kaboom=true;
@@ -237,7 +237,7 @@ public class Animations implements Runnable {
 						}
 						if (z.abilities.contains("BREEDER")){//breeder
 							if (ZombieMod.intervals % 5 == 0) {
-								if (Math.random()>0.5) {
+								if (Math.random()>0.6) {
 
 									//									ZombieMod.logger.info(" Checking spawns "); 
 
