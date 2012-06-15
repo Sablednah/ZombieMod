@@ -2,6 +2,7 @@ ZombieMod
 ==========
 
 28 Dead Resident Shaun's of Evil Later.
+
 You want zombies?  You got zombies!  Undead configured - your way!
 
 
@@ -28,10 +29,10 @@ Ratio for zombie Spawning.
     spawnmultiplier: 0
 Multiply number of zombies spawned.
 
-   givezombieplayeritems: true
+    givezombieplayeritems: true
 Zombies spawned on player death will carry players items, false causes items to drop normally.
 
-   allowedbreaks: [STONE, DIRT, GRASS, GRAVEL, GLASS, THIN_GLASS, MYCEL, SAND, CACTUS, CLAY, LEAVES, LOG, SOUL_SAND, WOOD, TORCH, SPONGE]
+    allowedbreaks: [STONE, DIRT, GRASS, GRAVEL, GLASS, THIN_GLASS, MYCEL, SAND, CACTUS, CLAY, LEAVES, LOG, SOUL_SAND, WOOD, TORCH, SPONGE]
 List of material types that melee zombies can break.  Used in DarkLust's BlockBreaker
 
 

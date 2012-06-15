@@ -193,7 +193,6 @@ public class Animations implements Runnable {
 					//apply potions (but no lotions)
 					if (z.potions != null) {
 						((LivingEntity) e).addPotionEffects(z.potions);
-
 					}
 
 					//apply special effects
@@ -249,7 +248,7 @@ public class Animations implements Runnable {
 									}
 									//									ZombieMod.logger.info(" zombieCount : " + zombieCount); 
 
-									if (zombieCount<15) {
+									if (zombieCount<10) {
 
 										Random generator = new Random();
 										int rndx = generator.nextInt( 16 ) -7;

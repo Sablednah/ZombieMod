@@ -2,9 +2,8 @@ package me.sablednah.zombiemod;
 
 import java.util.Random;
 import org.bukkit.Chunk;
-import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.BlockFace;
+import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Zombie;
@@ -30,33 +29,28 @@ public class DaySpawner implements Runnable {
 						if ((e instanceof Zombie)) { zombieCount++; }
 					}
 					if (zombieCount < ZombieMod.chunklimit) {
-						int x = rand.nextInt(16);
-						int z = rand.nextInt(16);
-						int y = 6;
-						do { 
-							y++; 
-							if (chunk.getBlock(x, y, z).getType() == Material.BEDROCK) { 
-								break;  
-							}
-						} while (y < zombieWorld.getMaxHeight());
+						int x = rand.nextInt(8)+4;
+						int z = rand.nextInt(8)+4;
+						// ok this would spawn on the top
+						//int y = zombieWorld.getHighestBlockYAt(x, z) + 1;
 						
-						for (; y < zombieWorld.getMaxHeight(); y++) {
-							if ((chunk.getBlock(x, y, z).getRelative(BlockFace.DOWN).getLightFromBlocks() < 8) && (chunk.getBlock(x, y, z).getType() == Material.AIR) && (chunk.getBlock(x, y, z).getRelative(BlockFace.UP).getType() == Material.AIR)) {
-								for (int r = 0; r < ZombieMod.spawnmultiplier; r++) {
-
-									net.minecraft.server.World mcWorld = ((CraftWorld) zombieWorld).getHandle();
-
-									PutredineImmortui zomb = new PutredineImmortui(plugin);
-									if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] " + zomb.commonName +" spawned via dayspawner"); }
-									ZombieType newzomb = new ZombieType(mcWorld);
-									newzomb.setPosition(x,y,z);
-									//mcWorld.removeEntity((net.minecraft.server.EntityZombie) mcEntity);  //better but causes errors.
-									mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
-
-									//zombieWorld.spawnCreature(chunk.getBlock(x, y, z).getLocation(), EntityType.ZOMBIE);
-								}
-								y = zombieWorld.getMaxHeight();
-							}
+						// somewhere around the ground level ground
+						// Natural vanilla spawn routine will produce zombies in caves / dark areas.
+						int y = 65; 
+						//find safe block
+						Block blk = Utils.getNearestEmptySpace(zombieWorld.getBlockAt(x,y,z),4);// look for 2 air spaces in radius
+						if (blk != null && blk.getLightFromBlocks()<8) { // must be air pocket and no torches nearby (dislike fire?)
+							x=blk.getX();
+							y=blk.getY();
+							z=blk.getZ();
+							for (int r = 0; r < ZombieMod.spawnmultiplier; r++) {
+								net.minecraft.server.World mcWorld = ((CraftWorld) zombieWorld).getHandle();
+								PutredineImmortui zomb = new PutredineImmortui(plugin);
+								if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] " + zomb.commonName +" spawned via dayspawner"); }
+								ZombieType newzomb = new ZombieType(mcWorld);
+								newzomb.setPosition(x,y,z);
+								mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
+							}							
 						}
 					}
 				}

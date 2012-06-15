@@ -12,7 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.entity.Entity;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -20,7 +20,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.world.ChunkLoadEvent;
-import org.bukkit.event.world.ChunkUnloadEvent;
+
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -156,7 +156,7 @@ public class PlayerListener implements Listener {
 						Location sqawnLoc=safeNewBlock.getLocation();
 						net.minecraft.server.World mcWorld = ((CraftWorld) c.getWorld()).getHandle();
 						//if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] Player Zombie " + z.commonName +" spawned via CHUNKLOAD"); }
-						ZombieMod.logger.info("[" + ZombieMod.myName + "] Player Zombie " + z.commonName +" spawned via CHUNKLOAD");
+						//ZombieMod.logger.info("[" + ZombieMod.myName + "] Player Zombie " + z.commonName +" spawned via CHUNKLOAD");
 						z.cid = cid;
 						ZombieType newzomb = new ZombieType(mcWorld,z);
 						newzomb.setPosition(sqawnLoc.getX(), sqawnLoc.getY(), sqawnLoc.getZ());
