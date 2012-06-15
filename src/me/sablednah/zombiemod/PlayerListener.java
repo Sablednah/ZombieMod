@@ -169,7 +169,9 @@ public class PlayerListener implements Listener {
 	        }
 	    }
 	}
-
+/*
+ * Removed no longer need to preserve chunks
+ * 
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onChunkUnload(ChunkUnloadEvent event) { 
 		Chunk c = event.getChunk();
@@ -188,7 +190,8 @@ public class PlayerListener implements Listener {
 			}
 		}
 	}
-
+*/
+	
 	public int calculateDammage(Player p) {
 		int total=0;
 		if (p != null ){

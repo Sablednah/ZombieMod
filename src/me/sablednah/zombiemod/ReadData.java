@@ -47,10 +47,12 @@ public class ReadData {
 						//SpoutManager sm = new SpoutManager();
 						FileManager fm = SpoutManager.getFileManager();
 						boolean worked = fm.addToCache(plugin, c.skin);
-						if (!worked) {
-							ZombieMod.logger.info("["+ZombieMod.myName+"] skinload fail: " + c.skin);
-							worked = fm.canCache(c.skin);
-							ZombieMod.logger.info("["+ZombieMod.myName+"] canCache?: " + worked);
+						if (ZombieMod.debugMode) {
+							if (!worked) {
+								ZombieMod.logger.info("["+ZombieMod.myName+"] skinload fail: " + c.skin);
+								worked = fm.canCache(c.skin);
+								ZombieMod.logger.info("["+ZombieMod.myName+"] canCache?: " + worked);
+							}
 						}
 					}
 					c.maxHealth = thisConfig.getInt("maxHealth", 20);
@@ -63,7 +65,7 @@ public class ReadData {
 					c.attackSpeed = thisConfig.getDouble("attackSpeed", c.speed);
 					c.bounty = thisConfig.getDouble("bounty", 0.0);
 					c.xp = thisConfig.getInt("xp", 0);
-					
+
 					@SuppressWarnings("unchecked")
 					List<String> effects = (List<String>) thisConfig.getList("effects");
 					if (effects!= null) {
@@ -82,7 +84,7 @@ public class ReadData {
 							c.potions.add(new PotionEffect(PotionEffectType.getByName(thisPotion), 20, 1));
 						}
 					}
-					
+
 					@SuppressWarnings("unchecked")
 					List<String> items = (List<String>) thisConfig.getList("items");
 					if (items!=null) {
@@ -97,7 +99,7 @@ public class ReadData {
 					@SuppressWarnings("unchecked")
 					List<Double> dropRates = (List<Double>) thisConfig.getList("droprates");
 					c.dropRates = dropRates;
-					
+
 				} catch (Exception e) {
 					validConfig = false;
 					e.printStackTrace();
