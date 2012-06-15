@@ -109,8 +109,15 @@ public class ZombieMod extends JavaPlugin {
 		PlayerListener playerListerner = new PlayerListener(this);
 		pm.registerEvents(EntityListener, this);
 		pm.registerEvents(playerListerner, this);
+		
 	
 		hasSpout = this.getServer().getPluginManager().isPluginEnabled("Spout");
+		if (hasSpout) {
+			SpoutListener spoutListener = new SpoutListener(this);
+			pm.registerEvents(spoutListener, this);
+			
+			logger.info("[" + myName + "] Spout features Enabled");
+		}
 		hasHeroes = this.getServer().getPluginManager().isPluginEnabled("Heroes");
 		if (hasHeroes) {
 			logger.info("[" + myName + "] Heroes Support Enabled");
