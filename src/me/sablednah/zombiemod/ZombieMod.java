@@ -37,7 +37,7 @@ public class ZombieMod extends JavaPlugin {
 	public static ZombieMod plugin;
 	public final static Logger logger = Logger.getLogger("Minecraft");
 	public EntityListener EntityListener;
-	
+	public SkillScheduler SkillScheduler = new SkillScheduler(this);
 	public static long intervals = 0; 
 	
 	public static int chunklimit;
@@ -121,7 +121,10 @@ public class ZombieMod extends JavaPlugin {
 		hasHeroes = this.getServer().getPluginManager().isPluginEnabled("Heroes");
 		if (hasHeroes) {
 			logger.info("[" + myName + "] Heroes Support Enabled");
+			pm.registerEvents(this.SkillScheduler, this);
 		}
+		
+
 		
 		//Custom NMS stuff here :/
 		 try{
