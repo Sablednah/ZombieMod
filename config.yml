@@ -10,11 +10,13 @@ debugMode: false
 blocknaturalspawns: true
 
 dayspawner: true
-chunklimit: 4
-zombiespawnratio: 50
-spawnmultiplier: 0
+chunklimit: 6
+zombiespawnratio: 75
+spawnmultiplier: 1
 
 givezombieplayeritems: true
+
+factionsWildName: wilderness
 
 allowedbreaks:
 - STONE

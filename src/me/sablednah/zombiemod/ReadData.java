@@ -49,9 +49,9 @@ public class ReadData {
 						boolean worked = fm.addToCache(plugin, c.skin);
 						if (ZombieMod.debugMode) {
 							if (!worked) {
-								ZombieMod.logger.info("["+ZombieMod.myName+"] skinload fail: " + c.skin);
+//								ZombieMod.logger.info("["+ZombieMod.myName+"] skinload fail: " + c.skin);
 								worked = fm.canCache(c.skin);
-								ZombieMod.logger.info("["+ZombieMod.myName+"] canCache?: " + worked);
+//								ZombieMod.logger.info("["+ZombieMod.myName+"] canCache?: " + worked);
 							}
 						}
 					}

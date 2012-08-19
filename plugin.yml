@@ -1,12 +1,12 @@
 name: ZombieMod
-version: 1.0.1
+version: 2.0.0
 description: 28 Dead Resident Shaun's of Evil Later.
 author: SableDnah
-authors: [SableDnah, DarkLust] 
+authors: [SableDnah] 
 website: http://dev.bukkit.org/server-mods/zombiemod/
 
 main: me.sablednah.zombiemod.ZombieMod
-softdepend: [ Spout,Heroes ]
+softdepend: [ Spout,Heroes,Factions ]
 
 commands:
     zombiemod:

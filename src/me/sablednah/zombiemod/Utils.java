@@ -177,7 +177,7 @@ public class Utils {
 
 	public static void setSkin(LivingEntity target, String url) {
 		if (url != null) {
-			if (ZombieMod.debugMode) { System.out.print("url=" + url); }
+//			if (ZombieMod.debugMode) { System.out.print("url=" + url); }
 			SpoutServer bob = new SpoutServer();
 			bob.setEntitySkin(target, url, EntitySkinType.DEFAULT);
 

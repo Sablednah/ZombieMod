@@ -1,8 +1,4 @@
 package me.sablednah.zombiemod;
-/*
- * Based on darklust's breaker class.
- * Author: DarkLust, SableDnah
- */
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
@@ -26,7 +22,7 @@ class Break implements Runnable {
 		if (!zombie.isDead()) {
 			this.b.breakNaturally();
 			if ((((Zombie) zombie).getTarget() != null) && (((Zombie) zombie).getTarget().equals(player)))
-				plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BreakRunner(plugin, this.zombie, this.player), 60L);
+				plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BreakRunner(plugin, this.zombie, this.player), 20L);
 		}
 	}
 }

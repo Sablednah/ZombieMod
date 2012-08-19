@@ -1,10 +1,5 @@
 package me.sablednah.zombiemod;
 
-/*
- * Based on darklust's breaker class.
- * Author: DarkLust, SableDnah
- */
-
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;

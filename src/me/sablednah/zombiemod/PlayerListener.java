@@ -89,15 +89,15 @@ public class PlayerListener implements Listener {
 		Location sqawnLoc=p.getLocation();
 		Chunk chunkster=sqawnLoc.getChunk();
 		if (chunkster.isLoaded()) {
-			ZombieMod.logger.info("[" + ZombieMod.myName + "] Corpse chunk is already loaded.");
+		    if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] Corpse chunk is already loaded."); }
 		} else {
-			ZombieMod.logger.info("[" + ZombieMod.myName + "] Loading corpse chunk.");
+		    if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] Loading corpse chunk."); }
 			Boolean loaded;
 			loaded=chunkster.load();
 			if (loaded) { 
-				ZombieMod.logger.info("[" + ZombieMod.myName + "] corpse chunk loaded.");
+			    if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] corpse chunk loaded."); }
 			} else {
-				ZombieMod.logger.info("[" + ZombieMod.myName + "] corpse chunk epic load fail!.");
+			    if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] corpse chunk epic load fail!."); }
 			}
 		}
 		World w = sqawnLoc.getWorld();
@@ -134,10 +134,10 @@ public class PlayerListener implements Listener {
 	        	UUID key = entry.getKey();
 	        	if (key!= null && Utils.findZombie(key)) {
 					// found it
-					ZombieMod.logger.info("[" + ZombieMod.myName + "] found player zombie 'elsewhere'.");
+	        	    if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] found player zombie 'elsewhere'."); }
 				} else {
 					// should have playerzombie - cant find it!
-					ZombieMod.logger.info("[" + ZombieMod.myName + "] player zombie lost - recreating..." + key);
+				    if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] player zombie lost - recreating..." + key);}
 /*
  					Random rnd = new Random();
 
