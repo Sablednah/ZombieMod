@@ -16,6 +16,8 @@ import java.util.logging.Logger;
 
 import net.milkbowl.vault.economy.Economy;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -51,7 +53,10 @@ public class ZombieMod extends JavaPlugin {
 	public static Boolean						blocknaturalspawns;
 	public static Boolean						givezombieplayeritems;
 	public static String						factionsWildName;
-	
+	public static String						factionsSafeName;
+
+	public static Location						spawnLoc;
+
 	public static String						exitMessage;
 
 	public static Economy						economy					= null;
@@ -178,10 +183,10 @@ public class ZombieMod extends JavaPlugin {
 
 		// dayspawner
 		// plugin.getServer().getScheduler().scheduleSyncRepeatingTask(this, new DaySpawner(plugin), 600L, 600L);
-		
+
 		// proximityspawner) {
-		plugin.getServer().getScheduler().scheduleSyncRepeatingTask(this, new ProximitySpawner(plugin), 200L, 100L);
-		
+		plugin.getServer().getScheduler().scheduleSyncRepeatingTask(this, new ProximitySystems(plugin), 200L, 100L);
+
 		/**
 		 * Schedule a version check every 6 hours for update notification .
 		 */
@@ -237,7 +242,15 @@ public class ZombieMod extends JavaPlugin {
 		chunklimit = getConfig().getInt("debugMode", 4);
 		zombiespawnration = getConfig().getInt("zombiespawnratio", 50);
 		spawnmultiplier = getConfig().getInt("spawnmultiplier", 0);
-		factionsWildName = getConfig().getString("factionsWildName","wilderness");
+		factionsWildName = getConfig().getString("factionsWildName", "wilderness");
+		factionsSafeName = getConfig().getString("factionsSafeName", "safezone");
+
+		double sx,sy,sz;
+		Location sp=Bukkit.getServer().getWorlds().get(0).getSpawnLocation();
+		sx = getConfig().getDouble("spawnX", sp.getX());
+		sy = getConfig().getDouble("spawnY", sp.getY());
+		sz = getConfig().getDouble("spawnZ", sp.getZ());
+		ZombieMod.spawnLoc = new Location(sp.getWorld(), sx, sy, sz);
 		
 		@SuppressWarnings("unchecked")
 		List<String> breaks = (List<String>) getConfig().getList("allowedbreaks");

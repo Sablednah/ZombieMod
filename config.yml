@@ -17,6 +17,11 @@ spawnmultiplier: 1
 givezombieplayeritems: true
 
 factionsWildName: wilderness
+factionsSafeName: safezone
+
+spawnX: -111.5
+spawnY: 61.0
+spawnZ: 101.5
 
 allowedbreaks:
 - STONE

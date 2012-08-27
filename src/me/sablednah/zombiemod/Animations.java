@@ -6,6 +6,7 @@ import java.util.Random;
 import org.bukkit.Chunk;
 import org.bukkit.Effect;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.CraftWorld;
@@ -20,17 +21,17 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
 /**
- * Processes all repeating tasks that are NOT thread safe.
- * This function is executed every second.  It must be kept lightweight to prevent lag.
- *
+ * Processes all repeating tasks that are NOT thread safe. This function is executed every second. It must be kept
+ * lightweight to prevent lag.
+ * 
  */
 public class Animations implements Runnable {
-	public ZombieMod plugin;
+	public ZombieMod	plugin;
 
 	public Animations(ZombieMod p) {
-		this.plugin=p;
-	}
+		this.plugin = p;
 
+	}
 
 	@Override
 	public void run() {
@@ -38,172 +39,268 @@ public class Animations implements Runnable {
 		ZombieMod.intervals++;
 
 		for (World w : plugin.getServer().getWorlds()) {
-			for(Entity e : w.getEntitiesByClass(Zombie.class)) {
+			for (Entity e : w.getEntitiesByClass(Zombie.class)) {
 				if (!e.isDead()) {
+					Location l = e.getLocation();
+					if (!Utils.isNotCalled(l, ZombieMod.factionsSafeName)) {
+						// we#re not not out of spawn here
+						// what do we do with them then...
+						// workout angle #tween them and spawn.. then push away
+						double x1, x2, z1, z2, y2, xDiff, zDiff, angle, distance, magnitude;
+
+	
+						Location spawn = ZombieMod.spawnLoc; //w.getSpawnLocation();
+
+						x1 = l.getX();
+						x2 = spawn.getX();
+						z1 = l.getZ();
+						z2 = spawn.getZ();
+						y2 = spawn.getY();
+						
+						xDiff = x2 - x1;
+						zDiff = z2 - z1;
+
+						distance = spawn.distance(l);
+						angle = (Math.atan2(xDiff,zDiff));
+						
+						magnitude = distance;
+						magnitude += 8;
+
+						double xOffset = (Math.sin(angle)) * magnitude;
+						double zOffset = (Math.cos(angle)) * magnitude;
+
+						x2 -= xOffset;
+						z2 -= zOffset;
+						
+						Location newLoc = new Location(w, x2, y2, z2);
+						Block blk = w.getBlockAt(newLoc);
+						Block safeNewBlock = Utils.getNearestEmptySpace(blk, 8);
+						Location safeNewLoc = safeNewBlock.getLocation();
+						if (safeNewLoc.getY() > w.getHighestBlockYAt(safeNewLoc)) {
+							y2 = w.getHighestBlockYAt(safeNewLoc);
+							safeNewLoc.setY(y2);
+						}
+						e.teleport(safeNewLoc, TeleportCause.PLUGIN);
+						
+						//stop targeting (so enderzombies don't bounce!)
+						Zombie z = (Zombie) e;
+						z.setTarget(null);
+						
+						
+						if (ZombieMod.debugMode) {
+							ZombieMod.logger.info("[" + ZombieMod.myName + "] Moved zombie from x:" + x1 + " y:" + l.getY() +" z:"+ z1);
+							ZombieMod.logger.info("[" + ZombieMod.myName + "] angle: "+ Math.toDegrees(angle));
+							ZombieMod.logger.info("[" + ZombieMod.myName + "] distance :"+ distance);
+							ZombieMod.logger.info("[" + ZombieMod.myName + "] Moved zombie to x:" + x2 + " y:" + y2 +" z:"+ z2);
+							ZombieMod.logger.info("[" + ZombieMod.myName + "] spawnloc x:" + spawn.getX() + " y:" + spawn.getY() +" z:"+ spawn.getZ());
+							ZombieMod.logger.info("[" + ZombieMod.myName + "] ---------------------------------------");
+						}
+					}
+
 					PutredineImmortui z = null;
 					z = ZombieType.getZombie(e);
-					if (z != null  && z.health>0) {
-						Location l=e.getLocation();
-
+					if (z != null && z.health > 0) {
 						if (z.species.equals("PlayerZombie")) {
 							z.lastLoc = l;
 							Chunk c = l.getChunk();
-							String cid = c.getX() + "|"+c.getZ();
-							z.cid=cid;
+							String cid = c.getX() + "|" + c.getZ();
+							z.cid = cid;
 						}
 
 						// play effects
 						if (z.effects != null) {
 							for (Effect eff : z.effects) {
-								//ZombieMod.logger.info("[" + ZombieMod.myName + "] eff - " + eff + " ["+ZombieMod.intervals+"] ");
+								// ZombieMod.logger.info("[" + ZombieMod.myName + "] eff - " + eff +
+								// " ["+ZombieMod.intervals+"] ");
 								switch (eff) {
-								case GHAST_SHRIEK:
-									if (ZombieMod.intervals % 10 == 0) {  //scream less frequently than every second!
+									case GHAST_SHRIEK:
+										if (ZombieMod.intervals % 10 == 0) { // scream less frequently than every
+																				// second!
+											//e.getWorld().playEffect(l, eff, 0);
+											if (Math.random() > 0.9) {
+												if (Math.random() > 0.9) {
+													e.getWorld().playSound(l, Sound.GHAST_SCREAM2, 1, 1);
+												} else {
+													e.getWorld().playSound(l, Sound.GHAST_SCREAM, 1, 1);
+												}
+											} else {
+												e.getWorld().playSound(l, Sound.GHAST_MOAN, 1, 1);
+											}
+										}
+										break;
+
+									case ENDER_SIGNAL: // teleport - bamf
 										e.getWorld().playEffect(l, eff, 0);
-									}
-									break;
+										if (ZombieMod.intervals % 5 == 0) {
+											if (Math.random() > 0.75) {
+												e.getWorld().playSound(l, Sound.ENDERMAN_IDLE, 1, 1);
+											}
+										}
+											
+										if (ZombieMod.intervals % 3 == 0) {
+											if (Math.random() > 0.3) {
+												LivingEntity targ = ((Zombie) e).getTarget();
+												if (targ != null) {
+													if (targ instanceof HumanEntity) { // focused on player was (true) {
+														// bamf!!
+														double x, y, zee;
+														if (targ.getWorld() == e.getWorld()) {
+															if (z.abilities != null && z.abilities.contains("BACKSTAB")) {
+																String ord = (Utils.ordinal(targ.getLocation()));
+																// ZombieMod.logger.info("[" + ZombieMod.myName +
+																// "] Facing!: "+ord);
 
-								case ENDER_SIGNAL: // teleport - bamf
-									e.getWorld().playEffect(l, eff, 0);
-									if (ZombieMod.intervals % 3 == 0) {
-										if (Math.random()>0.3) {
-											LivingEntity targ = ((Zombie) e).getTarget();
-											if (targ != null) {
-												if (targ instanceof HumanEntity) {  // focused on player  was (true) {
-													//bamf!!
-													double x,y,zee;
-													if (targ.getWorld() == e.getWorld()) {
-														if (z.abilities!=null && z.abilities.contains("BACKSTAB")){
-															String ord =  (Utils.ordinal(targ.getLocation()));
-															//ZombieMod.logger.info("[" + ZombieMod.myName + "] Facing!: "+ord); 
+																x = targ.getLocation().getX();
+																zee = targ.getLocation().getZ();
+																y = targ.getLocation().getY();
 
-															x = targ.getLocation().getX();
-															zee = targ.getLocation().getZ();
-															y = targ.getLocation().getY();
-
-															if (ord.contains("North")) {x=x+5; }
-															if (ord.contains("South")) {x=x-5; }
-															if (ord.contains("East")) {zee=zee+5; }
-															if (ord.contains("West")) {zee=zee-5; }
-														} else {
-															x = l.getX() + ((targ.getLocation().getX() - l.getX() ) /1.1);
-															zee = l.getZ() + ((targ.getLocation().getZ() - l.getZ()) /1.1);
-															y = l.getY() + ((targ.getLocation().getY() - l.getY()) /1.1);
-														}
-														Location newLoc = new Location(e.getWorld(), x, y, zee);
-														Block blk = e.getWorld().getBlockAt(newLoc);
-														if (blk!=null) {
-															Block safeNewBlock = Utils.getNearestEmptySpace(blk, 5);
-															Location safeNewLoc = null;
-															if (safeNewBlock!=null) {safeNewLoc = safeNewBlock.getLocation();}
-															if (safeNewLoc!=null) {
-																e.teleport(safeNewLoc, TeleportCause.PLUGIN);
+																if (ord.contains("North")) {
+																	x = x + 5;
+																}
+																if (ord.contains("South")) {
+																	x = x - 5;
+																}
+																if (ord.contains("East")) {
+																	zee = zee + 5;
+																}
+																if (ord.contains("West")) {
+																	zee = zee - 5;
+																}
+															} else {
+																x = l.getX() + ((targ.getLocation().getX() - l.getX()) / 1.1);
+																zee = l.getZ() + ((targ.getLocation().getZ() - l.getZ()) / 1.1);
+																y = l.getY() + ((targ.getLocation().getY() - l.getY()) / 1.1);
+															}
+															Location newLoc = new Location(e.getWorld(), x, y, zee);
+															Block blk = e.getWorld().getBlockAt(newLoc);
+															if (blk != null) {
+																Block safeNewBlock = Utils.getNearestEmptySpace(blk, 5);
+																Location safeNewLoc = null;
+																if (safeNewBlock != null) {
+																	safeNewLoc = safeNewBlock.getLocation();
+																}
+																if (safeNewLoc != null) {
+																	e.teleport(safeNewLoc, TeleportCause.PLUGIN);
+																	e.getWorld().playSound(l, Sound.ENDERMAN_TELEPORT, 1, 1);
+																}
 															}
 														}
 													}
 												}
 											}
 										}
-									}
-									break;
+										break;
 
-								case GHAST_SHOOT:
-									if (ZombieMod.intervals % 2 == 0) {
-										if (Math.random()>0.5) {
-											LivingEntity targ = ((Zombie) e).getTarget();
-											if (targ != null) {
-												if (targ.getWorld() == e.getWorld()) {
-													Location target = targ.getLocation();
-													Location from = l.add(0,2,0);
-													if (from.distance(target)>2) {
-														String ord =  (Utils.ordinal(l));
-														//ZombieMod.logger.info("[" + ZombieMod.myName + "] FIRING GHASTBALL!: "+ord); 
-
-														if (ord.contains("North")) {from.add(-1, 0, 0); }
-														if (ord.contains("South")) {from.add( 1, 0, 0); }
-														if (ord.contains("East"))  {from.add( 0, 0,-1); }
-														if (ord.contains("West"))  {from.add( 0, 0, 1); }
-
-
-														Location firePath = Utils.lookAt(from, target);
-														Fireball fb = firePath.getWorld().spawn(firePath, Fireball.class);
-														fb.setYield(1);
-														fb.setBounce(false);
-
-														e.getWorld().playEffect(l, eff, 0);
-													}
-												}
-											}
-										}
-									}
-									break;
-
-								case BOW_FIRE:
-									if (ZombieMod.intervals % 3 == 0) {
-										if (Math.random()>0.4) {
-											LivingEntity targ = ((Zombie) e).getTarget();
-											if (targ != null) {
-												if (((Zombie) e).getTarget() instanceof HumanEntity) {  // focused on player
-
+									case GHAST_SHOOT:
+										if (ZombieMod.intervals % 2 == 0) {
+											if (Math.random() > 0.5) {
+												LivingEntity targ = ((Zombie) e).getTarget();
+												if (targ != null) {
 													if (targ.getWorld() == e.getWorld()) {
 														Location target = targ.getLocation();
-														Location from = l.add(0,0,0);
-														if (from.distance(target)>2) {
+														Location from = l.add(0, 2, 0);
+														if (from.distance(target) > 2) {
+															String ord = (Utils.ordinal(l));
+															// ZombieMod.logger.info("[" + ZombieMod.myName +
+															// "] FIRING GHASTBALL!: "+ord);
 
-															Arrow a = ((Zombie) e).launchProjectile(Arrow.class);
-															a.setFireTicks(0);
-															e.getWorld().playEffect(l, eff, 0);
+															if (ord.contains("North")) {
+																from.add(-1, 0, 0);
+															}
+															if (ord.contains("South")) {
+																from.add(1, 0, 0);
+															}
+															if (ord.contains("East")) {
+																from.add(0, 0, -1);
+															}
+															if (ord.contains("West")) {
+																from.add(0, 0, 1);
+															}
 
+															Location firePath = Utils.lookAt(from, target);
+															Fireball fb = firePath.getWorld().spawn(firePath, Fireball.class);
+															fb.setYield(1);
+															fb.setBounce(false);
+
+															e.getWorld().playSound(l, Sound.GHAST_FIREBALL, 1, 1);
 														}
 													}
 												}
 											}
 										}
-									}
-									break;
+										break;
 
-								case BLAZE_SHOOT:
-									if (ZombieMod.intervals % 2 == 0) {
-										if (Math.random()>0.4) {
-											LivingEntity targ = ((Zombie) e).getTarget();
-											if (targ != null) {
-												if (((Zombie) e).getTarget() instanceof HumanEntity) {  // focused on player
-													if (targ.getWorld() == e.getWorld()) {
-														Location target = targ.getLocation();
-														Location from = l.add(0,0,0);
+									case BOW_FIRE:
+										if (ZombieMod.intervals % 6 == 0) {
+											e.getWorld().playSound(l, Sound.SKELETON_IDLE, 1, 1);
+										}
+										
+										if (ZombieMod.intervals % 3 == 0) {
+											if (Math.random() > 0.4) {
+												LivingEntity targ = ((Zombie) e).getTarget();
+												if (targ != null) {
+													if (((Zombie) e).getTarget() instanceof HumanEntity) { // focused on
+																											// player
 
-														if (from.distance(target)>2) {
-															Arrow a = ((Zombie) e).launchProjectile(Arrow.class);
-															a.setFireTicks(99);
-															e.getWorld().playEffect(l, eff, 0);
+														if (targ.getWorld() == e.getWorld()) {
+															Location target = targ.getLocation();
+															Location from = l.add(0, 0, 0);
+															if (from.distance(target) > 2) {
 
+																Arrow a = ((Zombie) e).launchProjectile(Arrow.class);
+																a.setFireTicks(0);
+																e.getWorld().playSound(l, Sound.ARROW_HIT, 1, 1);
+
+															}
 														}
 													}
 												}
 											}
 										}
-									}
-									break;
+										break;
 
-								default:  // just play effect
-									e.getWorld().playEffect(l, eff, 0);
+									case BLAZE_SHOOT:
+										if (ZombieMod.intervals % 2 == 0) {
+											if (Math.random() > 0.4) {
+												LivingEntity targ = ((Zombie) e).getTarget();
+												if (targ != null) {
+													if (((Zombie) e).getTarget() instanceof HumanEntity) { // focused on
+																											// player
+														if (targ.getWorld() == e.getWorld()) {
+															Location target = targ.getLocation();
+															Location from = l.add(0, 0, 0);
+
+															if (from.distance(target) > 2) {
+																Arrow a = ((Zombie) e).launchProjectile(Arrow.class);
+																a.setFireTicks(99);
+																e.getWorld().playSound(l, Sound.GHAST_FIREBALL, 1, 1);
+															}
+														}
+													}
+												}
+											}
+										}
+										break;
+
+									default: // just play effect
+										e.getWorld().playEffect(l, eff, 0);
 								}
 							}
 						}
 
-						//apply potions (but no lotions)
+						// apply potions (but no lotions)
 						if (z.potions != null) {
 							((LivingEntity) e).addPotionEffects(z.potions);
 						}
 
-						//apply special effects
+						// apply special effects
 						if (z.abilities != null) {
-							if (z.abilities.contains("EXPLODE")){//kaboom
+							if (z.abilities.contains("EXPLODE")) {// kaboom
 								Boolean kaboom = false;
-								List<Entity> entlist = e.getNearbyEntities(3,1,3);
+								List<Entity> entlist = e.getNearbyEntities(3, 1, 3);
 								for (Entity ent : entlist) {
 									if (ent instanceof Player) {
-										kaboom=true;
+										kaboom = true;
 									}
 								}
 								Location from = e.getLocation();
@@ -213,9 +310,9 @@ public class Animations implements Runnable {
 									List<Entity> entlist2 = e.getNearbyEntities(5, 2, 5);
 									for (Entity ent : entlist2) {
 										if (ent instanceof Player) {
-											((Player) ent).damage(z.damage);
+											((Player) ent).damage(z.damage, e);
 										} else if (ent instanceof LivingEntity) {
-											((LivingEntity) ent).damage(z.damage,e);
+											((LivingEntity) ent).damage(z.damage, e);
 										}
 									}
 									if (!(z.potions.contains(ZombieMod.resistPotion))) {
@@ -225,9 +322,9 @@ public class Animations implements Runnable {
 								}
 							}
 
-							if (z.abilities.contains("HEAL")){//regenerate
+							if (z.abilities.contains("HEAL")) {// regenerate
 								int hp = 0;
-								if (Math.random()>0.5){
+								if (Math.random() > 0.5) {
 									hp = z.health + 1;
 									if (hp > z.maxHealth) {
 										z.health = z.maxHealth;
@@ -236,41 +333,45 @@ public class Animations implements Runnable {
 									}
 								}
 							}
-							if (z.abilities.contains("BREEDER")){//breeder
+							if (z.abilities.contains("BREEDER")) {// breeder
 								if (ZombieMod.intervals % 5 == 0) {
-									if (Math.random()>0.6) {
+									if (Math.random() > 0.6) {
 
-										//ZombieMod.logger.info(" Checking spawns "); 
+										// ZombieMod.logger.info(" Checking spawns ");
 
 										Chunk c = l.getChunk();
 
 										int zombieCount = 0;
 										for (Entity thisE : c.getEntities()) {
-											if ((thisE instanceof Zombie)) { zombieCount++; }
+											if ((thisE instanceof Zombie)) {
+												zombieCount++;
+											}
 										}
-										//ZombieMod.logger.info(" zombieCount : " + zombieCount); 
+										// ZombieMod.logger.info(" zombieCount : " + zombieCount);
 
-										if (zombieCount<10) {
+										if (zombieCount < 10) {
 
 											Random generator = new Random();
-											int rndx = generator.nextInt( 16 ) -7;
-											int rndy = generator.nextInt( 8 ) -3;
-											int rndz = generator.nextInt( 16 ) -7;
+											int rndx = generator.nextInt(16) - 7;
+											int rndy = generator.nextInt(8) - 3;
+											int rndz = generator.nextInt(16) - 7;
 
 											Block lookAt = l.add(rndx, rndy, rndz).getBlock();
 
 											Block safeNewBlock = Utils.getNearestEmptySpace(lookAt, 5);
-											if (safeNewBlock!=null) {
-												Location sqawnLoc=safeNewBlock.getLocation();
+											if (safeNewBlock != null) {
+												Location sqawnLoc = safeNewBlock.getLocation();
 												net.minecraft.server.World mcWorld = ((CraftWorld) w).getHandle();
 												PutredineImmortui zomb;
-												if (z.abilities.contains("BORG")){
-													zomb = new PutredineImmortui(plugin,"borg.yml");
+												if (z.abilities.contains("BORG")) {
+													zomb = new PutredineImmortui(plugin, "borg.yml");
 												} else {
 													zomb = new PutredineImmortui(plugin);
 												}
-												if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] " + zomb.commonName +" spawned via BREEDER"); }
-												ZombieType newzomb = new ZombieType(mcWorld,zomb);
+												if (ZombieMod.debugMode) {
+													ZombieMod.logger.info("[" + ZombieMod.myName + "] " + zomb.commonName + " spawned via BREEDER");
+												}
+												ZombieType newzomb = new ZombieType(mcWorld, zomb);
 												newzomb.setPosition(sqawnLoc.getX(), sqawnLoc.getY(), sqawnLoc.getZ());
 												mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
 

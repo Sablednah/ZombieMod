@@ -20,7 +20,10 @@ class Break implements Runnable {
 
 	public void run() {
 		if (!zombie.isDead()) {
-			this.b.breakNaturally();
+			if (Utils.isNotCalled(this.b.getLocation(), ZombieMod.factionsSafeName)) {
+				this.b.breakNaturally();
+			}
+			
 			if ((((Zombie) zombie).getTarget() != null) && (((Zombie) zombie).getTarget().equals(player)))
 				plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BreakRunner(plugin, this.zombie, this.player), 20L);
 		}

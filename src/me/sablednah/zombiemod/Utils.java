@@ -3,21 +3,31 @@ package me.sablednah.zombiemod;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Zombie;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
 import org.getspout.spoutapi.SpoutServer;
 import org.getspout.spoutapi.player.EntitySkinType;
+
+import com.massivecraft.factions.Board;
+import com.massivecraft.factions.FLocation;
+import com.massivecraft.factions.Faction;
 
 
 public class Utils {
@@ -180,7 +190,81 @@ public class Utils {
 //			if (ZombieMod.debugMode) { System.out.print("url=" + url); }
 			SpoutServer bob = new SpoutServer();
 			bob.setEntitySkin(target, url, EntitySkinType.DEFAULT);
-
 		}
+	}
+	
+	public static void spawnCorpsesInChunk(Chunk c) {
+		
+		String cid = c.getX() + "|"+c.getZ();
+		
+		//ZombieMod.logger.info("[" + ZombieMod.myName + "] Checking  chunk "+cid);
+		
+		Iterator<Map.Entry<UUID, PutredineImmortui>> it = ZombieMod.playerZombies.entrySet().iterator();
+	    while (it.hasNext()) {
+	        Map.Entry<UUID, PutredineImmortui> entry = it.next();
+	        PutredineImmortui z = entry.getValue();
+	        if (z.cid.equals(cid)) {
+	        	//found potential
+	        	UUID key = entry.getKey();
+	        	if (key!= null && Utils.findZombie(key)) {
+					// found it
+	        	    if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] found player zombie 'elsewhere'."); }
+				} else {
+					// should have playerzombie - cant find it!
+				    if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] player zombie lost - recreating..." + key);}
+
+					Block newLoc = z.lastLoc.getBlock();
+					
+					Block safeNewBlock = Utils.getNearestEmptySpace(newLoc, 4);
+					if (safeNewBlock!=null) {
+						
+						Location sqawnLoc=safeNewBlock.getLocation();
+						net.minecraft.server.World mcWorld = ((CraftWorld) c.getWorld()).getHandle();
+						if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] " + z.commonName +" rises from the dead! "); }
+						z.cid = cid;
+						ZombieType newzomb = new ZombieType(mcWorld,z);
+						newzomb.setPosition(sqawnLoc.getX(), sqawnLoc.getY(), sqawnLoc.getZ());
+						mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
+						it.remove();
+					} else {
+						if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] safe place not found"); }
+					}
+				}
+	        }
+	    }
+	}
+	
+
+	public static boolean isNotCalled(Location l, String factionname) {
+		if (ZombieMod.hasFactions) {
+			// P f = (P) plugin.getServer().getPluginManager().getPlugin("Factions");
+			// Faction fact = Board.getFactionAt(l);
+			FLocation fl = new FLocation(l);
+			Faction fact = Board.getFactionAt(fl);
+
+			String factName;
+			
+			if (fact != null) { 
+				factName = fact.getTag();
+			} else {
+				factName = "none";
+			}
+
+			factName = factName.toLowerCase();
+			factName = ChatColor.stripColor(factName);
+
+			if (!factName.equals(factionname)) {
+//				if (ZombieMod.debugMode) {
+//					ZombieMod.logger.info("[" + ZombieMod.myName + "] factName: '" + factName + "' denied (looked for " + factionname + ")");
+//				}
+				return true;
+			}
+		} else {
+			double dist = ZombieMod.spawnLoc.distance(l);
+			if (dist < 50) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

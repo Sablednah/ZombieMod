@@ -7,6 +7,7 @@ import java.util.List;
 import org.bukkit.Effect;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.bukkit.craftbukkit.util.UnsafeList;
 import org.bukkit.entity.Entity;
 
 import net.minecraft.server.EntityHuman;
@@ -72,8 +73,8 @@ public class ZombieType extends net.minecraft.server.EntityZombie{
             
             Field gsa = net.minecraft.server.PathfinderGoalSelector.class.getDeclaredField("a");
             gsa.setAccessible(true);
-            gsa.set(this.goalSelector, new ArrayList());
-            gsa.set(this.targetSelector, new ArrayList());
+            gsa.set(this.goalSelector, new UnsafeList());
+            gsa.set(this.targetSelector, new UnsafeList());
         } catch (SecurityException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();

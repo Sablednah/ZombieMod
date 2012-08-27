@@ -1,16 +1,10 @@
 package me.sablednah.zombiemod;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-//import java.util.Random;
-import java.util.UUID;
-
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.craftbukkit.CraftWorld;
 
 import org.bukkit.entity.Player;
@@ -58,7 +52,7 @@ public class PlayerListener implements Listener {
 
 		Config newPlayer = new Config();
 
-		newPlayer.commonName=name;
+		newPlayer.commonName="Corpse " + name;
 		newPlayer.armour=armour;
 		newPlayer.maxHealth=health;
 
@@ -121,53 +115,7 @@ public class PlayerListener implements Listener {
 	@EventHandler(priority=EventPriority.HIGHEST)
 	public void onChunkLoad(ChunkLoadEvent event) { 
 		Chunk c = event.getChunk();
-		String cid = c.getX() + "|"+c.getZ();
-		
-		//ZombieMod.logger.info("[" + ZombieMod.myName + "] Checking  chunk "+cid);
-		
-		Iterator<Map.Entry<UUID, PutredineImmortui>> it = ZombieMod.playerZombies.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry<UUID, PutredineImmortui> entry = it.next();
-	        PutredineImmortui z = entry.getValue();
-	        if (z.cid.equals(cid)) {
-	        	//found potential
-	        	UUID key = entry.getKey();
-	        	if (key!= null && Utils.findZombie(key)) {
-					// found it
-	        	    if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] found player zombie 'elsewhere'."); }
-				} else {
-					// should have playerzombie - cant find it!
-				    if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] player zombie lost - recreating..." + key);}
-/*
- 					Random rnd = new Random();
-
-					
-					int xPos = rnd.nextInt(6)+6+(c.getX()*16);
-					int zPos = rnd.nextInt(6)+6+(c.getZ()*16);
-					int yPos = 65;
-*/
-					
-					//Block newLoc = new Location(c.getWorld(), xPos, yPos, zPos).getBlock();
-					Block newLoc = z.lastLoc.getBlock();
-					
-					Block safeNewBlock = Utils.getNearestEmptySpace(newLoc, 4);
-					if (safeNewBlock!=null) {
-						
-						Location sqawnLoc=safeNewBlock.getLocation();
-						net.minecraft.server.World mcWorld = ((CraftWorld) c.getWorld()).getHandle();
-						//if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] Player Zombie " + z.commonName +" spawned via CHUNKLOAD"); }
-						//ZombieMod.logger.info("[" + ZombieMod.myName + "] Player Zombie " + z.commonName +" spawned via CHUNKLOAD");
-						z.cid = cid;
-						ZombieType newzomb = new ZombieType(mcWorld,z);
-						newzomb.setPosition(sqawnLoc.getX(), sqawnLoc.getY(), sqawnLoc.getZ());
-						mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
-						it.remove();
-					} else {
-						ZombieMod.logger.info("[" + ZombieMod.myName + "] safe place not found");
-					}
-				}
-	        }
-	    }
+		Utils.spawnCorpsesInChunk(c);
 	}
 /*
  * Removed no longer need to preserve chunks

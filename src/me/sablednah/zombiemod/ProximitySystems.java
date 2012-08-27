@@ -2,7 +2,7 @@ package me.sablednah.zombiemod;
 
 import java.util.Random;
 
-import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -11,36 +11,42 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
-import com.massivecraft.factions.Board;
-import com.massivecraft.factions.FLocation;
-import com.massivecraft.factions.Faction;
 
-public class ProximitySpawner implements Runnable {
+public class ProximitySystems implements Runnable {
 	public ZombieMod	plugin;
+	private boolean debugMe = false;
 
-	public ProximitySpawner(ZombieMod p) {
+	public ProximitySystems(ZombieMod p) {
 		this.plugin = p;
 	}
 
 	public void run() {
-		if (ZombieMod.proximityspawner) {
 
-			for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
+		for (Player onlinePlayer : plugin.getServer().getOnlinePlayers()) {
+			// firstly - check for corpses whilst we're going through all players anyways.
+
+			Location l = onlinePlayer.getLocation();
+			Chunk c = l.getChunk();
+			Utils.spawnCorpsesInChunk(c);
+			
+			// now spawn zombies!!!
+			if (ZombieMod.proximityspawner) {
+
 				int probability = ZombieMod.zombiespawnration;
 				Random rand = new Random();
 				if (ZombieMod.debugMode) {
 					ZombieMod.logger.info("[" + ZombieMod.myName + "] Begin Proximity chek for " + onlinePlayer.getName());
 				}
 				if (rand.nextInt(100) + 1 < probability) { // only run if < probability.
-					if (ZombieMod.debugMode) {
+					if (debugMe && ZombieMod.debugMode) {
 						ZombieMod.logger.info("[" + ZombieMod.myName + "] Random probability passed");
 					}
-					Location l = onlinePlayer.getLocation();
+
 					World zombieWorld = l.getWorld();
 
-					if (!safeCheck(l)) {// if not in safe area
+					if (!Utils.isNotCalled(l,ZombieMod.factionsWildName)) {// if not in safe area
 
-						if (ZombieMod.debugMode) {
+						if (debugMe && ZombieMod.debugMode) {
 							ZombieMod.logger.info("[" + ZombieMod.myName + "] Player safe zone check passed");
 						}
 
@@ -102,7 +108,7 @@ public class ProximitySpawner implements Runnable {
 
 							Location newLoc = new Location(zombieWorld, newX, newY, newZ);
 
-							if (ZombieMod.debugMode) {
+							if (debugMe && ZombieMod.debugMode) {
 								ZombieMod.logger.info("[" + ZombieMod.myName + "] new loc found x:" + newX + ", y:" + newY + ", z:" + newZ);
 							}
 
@@ -119,24 +125,26 @@ public class ProximitySpawner implements Runnable {
 									Block safeNewBlock = Utils.getNearestEmptySpace(blk, 8);
 									Location safeNewLoc = null;
 									if (safeNewBlock != null) {
-										if (ZombieMod.debugMode) {
+										if (debugMe && ZombieMod.debugMode) {
 											ZombieMod.logger.info("[" + ZombieMod.myName + "] setting safeNewLoc");
 										}
 										safeNewLoc = safeNewBlock.getLocation();
 									} else {
-										ZombieMod.logger.info("[" + ZombieMod.myName + "] safeNewBlock is null");
+										if (debugMe && ZombieMod.debugMode) {
+											ZombieMod.logger.info("[" + ZombieMod.myName + "] safeNewBlock is null");
+										}
 									}
 									if (safeNewLoc != null) {
 										if (safeNewLoc.getY() > zombieWorld.getHighestBlockYAt(safeNewLoc)) {
 											newY = zombieWorld.getHighestBlockYAt(safeNewLoc);
 											safeNewLoc.setY(newY);
 										}
-										if (safeCheck(safeNewLoc)) {
-											if (ZombieMod.debugMode) {
+										if (Utils.isNotCalled(safeNewLoc,ZombieMod.factionsWildName)) {
+											if (debugMe && ZombieMod.debugMode) {
 												ZombieMod.logger.info("[" + ZombieMod.myName + "] safe: spawn point denied.");
 											}
 										} else {
-											if (ZombieMod.debugMode) {
+											if (debugMe && ZombieMod.debugMode) {
 												ZombieMod.logger.info("[" + ZombieMod.myName + "] new loc is safe spawning ");
 											}
 											net.minecraft.server.World mcWorld = ((CraftWorld) zombieWorld).getHandle();
@@ -149,12 +157,12 @@ public class ProximitySpawner implements Runnable {
 											mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
 										}
 									} else {
-										if (ZombieMod.debugMode) {
+										if (debugMe && ZombieMod.debugMode) {
 											ZombieMod.logger.info("[" + ZombieMod.myName + "] safeNewLoc is null");
 										}
 									}
 								} else {
-									if (ZombieMod.debugMode) {
+									if (debugMe && ZombieMod.debugMode) {
 										ZombieMod.logger.info("[" + ZombieMod.myName + "] blk is null");
 									}
 								}
@@ -164,35 +172,5 @@ public class ProximitySpawner implements Runnable {
 				}
 			}
 		}
-	}
-
-	public boolean safeCheck(Location l) {
-
-		if (ZombieMod.hasFactions) {
-			// P f = (P) plugin.getServer().getPluginManager().getPlugin("Factions");
-			// Faction fact = Board.getFactionAt(l);
-			FLocation fl = new FLocation(l);
-			Faction fact = Board.getFactionAt(fl);
-
-			String factName = fact.getTag();
-
-			factName = factName.toLowerCase();
-			factName = ChatColor.stripColor(factName);
-
-			if (!factName.equals(ZombieMod.factionsWildName)) {
-				if (ZombieMod.debugMode) {
-					ZombieMod.logger.info("[" + ZombieMod.myName + "] factName: " + factName + " denied (" + ZombieMod.factionsWildName + ")");
-				}
-				return true;
-			}
-		} else {
-			Location spawn = l.getWorld().getSpawnLocation();
-			double dist = spawn.distance(l);
-			if (dist < 100) {
-				return true;
-			}
-		}
-		return false;
-
 	}
 }
