@@ -15,7 +15,7 @@ import org.bukkit.potion.PotionEffect;
 public class PutredineImmortui {
 	public String uniqueid;
 	Date spawnTime;
-	public int health;
+	//public int health;
 	public int maxHealth;
 	public int damage;
 	public int armour;
@@ -27,18 +27,23 @@ public class PutredineImmortui {
 	public String spawnReason;
 	public Boolean noBurn;
 	public Boolean passive;
+	public float size = 1;
 	public List<Effect> effects;
 	public List<PotionEffect> potions;
 	public List<String> abilities;
 	public List<ItemStack> items;
+	public ItemStack[] equip;
 	public List<Double> dropRates;
 	public String species;
 	public String genus;
 	public String commonName;
 	public String skin;
+	public String jockey;
 	public String cid = null;
 	public UUID ID = null;
 	public Location lastLoc;
+	public String owner = null; 
+	public Boolean coward = true;
 	
 	public PutredineImmortui(ZombieMod plugin, String g, Config conf) {
 		// constructor to spawn specified genus of zombie.
@@ -51,26 +56,33 @@ public class PutredineImmortui {
 		if (g != null) {
 			genus = g;
 		} else {
-			genus = "generic.yml";
+			genus = "drone";
 		}
 		
 		if (conf == null) {
 			conf = plugin.genera.configs.get(genus);
 		}
 		
-		health=conf.maxHealth;
-		maxHealth = health;
+		//health=conf.maxHealth;
+		//maxHealth = health;
+		maxHealth = conf.maxHealth;
 		damage = conf.damage;
 		noBurn = conf.noBurn;
 		passive = conf.passive;
 		effects = conf.effects;
 		potions = conf.potions;
 		speed = conf.speed;
+		size = conf.size;
 		attackSpeed = conf.attackSpeed;
 		species = conf.species;
 		skin = conf.skin;
+		jockey = conf.jockey;
 		bounty = conf.bounty;
 		items = conf.items;
+		equip = conf.equip;
+		
+		coward = conf.coward;
+		
 		commonName = conf.commonName;
 		xp = conf.xp;
 		abilities = conf.abilities;
@@ -87,6 +99,7 @@ public class PutredineImmortui {
 					OfflinePlayer plyr = names[rndx];
 					String name = plyr.getName();
 					commonName = "Zombie " + name;
+					
 				}
 			}
 		}
@@ -106,4 +119,12 @@ public class PutredineImmortui {
 		// constructor to choose random weighted genus of zombie.
 		this(plugin, (plugin.wpm.nextElt()), null);
 	}	
+
+	public void setOwner(String s) {
+		this.owner = s;
+	}
+	public String getOwner() {
+		return this.owner;
+	}
+
 }

@@ -1,6 +1,7 @@
 package me.sablednah.zombiemod;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -9,18 +10,46 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
 
+
+import me.tehbeard.BeardStat.BeardStat;
+import me.tehbeard.BeardStat.containers.PlayerStat;
+import me.tehbeard.BeardStat.containers.PlayerStatBlob;
+import me.tehbeard.BeardStat.containers.PlayerStatManager;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.craftbukkit.CraftWorld;
+//import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.BrewingStand;
+import org.bukkit.block.Chest;
+import org.bukkit.block.CreatureSpawner;
+import org.bukkit.block.Dispenser;
+import org.bukkit.block.DoubleChest;
+import org.bukkit.block.Furnace;
+import org.bukkit.block.Jukebox;
+import org.bukkit.block.NoteBlock;
+import org.bukkit.block.Sign;
+import org.bukkit.craftbukkit.v1_5_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_5_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.util.Vector;
 
 import org.getspout.spoutapi.SpoutServer;
 import org.getspout.spoutapi.player.EntitySkinType;
@@ -28,243 +57,660 @@ import org.getspout.spoutapi.player.EntitySkinType;
 import com.massivecraft.factions.Board;
 import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.Faction;
-
+import com.nitnelave.CreeperHeal.CreeperHandler;
 
 public class Utils {
+    
+    /**
+     * Converts InputStream to String
+     * One-line 'hack' to convert InputStreams to strings.
+     * 
+     * @param is
+     *            The InputStream to convert
+     * @return returns a String version of 'is'
+     */
+    public static String convertStreamToString(InputStream is) {
+        return new Scanner(is).useDelimiter("\\A").next();
+    }
+    
+    /**
+     * Joins two arrays
+     * 
+     * @param first
+     *            array
+     * @param second
+     *            array
+     * @return Arrays joined
+     */
+    public static <T> T[] concat(T[] first, T[] second) {
+        T[] result = Arrays.copyOf(first, first.length + second.length);
+        System.arraycopy(second, 0, result, first.length, second.length);
+        return result;
+    }
+    
+    public static void setTempnvluln(LivingEntity e, int d) {
+        if (e != null) {
+            e.setNoDamageTicks(e.getMaximumNoDamageTicks());
+            e.setLastDamage(d);
+        }
+    }
+    
+    public static Block getNearestEmptySpace(Block b, int maxradius) {
+/*        
+        BlockFace[] faces = { BlockFace.UP, BlockFace.NORTH, BlockFace.EAST };
+        BlockFace[][] orth = { { BlockFace.NORTH, BlockFace.EAST }, { BlockFace.UP, BlockFace.EAST }, { BlockFace.NORTH, BlockFace.UP } };
+        for (int r = 0; r <= maxradius; r++) {
+            for (int s = 0; s < 6; s++) {
+                BlockFace f = faces[s % 3];
+                BlockFace[] o = orth[s % 3];
+                if (s >= 3)
+                    f = f.getOppositeFace();
+                Block c = b.getRelative(f, r);
+                for (int x = -r; x <= r; x++) {
+                    for (int y = -r; y <= r; y++) {
+                        Block a = c.getRelative(o[0], x).getRelative(o[1], y);
+                        if (a.getTypeId() == 0 && a.getRelative(BlockFace.UP).getTypeId() == 0)
+                            return a;
+                    }
+                }
+            }
+        }
+  */
+        try {
+            Location loc = LocationUtil.getSafeDestination(b.getLocation());
+            return loc.getBlock();
+        } catch (Exception e) {
+            // error finding safe
+            return null;
+        }
+    }
+    
+    public static Location getNearestEmptyLoc(Location l) {
+        try {
+            Location loc = LocationUtil.getSafeDestination(l);
+            return loc;
+        } catch (Exception e) {
+            // error finding safe
+            return null;
+        }
+    }
+    
+    public static Location lookAt(Location loc, Location lookat) {
+        // Clone the loc to prevent applied changes to the input loc
+        loc = loc.clone();
+        
+        // Values of change in distance (make it relative)
+        double dx = lookat.getX() - loc.getX();
+        double dy = lookat.getY() - loc.getY();
+        double dz = lookat.getZ() - loc.getZ();
+        
+        // Set yaw
+        if (dx != 0) {
+            // Set yaw start value based on dx
+            if (dx < 0) {
+                loc.setYaw((float) (1.5 * Math.PI));
+            } else {
+                loc.setYaw((float) (0.5 * Math.PI));
+            }
+            loc.setYaw((float) loc.getYaw() - (float) Math.atan(dz / dx));
+        } else if (dz < 0) {
+            loc.setYaw((float) Math.PI);
+        }
+        
+        // Get the distance from dx/dz
+        double dxz = Math.sqrt(Math.pow(dx, 2) + Math.pow(dz, 2));
+        
+        // Set pitch
+        loc.setPitch((float) -Math.atan(dy / dxz));
+        
+        // Set values, convert to degrees (invert the yaw since Bukkit uses a
+        // different yaw dimension format)
+        loc.setYaw(-loc.getYaw() * 180f / (float) Math.PI);
+        loc.setPitch(loc.getPitch() * 180f / (float) Math.PI);
+        
+        return loc;
+        
+    }
+    
+    public static String ordinal(Location l) {
+        double rot = (l.getYaw() - 90) % 360;
+        if (rot < 0) {
+            rot += 360.0;
+        }
+        return getDirection(rot);
+    }
+    
+    private static String getDirection(double rot) {
+        if (0 <= rot && rot < 22.5) {
+            return "North";
+        } else if (22.5 <= rot && rot < 67.5) {
+            return "NorthEast";
+        } else if (67.5 <= rot && rot < 112.5) {
+            return "East";
+        } else if (112.5 <= rot && rot < 157.5) {
+            return "SouthEast";
+        } else if (157.5 <= rot && rot < 202.5) {
+            return "South";
+        } else if (202.5 <= rot && rot < 247.5) {
+            return "SouthWest";
+        } else if (247.5 <= rot && rot < 292.5) {
+            return "West";
+        } else if (292.5 <= rot && rot < 337.5) {
+            return "NorthWest";
+        } else if (337.5 <= rot && rot < 360) {
+            return "North";
+        } else {
+            return null;
+        }
+    }
+    
+    public static Boolean findZombie(UUID id) {
+        for (World w : Bukkit.getServer().getWorlds()) {
+            for (Entity e : w.getEntitiesByClass(Zombie.class)) {
+                if (id == e.getUniqueId()) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    public Zombie findPlayerZombie(String id) {
+        List<World> worlds = Bukkit.getServer().getWorlds();
+        for (World w : worlds) {
+            Collection<Zombie> zombies = w.getEntitiesByClass(Zombie.class);
+            for (Zombie e : zombies) {
+                PutredineImmortui zomb = Utils.getZombie(e);
+                if (zomb != null && zomb.species.equals("PlayerZombie")) {
+                    if (zomb.uniqueid.equals(id)) {
+                        return e;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+    
+    public static void setSkin(LivingEntity target, String url) {
+        if (url != null) {
+            // if (ZombieMod.debugMode) { System.out.print("url=" + url); }
+            SpoutServer bob = new SpoutServer();
+            bob.setEntitySkin(target, url, EntitySkinType.DEFAULT);
+        }
+    }
+    
+    public static void spawnCorpsesInChunk(Chunk c) {
+        
+        String cid = c.getX() + "|" + c.getZ();
+        
+        // ZombieMod.logger.info("[" + ZombieMod.myName + "] Checking  chunk "+cid);
+        
+        Iterator<Map.Entry<UUID, PutredineImmortui>> it = ZombieMod.playerZombies.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<UUID, PutredineImmortui> entry = it.next();
+            PutredineImmortui z = entry.getValue();
+            if (z.cid.equals(cid)) {
+                // found potential
+                UUID key = entry.getKey();
+                if (key != null && Utils.findZombie(key)) {
+                    // found it
+                    if (ZombieMod.debugMode) {
+                        ZombieMod.logger.info("[zm] Found player zombie 'elsewhere'.");
+                    }
+                } else {
+                    // should have playerzombie - cant find it!
+                    if (ZombieMod.debugMode) {
+                        ZombieMod.logger.info("[zm] Player zombie lost - recreating..." + key);
+                    }
+                    
+                    //Block newLoc = z.lastLoc.getBlock();
+                    
+                    //Block safeNewBlock = Utils.getNearestEmptySpace(newLoc, 4);
+                    Location safeLoc = Utils.getNearestEmptyLoc(z.lastLoc);
+                    if (safeLoc != null) {
+                        
+                        Location sqawnLoc = safeLoc.clone();
+                        net.minecraft.server.v1_5_R3.World mcWorld = ((CraftWorld) c.getWorld()).getHandle();
+                        
+//                      if (ZombieMod.debugMode) {
+                            ZombieMod.logger.info("[zm]  " + z.commonName + " rises from the dead - via proximity check!");
+  //                    }
+                        z.cid = cid;
+                        ZombieType newzomb = new ZombieType(mcWorld, z);
+                        newzomb.setPosition(sqawnLoc.getX(), sqawnLoc.getY(), sqawnLoc.getZ());
+                        mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
+                        
+                        it.remove();
+                    } else {
+                        if (ZombieMod.debugMode) {
+                            ZombieMod.logger.info("[zm]  safe place not found");
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    public static String getFactName(Location l) {
+        if (ZombieMod.hasFactions) {
+            // P f = (P) plugin.getServer().getPluginManager().getPlugin("Factions");
+            // Faction fact = Board.getFactionAt(l);
+            FLocation fl = new FLocation(l);
+            Faction fact = Board.getFactionAt(fl);
+            
+            String factName;
+            
+            if (fact != null) {
+                factName = fact.getTag();
+            } else {
+                factName = null;
+            }
+            
+            factName = factName.toLowerCase();
+            factName = ChatColor.stripColor(factName);
+            
+            return factName;
+        }
+        return null;
+    }
+    
+    public static boolean isCalled(Location l, String factionname) {
+        if (ZombieMod.hasFactions) {
+            FLocation fl = new FLocation(l);
+            Faction fact = Board.getFactionAt(fl);
+            
+            String factName;
+            
+            if (fact != null) {
+                factName = fact.getTag();
+            } else {
+                return false;
+            }
+            
+            factName = factName.toLowerCase();
+            factName = ChatColor.stripColor(factName);
+            
+            if (factName.equals(factionname)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public static boolean isSafe(Location l) {
+        if (ZombieMod.hasFactions) {
+            FLocation fl = new FLocation(l);
+            Faction fact = Board.getFactionAt(fl);
+            
+            String factName;
+            
+            if (fact != null) {
+                factName = fact.getTag();
+            } else {
+                return false;
+            }
+            
+            factName = factName.toLowerCase();
+            factName = ChatColor.stripColor(factName);
+            
+            if (factName.equals(ZombieMod.factionsSafeName) || factName.equals("rentableplot")) {
+                return true;
+            }
+        } else {
+            if (ZombieMod.spawnLoc.getWorld().getName().equals(l.getWorld().getName())) {
+                double dist = ZombieMod.spawnLoc.distance(l);
+                if (dist < 50) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return false;
+    }
+    
+    public static void spawnZombie(PutredineImmortui z, Location l, ZombieMod plugin) {
+        spawnZombie(z, l, plugin, 50);
+    }
 
-	/**
-	 * Converts InputStream to String
-	 * 
-	 * One-line 'hack' to convert InputStreams to strings.
-	 * 
-	 * @param is
-	 *            The InputStream to convert
-	 * @return returns a String version of 'is'
-	 */
-	public static String convertStreamToString(InputStream is) {
-		return new Scanner(is).useDelimiter("\\A").next();
-	}
+    public static boolean spawnZombie(PutredineImmortui z, Location l, ZombieMod plugin, int level) {
+        return spawnZombie(z, l, plugin, level, 0);
+    }
 
-	/**
-	 * Joins two arrays
-	 * 
-	 * @param first
-	 *            array
-	 * @param second
-	 *            array
-	 * @return Arrays joined
-	 */
-	public static <T> T[] concat(T[] first, T[] second) {
-		T[] result = Arrays.copyOf(first, first.length + second.length);
-		System.arraycopy(second, 0, result, first.length, second.length);
-		return result;
-	}
+    
+    public static boolean spawnZombie(PutredineImmortui z, Location l, ZombieMod plugin, int level, int hp) {
+        net.minecraft.server.v1_5_R3.World mcWorld = ((CraftWorld) l.getWorld()).getHandle();
+        if (z == null) {
+            z = new PutredineImmortui(plugin);
+        }
+        if (z.size > 99) {  // set to 2 for giant spawning re-enableing...
+            // ZombieMod.logger.info("[zm] Spawning giant - " + z.size);
+            ZombieGiantType newzomb = new ZombieGiantType(mcWorld, z);
+            newzomb.setPosition(l.getX(), l.getY() + 5, l.getZ());
+            newzomb.maxHealth = z.maxHealth;
+            // newzomb.heal(z.maxHealth);
+            int thishealth;
+            thishealth = z.maxHealth;
+            if (level < 50) {
+                if (level < 1) {
+                    level = 1;
+                }
+                int healthPC = 50 + level;
+                thishealth = (int) ((thishealth / 100.00) * healthPC);
+            }
+            if (hp > 0) {
+                thishealth = hp;
+            }
+            newzomb.setHealth(thishealth);
+            newzomb.setCustomName(z.commonName);
 
+            mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
+            
+            // l.getWorld().spawnEntity(l, EntityType.GIANT);
+        } else {
+            ZombieType newzomb = new ZombieType(mcWorld, z);
+            newzomb.setPosition(l.getX(), l.getY() + 1, l.getZ());
+            newzomb.maxHealth = z.maxHealth;
+            int thishealth;
+            thishealth = z.maxHealth;
+            if (level < 50) {
+                if (level < 1) {
+                    level = 1;
+                }
+                int healthPC = 50 + level;
+                thishealth = (int) ((thishealth / 100.00) * healthPC);
+            }
+            if (hp > 0) {
+                thishealth = hp;
+            }
+            // newzomb.heal(z.maxHealth);
+            newzomb.setHealth(thishealth);
+            newzomb.setCustomName(z.commonName);
+            mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
+            if (z.jockey != null) {
+                // TODO split jocky on | to get id/hp/name etc
+                String[] jInf = z.jockey.split("\\|");
+                
+                EntityType et =null;
+                LivingEntity mount = null;
+                
+ //               System.out.print("z.jockey:"+z.jockey);
+ //               System.out.print("jInf[0]:"+jInf[0]);
+                if (jInf[0].equalsIgnoreCase("AngryGolem")) {
+                    AngryGolem ag = new AngryGolem(mcWorld);
+                    ag.setPosition(l.getX(), l.getY() + 1, l.getZ());
+                    mcWorld.addEntity(ag, SpawnReason.CUSTOM);
+                    et = EntityType.IRON_GOLEM;
+                    mount = (LivingEntity) ag.getBukkitEntity();
+//                    System.out.print("AngryGolem!");
+                } else {
+                    et = EntityType.fromName(jInf[0]);
+                    mount  = (LivingEntity) l.getWorld().spawnEntity(l, et);
+                }
+                
+                mount.setPassenger(newzomb.getBukkitEntity());
+                mount.setRemoveWhenFarAway(true);
+                
+                switch (mount.getType()) {
+                    case WOLF:
+                        Wolf w = (Wolf)mount;
+                        w.setAngry(true);
+                        w.setMaxHealth(z.maxHealth);
+                        w.setHealth(w.getMaxHealth());
+                        break;
+                    case IRON_GOLEM:
+                        IronGolem ig = (IronGolem)mount;
+                        ig.setPlayerCreated(false);
+                        if (ig.getMaxHealth()<z.maxHealth) {
+                            ig.setMaxHealth(z.maxHealth);
+                            ig.setHealth(ig.getMaxHealth());
+                        }
+                        break;
+                    default:
+                        mount.setMaxHealth(z.maxHealth);
+                        mount.setHealth(mount.getMaxHealth());
+                }
+                
+                if (jInf.length>1) { 
+                    if (!jInf[1].isEmpty()) {
+                        mount.setCustomName(jInf[1]);
+                    }
+                    if (jInf.length>2) {
+                        mount.setMaxHealth(Integer.parseInt(jInf[2]));
+                        mount.setHealth(mount.getMaxHealth());
+                    }
+                    // TODO check for other values in jInf[3] for flags such as horse type
+                }
+            }
+        }
+        return true;
+    }
+    
+    /**
+     * Fetch the PutredineImmortui instance for a given entity.
+     * 
+     * @param entity
+     *            The entity to fetch the Zombie setting for
+     * @return Returns the PutredineImmortui instance that matches the Entity
+     */
+    public static PutredineImmortui getZombie(Entity entity) {
+        if (entity == null) {
+            return null;
+        }
+        net.minecraft.server.v1_5_R3.Entity mcEntity = (((CraftEntity) entity).getHandle());
+        if (mcEntity instanceof ZombieType) {
+            ZombieType zt = (ZombieType) mcEntity;
+            if (zt.genus != null) {
+                return zt.genus;
+            }
+        } else if (mcEntity instanceof ZombieGiantType) {
+            ZombieGiantType zt = (ZombieGiantType) mcEntity;
+            if (zt.genus != null) {
+                return zt.genus;
+            }
+        }
+        return null;
+    }
+    
+    public static boolean checkResistance(Entity entity, Material bob) {
+        if (entity == null) {
+            return false;
+        }
+        net.minecraft.server.v1_5_R3.Entity mcEntity = (((CraftEntity) entity).getHandle());
+        if (mcEntity instanceof ZombieType) {
+            ZombieType zt = (ZombieType) mcEntity;
+            if (zt.genus != null) {
+                return zt.checkResistance(bob);
+            }
+        } else if (mcEntity instanceof ZombieGiantType) {
+            ZombieGiantType zt = (ZombieGiantType) mcEntity;
+            if (zt.genus != null) {
+                return zt.checkResistance(bob);
+            }
+        }
+        return false;
+    }
+    
+    public static void addResistance(Entity entity, Material bob) {
+        net.minecraft.server.v1_5_R3.Entity mcEntity = (((CraftEntity) entity).getHandle());
+        if (mcEntity instanceof ZombieType) {
+            ZombieType zt = (ZombieType) mcEntity;
+            if (zt.genus != null) {
+                zt.addResistance(bob);
+            }
+        } else if (mcEntity instanceof ZombieGiantType) {
+            ZombieGiantType zt = (ZombieGiantType) mcEntity;
+            if (zt.genus != null) {
+                zt.addResistance(bob);
+            }
+        }
+    }
+    
+    public static void stomp(Location from, Entity stomper, int radius, int damage) {
+//      Bukkit.broadcastMessage("Stomp!,);
+        for (Entity bounced : stomper.getNearbyEntities(radius, radius, radius)) {
+            if (bounced != stomper) {
+                if (bounced instanceof Player) {
+                    Player p = (Player) bounced;
+                    p.damage(damage, stomper);
+                    Vector v = p.getVelocity();
+                    v.setY(v.getY() + 1.5);
+                    p.setVelocity(v);
+                    p.sendMessage("Stomp!");
+                } else if ((bounced instanceof Monster)) {
+                    PutredineImmortui zdata = Utils.getZombie(bounced);
+                    if (zdata == null || zdata.size < 2) {
+                        Monster c = (Monster) bounced;
+                        c.damage(damage, stomper); // damage
+                        Vector vc = c.getVelocity();
+                        vc.setY(vc.getY() + 1.5);
+                        c.setVelocity(vc);
+                    }
+                }
+            }
+        }
+        
+        // from.getWorld().strikeLightningEffect(from);
+        Block block = from.getBlock();
+        
+        ArrayList<BlockState> blocks = new ArrayList<BlockState>();
+        for (int x = (radius); x >= (0 - radius); x--) {
+            for (int zed = (radius); zed >= (0 - radius); zed--) {
+                for (int y = (radius); y >= (0 - radius); y--) {
+                    if (x == 0 && zed == 0) {
+                        // skip own blocks...
+                    } else {
+                        Block b = block.getRelative(x, y, zed);
+                        Location distanceBlock;
+                        if (y >= 0) { // sphere if y<0 cylinder above
+                            distanceBlock = block.getRelative(x, 0, zed).getLocation();
+                        } else {
+                            distanceBlock = b.getLocation();
+                        }
+                        if (block.getLocation().distance(distanceBlock) < radius) {
+                            BlockState thisstate = b.getState();
+                            if (b.getType() != Material.AIR) {
+                                if (thisstate instanceof Chest || thisstate instanceof BrewingStand || thisstate instanceof CreatureSpawner || thisstate instanceof Dispenser
+                                        || thisstate instanceof DoubleChest || thisstate instanceof Furnace
+                                        || thisstate instanceof Jukebox || thisstate instanceof NoteBlock || thisstate instanceof Sign) {
+                                    // skip me
+                                } else {
+                                    String fName = getFactName(block.getLocation());
+                                    if (fName == null || fName.equals("") || fName.equals("warzone") || fName.equals("wilderness")) {
+                                        blocks.add(thisstate);
+                                        if (ZombieMod.hasCreeperHeal) {
+                                            CreeperHandler.recordBlock(b);
+                                        } else {
+                                            b.setType(Material.AIR);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        for (BlockState bs : blocks) {
+            Material m = bs.getType();
+            byte d = bs.getData().getData();
+            int bsX = bs.getX();
+            int bsY = bs.getY();
+            int bsZ = bs.getZ();
+            double depth = (block.getY() + radius) - bsY + 1;
+            double speed = .5 + ((1.00D / depth) * 2); // (1.00D/distance)
+            Location fbl = new Location(block.getWorld(), bsX, bsY, bsZ);
+            FallingBlock fb = fbl.getWorld().spawnFallingBlock(fbl, m, d);
+            fb.setVelocity(new Vector(0.00D, speed, 0.00D));
+            if (Math.random()>0.95D) {
+                fb.setDropItem(true);
+            } else {
+                fb.setDropItem(false);
+            }            
+        }
+        blocks = null;
+    }
+    
+    public static void setWarZone(Chunk c) {
+        if (c == null)
+            return; // sanity check.
+        if (ZombieMod.hasFactions) {
+            FLocation fl = new FLocation(c.getWorld().getName(), c.getX(), c.getZ());
+            Board.setIdAt("-2", fl);
+        }
+    }
+    
+    public static void setEquip(LivingEntity mob, ItemStack item, int slot) {
+        EntityEquipment eq = mob.getEquipment();
+        if (slot == 0) {
+            eq.setItemInHand(item);
+            if (item.getType() == Material.FIRE) {
+                eq.setItemInHandDropChance(0.05F);
+            } else {
+                eq.setItemInHandDropChance(0);
+            }
+        }
+        if (slot == 1) {
+            eq.setBoots(item);
+            eq.setBootsDropChance(0);
+        }
+        if (slot == 2) {
+            eq.setLeggings(item);
+            eq.setLeggingsDropChance(0);
+        }
+        if (slot == 3) {
+            eq.setChestplate(item);
+            eq.setChestplateDropChance(0);
+        }
+        if (slot == 4) {
+            eq.setHelmet(item);
+            eq.setHelmetDropChance(0);
+        }
+    }
+    
+    public static void addStat(String playerName, String category, String statname, int statAdd) {
+        BeardStat beardStat = (BeardStat) Bukkit.getServer().getPluginManager().getPlugin("BeardStat");
+        PlayerStatManager statManager = beardStat.getStatManager();
+        PlayerStatBlob blob = statManager.getPlayerBlob(playerName);
+        PlayerStat stat = blob.getStat(category, statname);
+        if (statAdd > 0) {
+            stat.incrementStat(statAdd);
+        } else if (statAdd < 0) {
+            stat.incrementStat(Math.abs(statAdd));
+        }
+    }
+    
+    public static void setStat(String playerName, String category, String statname, int statValue) {
+        BeardStat beardStat = (BeardStat) Bukkit.getServer().getPluginManager().getPlugin("BeardStat");
+        PlayerStatManager statManager = beardStat.getStatManager();
+        PlayerStatBlob blob = statManager.getPlayerBlob(playerName);
+        PlayerStat stat = blob.getStat(category, statname);
+        stat.setValue(statValue);
+    }
+    
+    public static String cleanName(String name) {
+        String newname = name;
+        String searchcode = ZombieMod.heatlhPrefix;
+        if (newname.contains(searchcode)) {
+            int loc = newname.indexOf(searchcode);
+            int start = 0;
+            if (newname.startsWith("§f")) {
+                start = 2;
+            }
+            if (loc > -1) {
+                newname = newname.substring(start, loc);
+            }
+        }
+        return newname;
+    }
+    
+    public static ItemStack getSkullItemStack(int amount, String playerName) {
+        ItemStack s = new ItemStack(397, amount);
+        s.setDurability((short) 3);
+        SkullMeta meta = (SkullMeta) s.getItemMeta();
+        meta.setOwner(playerName);
+        s.setItemMeta(meta);
+        return s;
+    }
 
-	public static void setTempnvluln(LivingEntity e, int d) {
-		if (e != null) {
-			e.setMaximumNoDamageTicks(10);
-			e.setNoDamageTicks(0);
-			e.setLastDamage(d);
-		}
-	}
-
-	public static Block getNearestEmptySpace(Block b, int maxradius) {
-		BlockFace[] faces = {BlockFace.UP, BlockFace.NORTH, BlockFace.EAST};
-		BlockFace[][] orth = {{BlockFace.NORTH, BlockFace.EAST}, {BlockFace.UP, BlockFace.EAST}, {BlockFace.NORTH, BlockFace.UP}};
-		for (int r = 0; r <= maxradius; r++) {
-			for (int s = 0; s < 6; s++) {
-				BlockFace f = faces[s%3];
-				BlockFace[] o = orth[s%3];
-				if (s >= 3)
-					f = f.getOppositeFace();
-				Block c = b.getRelative(f, r);
-				for (int x = -r; x <= r; x++) {
-					for (int y = -r; y <= r; y++) {
-						Block a = c.getRelative(o[0], x).getRelative(o[1], y);
-						if (a.getTypeId() == 0 && a.getRelative(BlockFace.UP).getTypeId() == 0)
-							return a;
-					}
-				}
-			}
-		}
-		return null;// no empty space within a cube of (2*(maxradius+1))^3
-	}
-
-	public static Location lookAt(Location loc, Location lookat) {
-		// Clone the loc to prevent applied changes to the input loc
-		loc = loc.clone();
-
-		// Values of change in distance (make it relative)
-		double dx = lookat.getX() - loc.getX();
-		double dy = lookat.getY() - loc.getY();
-		double dz = lookat.getZ() - loc.getZ();
-
-		// Set yaw
-		if (dx != 0) {
-			// Set yaw start value based on dx
-			if (dx < 0) {
-				loc.setYaw((float) (1.5 * Math.PI));
-			} else {
-				loc.setYaw((float) (0.5 * Math.PI));
-			}
-			loc.setYaw((float) loc.getYaw() - (float) Math.atan(dz / dx));
-		} else if (dz < 0) {
-			loc.setYaw((float) Math.PI);
-		}
-
-		// Get the distance from dx/dz
-		double dxz = Math.sqrt(Math.pow(dx, 2) + Math.pow(dz, 2));
-
-		// Set pitch
-		loc.setPitch((float) -Math.atan(dy / dxz));
-
-		// Set values, convert to degrees (invert the yaw since Bukkit uses a
-		// different yaw dimension format)
-		loc.setYaw(-loc.getYaw() * 180f / (float) Math.PI);
-		loc.setPitch(loc.getPitch() * 180f / (float) Math.PI);
-
-		return loc;
-
-	}
-
-	public static String ordinal(Location l) {
-		double rot = (l.getYaw() - 90) % 360;
-		if (rot < 0) {
-			rot += 360.0;
-		}
-		return getDirection(rot);
-	}
-
-	private static String getDirection(double rot) {
-		if (0 <= rot && rot < 22.5) {
-			return "North";
-		} else if (22.5 <= rot && rot < 67.5) {
-			return "NorthEast";
-		} else if (67.5 <= rot && rot < 112.5) {
-			return "East";
-		} else if (112.5 <= rot && rot < 157.5) {
-			return "SouthEast";
-		} else if (157.5 <= rot && rot < 202.5) {
-			return "South";
-		} else if (202.5 <= rot && rot < 247.5) {
-			return "SouthWest";
-		} else if (247.5 <= rot && rot < 292.5) {
-			return "West";
-		} else if (292.5 <= rot && rot < 337.5) {
-			return "NorthWest";
-		} else if (337.5 <= rot && rot < 360) {
-			return "North";
-		} else {
-			return null;
-		}
-	}
-
-	public static Boolean findZombie(UUID id) {
-		for (World w : Bukkit.getServer().getWorlds()) {
-			for(Entity e : w.getEntitiesByClass(Zombie.class)) {
-				if (id == e.getUniqueId()) { 
-					return true; 
-				}
-			}
-		}
-		return false;
-	}
-
-	public Zombie findPlayerZombie(String id) {
-		List<World> worlds = Bukkit.getServer().getWorlds();
-		for (World w : worlds) {
-			Collection<Zombie> zombies = w.getEntitiesByClass(Zombie.class);
-			for (Zombie e : zombies) {
-				PutredineImmortui zomb = ZombieType.getZombie(e);
-				if (zomb!=null && zomb.species.equals("PlayerZombie")) {
-					if (zomb.uniqueid.equals(id)) { return e; }
-				}
-			}
-		}
-		return null;
-	}
-
-	public static void setSkin(LivingEntity target, String url) {
-		if (url != null) {
-//			if (ZombieMod.debugMode) { System.out.print("url=" + url); }
-			SpoutServer bob = new SpoutServer();
-			bob.setEntitySkin(target, url, EntitySkinType.DEFAULT);
-		}
-	}
-	
-	public static void spawnCorpsesInChunk(Chunk c) {
-		
-		String cid = c.getX() + "|"+c.getZ();
-		
-		//ZombieMod.logger.info("[" + ZombieMod.myName + "] Checking  chunk "+cid);
-		
-		Iterator<Map.Entry<UUID, PutredineImmortui>> it = ZombieMod.playerZombies.entrySet().iterator();
-	    while (it.hasNext()) {
-	        Map.Entry<UUID, PutredineImmortui> entry = it.next();
-	        PutredineImmortui z = entry.getValue();
-	        if (z.cid.equals(cid)) {
-	        	//found potential
-	        	UUID key = entry.getKey();
-	        	if (key!= null && Utils.findZombie(key)) {
-					// found it
-	        	    if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] found player zombie 'elsewhere'."); }
-				} else {
-					// should have playerzombie - cant find it!
-				    if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] player zombie lost - recreating..." + key);}
-
-					Block newLoc = z.lastLoc.getBlock();
-					
-					Block safeNewBlock = Utils.getNearestEmptySpace(newLoc, 4);
-					if (safeNewBlock!=null) {
-						
-						Location sqawnLoc=safeNewBlock.getLocation();
-						net.minecraft.server.World mcWorld = ((CraftWorld) c.getWorld()).getHandle();
-						if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] " + z.commonName +" rises from the dead! "); }
-						z.cid = cid;
-						ZombieType newzomb = new ZombieType(mcWorld,z);
-						newzomb.setPosition(sqawnLoc.getX(), sqawnLoc.getY(), sqawnLoc.getZ());
-						mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
-						it.remove();
-					} else {
-						if (ZombieMod.debugMode) { ZombieMod.logger.info("[" + ZombieMod.myName + "] safe place not found"); }
-					}
-				}
-	        }
-	    }
-	}
-	
-
-	public static boolean isNotCalled(Location l, String factionname) {
-		if (ZombieMod.hasFactions) {
-			// P f = (P) plugin.getServer().getPluginManager().getPlugin("Factions");
-			// Faction fact = Board.getFactionAt(l);
-			FLocation fl = new FLocation(l);
-			Faction fact = Board.getFactionAt(fl);
-
-			String factName;
-			
-			if (fact != null) { 
-				factName = fact.getTag();
-			} else {
-				factName = "none";
-			}
-
-			factName = factName.toLowerCase();
-			factName = ChatColor.stripColor(factName);
-
-			if (!factName.equals(factionname)) {
-//				if (ZombieMod.debugMode) {
-//					ZombieMod.logger.info("[" + ZombieMod.myName + "] factName: '" + factName + "' denied (looked for " + factionname + ")");
-//				}
-				return true;
-			}
-		} else {
-			double dist = ZombieMod.spawnLoc.distance(l);
-			if (dist < 50) {
-				return true;
-			}
-		}
-		return false;
-	}
 }

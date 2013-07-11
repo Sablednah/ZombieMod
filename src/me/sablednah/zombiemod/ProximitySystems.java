@@ -1,21 +1,34 @@
 package me.sablednah.zombiemod;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.Random;
 
+import me.daddychurchill.CityWorld.CityWorld;
+import me.daddychurchill.CityWorld.CityWorldAPI;
+
 import org.bukkit.Chunk;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Giant;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+
+import com.herocraftonline.heroes.Heroes;
+import com.herocraftonline.heroes.characters.Hero;
 
 public class ProximitySystems implements Runnable {
 	public ZombieMod	plugin;
-	private boolean debugMe = false;
+	private boolean		debugMe	= false;
 
+	private static int MAX_LEVEL = 50;
+	
 	public ProximitySystems(ZombieMod p) {
 		this.plugin = p;
 	}
@@ -28,26 +41,39 @@ public class ProximitySystems implements Runnable {
 			Location l = onlinePlayer.getLocation();
 			Chunk c = l.getChunk();
 			Utils.spawnCorpsesInChunk(c);
+
 			
+			if (onlinePlayer.getGameMode() == GameMode.CREATIVE) { continue; } 
+			if (l.getWorld().getName().equalsIgnoreCase("ZARPTIME")) { continue; }
+
 			// now spawn zombies!!!
 			if (ZombieMod.proximityspawner) {
+			        int level = MAX_LEVEL;
+			        
+			        if (ZombieMod.hasHeroes) {
+			            Heroes heroes = (Heroes)plugin.getServer().getPluginManager().getPlugin("Heroes");
+			            Hero hero = heroes.getCharacterManager().getHero(onlinePlayer);
+			            level = hero.getLevel();
+			            if (level<1) {level=1;}
+			        }
 
-				int probability = ZombieMod.zombiespawnration;
+				int probability = ZombieMod.zombiespawnratio;
+				probability = (int) (probability - (25 - (level / 2.0))) ;
 				Random rand = new Random();
 				if (ZombieMod.debugMode) {
-					ZombieMod.logger.info("[" + ZombieMod.myName + "] Begin Proximity chek for " + onlinePlayer.getName());
+					ZombieMod.logger.info("[" + this.plugin.myName + "] Begin Proximity chek for " + onlinePlayer.getName());
 				}
 				if (rand.nextInt(100) + 1 < probability) { // only run if < probability.
 					if (debugMe && ZombieMod.debugMode) {
-						ZombieMod.logger.info("[" + ZombieMod.myName + "] Random probability passed");
+						ZombieMod.logger.info("[" + this.plugin.myName + "] Random probability passed");
 					}
 
 					World zombieWorld = l.getWorld();
+					String factName = Utils.getFactName(l);
 
-					if (!Utils.isNotCalled(l,ZombieMod.factionsWildName)) {// if not in safe area
-
+					if (factName == null || (factName.equals(ZombieMod.factionsWarZone) || factName.equals(ZombieMod.factionsWildName) || factName.equals("none"))) {
 						if (debugMe && ZombieMod.debugMode) {
-							ZombieMod.logger.info("[" + ZombieMod.myName + "] Player safe zone check passed");
+							ZombieMod.logger.info("[" + this.plugin.myName + "] Player safe zone check passed");
 						}
 
 						// ok player is NOT in a safe area.
@@ -109,29 +135,29 @@ public class ProximitySystems implements Runnable {
 							Location newLoc = new Location(zombieWorld, newX, newY, newZ);
 
 							if (debugMe && ZombieMod.debugMode) {
-								ZombieMod.logger.info("[" + ZombieMod.myName + "] new loc found x:" + newX + ", y:" + newY + ", z:" + newZ);
+								ZombieMod.logger.info("[" + this.plugin.myName + "] new loc found x:" + newX + ", y:" + newY + ", z:" + newZ);
 							}
 
 							int zombieCount = 0;
 							for (Entity e : newLoc.getChunk().getEntities()) {
-								if ((e instanceof Zombie)) {
+								if ((e instanceof Zombie || e instanceof Giant)) {
 									zombieCount++;
 								}
 							}
 							if (zombieCount < ZombieMod.chunklimit) {
-
+							        Boolean sewer = false;
 								Block blk = zombieWorld.getBlockAt(newLoc);
 								if (blk != null) {
 									Block safeNewBlock = Utils.getNearestEmptySpace(blk, 8);
 									Location safeNewLoc = null;
 									if (safeNewBlock != null) {
 										if (debugMe && ZombieMod.debugMode) {
-											ZombieMod.logger.info("[" + ZombieMod.myName + "] setting safeNewLoc");
+											ZombieMod.logger.info("[" + this.plugin.myName + "] setting safeNewLoc");
 										}
 										safeNewLoc = safeNewBlock.getLocation();
 									} else {
 										if (debugMe && ZombieMod.debugMode) {
-											ZombieMod.logger.info("[" + ZombieMod.myName + "] safeNewBlock is null");
+											ZombieMod.logger.info("[" + this.plugin.myName + "] safeNewBlock is null");
 										}
 									}
 									if (safeNewLoc != null) {
@@ -139,31 +165,108 @@ public class ProximitySystems implements Runnable {
 											newY = zombieWorld.getHighestBlockYAt(safeNewLoc);
 											safeNewLoc.setY(newY);
 										}
-										if (Utils.isNotCalled(safeNewLoc,ZombieMod.factionsWildName)) {
+										if (Utils.isSafe(safeNewLoc)) {
 											if (debugMe && ZombieMod.debugMode) {
-												ZombieMod.logger.info("[" + ZombieMod.myName + "] safe: spawn point denied.");
+												ZombieMod.logger.info("[" + this.plugin.myName + "] safe: spawn point denied.");
 											}
 										} else {
 											if (debugMe && ZombieMod.debugMode) {
-												ZombieMod.logger.info("[" + ZombieMod.myName + "] new loc is safe spawning ");
+												ZombieMod.logger.info("[" + this.plugin.myName + "] new loc is safe spawning ");
 											}
-											net.minecraft.server.World mcWorld = ((CraftWorld) zombieWorld).getHandle();
-											PutredineImmortui zomb = new PutredineImmortui(plugin);
+											PutredineImmortui zomb = null;
+											if (ZombieMod.hasCityWorld) {
+												CityWorld cw = (CityWorld) plugin.getServer().getPluginManager().getPlugin("CityWorld");
+												CityWorldAPI cwAPI = cw.getAPI(cw);
+												HashMap<String, String> info = cwAPI.getFullInfo(safeNewLoc.getChunk());
+												
+												if (info!= null && info.containsKey("lot")) {
+												    if (info.get("lot").equalsIgnoreCase("ROAD")) {
+												        if (safeNewLoc.getBlockY() < 64 && safeNewLoc.getBlockY() > 54 ) {
+												            //valid "sewer" like location
+												            sewer = true;
+												        }
+												    }
+												    
+												}
+												
+												if (info!= null && info.containsKey("schematic")) {
+													// look through genus for schematic matches...
+													ArrayList<Pair<Integer, String>> freq = new ArrayList<Pair<Integer, String>>();
+													Iterator<Entry<String, Config>> confs = plugin.genera.configs.entrySet().iterator();
+													while (confs.hasNext()) {
+														Entry<String, Config> element = confs.next();
+														Config testconf = element.getValue();
+														if (testconf.schematics != null && testconf.schematics.contains(info.get("schematic"))) {
+															System.out.print(element.getKey());
+															System.out.print(testconf.altfrequency);
+															freq.add(new Pair<Integer, String>(testconf.altfrequency, element.getKey()));
+														}
+													}
+													if (freq.size() > 0) {
+														WeightedProbMap<String> newmap = new WeightedProbMap<String>(freq);
+														String thisgenera = newmap.nextElt();
+														zomb = new PutredineImmortui(plugin, thisgenera);
+														newmap = null;
+													}
+												}
+												if (zomb == null) {
+													if (info != null && info.containsKey("context")) {
+														ArrayList<Pair<Integer, String>> freq = new ArrayList<Pair<Integer, String>>();
+														Iterator<Entry<String, Config>> confs = plugin.genera.configs.entrySet().iterator();
+														while (confs.hasNext()) {
+															Entry<String, Config> element = confs.next();
+															Config testconf = element.getValue();
+															if (testconf.contexts != null && testconf.contexts.contains(info.get("context"))) {
+																freq.add(new Pair<Integer, String>(testconf.altfrequency, element.getKey()));
+															}
+														}
+														if (freq.size() > 0) {
+															WeightedProbMap<String> newmap = new WeightedProbMap<String>(freq);
+															String thisgenera = newmap.nextElt();
+															zomb = new PutredineImmortui(plugin, thisgenera);
+															newmap = null;
+														}
+													}
+												}
+											}
+											
+											if (sewer && Math.random()>0.90D) {
+											    if (Math.random()>0.3D) {
+											        safeNewLoc.getWorld().spawnEntity(safeNewLoc, EntityType.OCELOT);
+											    } else {
+											        double packsize = Math.random();
+											        safeNewLoc.getWorld().spawnEntity(safeNewLoc, EntityType.WOLF);
+											        if (packsize<0.6D) {
+	                                                                                            safeNewLoc.getWorld().spawnEntity(safeNewLoc, EntityType.WOLF);											            
+											        }
+                                                                                                if (packsize<0.4D) {
+                                                                                                    safeNewLoc.getWorld().spawnEntity(safeNewLoc, EntityType.WOLF);                                                                                                 
+                                                                                                }
+                                                                                                if (packsize<0.2D) {
+                                                                                                    safeNewLoc.getWorld().spawnEntity(safeNewLoc, EntityType.WOLF);                                                                                                 
+                                                                                                }
+											    }
+											    
+											} else {
+											
+											if (zomb == null) {
+												zomb = new PutredineImmortui(plugin);
+											}
+
 											if (ZombieMod.debugMode) {
-												ZombieMod.logger.info("[" + ZombieMod.myName + "] " + zomb.commonName + " spawned via proximity");
+												ZombieMod.logger.info("[" + this.plugin.myName + "] " + zomb.commonName + " spawned via proximity");
 											}
-											ZombieType newzomb = new ZombieType(mcWorld, zomb);
-											newzomb.setPosition(newX, newY, newZ);
-											mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
+											Utils.spawnZombie(zomb, safeNewLoc, plugin, level);
+										}
 										}
 									} else {
 										if (debugMe && ZombieMod.debugMode) {
-											ZombieMod.logger.info("[" + ZombieMod.myName + "] safeNewLoc is null");
+											ZombieMod.logger.info("[" + this.plugin.myName + "] safeNewLoc is null");
 										}
 									}
 								} else {
 									if (debugMe && ZombieMod.debugMode) {
-										ZombieMod.logger.info("[" + ZombieMod.myName + "] blk is null");
+										ZombieMod.logger.info("[" + this.plugin.myName + "] blk is null");
 									}
 								}
 							}

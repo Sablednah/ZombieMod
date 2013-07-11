@@ -23,7 +23,7 @@ public class Throttle implements Runnable {
 			for(Entity e : w.getEntitiesByClass(Zombie.class)) {
 				if (((Zombie) e).getNoDamageTicks()==0) {// don't trigger during knockback
 					PutredineImmortui z = null;
-					z = ZombieType.getZombie(e);	
+					z = Utils.getZombie(e);	
 					if (z != null) {
 						// speed modifiers.
 						if (z.speed != 1 || z.potions.contains(ZombieMod.speedPotion)) {

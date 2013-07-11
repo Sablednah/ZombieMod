@@ -12,10 +12,8 @@ import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Zombie;
-import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
 public class PluginCommandExecutor implements CommandExecutor {
 	public ZombieMod	plugin;
@@ -26,12 +24,12 @@ public class PluginCommandExecutor implements CommandExecutor {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (command.getName().equalsIgnoreCase(ZombieMod.myName.toLowerCase())) {
+		if (command.getName().equalsIgnoreCase(this.plugin.myName.toLowerCase())) {
 			if (args.length > 0 && args[0].toLowerCase().equals("reload")) {
 				Boolean doReload = false;
 
 				if (sender instanceof Player) {
-					if (sender.hasPermission(ZombieMod.myName.toLowerCase() + ".reload")) {
+					if (sender.hasPermission(this.plugin.myName.toLowerCase() + ".reload")) {
 						doReload = true;
 					} else {
 						sender.sendMessage("You do not have permission to reload.");
@@ -46,16 +44,16 @@ public class PluginCommandExecutor implements CommandExecutor {
 					return true;
 				}
 			}
-			
+
 			if (args.length > 0 && args[0].toLowerCase().equals("setspawn")) {
 				if (sender instanceof Player) {
-					if (sender.hasPermission(ZombieMod.myName.toLowerCase() + ".setspawn")) {
+					if (sender.hasPermission(this.plugin.myName.toLowerCase() + ".setspawn")) {
 						ZombieMod.spawnLoc = ((Player) sender).getLocation();
-						plugin.getConfig().set("spawnX", ZombieMod.spawnLoc .getX());
-						plugin.getConfig().set("spawnY", ZombieMod.spawnLoc .getY());
-						plugin.getConfig().set("spawnZ", ZombieMod.spawnLoc .getZ());
+						plugin.getConfig().set("spawnX", ZombieMod.spawnLoc.getX());
+						plugin.getConfig().set("spawnY", ZombieMod.spawnLoc.getY());
+						plugin.getConfig().set("spawnZ", ZombieMod.spawnLoc.getZ());
 						plugin.saveConfig();
-						
+
 						sender.sendMessage("Spawn origin reset.");
 						return true;
 					} else {
@@ -63,32 +61,45 @@ public class PluginCommandExecutor implements CommandExecutor {
 						return true;
 					}
 				} else {
-					ZombieMod.logger.info("[" + ZombieMod.myName + "] Command not valid from Consolse.");
+					ZombieMod.logger.info("[" + this.plugin.myName + "] Command not valid from Consolse.");
 					return true;
 				}
 			}
-			
+
+			if (args.length > 0 && args[0].toLowerCase().equals("stomp")) {
+                            if (sender instanceof Player) {
+                                    if (sender.hasPermission(this.plugin.myName.toLowerCase() + ".stomp")) {
+                                            ZombieMod.spawnLoc = ((Player) sender).getLocation();
+                                            Utils.stomp(((Player) sender).getTargetBlock(null, 16).getLocation(), ((Player) sender), 6, 10);
+                                            return true;
+                                    } else {
+                                            sender.sendMessage("You do not have permission to set spawn origin.");
+                                            return true;
+                                    }
+                            } else {
+                                    ZombieMod.logger.info("[" + this.plugin.myName + "] Command not valid from Consolse.");
+                                    return true;
+                            }
+                    }
 			
 			if (args.length > 0 && args[0].toLowerCase().equals("soundtest")) {
 				if (sender instanceof Player) {
-					if (sender.hasPermission(ZombieMod.myName.toLowerCase() + ".soundtest")) {
+					if (sender.hasPermission(this.plugin.myName.toLowerCase() + ".soundtest")) {
 						Player pl = (Player) sender;
-						
-						float a1,a2;
+
+						float a1, a2;
 						Sound s = Sound.GHAST_SCREAM2;
-						a1=1;
-						a2=1;
-						
+						a1 = 1;
+						a2 = 1;
+
 						if (args.length > 2) {
-							a1=new Float(args[1]);
-							a2=new Float(args[2]);
+							a1 = new Float(args[1]);
+							a2 = new Float(args[2]);
 							s = Sound.valueOf(args[3]);
 						}
 
-						
 						pl.getWorld().playSound(pl.getLocation(), s, a1, a2);
 
-						
 						sender.sendMessage("sound played.");
 						return true;
 					} else {
@@ -96,24 +107,24 @@ public class PluginCommandExecutor implements CommandExecutor {
 						return true;
 					}
 				} else {
-					ZombieMod.logger.info("[" + ZombieMod.myName + "] Command not valid from Consolse.");
+					ZombieMod.logger.info("[" + this.plugin.myName + "] Command not valid from Consolse.");
 					return true;
 				}
 			}
-			
+
 			if (args.length > 0 && args[0].toLowerCase().equals("stats")) {
-				ZombieMod.logger.info("[" + ZombieMod.myName + "] Intervals - " + ZombieMod.intervals + ".");
+				ZombieMod.logger.info("[" + this.plugin.myName + "] Intervals - " + ZombieMod.intervals + ".");
 				for (World w : plugin.getServer().getWorlds()) {
-					Collection<Zombie> zombies = w.getEntitiesByClass(Zombie.class);
-					for (Zombie e : zombies) {
-						PutredineImmortui zomb = ZombieType.getZombie(e);
+					Collection<Entity> zombies = w.getEntities();
+					for (Entity e : zombies) {
+						PutredineImmortui zomb = Utils.getZombie(e);
 						if (zomb != null) {
-							ZombieMod.logger.info("[" + ZombieMod.myName + "] " + zomb.species + " | " + zomb.commonName + "  [" + Math.floor(e.getLocation().getX()) + " X - " + Math.floor(e.getLocation().getY()) + " Y - "
+							ZombieMod.logger.info("[" + this.plugin.myName + "] " + zomb.species + " | " + zomb.commonName + "  [" + Math.floor(e.getLocation().getX()) + " X - " + Math.floor(e.getLocation().getY()) + " Y - "
 									+ Math.floor(e.getLocation().getZ()) + " Z]");
 						}
 					}
 				}
-				ZombieMod.logger.info("[" + ZombieMod.myName + "] ------ Player zombies ----------------");
+				ZombieMod.logger.info("[" + this.plugin.myName + "] ------ Player zombies ----------------");
 				Iterator<Map.Entry<UUID, PutredineImmortui>> it = ZombieMod.playerZombies.entrySet().iterator();
 				while (it.hasNext()) {
 					Map.Entry<UUID, PutredineImmortui> entry = it.next();
@@ -126,25 +137,20 @@ public class PluginCommandExecutor implements CommandExecutor {
 				if (sender instanceof Player) {
 					if (sender.hasPermission("zombiemod.spawn")) {
 						if (args.length > 1) {
-							String genus = (args[1].toLowerCase()) + ".yml";
+							String genus = (args[1].toLowerCase());
 							if (plugin.genera.configs.containsKey(genus)) {
 								Block lookAt = ((Player) sender).getTargetBlock(null, 20);
 								Block safeNewBlock = Utils.getNearestEmptySpace(lookAt, 5);
 								if (safeNewBlock != null) {
 									Location sqawnLoc = safeNewBlock.getLocation();
-									World w = sqawnLoc.getWorld();
-									net.minecraft.server.World mcWorld = ((CraftWorld) w).getHandle();
 
 									PutredineImmortui zomb = new PutredineImmortui(plugin, genus);
 									if (ZombieMod.debugMode) {
-										ZombieMod.logger.info("[" + ZombieMod.myName + "] " + zomb.commonName + " spawned via command");
+										ZombieMod.logger.info("[" + this.plugin.myName + "] " + zomb.commonName + " spawned via command");
 									}
 									sender.sendMessage("Zombie '" + zomb.commonName + "' spawned.");
-									ZombieType newzomb = new ZombieType(mcWorld, zomb);
-									newzomb.setPosition(sqawnLoc.getX(), sqawnLoc.getY(), sqawnLoc.getZ());
-									// mcWorld.removeEntity((net.minecraft.server.EntityZombie) mcEntity); //better but
-									// causes errors.
-									mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
+									
+									Utils.spawnZombie(zomb, sqawnLoc, plugin);
 
 									return true;
 								}
@@ -158,19 +164,15 @@ public class PluginCommandExecutor implements CommandExecutor {
 							if (safeNewBlock != null) {
 
 								Location sqawnLoc = safeNewBlock.getLocation();
-								World w = sqawnLoc.getWorld();
-								net.minecraft.server.World mcWorld = ((CraftWorld) w).getHandle();
 
 								PutredineImmortui zomb = new PutredineImmortui(plugin);
 								if (ZombieMod.debugMode) {
-									ZombieMod.logger.info("[" + ZombieMod.myName + "] " + zomb.commonName + " spawned via command");
+									ZombieMod.logger.info("[" + this.plugin.myName + "] " + zomb.commonName + " spawned via command");
 								}
 								sender.sendMessage("Zombie '" + zomb.commonName + "' spawned.");
-								ZombieType newzomb = new ZombieType(mcWorld, zomb);
-								newzomb.setPosition(sqawnLoc.getX(), sqawnLoc.getY(), sqawnLoc.getZ());
-								// mcWorld.removeEntity((net.minecraft.server.EntityZombie) mcEntity); //better but
-								// causes errors.
-								mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
+
+								Utils.spawnZombie(zomb, sqawnLoc, plugin);
+								
 								return true;
 							}
 						}
@@ -179,7 +181,7 @@ public class PluginCommandExecutor implements CommandExecutor {
 						return true;
 					}
 				} else {
-					ZombieMod.logger.info("[" + ZombieMod.myName + "] Command not valid from Consolse.");
+					ZombieMod.logger.info("[" + this.plugin.myName + "] Command not valid from Consolse.");
 					return true;
 				}
 			}

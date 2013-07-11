@@ -36,7 +36,7 @@ public class SpoutListener implements Listener {
 
 			for(Entity e : p.getWorld().getEntitiesByClass(Zombie.class)) {
 				PutredineImmortui z = null;
-				z = ZombieType.getZombie(e);
+				z = Utils.getZombie(e);
 				if (z != null) {
 					if (z.species.equals("PlayerZombie")) {
 						fm.addToCache(plugin, z.skin);

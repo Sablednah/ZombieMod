@@ -1,19 +1,21 @@
 name: ZombieMod
-version: 2.0.1
+version: 2.2.0
 description: 28 Dead Resident Shaun's of Evil Later.
 author: SableDnah
 authors: [SableDnah] 
 website: http://dev.bukkit.org/server-mods/zombiemod/
 
 main: me.sablednah.zombiemod.ZombieMod
-softdepend: [ Spout,Heroes,Factions ]
+softdepend: [ Spout,Heroes,Factions,CityWorld ]
 
 commands:
     zombiemod:
+        aliases: [zm,zmod]
         description: "Root command for all  ZombieMod Commands.
 usage| /<command> [reload|spawn|purge]
 e.g. /zombiemod spawn rage
 or  /zombiemod purge 20"
+
 
 permissions:
     zombiemod.*:

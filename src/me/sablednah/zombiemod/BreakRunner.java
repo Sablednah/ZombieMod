@@ -3,6 +3,7 @@ package me.sablednah.zombiemod;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import me.sablednah.zombiemod.Break;
 
 class BreakRunner implements Runnable {
 	private Player player;

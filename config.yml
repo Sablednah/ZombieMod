@@ -12,6 +12,7 @@ blocknaturalspawns: true
 dayspawner: true
 chunklimit: 6
 zombiespawnratio: 75
+zombiespawnerratio: 75
 spawnmultiplier: 1
 
 givezombieplayeritems: true
@@ -40,3 +41,9 @@ allowedbreaks:
 - WOOD
 - TORCH
 - SPONGE
+
+allowedpermbreaks:
+- THIN_GLASS
+- TORCH
+- GRAVEL
+- GLASS

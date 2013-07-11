@@ -6,16 +6,13 @@
 package me.sablednah.zombiemod;
 
 import org.bukkit.Chunk;
-import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_5_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
-import com.herocraftonline.heroes.Heroes;
 import com.herocraftonline.heroes.api.events.*;
-import com.herocraftonline.heroes.characters.Monster;
 
 
 public class SkillScheduler implements Listener {
@@ -29,7 +26,9 @@ public class SkillScheduler implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void SkillDamageEvent(SkillDamageEvent event){
 
-        if (event.isCancelled()) { return; }
+        if (event.isCancelled()) { 
+        	System.out.print("Skill Damage cancelled");
+        	return; }
 
         Entity entity = event.getEntity();
 
@@ -45,9 +44,10 @@ public class SkillScheduler implements Listener {
             }
         }   
          */
+        System.out.print("Skill Damage ocuring - " + damage);
 
-        PutredineImmortui zomb = ZombieType.getZombie(entity);
-        if (zomb != null && zomb.health > -1) {
+        PutredineImmortui zomb = Utils.getZombie(entity);
+        if (zomb != null && !entity.isDead()) {
             Chunk c = entity.getLocation().getChunk();
             String cid = c.getX() + "|"+c.getZ();
             zomb.cid=cid;
@@ -56,7 +56,7 @@ public class SkillScheduler implements Listener {
                 ZombieMod.playerZombies.put(entity.getUniqueId(), zomb);
             }
 
-            net.minecraft.server.Entity mcEnt = (((CraftEntity) entity).getHandle());
+            net.minecraft.server.v1_5_R3.Entity mcEnt = (((CraftEntity) entity).getHandle());
             ZombieType zt = (ZombieType) mcEnt;
 
 
@@ -68,29 +68,8 @@ public class SkillScheduler implements Listener {
             }
 
             if (zt.genus.potions.contains(ZombieMod.resistPotion) && damage>1) {
-                zt.genus.health -= (damage/2);
-            } else {
-                zt.genus.health -= damage;
+                damage = (damage/2);
             }
-            
-            if (zt.genus.health < 1) { //  kill entity
-//              event.setDamage(2001);
-                LivingEntity le = (LivingEntity) entity;
-                le.setHealth(1);
-                le.damage(event.getDamage());
-                
-            } else { // not dead yet
-                LivingEntity tEnt = (LivingEntity) entity;
-                tEnt.setHealth(tEnt.getMaxHealth());
-
-                Heroes heroes = (Heroes) plugin.getServer().getPluginManager().getPlugin("Heroes");
-                Monster monsta = heroes.getCharacterManager().getMonster(tEnt);
-                monsta.setHealth(monsta.getMaxHealth());
-            }
-
-            event.setDamage(0);
-            //hack to set last damage to correct amount
-            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new setTempInvuln(entity,damage),1L);
         }
     }
 }
