@@ -5,19 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.Material;
-import net.minecraft.server.v1_5_R3.EntityGiantZombie;
-import net.minecraft.server.v1_5_R3.EntityHuman;
-import net.minecraft.server.v1_5_R3.PathfinderGoalFleeSun;
-import net.minecraft.server.v1_5_R3.PathfinderGoalFloat;
-import net.minecraft.server.v1_5_R3.PathfinderGoalHurtByTarget;
-import net.minecraft.server.v1_5_R3.PathfinderGoalLookAtPlayer;
-import net.minecraft.server.v1_5_R3.PathfinderGoalMeleeAttack;
-import net.minecraft.server.v1_5_R3.PathfinderGoalNearestAttackableTarget;
-import net.minecraft.server.v1_5_R3.PathfinderGoalRandomLookaround;
-import net.minecraft.server.v1_5_R3.PathfinderGoalRandomStroll;
-import net.minecraft.server.v1_5_R3.PathfinderGoalRestrictSun;
+import net.minecraft.server.v1_6_R2.EntityGiantZombie;
+import net.minecraft.server.v1_6_R2.EntityHuman;
+import net.minecraft.server.v1_6_R2.PathfinderGoalFleeSun;
+import net.minecraft.server.v1_6_R2.PathfinderGoalFloat;
+import net.minecraft.server.v1_6_R2.PathfinderGoalHurtByTarget;
+import net.minecraft.server.v1_6_R2.PathfinderGoalLookAtPlayer;
+import net.minecraft.server.v1_6_R2.PathfinderGoalMeleeAttack;
+import net.minecraft.server.v1_6_R2.PathfinderGoalNearestAttackableTarget;
+import net.minecraft.server.v1_6_R2.PathfinderGoalRandomLookaround;
+import net.minecraft.server.v1_6_R2.PathfinderGoalRandomStroll;
+import net.minecraft.server.v1_6_R2.PathfinderGoalRestrictSun;
 //import net.minecraft.server.v1_5_R3.PathfinderGoalSelector;
-import net.minecraft.server.v1_5_R3.World;
+import net.minecraft.server.v1_6_R2.World;
 
 public class ZombieGiantType extends EntityGiantZombie {
 	public PutredineImmortui	genus		= null;

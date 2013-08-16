@@ -34,8 +34,9 @@ import net.minecraft.server.v1_5_R3.PathfinderGoalRandomLookaround;
 import net.minecraft.server.v1_5_R3.PathfinderGoalRandomStroll;
 import net.minecraft.server.v1_5_R3.PathfinderGoalRestrictSun;
 import net.minecraft.server.v1_5_R3.World;
+import net.minecraft.server.v1_6_R2.EntityCow;
 
-public class ZombieType extends EntityZombie implements IRangedEntity {
+public class ZombieType extends EntityCow implements IRangedEntity {
     
     public PutredineImmortui genus = null;
     public List<Material> borgResist = new ArrayList<Material>();
@@ -44,7 +45,7 @@ public class ZombieType extends EntityZombie implements IRangedEntity {
     @SuppressWarnings("rawtypes")
     public ZombieType(World world, PutredineImmortui genus) {
         super(world);
-        this.texture = "/mob/char.png";
+
         this.canPickUpLoot = false;
         this.genus = genus;
         
