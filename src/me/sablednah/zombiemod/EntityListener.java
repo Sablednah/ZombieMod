@@ -1,5 +1,7 @@
 package me.sablednah.zombiemod;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +17,8 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 //import org.bukkit.World.Environment;
-import org.bukkit.craftbukkit.v1_5_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
+//import org.bukkit.craftbukkit.v1_7_R4.entity.CraftEntity;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Creature;
@@ -25,14 +28,15 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Giant;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Ocelot;
+import org.bukkit.entity.PigZombie;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.ThrownPotion;
+import org.bukkit.entity.Witch;
 import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.EventHandler;
@@ -57,13 +61,16 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 import org.getspout.spoutapi.SpoutManager;
 import org.getspout.spoutapi.player.FileManager;
 
-import com.herocraftonline.heroes.Heroes;
-import com.herocraftonline.heroes.characters.Hero;
-import com.herocraftonline.heroes.characters.classes.HeroClass.ExperienceType;
-import com.herocraftonline.heroes.characters.party.HeroParty;
+import com.massivecraft.factions.Rel;
+import com.massivecraft.factions.entity.BoardColl;
+import com.massivecraft.factions.entity.Faction;
+import com.massivecraft.factions.entity.FactionColl;
+import com.massivecraft.factions.entity.MPlayer;
+import com.massivecraft.massivecore.ps.PS;
 
 public class EntityListener implements Listener {
     
@@ -75,7 +82,15 @@ public class EntityListener implements Listener {
     
     @EventHandler(priority = EventPriority.LOWEST)
     public void onCreatureSpawn(CreatureSpawnEvent event) {
-        SpawnReason spawnReason = event.getSpawnReason();
+
+        if (event.isCancelled()) {
+            return;
+//        	System.out.print("spawn cancelled already!");
+//        } else {
+//        	System.out.print("spawning "+t.toString()+"!");
+        }
+
+    	SpawnReason spawnReason = event.getSpawnReason();
         
         Entity temp = event.getEntity();
         EntityType t = event.getEntityType();
@@ -84,9 +99,14 @@ public class EntityListener implements Listener {
         PutredineImmortui zomb = null;
         
         if (temp instanceof Monster) {
-            String factName = Utils.getFactName(l);
+            Faction fact = BoardColl.get().getFactionAt(PS.valueOf(l));
             
-            if (factName != null && (!(factName.equals(ZombieMod.factionsWildName) || factName.equals(ZombieMod.factionsWarZone) || factName.equals("none")))) {
+            Faction nz = FactionColl.get().getNone();
+//            Faction sz = FactionColl.get().getSafezone();
+            Faction wz = FactionColl.get().getWarzone();
+
+            
+            if (fact != null && fact != nz && fact != wz) {
                 // safe location (non wilderness)
                 zomb = Utils.getZombie(temp);
                 if (zomb != null) {
@@ -97,13 +117,24 @@ public class EntityListener implements Listener {
             }
         }
         
-        if (event.isCancelled()) {
-            return;
+        if (temp instanceof Witch) {
+//        	System.out.print("Witch spawn: " + spawnReason.toString() + " - " + temp.getLocation().toString());
+        	if (spawnReason == SpawnReason.NATURAL) {
+                Utils.spawnZombie(null, l, plugin);
+                event.setCancelled(true);
+                return;
+        	} else {
+        		((Witch) temp).setRemoveWhenFarAway(true);
+        	}
         }
-        
-        if (!(temp instanceof Zombie || temp instanceof Giant || temp instanceof Bat)) {
+        if ((!(temp instanceof Zombie || temp instanceof Giant || temp instanceof Bat)) || (temp instanceof PigZombie) ) {
             if (ZombieMod.blocknaturalspawns) {
                 if (spawnReason == SpawnReason.NATURAL) {
+//                	System.out.print("Blocking natural "+t.toString()+"!");
+                	// Replace monsters with zombs
+                	if (temp instanceof Monster) {
+                        Utils.spawnZombie(null, l, plugin);
+                	}
                     event.setCancelled(true);
                     return;
                 }
@@ -114,23 +145,27 @@ public class EntityListener implements Listener {
         
         World w = l.getWorld();
         
-        if (t == EntityType.ZOMBIE && spawnReason != SpawnReason.CUSTOM) { // && mcEntity instanceof ZombieType ==
-                                                                           // false){
+        if (t == EntityType.ZOMBIE && spawnReason != SpawnReason.CUSTOM) { // && mcEntity instanceof ZombieType == false){
             // if (spawnReason != SpawnReason.CUSTOM){ // && mcEntity instanceof ZombieType == false){
-            
+ //       	System.out.print("Replacing zombie with custom: "+t.toString()+"!");
+        	//cancel natural zombies to swap for custom
             Utils.spawnZombie(null, l, plugin);
             event.setCancelled(true);
             return;
         }
         
         if (spawnReason == SpawnReason.SPAWNER) {
+  //      	System.out.print("Spawner "+t.toString()+"!");
             int probability = ZombieMod.zombiespawnerratio;
             Random rand = new Random();
             if (rand.nextInt(100) + 1 < probability) { // only run if < probability.
+//            	System.out.print("Spawning: " + t.toString() + " via spawner replaced with AWESOME!");
                 // kill the spawnered thingamajig!
                 Utils.spawnZombie(null, l, plugin);
                 event.setCancelled(true);
                 return;
+            } else {
+            	System.out.print("Spawning: " + t.toString() + " via spawner");
             }
         }
         
@@ -184,6 +219,12 @@ public class EntityListener implements Listener {
                 fm.addToCache(plugin, zomb.skin);
                 Utils.setSkin((LivingEntity) temp, zomb.skin);
             }
+            
+            if (!(zomb.effects.contains(Effect.BLAZE_SHOOT) || zomb.effects.contains(Effect.GHAST_SHOOT) || zomb.effects.contains(Effect.BOW_FIRE))) {
+            	plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BreakRunner(plugin, (LivingEntity) temp), 100L);
+            }
+
+            
         }
         
     }
@@ -229,7 +270,7 @@ public class EntityListener implements Listener {
                     attacker = ((EntityDamageByEntityEvent) lastCause).getDamager();
                     if ((attacker instanceof Projectile)) {
                         projectile = (Projectile) attacker;
-                        attacker = projectile.getShooter();
+                        attacker = (Entity) projectile.getShooter();
                     }
                 }
                 
@@ -294,9 +335,9 @@ public class EntityListener implements Listener {
                             drop = zomb.dropRates.get(i);
                         } else {
                             if (zomb.species.contains("PlayerZombie")) {
-                                drop = 1.0;
+                                drop = 1.0D;
                             } else {
-                                drop = 0.7;
+                                drop = 0.7D;
                             }
                         }
                         drop = drop + adj;
@@ -305,7 +346,7 @@ public class EntityListener implements Listener {
                         if (chance < drop) {
                             if (firstPork) {
                                 if (zomb.species.contains("PlayerZombie") || zomb.species.equalsIgnoreCase("Zombus Sapians")) {
-                                    if (item.getTypeId() == 319) {  // porkchop
+                                    if (item.getType() == Material.PORK) {  // porkchop
                                         String name = zomb.commonName.substring(7);
                                         ItemMeta porkData = item.getItemMeta();
                                         porkData.setDisplayName(name + " Burger");
@@ -314,8 +355,30 @@ public class EntityListener implements Listener {
                                     }
                                 }
                             }
+                            Material[] foods = {Material.PORK,Material.COOKED_BEEF, Material.COOKED_CHICKEN,Material.RAW_BEEF,Material.RAW_CHICKEN,Material.RAW_FISH,Material.COOKED_FISH,
+                            		Material.BAKED_POTATO,Material.POISONOUS_POTATO,Material.POTATO,Material.POISONOUS_POTATO, Material.ROTTEN_FLESH, Material.APPLE, Material.BREAD,
+                            		Material.CAKE, Material.CAKE_BLOCK, Material.CARROT,Material.CARROT_ITEM,Material.GRILLED_PORK,Material.MELON,Material.MELON_BLOCK, Material.MUSHROOM_SOUP,
+                            		Material.PUMPKIN_PIE};
+                            
+                            if (Math.random()>0.9) {
+                            	if (Arrays.asList(foods).contains(item.getType())) {
+                                    ItemMeta foodData = item.getItemMeta();
+                                	List<String> radioactive = new ArrayList<String>();
+                                	radioactive.add("Radioactive");
+                                	foodData.setLore(radioactive);
+                                    item.setItemMeta(foodData);
+                                }
+                            }
                             drops.add(item);
                         }
+                    }
+                    if (Math.random()>0.85D) {
+                    	if (zomb.equip != null && zomb.equip[0]!= null && zomb.equip[0].getType()==Material.BOW) {
+                    		ItemStack bow = new ItemStack(Material.BOW,1);
+                    		short durability = (short) ((Math.random()*50.0D)+1.0D);
+                    		bow.setDurability(durability);
+                    		drops.add(bow);
+                    	}
                     }
                 }
                 
@@ -323,17 +386,6 @@ public class EntityListener implements Listener {
                     int xp = zomb.xp;
                     xp += event.getDroppedExp();
                     event.setDroppedExp(xp);
-                    if (ZombieMod.hasHeroes) {
-                        Heroes heroes = (Heroes) plugin.getServer().getPluginManager().getPlugin("Heroes");
-                        Hero hero = heroes.getCharacterManager().getHero(p);
-                        
-                        if (hero.hasParty()) {
-                            HeroParty partay = hero.getParty();
-                            partay.gainExp((double) xp, ExperienceType.KILLING, entity.getLocation());
-                        } else {
-                            hero.gainExp((double) xp, ExperienceType.KILLING, entity.getLocation());
-                        }
-                    }
                 }
                 
                 if (zomb.bounty > 0 && this.plugin.economy != null && p != null) { // add bounty
@@ -349,13 +401,14 @@ public class EntityListener implements Listener {
             drops.clear();
         }
     }
+
     
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onEntityDamage(EntityDamageEvent event) {
         Entity entity = event.getEntity();
         if (!(entity instanceof LivingEntity))
             return;
-
+        
         if (event.getCause() == DamageCause.SUFFOCATION) {
             if (entity instanceof Zombie) {
                 event.setDamage(0);
@@ -381,7 +434,7 @@ public class EntityListener implements Listener {
             }
         }
         
-        int damage = event.getDamage();
+        int damage = (int)event.getDamage();
         
         
         Entity damager = null;
@@ -391,16 +444,47 @@ public class EntityListener implements Listener {
         if (damager != null) {
             PutredineImmortui attacker = null;
             if (damager instanceof Projectile) {
-                LivingEntity shooter = ((Projectile) damager).getShooter();
+                LivingEntity shooter = (LivingEntity) ((Projectile) damager).getShooter();
                 if (shooter != null) { // && shooter instanceof Zombie
                     attacker = Utils.getZombie(shooter);
+                    if (entity.getType()==EntityType.PLAYER) {
+                    	if (shooter.hasMetadata("level")) { ((Player)entity).sendMessage("shooter Level: "+shooter.getMetadata("level").get(0).asInt()); }
+                    	
+/*                    	if (attacker != null ) {
+	                    	net.minecraft.server.v1_7_R4.Entity h = ((CraftEntity)shooter).getHandle();
+	                		ZombieType zt = (ZombieType)h;                		
+		                	Double dlvl = zt.getDamage();
+		            		((Player)entity).sendMessage("Zomb damage: "+ dlvl );
+                    	}
+*/                    }
                 }
             } else {
                 attacker = Utils.getZombie(damager);
+                if (entity.getType()==EntityType.PLAYER) {
+                	if (damager.hasMetadata("level")) { ((Player)entity).sendMessage("damager Level: "+damager.getMetadata("level").get(0).asInt()); }
+/*                	if (attacker != null ) {
+                		net.minecraft.server.v1_7_R4.Entity h = ((CraftEntity)damager).getHandle();
+                		ZombieType zt = (ZombieType)h;                		
+	                	Double dlvl = zt.getDamage();
+	            		((Player)entity).sendMessage("Zomb damage: "+ dlvl );
+                	}
+*/            	}
             }
             if (attacker != null && attacker.damage > -1) {
-                damage = attacker.damage;
-                
+                //damage = attacker.damage;            	
+            	
+				if (attacker.abilities!=null && attacker.abilities.contains("EXPLODE")) {// kaboom
+					
+					int ticktock = 0;
+					if (damager.hasMetadata("kaboom")) {
+						ticktock = damager.getMetadata("kaboom").get(0).asInt();
+					}
+					if (ticktock<=5 && ((LivingEntity)damager).getHealth()>0) {
+						event.setCancelled(true);
+						event.setDamage(0);
+					}
+				}
+				
                 if (entity instanceof Wolf || entity instanceof Ocelot) {
                     if (attacker.abilities != null && attacker.abilities.contains("HUNTER")) {
                         damage = (int) (damage * 0.5F);
@@ -412,7 +496,10 @@ public class EntityListener implements Listener {
         }
         
         PutredineImmortui zomb = Utils.getZombie(entity);
-        if (zomb != null && ((LivingEntity) entity).getHealth() > -1) {
+        if (zomb != null && ((LivingEntity) entity).getHealth() >= 0.0D) {
+        	
+// System.out.print("Type:" + entity.getType());
+        	
             Chunk c = entity.getLocation().getChunk();
             String cid = c.getX() + "|" + c.getZ();
             zomb.cid = cid;
@@ -420,6 +507,16 @@ public class EntityListener implements Listener {
             if (zomb.species.equals("PlayerZombie")) {
                 ZombieMod.playerZombies.put(entity.getUniqueId(), zomb);
             }
+            
+			if (zomb.abilities != null) {
+				if (zomb.abilities.contains("HEROBRINE")) {// HEROBRINE
+                    event.setDamage(0);
+                    event.setCancelled(true);
+                    entity.remove();
+                    return;					
+				}
+			}
+
             
             if (zomb.effects.contains(Effect.BLAZE_SHOOT) || zomb.effects.contains(Effect.GHAST_SHOOT) || zomb.effects.contains(Effect.EXTINGUISH)) {
                 if (event.getCause() == DamageCause.FIRE || event.getCause() == DamageCause.FIRE_TICK) {
@@ -437,7 +534,7 @@ public class EntityListener implements Listener {
                         play = (Player) damager;
                         bob = play.getItemInHand().getType();
                     } else if (damager instanceof Projectile) {
-                        LivingEntity shooter = ((Projectile) damager).getShooter();
+                        LivingEntity shooter = (LivingEntity) ((Projectile) damager).getShooter();
                         if (shooter instanceof Player) {
                             play = (Player) shooter;
                         }
@@ -579,32 +676,29 @@ public class EntityListener implements Listener {
     }
     
     // disable targeting
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @SuppressWarnings("deprecation")
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityTarget(EntityTargetEvent event) {
         Entity entity = event.getEntity();
         PutredineImmortui zomb = Utils.getZombie(entity);
         if (zomb != null) {
             if (zomb.passive) {
                 event.setCancelled(true);
-                return;
             } else {
                 if (event.getTarget() instanceof Player) {
                     String pname = ((Player) event.getTarget()).getName();
-                    if ((zomb.getOwner() != null) && (zomb.getOwner().equals(pname))) {
-                        event.setCancelled(true);
-                        return;
+                    if ((zomb.getOwner() != null) ) { 
+                    	if ((zomb.getOwner().equals(pname))) {       
+                    		event.setCancelled(true);
+                    		return;
+                    	}
+                    	if (!canHurt(Bukkit.getPlayer(zomb.getOwner()),(Player) event.getTarget())) {
+//                        	System.out.print(" targeting cancelled target owners ally");
+                    		event.setCancelled(true);
+                    		return;
+                    	}
                     }
-                }
-                
-                if (!(zomb.effects.contains(Effect.BLAZE_SHOOT) || zomb.effects.contains(Effect.GHAST_SHOOT) || zomb.effects.contains(Effect.BOW_FIRE))) {
-                    if (event.getTarget() instanceof HumanEntity) {
-                        Player p = (Player) event.getTarget();
-                        LivingEntity l = (LivingEntity) entity;
-                        // ZombieMod.logger.info("[" + ZombieMod.myName + "] starting breaker - target -" +
-                        // p.getDisplayName());
-                        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BreakRunner(plugin, l, p), 60L);
-                    }
-                }
+                }                
             }
         } else {
             if (!entity.isEmpty()) {
@@ -615,14 +709,33 @@ public class EntityListener implements Listener {
             }
         }
     }
-    
+    public static Boolean canHurt(Player p, Player t) {
+	    MPlayer up = MPlayer.get(p);
+	    MPlayer ut = MPlayer.get(t);
+	    
+		Rel rel = up.getRelationTo(ut);
+		
+		switch(rel) {
+			case LEADER:
+			case OFFICER: 
+			case MEMBER: 
+			case RECRUIT: 
+			case ALLY: 
+			case TRUCE:
+				return false;
+			case NEUTRAL: 
+			case ENEMY:
+				return true;
+		}		
+		return null;
+	}
     // exploding
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onExplosionPrime(ExplosionPrimeEvent event) {
         Entity entity = event.getEntity();
         
         if (entity instanceof Fireball)
-            entity = ((Fireball) entity).getShooter();
+            entity = (Entity) ((Fireball) entity).getShooter();
         
         PutredineImmortui zomb = Utils.getZombie(entity);
         if (zomb != null) {
@@ -691,7 +804,7 @@ public class EntityListener implements Listener {
                     // if clean name is a zombie type - swapit!
                     if (plugin.genera.configs.containsKey(cleanname)) {
                         PutredineImmortui zomb = new PutredineImmortui(plugin, cleanname);
-                        Utils.spawnZombie(zomb, z.getLocation(), plugin, 50, z.getHealth());
+                        Utils.spawnZombie(zomb, z.getLocation(), plugin, 50, (int)z.getHealth());
                         z.remove();
                         if (ZombieMod.debugMode) {
                             ZombieMod.logger.info("Reg Zombie converted to " + cleanname + ".");
@@ -722,7 +835,7 @@ public class EntityListener implements Listener {
                                 
                                 if(solo){
                                 
-                                net.minecraft.server.v1_5_R3.World mcWorld = ((CraftWorld) z.getWorld()).getHandle();
+                                net.minecraft.server.v1_7_R4.World mcWorld = ((CraftWorld) z.getWorld()).getHandle();
                                 
                                 if (ZombieMod.debugMode) {
                                     ZombieMod.logger.info("[zm]  " + zombieCorpeData.commonName + " rises from the dead! ");
@@ -773,6 +886,7 @@ public class EntityListener implements Listener {
                         Location target = targ.getLocation();
                         Location from = entity.getLocation().add(0, 2, 0);
                         if (from.distance(target) > 2) {
+
                             String ord = (Utils.ordinal(entity.getLocation()));
                             
                             if (ord.contains("North")) {
@@ -787,18 +901,26 @@ public class EntityListener implements Listener {
                             if (ord.contains("West")) {
                                 from.add(0, 0, 1);
                             }
+                            //Location firePath = Utils.lookAt(from, target);
                             
-                            Location firePath = Utils.lookAt(from, target);
-                            Fireball fb = firePath.getWorld().spawn(firePath, Fireball.class);
+                            Entity tmparrow = event.getProjectile();   
+                            Vector vec = tmparrow.getVelocity();
+                            Location loc = tmparrow.getLocation(); 
+
+                            //Fireball fb = (Fireball)entity.getWorld().spawnEntity(firePath, EntityType.FIREBALL);
+                            Fireball fb = (Fireball)entity.getWorld().spawnEntity(loc, EntityType.FIREBALL);
                             fb.setYield(1);
                             fb.setBounce(false);
+                            fb.setVelocity(vec);
+                            
+                            event.setProjectile(fb);
                             
                             entity.getWorld().playEffect(entity.getLocation(), Effect.GHAST_SHOOT, 0);
                         }
                     }
                 }
-                event.setCancelled(true);
-                event.setProjectile(null);
+                //event.setCancelled(true);
+                //event.setProjectile(null);
                 return;
             }
         }

@@ -21,6 +21,7 @@ public class ReadData {
     public Map<String, Config> configs = new HashMap<String, Config>();
     public ArrayList<Pair<Integer, String>> elts = new ArrayList<Pair<Integer, String>>();
     
+    @SuppressWarnings("deprecation")
     public ReadData(ZombieMod p) {
         this.plugin = p;
         

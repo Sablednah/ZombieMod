@@ -3,13 +3,13 @@ package me.sablednah.zombiemod;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.server.v1_5_R3.EntityEnderSignal;
+import net.minecraft.server.v1_7_R4.EntityEnderSignal;
 
 import org.bukkit.Chunk;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_5_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -39,7 +39,7 @@ public class PlayerListener implements Listener {
 		String name;
 
 		Player p = event.getEntity();
-		health = p.getMaxHealth();
+		health = (int)p.getMaxHealth();
 		name = p.getName();
 
 		armour = (calculateArmour(p) / 4);
@@ -185,9 +185,9 @@ public class PlayerListener implements Listener {
 					if (closest != null) {
 						System.out.print("Closest: " + closest.getBlockX() + " , " + closest.getBlockY() + " , " + closest.getBlockZ());
 
-						ItemStack ep = new ItemStack(381, 1);
+						ItemStack ep = new ItemStack(Material.EYE_OF_ENDER, 1);
 						p.getInventory().remove(ep);
-						net.minecraft.server.v1_5_R3.World paramWorld = ((CraftWorld) p.getWorld()).getHandle();
+						net.minecraft.server.v1_7_R4.World paramWorld = ((CraftWorld) p.getWorld()).getHandle();
 						EntityEnderSignal localEntityEnderSignal = new EntityEnderSignal(paramWorld, l.getX(), l.getY(), l.getZ());
 						// localEntityEnderSignal.a(closest.getChunk().getX(), (int) closest.getY() / 16,
 						// closest.getChunk().getZ());
@@ -225,7 +225,7 @@ public class PlayerListener implements Listener {
 		int total = 0;
 		if (p != null) {
 			PlayerInventory inv = p.getInventory();
-			if (inv.getItemInHand() != null && inv.getItemInHand().getTypeId() > 0) {
+			if (inv.getItemInHand() != null && inv.getItemInHand().getType() != Material.AIR) {
 				switch (inv.getItemInHand().getType()) {
 					case DIAMOND_SWORD:
 						total = 14;
@@ -265,7 +265,7 @@ public class PlayerListener implements Listener {
 		int total = 0;
 		if (p != null) {
 			PlayerInventory inv = p.getInventory();
-			if (inv.getHelmet() != null && inv.getHelmet().getTypeId() > 0) {
+			if (inv.getHelmet() != null && inv.getHelmet().getType() != Material.AIR) {
 				switch (inv.getHelmet().getType()) {
 					case DIAMOND_HELMET:
 						total += 3;
@@ -280,7 +280,7 @@ public class PlayerListener implements Listener {
 						break;
 				}
 			}
-			if (inv.getChestplate() != null && inv.getChestplate().getTypeId() > 0) {
+			if (inv.getChestplate() != null && inv.getChestplate().getType() != Material.AIR) {
 				switch (inv.getChestplate().getType()) {
 					case DIAMOND_CHESTPLATE:
 						total += 3;
@@ -295,7 +295,7 @@ public class PlayerListener implements Listener {
 						break;
 				}
 			}
-			if (inv.getBoots() != null && inv.getBoots().getTypeId() > 0) {
+			if (inv.getBoots() != null && inv.getBoots().getType()  != Material.AIR) {
 				switch (inv.getBoots().getType()) {
 					case DIAMOND_BOOTS:
 						total += 3;
@@ -310,7 +310,7 @@ public class PlayerListener implements Listener {
 						break;
 				}
 			}
-			if (inv.getLeggings() != null && inv.getLeggings().getTypeId() > 0) {
+			if (inv.getLeggings() != null && inv.getLeggings().getType() != Material.AIR) {
 				switch (inv.getLeggings().getType()) {
 					case DIAMOND_LEGGINGS:
 						total += 3;

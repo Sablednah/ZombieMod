@@ -10,11 +10,14 @@ import java.util.Map;
 import java.util.Scanner;
 import java.util.UUID;
 
+/*
+import com.tehbeard.beardstat.BeardStat;
+import com.tehbeard.beardstat.containers.EntityStatBlob;
+import com.tehbeard.beardstat.listeners.defer.DelegateIncrement;
+import com.tehbeard.beardstat.listeners.defer.DelegateSet;
 
-import me.tehbeard.BeardStat.BeardStat;
-import me.tehbeard.BeardStat.containers.PlayerStat;
-import me.tehbeard.BeardStat.containers.PlayerStatBlob;
-import me.tehbeard.BeardStat.containers.PlayerStatManager;
+import net.dragonzone.promise.Promise;
+*/
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -24,6 +27,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 //import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Chest;
@@ -34,11 +38,13 @@ import org.bukkit.block.Furnace;
 import org.bukkit.block.Jukebox;
 import org.bukkit.block.NoteBlock;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.v1_5_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_5_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
+import org.bukkit.craftbukkit.v1_7_R4.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.Horse;
+import org.bukkit.entity.Horse.Variant;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Monster;
@@ -49,14 +55,16 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
 import org.getspout.spoutapi.SpoutServer;
 import org.getspout.spoutapi.player.EntitySkinType;
 
-import com.massivecraft.factions.Board;
-import com.massivecraft.factions.FLocation;
-import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.entity.BoardColl;
+import com.massivecraft.factions.entity.Faction;
+import com.massivecraft.factions.entity.FactionColl;
+import com.massivecraft.massivecore.ps.PS;
 import com.nitnelave.CreeperHeal.CreeperHandler;
 
 public class Utils {
@@ -270,7 +278,7 @@ public class Utils {
                     if (safeLoc != null) {
                         
                         Location sqawnLoc = safeLoc.clone();
-                        net.minecraft.server.v1_5_R3.World mcWorld = ((CraftWorld) c.getWorld()).getHandle();
+                        net.minecraft.server.v1_7_R4.World mcWorld = ((CraftWorld) c.getWorld()).getHandle();
                         
 //                      if (ZombieMod.debugMode) {
                             ZombieMod.logger.info("[zm]  " + z.commonName + " rises from the dead - via proximity check!");
@@ -293,15 +301,12 @@ public class Utils {
     
     public static String getFactName(Location l) {
         if (ZombieMod.hasFactions) {
-            // P f = (P) plugin.getServer().getPluginManager().getPlugin("Factions");
-            // Faction fact = Board.getFactionAt(l);
-            FLocation fl = new FLocation(l);
-            Faction fact = Board.getFactionAt(fl);
+            Faction fact = BoardColl.get().getFactionAt(PS.valueOf(l));
             
             String factName;
             
             if (fact != null) {
-                factName = fact.getTag();
+                factName = fact.getName();
             } else {
                 factName = null;
             }
@@ -316,13 +321,11 @@ public class Utils {
     
     public static boolean isCalled(Location l, String factionname) {
         if (ZombieMod.hasFactions) {
-            FLocation fl = new FLocation(l);
-            Faction fact = Board.getFactionAt(fl);
-            
+            Faction fact = BoardColl.get().getFactionAt(PS.valueOf(l));
             String factName;
             
             if (fact != null) {
-                factName = fact.getTag();
+                factName = fact.getName();
             } else {
                 return false;
             }
@@ -337,15 +340,21 @@ public class Utils {
         return false;
     }
     
+    
+    public static boolean isWild(Location l) {
+        Faction fact = BoardColl.get().getFactionAt(PS.valueOf(l));
+        return fact.getName().equalsIgnoreCase("wilderness");
+    }
+
+    
     public static boolean isSafe(Location l) {
         if (ZombieMod.hasFactions) {
-            FLocation fl = new FLocation(l);
-            Faction fact = Board.getFactionAt(fl);
+            Faction fact = BoardColl.get().getFactionAt(PS.valueOf(l));
             
             String factName;
             
             if (fact != null) {
-                factName = fact.getTag();
+                factName = fact.getName();
             } else {
                 return false;
             }
@@ -353,13 +362,15 @@ public class Utils {
             factName = factName.toLowerCase();
             factName = ChatColor.stripColor(factName);
             
-            if (factName.equals(ZombieMod.factionsSafeName) || factName.equals("rentableplot")) {
+            Faction sz = FactionColl.get().getSafezone();
+            
+            if (fact==sz || factName.equals("rentableplot")) {
                 return true;
             }
         } else {
             if (ZombieMod.spawnLoc.getWorld().getName().equals(l.getWorld().getName())) {
-                double dist = ZombieMod.spawnLoc.distance(l);
-                if (dist < 50) {
+                double dist = ZombieMod.spawnLoc.distanceSquared(l);
+                if (dist < 2500) {
                     return true;
                 }
             }
@@ -369,16 +380,26 @@ public class Utils {
     }
     
     public static void spawnZombie(PutredineImmortui z, Location l, ZombieMod plugin) {
-        spawnZombie(z, l, plugin, 50);
+    	Location spawn = l.getWorld().getSpawnLocation();
+        double d = spawn.distanceSquared(l);        
+        // 29160000 = 5400 blocks squared
+        int level = (int)(Math.floor((d/29160000.0D) * 50.0D));
+        
+        // System.out.print("Setting Zombie distance level to:"+level);
+        
+        spawnZombie(z, l, plugin, level);
     }
 
     public static boolean spawnZombie(PutredineImmortui z, Location l, ZombieMod plugin, int level) {
+        // System.out.print("Spawning level:"+level);
         return spawnZombie(z, l, plugin, level, 0);
     }
 
     
     public static boolean spawnZombie(PutredineImmortui z, Location l, ZombieMod plugin, int level, int hp) {
-        net.minecraft.server.v1_5_R3.World mcWorld = ((CraftWorld) l.getWorld()).getHandle();
+        // System.out.print("Final spawning level:"+level);
+
+    	net.minecraft.server.v1_7_R4.World mcWorld = ((CraftWorld) l.getWorld()).getHandle();
         if (z == null) {
             z = new PutredineImmortui(plugin);
         }
@@ -395,11 +416,16 @@ public class Utils {
                     level = 1;
                 }
                 int healthPC = 50 + level;
-                thishealth = (int) ((thishealth / 100.00) * healthPC);
+                thishealth = (int) ((thishealth / 100.00D) * healthPC);                
+                
             }
             if (hp > 0) {
                 thishealth = hp;
             }
+            int xp = newzomb.genus.xp;
+            xp = (int) ((xp/100.0D)*(50+level));
+            newzomb.genus.xp=xp;
+
             newzomb.setHealth(thishealth);
             newzomb.setCustomName(z.commonName);
 
@@ -408,6 +434,7 @@ public class Utils {
             // l.getWorld().spawnEntity(l, EntityType.GIANT);
         } else {
             ZombieType newzomb = new ZombieType(mcWorld, z);
+            
             newzomb.setPosition(l.getX(), l.getY() + 1, l.getZ());
             newzomb.maxHealth = z.maxHealth;
             int thishealth;
@@ -417,39 +444,76 @@ public class Utils {
                     level = 1;
                 }
                 int healthPC = 50 + level;
-                thishealth = (int) ((thishealth / 100.00) * healthPC);
+                thishealth = (int) ((thishealth / 100.00D) * healthPC);
+                
+                Double dmg = newzomb.getDamage();
+                newzomb.setDamage((dmg/100.00D) * healthPC);
+                
             }
+            
+            newzomb.getBukkitEntity().setMetadata("level", new FixedMetadataValue(plugin, (Integer) level));
+            
+            // System.out.print("Setting Zombie level to:"+level);
+
+            
             if (hp > 0) {
                 thishealth = hp;
             }
             // newzomb.heal(z.maxHealth);
             newzomb.setHealth(thishealth);
             newzomb.setCustomName(z.commonName);
+                        
+            if (ZombieMod.debugMode) {
+                ZombieMod.logger.info("[ZM] mcworld : " + mcWorld);
+                ZombieMod.logger.info("[ZM] newzomb : " + newzomb);
+            } 
+            
+                        
             mcWorld.addEntity(newzomb, SpawnReason.CUSTOM);
+
+            if (ZombieMod.debugMode) {
+                ZombieMod.logger.info("[zm] newzomb added");
+            } 
+
+            
             if (z.jockey != null) {
-                // TODO split jocky on | to get id/hp/name etc
+                // split jocky on | to get id/hp/name etc
                 String[] jInf = z.jockey.split("\\|");
                 
                 EntityType et =null;
                 LivingEntity mount = null;
                 
- //               System.out.print("z.jockey:"+z.jockey);
- //               System.out.print("jInf[0]:"+jInf[0]);
                 if (jInf[0].equalsIgnoreCase("AngryGolem")) {
                     AngryGolem ag = new AngryGolem(mcWorld);
                     ag.setPosition(l.getX(), l.getY() + 1, l.getZ());
                     mcWorld.addEntity(ag, SpawnReason.CUSTOM);
                     et = EntityType.IRON_GOLEM;
                     mount = (LivingEntity) ag.getBukkitEntity();
-//                    System.out.print("AngryGolem!");
                 } else {
-                    et = EntityType.fromName(jInf[0]);
-                    mount  = (LivingEntity) l.getWorld().spawnEntity(l, et);
+                    et = EntityType.valueOf(jInf[0].toUpperCase().trim());
+                    if (et == null) {
+                        if (jInf[0] != null){
+                             if (jInf[0].equalsIgnoreCase("horse")) {
+                                 et = EntityType.HORSE;
+                             } else if (jInf[0].equalsIgnoreCase("spider")) {
+                                 et = EntityType.SPIDER;
+                             } else if (jInf[0].equalsIgnoreCase("enderdragon")) {
+                                 et = EntityType.ENDER_DRAGON;
+                             } else if (jInf[0].equalsIgnoreCase("wolf")) {
+                                 et = EntityType.WOLF;
+                             } else if (jInf[0].equalsIgnoreCase("ocelot")) {
+                                 et = EntityType.OCELOT;
+                             }
+                         }
+                     }
+                    if (et != null) {
+                        mount  = (LivingEntity) l.getWorld().spawnEntity(l, et);
+                    }
                 }
                 
-                mount.setPassenger(newzomb.getBukkitEntity());
-                mount.setRemoveWhenFarAway(true);
                 
+                if (mount != null) {
+                                
                 switch (mount.getType()) {
                     case WOLF:
                         Wolf w = (Wolf)mount;
@@ -465,6 +529,13 @@ public class Utils {
                             ig.setHealth(ig.getMaxHealth());
                         }
                         break;
+                    case HORSE:
+                          Horse mlp = (Horse)mount;
+                          mlp.setDomestication(mlp.getMaxDomestication());
+                          mlp.setTamed(true);
+                          mlp.setMaxHealth(z.maxHealth);
+                          mlp.setHealth(mount.getMaxHealth());
+                          
                     default:
                         mount.setMaxHealth(z.maxHealth);
                         mount.setHealth(mount.getMaxHealth());
@@ -478,7 +549,27 @@ public class Utils {
                         mount.setMaxHealth(Integer.parseInt(jInf[2]));
                         mount.setHealth(mount.getMaxHealth());
                     }
-                    // TODO check for other values in jInf[3] for flags such as horse type
+                    // check for other values in jInf[3] for flags such as horse type
+                    if (jInf.length>3) {
+                        if (!jInf[3].isEmpty()) {
+                            if (mount.getType()==EntityType.HORSE) { 
+                                Variant v = null;
+                                v = Variant.valueOf(jInf[3]);
+                                if ( v == null ) {
+                                    if (jInf[3].equalsIgnoreCase("UNDEAD_HORSE")) {
+                                        v = Variant.UNDEAD_HORSE;
+                                    }
+                                }
+                                ((Horse)mount).setVariant(v);
+                            }
+                        }                        
+                    }
+                }
+                
+                mount.setPassenger(newzomb.getBukkitEntity());
+                mount.setRemoveWhenFarAway(true);
+                newzomb.locY = newzomb.locY - 1.0D; 
+                
                 }
             }
         }
@@ -496,7 +587,7 @@ public class Utils {
         if (entity == null) {
             return null;
         }
-        net.minecraft.server.v1_5_R3.Entity mcEntity = (((CraftEntity) entity).getHandle());
+        net.minecraft.server.v1_7_R4.Entity mcEntity = (((CraftEntity) entity).getHandle());
         if (mcEntity instanceof ZombieType) {
             ZombieType zt = (ZombieType) mcEntity;
             if (zt.genus != null) {
@@ -515,7 +606,7 @@ public class Utils {
         if (entity == null) {
             return false;
         }
-        net.minecraft.server.v1_5_R3.Entity mcEntity = (((CraftEntity) entity).getHandle());
+        net.minecraft.server.v1_7_R4.Entity mcEntity = (((CraftEntity) entity).getHandle());
         if (mcEntity instanceof ZombieType) {
             ZombieType zt = (ZombieType) mcEntity;
             if (zt.genus != null) {
@@ -531,7 +622,7 @@ public class Utils {
     }
     
     public static void addResistance(Entity entity, Material bob) {
-        net.minecraft.server.v1_5_R3.Entity mcEntity = (((CraftEntity) entity).getHandle());
+        net.minecraft.server.v1_7_R4.Entity mcEntity = (((CraftEntity) entity).getHandle());
         if (mcEntity instanceof ZombieType) {
             ZombieType zt = (ZombieType) mcEntity;
             if (zt.genus != null) {
@@ -613,6 +704,7 @@ public class Utils {
         
         for (BlockState bs : blocks) {
             Material m = bs.getType();
+            @SuppressWarnings("deprecation")
             byte d = bs.getData().getData();
             int bsX = bs.getX();
             int bsY = bs.getY();
@@ -620,6 +712,7 @@ public class Utils {
             double depth = (block.getY() + radius) - bsY + 1;
             double speed = .5 + ((1.00D / depth) * 2); // (1.00D/distance)
             Location fbl = new Location(block.getWorld(), bsX, bsY, bsZ);
+            @SuppressWarnings("deprecation")
             FallingBlock fb = fbl.getWorld().spawnFallingBlock(fbl, m, d);
             fb.setVelocity(new Vector(0.00D, speed, 0.00D));
             if (Math.random()>0.95D) {
@@ -635,8 +728,12 @@ public class Utils {
         if (c == null)
             return; // sanity check.
         if (ZombieMod.hasFactions) {
-            FLocation fl = new FLocation(c.getWorld().getName(), c.getX(), c.getZ());
-            Board.setIdAt("-2", fl);
+            Location l = new Location(c.getWorld(), (double)c.getX(), 64.0D, (double)c.getZ());
+            PS ps = PS.valueOf(l);
+            
+            Faction wz = FactionColl.get().getWarzone();
+            
+            BoardColl.get().setFactionAt(ps, wz);
         }
     }
     
@@ -667,31 +764,39 @@ public class Utils {
             eq.setHelmetDropChance(0);
         }
     }
-    
+
     public static void addStat(String playerName, String category, String statname, int statAdd) {
+    	/*
         BeardStat beardStat = (BeardStat) Bukkit.getServer().getPluginManager().getPlugin("BeardStat");
-        PlayerStatManager statManager = beardStat.getStatManager();
-        PlayerStatBlob blob = statManager.getPlayerBlob(playerName);
-        PlayerStat stat = blob.getStat(category, statname);
-        if (statAdd > 0) {
-            stat.incrementStat(statAdd);
-        } else if (statAdd < 0) {
-            stat.incrementStat(Math.abs(statAdd));
+        Promise<EntityStatBlob> promiseblob = beardStat.getStatManager().getOrCreatePlayerStatBlob(playerName);
+        String w = "none";
+        @SuppressWarnings("deprecation")
+        Player p = Bukkit.getPlayer(playerName);
+        if(p!= null) {
+            w = p.getWorld().getName();
         }
+        promiseblob.onResolve(new DelegateIncrement("ZombieMod", w, category, statname, statAdd));
+        */
     }
     
     public static void setStat(String playerName, String category, String statname, int statValue) {
+    	/*
         BeardStat beardStat = (BeardStat) Bukkit.getServer().getPluginManager().getPlugin("BeardStat");
-        PlayerStatManager statManager = beardStat.getStatManager();
-        PlayerStatBlob blob = statManager.getPlayerBlob(playerName);
-        PlayerStat stat = blob.getStat(category, statname);
-        stat.setValue(statValue);
+        Promise<EntityStatBlob> promiseblob = beardStat.getStatManager().getOrCreatePlayerStatBlob(playerName);
+        String w = "none";
+        @SuppressWarnings("deprecation")
+        Player p = Bukkit.getPlayer(playerName);
+        if(p!= null) {
+            w = p.getWorld().getName();
+        }
+        promiseblob.onResolve(new DelegateSet("ZombieMod", w, category, statname, statValue));
+        */
     }
     
     public static String cleanName(String name) {
         String newname = name;
         String searchcode = ZombieMod.heatlhPrefix;
-        if (newname.contains(searchcode)) {
+        if (newname!= null && newname.contains(searchcode)) {
             int loc = newname.indexOf(searchcode);
             int start = 0;
             if (newname.startsWith("§f")) {
@@ -705,7 +810,7 @@ public class Utils {
     }
     
     public static ItemStack getSkullItemStack(int amount, String playerName) {
-        ItemStack s = new ItemStack(397, amount);
+        ItemStack s = new ItemStack(Material.SKULL_ITEM, amount);
         s.setDurability((short) 3);
         SkullMeta meta = (SkullMeta) s.getItemMeta();
         meta.setOwner(playerName);
@@ -713,4 +818,37 @@ public class Utils {
         return s;
     }
 
+
+	 public static final BlockFace[] axis = { BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST };
+	 public static final BlockFace[] radial = { BlockFace.NORTH, BlockFace.NORTH_EAST, BlockFace.EAST, BlockFace.SOUTH_EAST, BlockFace.SOUTH, BlockFace.SOUTH_WEST, BlockFace.WEST, BlockFace.NORTH_WEST };
+	   
+	    /**
+	    * Gets the horizontal Block Face from a given yaw angle<br>
+	    * This includes the NORTH_WEST faces
+	    *
+	    * @param yaw angle
+	    * @return The Block Face of the angle
+	    */
+	    public static BlockFace yawToFace(float yaw) {
+	        return yawToFace(yaw, true);
+	    }
+	 
+	    /**
+	    * Gets the horizontal Block Face from a given yaw angle
+	    *
+	    * @param yaw angle
+	    * @param useSubCardinalDirections setting, True to allow NORTH_WEST to be returned
+	    * @return The Block Face of the angle
+	    */
+	    public static BlockFace yawToFace(float yaw, boolean useSubCardinalDirections) {
+	        if (useSubCardinalDirections) {
+	            return radial[Math.round(yaw / 45f) & 0x7];
+	        } else {
+	            return axis[Math.round(yaw / 90f) & 0x3];
+	        }
+	    }
+
+
 }
+
+

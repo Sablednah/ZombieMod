@@ -22,7 +22,8 @@ public class PluginCommandExecutor implements CommandExecutor {
 		this.plugin = instance;
 	}
 
-	@Override
+	@SuppressWarnings("deprecation")
+    @Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (command.getName().equalsIgnoreCase(this.plugin.myName.toLowerCase())) {
 			if (args.length > 0 && args[0].toLowerCase().equals("reload")) {
@@ -145,12 +146,13 @@ public class PluginCommandExecutor implements CommandExecutor {
 									Location sqawnLoc = safeNewBlock.getLocation();
 
 									PutredineImmortui zomb = new PutredineImmortui(plugin, genus);
-									if (ZombieMod.debugMode) {
-										ZombieMod.logger.info("[" + this.plugin.myName + "] " + zomb.commonName + " spawned via command");
-									}
-									sender.sendMessage("Zombie '" + zomb.commonName + "' spawned.");
 									
 									Utils.spawnZombie(zomb, sqawnLoc, plugin);
+                                                                        
+									if (ZombieMod.debugMode) {
+                                                                            ZombieMod.logger.info("[" + this.plugin.myName + "] " + zomb.commonName + " spawned via command");
+                                                                        }
+                                                                        sender.sendMessage("Zombie '" + zomb.commonName + "' spawned.");
 
 									return true;
 								}

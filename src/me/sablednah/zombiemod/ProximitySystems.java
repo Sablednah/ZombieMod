@@ -8,6 +8,9 @@ import java.util.Random;
 
 import me.daddychurchill.CityWorld.CityWorld;
 import me.daddychurchill.CityWorld.CityWorldAPI;
+import me.sablednah.legendquest.Main;
+import me.sablednah.legendquest.experience.SetExp;
+import me.sablednah.legendquest.playercharacters.PC;
 
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
@@ -20,8 +23,10 @@ import org.bukkit.entity.Giant;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
 
-import com.herocraftonline.heroes.Heroes;
-import com.herocraftonline.heroes.characters.Hero;
+import com.massivecraft.factions.entity.BoardColl;
+import com.massivecraft.factions.entity.Faction;
+import com.massivecraft.factions.entity.FactionColl;
+import com.massivecraft.massivecore.ps.PS;
 
 public class ProximitySystems implements Runnable {
 	public ZombieMod	plugin;
@@ -50,15 +55,17 @@ public class ProximitySystems implements Runnable {
 			if (ZombieMod.proximityspawner) {
 			        int level = MAX_LEVEL;
 			        
-			        if (ZombieMod.hasHeroes) {
-			            Heroes heroes = (Heroes)plugin.getServer().getPluginManager().getPlugin("Heroes");
-			            Hero hero = heroes.getCharacterManager().getHero(onlinePlayer);
-			            level = hero.getLevel();
+			        if (ZombieMod.hasLegendQuest) {
+			            Main legendQuest = (Main)plugin.getServer().getPluginManager().getPlugin("LegendQuest");
+			            PC pc = legendQuest.players.getPC(onlinePlayer);
+			            level = (SetExp.getLevelOfXpAmount(pc.currentXP)) / 3;
 			            if (level<1) {level=1;}
+//			            System.out.print("Level:"+level);
 			        }
 
 				int probability = ZombieMod.zombiespawnratio;
 				probability = (int) (probability - (25 - (level / 2.0))) ;
+				
 				Random rand = new Random();
 				if (ZombieMod.debugMode) {
 					ZombieMod.logger.info("[" + this.plugin.myName + "] Begin Proximity chek for " + onlinePlayer.getName());
@@ -69,9 +76,15 @@ public class ProximitySystems implements Runnable {
 					}
 
 					World zombieWorld = l.getWorld();
-					String factName = Utils.getFactName(l);
 
-					if (factName == null || (factName.equals(ZombieMod.factionsWarZone) || factName.equals(ZombieMod.factionsWildName) || factName.equals("none"))) {
+					Faction fact = BoardColl.get().getFactionAt(PS.valueOf(l));
+
+			            Faction nz = FactionColl.get().getNone();
+//			            Faction sz = FactionColl.get().getSafezone();
+			            Faction wz = FactionColl.get().getWarzone();
+
+				        
+					if ( fact == null || fact == nz || fact == wz ) {
 						if (debugMe && ZombieMod.debugMode) {
 							ZombieMod.logger.info("[" + this.plugin.myName + "] Player safe zone check passed");
 						}
@@ -197,8 +210,8 @@ public class ProximitySystems implements Runnable {
 														Entry<String, Config> element = confs.next();
 														Config testconf = element.getValue();
 														if (testconf.schematics != null && testconf.schematics.contains(info.get("schematic"))) {
-															System.out.print(element.getKey());
-															System.out.print(testconf.altfrequency);
+//															System.out.print(element.getKey());
+//															System.out.print(testconf.altfrequency);
 															freq.add(new Pair<Integer, String>(testconf.altfrequency, element.getKey()));
 														}
 													}
@@ -209,15 +222,54 @@ public class ProximitySystems implements Runnable {
 														newmap = null;
 													}
 												}
+												if (info!= null && info.containsKey("lotclass")) {
+													// look through genus for schematic matches...
+													ArrayList<Pair<Integer, String>> freq = new ArrayList<Pair<Integer, String>>();
+													Iterator<Entry<String, Config>> confs = plugin.genera.configs.entrySet().iterator();
+													while (confs.hasNext()) {
+														Entry<String, Config> element = confs.next();
+														Config testconf = element.getValue();
+														if (testconf.schematics != null && testconf.schematics.contains(info.get("lotclass"))) {
+//															System.out.print(element.getKey());
+//															System.out.print(testconf.altfrequency);
+															freq.add(new Pair<Integer, String>(testconf.altfrequency, element.getKey()));
+														}
+													}
+													if (freq.size() > 0) {
+														WeightedProbMap<String> newmap = new WeightedProbMap<String>(freq);
+														String thisgenera = newmap.nextElt();
+														zomb = new PutredineImmortui(plugin, thisgenera);
+														newmap = null;
+													}
+												}
+												
 												if (zomb == null) {
 													if (info != null && info.containsKey("context")) {
 														ArrayList<Pair<Integer, String>> freq = new ArrayList<Pair<Integer, String>>();
 														Iterator<Entry<String, Config>> confs = plugin.genera.configs.entrySet().iterator();
+														
+														String cxt = info.get("context");
+														boolean beach = false;
+														
+														if (safeNewLoc.getBlockY()>50) {
+															if (safeNewLoc.getBlockX()>-3600 && safeNewLoc.getBlockX()<-3560) {
+																if (safeNewLoc.getBlockZ()>-2041 && safeNewLoc.getBlockZ()<-1900) {
+																	cxt = "NATURE";
+																	beach=true;
+																}
+															}
+														}
 														while (confs.hasNext()) {
 															Entry<String, Config> element = confs.next();
 															Config testconf = element.getValue();
-															if (testconf.contexts != null && testconf.contexts.contains(info.get("context"))) {
-																freq.add(new Pair<Integer, String>(testconf.altfrequency, element.getKey()));
+															if (testconf.contexts != null && testconf.contexts.contains(cxt)) {
+																if (testconf.size > 2.9F && beach) { 
+																	freq.add(new Pair<Integer, String>(testconf.altfrequency+200, element.getKey()));
+//																	if (beach) { System.out.print(element.getKey() + " - " + (testconf.altfrequency+200)); }																	
+																} else {
+//																	if (beach) { System.out.print(element.getKey() + " - " + testconf.altfrequency); }
+																	freq.add(new Pair<Integer, String>(testconf.altfrequency, element.getKey()));
+																}
 															}
 														}
 														if (freq.size() > 0) {

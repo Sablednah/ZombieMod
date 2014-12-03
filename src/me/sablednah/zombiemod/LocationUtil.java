@@ -6,6 +6,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
+@SuppressWarnings("deprecation")
 public class LocationUtil {
     
     // The player can stand inside these materials

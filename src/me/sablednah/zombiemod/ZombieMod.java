@@ -3,8 +3,6 @@ package me.sablednah.zombiemod;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +35,6 @@ public class ZombieMod extends JavaPlugin {
     
     public static Logger logger;
     public EntityListener EntityListener;
-    public SkillScheduler SkillScheduler = new SkillScheduler(this);
     public static long intervals = 0;
     
     public static int chunklimit;
@@ -52,9 +49,6 @@ public class ZombieMod extends JavaPlugin {
     public static Boolean proximityspawner;
     public static Boolean blocknaturalspawns;
     public static Boolean givezombieplayeritems;
-    public static String factionsWildName;
-    public static String factionsWarZone;
-    public static String factionsSafeName;
     public static Location spawnLoc;
     public static String exitMessage;
     
@@ -70,7 +64,7 @@ public class ZombieMod extends JavaPlugin {
     public static PotionEffect speedPotion = new PotionEffect(PotionEffectType.SPEED, 20, 1);
     public static PotionEffect resistPotion = new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 20, 1);
     
-    public static Boolean hasHeroes;
+    public static Boolean hasLegendQuest;
     public static Boolean hasSpout;
     public static Boolean hasFactions;
     public static Boolean hasCityWorld;
@@ -128,10 +122,10 @@ public class ZombieMod extends JavaPlugin {
             
             logger.info("[" + myName + "] Spout features Enabled");
         }
-        hasHeroes = this.getServer().getPluginManager().isPluginEnabled("Heroes");
-        if (hasHeroes) {
-            logger.info("[" + myName + "] Heroes Support Enabled");
-            pm.registerEvents(this.SkillScheduler, this);
+        hasLegendQuest = this.getServer().getPluginManager().isPluginEnabled("LegendQuest");
+        if (hasLegendQuest) {
+            logger.info("[" + myName + "] LegendQuest Support Enabled");
+            //pm.registerEvents(this.SkillScheduler, this);
         }
         hasFactions = this.getServer().getPluginManager().isPluginEnabled("Factions");
         if (hasFactions) {
@@ -147,23 +141,17 @@ public class ZombieMod extends JavaPlugin {
         if (hasBeardStat) {
             logger.info("[" + myName + "] BeardStat Support Enabled");
         }
+        hasFactions = this.getServer().getPluginManager().isPluginEnabled("Factions");
+        if (hasFactions) {
+            logger.info("[" + myName + "] Factions Support Enabled");
+        }
         hasCreeperHeal = this.getServer().getPluginManager().isPluginEnabled("CreeperHeal");
         if (hasCreeperHeal) {
             logger.info("[" + myName + "] Creeper Heal Support Enabled");
         }
         
-        // Custom NMS stuff here :/
-        try {
-            @SuppressWarnings("rawtypes")
-            Class[] args = new Class[3];
-            args[0] = Class.class;
-            args[1] = String.class;
-            args[2] = int.class;
-            Method a = net.minecraft.server.v1_5_R3.EntityTypes.class.getDeclaredMethod("a", args);
-            a.setAccessible(true);
-            a.invoke(a, ZombieType.class, "Zombie", 54);
-            a.invoke(a, ZombieGiantType.class, "Giant", 53);
-            a.invoke(a, AngryGolem.class, "VillagerGolem", 99);
+        try{
+            RegisterEntities.registerEntities();
         } catch (Exception e) {
             e.printStackTrace();
             this.setEnabled(false);
@@ -192,7 +180,7 @@ public class ZombieMod extends JavaPlugin {
         // plugin.getServer().getScheduler().scheduleAsyncRepeatingTask(plugin, new
         // ProcessAsyncedTasks(plugin),200L,200L);
         
-        // Sync thread to trigger animations uses "interval" and % devision to execute tasks ever 5 runs etc.
+        // Sync thread to trigger animations uses "interval" and % devision to execute tasks every 5 runs etc.
         this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new Animations(this), 20L, 20L);
         
         // Super lightweight task to set speeds vectors frequently
@@ -243,9 +231,6 @@ public class ZombieMod extends JavaPlugin {
         zombiespawnerratio = getConfig().getInt("zombiespawnerratio", 80);
         
         spawnmultiplier = getConfig().getInt("spawnmultiplier", 0);
-        factionsWildName = getConfig().getString("factionsWildName", "wilderness");
-        factionsSafeName = getConfig().getString("factionsSafeName", "safezone");
-        factionsWarZone = getConfig().getString("factionsWarZone", "warzone");
         
         double sx, sy, sz;
         Location sp = Bukkit.getServer().getWorlds().get(0).getSpawnLocation();
@@ -319,4 +304,6 @@ public class ZombieMod extends JavaPlugin {
             logger.severe("Could not save Lang config to " + LangConfigurationFile + " " + ex);
         }
     }
+
+    
 }
