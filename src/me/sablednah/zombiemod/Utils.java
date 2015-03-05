@@ -19,6 +19,9 @@ import com.tehbeard.beardstat.listeners.defer.DelegateSet;
 import net.dragonzone.promise.Promise;
 */
 
+import net.minecraft.server.v1_8_R1.EntityChicken;
+import net.minecraft.server.v1_8_R1.EntityRabbit;
+
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -38,8 +41,8 @@ import org.bukkit.block.Furnace;
 import org.bukkit.block.Jukebox;
 import org.bukkit.block.NoteBlock;
 import org.bukkit.block.Sign;
-import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
-import org.bukkit.craftbukkit.v1_7_R4.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R1.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.FallingBlock;
@@ -99,7 +102,9 @@ public class Utils {
     public static void setTempnvluln(LivingEntity e, int d) {
         if (e != null) {
             e.setNoDamageTicks(e.getMaximumNoDamageTicks());
-            e.setLastDamage(d);
+            Double db = (double) d;
+            
+            e.setLastDamage(db);
         }
     }
     
@@ -278,7 +283,7 @@ public class Utils {
                     if (safeLoc != null) {
                         
                         Location sqawnLoc = safeLoc.clone();
-                        net.minecraft.server.v1_7_R4.World mcWorld = ((CraftWorld) c.getWorld()).getHandle();
+                        net.minecraft.server.v1_8_R1.World mcWorld = ((CraftWorld) c.getWorld()).getHandle();
                         
 //                      if (ZombieMod.debugMode) {
                             ZombieMod.logger.info("[zm]  " + z.commonName + " rises from the dead - via proximity check!");
@@ -399,11 +404,11 @@ public class Utils {
     public static boolean spawnZombie(PutredineImmortui z, Location l, ZombieMod plugin, int level, int hp) {
         // System.out.print("Final spawning level:"+level);
 
-    	net.minecraft.server.v1_7_R4.World mcWorld = ((CraftWorld) l.getWorld()).getHandle();
+    	net.minecraft.server.v1_8_R1.World mcWorld = ((CraftWorld) l.getWorld()).getHandle();
         if (z == null) {
             z = new PutredineImmortui(plugin);
         }
-        if (z.size > 99) {  // set to 2 for giant spawning re-enableing...
+        if (z.size > 2) {  // set to 2 for giant spawning re-enableing...
             // ZombieMod.logger.info("[zm] Spawning giant - " + z.size);
             ZombieGiantType newzomb = new ZombieGiantType(mcWorld, z);
             newzomb.setPosition(l.getX(), l.getY() + 5, l.getZ());
@@ -417,8 +422,12 @@ public class Utils {
                 }
                 int healthPC = 50 + level;
                 thishealth = (int) ((thishealth / 100.00D) * healthPC);                
-                
+
+                Double dmg = newzomb.getDamage();
+                newzomb.setDamage((dmg/100.00D) * healthPC);
+
             }
+            newzomb.getBukkitEntity().setMetadata("level", new FixedMetadataValue(plugin, (Integer) level));
             if (hp > 0) {
                 thishealth = hp;
             }
@@ -453,12 +462,30 @@ public class Utils {
             
             newzomb.getBukkitEntity().setMetadata("level", new FixedMetadataValue(plugin, (Integer) level));
             
-            // System.out.print("Setting Zombie level to:"+level);
-
+/*
+            PutredineImmortui x = newzomb.genus;            
+            if (x!=null) {
+            	ZombieMod.logger.severe("Got genus! " + x.genus);
+            	System.out.print("got gen");
+            	if (x.abilities!=null) {
+                	ZombieMod.logger.severe("Got abilities! " + x.abilities.toArray().toString());
+                	System.out.print("got abilities");
+                	if (x.abilities.contains("SPIDER")) {
+                    	ZombieMod.logger.severe("Spider brain");
+                    	System.out.print("spiderbrains");
+                    	newzomb.spiderBrains();
+                	}            		
+            	}
+            }
+            System.out.print("Setting Zombie level to:"+level);
+*/
             
             if (hp > 0) {
                 thishealth = hp;
             }
+            int xp = newzomb.genus.xp;
+            xp = (int) ((xp/100.0D)*(50+level));
+            newzomb.genus.xp=xp;
             // newzomb.heal(z.maxHealth);
             newzomb.setHealth(thishealth);
             newzomb.setCustomName(z.commonName);
@@ -507,7 +534,15 @@ public class Utils {
                          }
                      }
                     if (et != null) {
-                        mount  = (LivingEntity) l.getWorld().spawnEntity(l, et);
+                    	if (et != EntityType.HORSE) {
+                    		mount  = (LivingEntity) l.getWorld().spawnEntity(l, et);
+                    	} else {
+//                    		System.out.print("steed spawning.");
+                            ZombieSteed steed = new ZombieSteed(mcWorld, z);
+                            steed.setPosition(l.getX(), l.getY() + 1, l.getZ());
+                            mcWorld.addEntity(steed, SpawnReason.CUSTOM);     
+                            mount = ((Horse)steed.getBukkitEntity());
+                    	}
                     }
                 }
                 
@@ -515,6 +550,20 @@ public class Utils {
                 if (mount != null) {
                                 
                 switch (mount.getType()) {
+                	case RABBIT:
+                		net.minecraft.server.v1_8_R1.Entity hare = ((CraftEntity) mount).getHandle();
+                		EntityRabbit bunny = (EntityRabbit)hare;
+                		bunny.r(99);
+                        mount.setMaxHealth(z.maxHealth);
+                        mount.setHealth(mount.getMaxHealth());
+                		break;
+                	case CHICKEN:
+                		net.minecraft.server.v1_8_R1.Entity mcEntity = ((CraftEntity) mount).getHandle();
+                		EntityChicken mcChickin = (EntityChicken)mcEntity;
+                		mcChickin.l(true);
+                        mount.setMaxHealth(z.maxHealth);
+                        mount.setHealth(mount.getMaxHealth());
+                		break;
                     case WOLF:
                         Wolf w = (Wolf)mount;
                         w.setAngry(true);
@@ -587,7 +636,7 @@ public class Utils {
         if (entity == null) {
             return null;
         }
-        net.minecraft.server.v1_7_R4.Entity mcEntity = (((CraftEntity) entity).getHandle());
+        net.minecraft.server.v1_8_R1.Entity mcEntity = (((CraftEntity) entity).getHandle());
         if (mcEntity instanceof ZombieType) {
             ZombieType zt = (ZombieType) mcEntity;
             if (zt.genus != null) {
@@ -606,7 +655,7 @@ public class Utils {
         if (entity == null) {
             return false;
         }
-        net.minecraft.server.v1_7_R4.Entity mcEntity = (((CraftEntity) entity).getHandle());
+        net.minecraft.server.v1_8_R1.Entity mcEntity = (((CraftEntity) entity).getHandle());
         if (mcEntity instanceof ZombieType) {
             ZombieType zt = (ZombieType) mcEntity;
             if (zt.genus != null) {
@@ -622,7 +671,7 @@ public class Utils {
     }
     
     public static void addResistance(Entity entity, Material bob) {
-        net.minecraft.server.v1_7_R4.Entity mcEntity = (((CraftEntity) entity).getHandle());
+        net.minecraft.server.v1_8_R1.Entity mcEntity = (((CraftEntity) entity).getHandle());
         if (mcEntity instanceof ZombieType) {
             ZombieType zt = (ZombieType) mcEntity;
             if (zt.genus != null) {

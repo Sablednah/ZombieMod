@@ -3,9 +3,11 @@ package me.sablednah.zombiemod;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -22,8 +24,7 @@ public class PluginCommandExecutor implements CommandExecutor {
 		this.plugin = instance;
 	}
 
-	@SuppressWarnings("deprecation")
-    @Override
+	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (command.getName().equalsIgnoreCase(this.plugin.myName.toLowerCase())) {
 			if (args.length > 0 && args[0].toLowerCase().equals("reload")) {
@@ -68,21 +69,22 @@ public class PluginCommandExecutor implements CommandExecutor {
 			}
 
 			if (args.length > 0 && args[0].toLowerCase().equals("stomp")) {
-                            if (sender instanceof Player) {
-                                    if (sender.hasPermission(this.plugin.myName.toLowerCase() + ".stomp")) {
-                                            ZombieMod.spawnLoc = ((Player) sender).getLocation();
-                                            Utils.stomp(((Player) sender).getTargetBlock(null, 16).getLocation(), ((Player) sender), 6, 10);
-                                            return true;
-                                    } else {
-                                            sender.sendMessage("You do not have permission to set spawn origin.");
-                                            return true;
-                                    }
-                            } else {
-                                    ZombieMod.logger.info("[" + this.plugin.myName + "] Command not valid from Consolse.");
-                                    return true;
-                            }
-                    }
-			
+				if (sender instanceof Player) {
+					if (sender.hasPermission(this.plugin.myName.toLowerCase() + ".stomp")) {
+						ZombieMod.spawnLoc = ((Player) sender).getLocation();
+						Set<Material> imANullSet = null;
+						Utils.stomp(((Player) sender).getTargetBlock(imANullSet, 16).getLocation(), ((Player) sender), 6, 10);
+						return true;
+					} else {
+						sender.sendMessage("You do not have permission to set spawn origin.");
+						return true;
+					}
+				} else {
+					ZombieMod.logger.info("[" + this.plugin.myName + "] Command not valid from Consolse.");
+					return true;
+				}
+			}
+
 			if (args.length > 0 && args[0].toLowerCase().equals("soundtest")) {
 				if (sender instanceof Player) {
 					if (sender.hasPermission(this.plugin.myName.toLowerCase() + ".soundtest")) {
@@ -129,8 +131,8 @@ public class PluginCommandExecutor implements CommandExecutor {
 				Iterator<Map.Entry<UUID, PutredineImmortui>> it = ZombieMod.playerZombies.entrySet().iterator();
 				while (it.hasNext()) {
 					Map.Entry<UUID, PutredineImmortui> entry = it.next();
-					System.out.println(entry.getKey() + " = " + entry.getValue().commonName + " | " + entry.getValue().cid + " [" + Math.floor(entry.getValue().lastLoc.getX()) + " X - " + Math.floor(entry.getValue().lastLoc.getY())
-							+ " Y - " + Math.floor(entry.getValue().lastLoc.getZ()) + " Z]");
+					System.out.println(entry.getKey() + " = " + entry.getValue().commonName + " | " + entry.getValue().cid + " [" + Math.floor(entry.getValue().lastLoc.getX()) + " X - " + Math.floor(entry.getValue().lastLoc.getY()) + " Y - "
+							+ Math.floor(entry.getValue().lastLoc.getZ()) + " Z]");
 
 				}
 			}
@@ -140,20 +142,22 @@ public class PluginCommandExecutor implements CommandExecutor {
 						if (args.length > 1) {
 							String genus = (args[1].toLowerCase());
 							if (plugin.genera.configs.containsKey(genus)) {
-								Block lookAt = ((Player) sender).getTargetBlock(null, 20);
+								Set<Material> imANullSet = null;
+								Block lookAt = ((Player) sender).getTargetBlock(imANullSet, 20);
 								Block safeNewBlock = Utils.getNearestEmptySpace(lookAt, 5);
 								if (safeNewBlock != null) {
 									Location sqawnLoc = safeNewBlock.getLocation();
 
 									PutredineImmortui zomb = new PutredineImmortui(plugin, genus);
-									
-									Utils.spawnZombie(zomb, sqawnLoc, plugin);
-                                                                        
-									if (ZombieMod.debugMode) {
-                                                                            ZombieMod.logger.info("[" + this.plugin.myName + "] " + zomb.commonName + " spawned via command");
-                                                                        }
-                                                                        sender.sendMessage("Zombie '" + zomb.commonName + "' spawned.");
 
+									Utils.spawnZombie(zomb, sqawnLoc, plugin);
+
+									if (ZombieMod.debugMode) {
+										ZombieMod.logger.info("[" + this.plugin.myName + "] " + zomb.commonName + " spawned via command");
+									}
+									sender.sendMessage("Zombie '" + zomb.commonName + "' spawned....");
+// System.out.print("Wibble!");
+// ZombieMod.logger.info("wobble");
 									return true;
 								}
 							} else {
@@ -161,7 +165,8 @@ public class PluginCommandExecutor implements CommandExecutor {
 								return true;
 							}
 						} else {
-							Block lookAt = ((Player) sender).getTargetBlock(null, 20);
+							Set<Material> imANullSet = null;
+							Block lookAt = ((Player) sender).getTargetBlock(imANullSet, 20);
 							Block safeNewBlock = Utils.getNearestEmptySpace(lookAt, 5);
 							if (safeNewBlock != null) {
 
@@ -171,10 +176,10 @@ public class PluginCommandExecutor implements CommandExecutor {
 								if (ZombieMod.debugMode) {
 									ZombieMod.logger.info("[" + this.plugin.myName + "] " + zomb.commonName + " spawned via command");
 								}
-								sender.sendMessage("Zombie '" + zomb.commonName + "' spawned.");
+								sender.sendMessage("Zombie '" + zomb.commonName + "' spawned..");
 
 								Utils.spawnZombie(zomb, sqawnLoc, plugin);
-								
+
 								return true;
 							}
 						}

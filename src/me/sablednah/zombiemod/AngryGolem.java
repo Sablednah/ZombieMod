@@ -3,25 +3,20 @@ package me.sablednah.zombiemod;
 import java.lang.reflect.Field;
 import java.util.List;
 
-import org.bukkit.craftbukkit.v1_7_R4.entity.CraftLivingEntity;
-import org.bukkit.craftbukkit.v1_7_R4.event.CraftEventFactory;
-import org.bukkit.event.entity.EntityTargetEvent;
-import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import me.sablednah.zombiemod.AI.PathfinderGoalNearestGolemTargetNew;
+import net.minecraft.server.v1_8_R1.EntityHuman;
+import net.minecraft.server.v1_8_R1.EntityInsentient;
+import net.minecraft.server.v1_8_R1.EntityIronGolem;
+import net.minecraft.server.v1_8_R1.IMonster;
+import net.minecraft.server.v1_8_R1.PathfinderGoalHurtByTarget;
+import net.minecraft.server.v1_8_R1.PathfinderGoalLookAtPlayer;
+import net.minecraft.server.v1_8_R1.PathfinderGoalMeleeAttack;
+import net.minecraft.server.v1_8_R1.PathfinderGoalMoveTowardsTarget;
+import net.minecraft.server.v1_8_R1.PathfinderGoalRandomLookaround;
+import net.minecraft.server.v1_8_R1.PathfinderGoalRandomStroll;
+import net.minecraft.server.v1_8_R1.World;
 
-import net.minecraft.server.v1_7_R4.Entity;
-import net.minecraft.server.v1_7_R4.EntityHuman;
-import net.minecraft.server.v1_7_R4.EntityLiving;
-import net.minecraft.server.v1_7_R4.IMonster;
-import net.minecraft.server.v1_7_R4.PathfinderGoalHurtByTarget;
-import net.minecraft.server.v1_7_R4.PathfinderGoalLookAtPlayer;
-import net.minecraft.server.v1_7_R4.PathfinderGoalMeleeAttack;
-import net.minecraft.server.v1_7_R4.PathfinderGoalMoveTowardsTarget;
-import net.minecraft.server.v1_7_R4.PathfinderGoalNearestAttackableTarget;
-import net.minecraft.server.v1_7_R4.PathfinderGoalRandomLookaround;
-import net.minecraft.server.v1_7_R4.PathfinderGoalRandomStroll;
-import net.minecraft.server.v1_7_R4.World;
-
-public class AngryGolem extends net.minecraft.server.v1_7_R4.EntityIronGolem {
+public class AngryGolem extends EntityIronGolem {
 
 	public AngryGolem(World world) {
 		super(world);
@@ -51,31 +46,7 @@ public class AngryGolem extends net.minecraft.server.v1_7_R4.EntityIronGolem {
 		this.goalSelector.a(5, new PathfinderGoalRandomLookaround(this));
 
 		this.targetSelector.a(2, new PathfinderGoalHurtByTarget(this, false));
-		this.targetSelector.a(3, new PathfinderGoalNearestAttackableTarget(this, EntityHuman.class, 0, true));
+	    this.targetSelector.a(3, new PathfinderGoalNearestGolemTargetNew(this, EntityInsentient.class, 10, false, true, IMonster.e));
 		setPlayerCreated(false);
 	}
-
-	@Override
-	protected void o(Entity entity) {
-		if (((entity instanceof IMonster)) && (aI().nextInt(20) == 0)) {
-			if (this.passenger !=null && entity.uniqueID.equals(this.passenger.uniqueID)) {
-				setGoalTarget(null);
-			} else {
-				EntityTargetLivingEntityEvent event = CraftEventFactory.callEntityTargetLivingEvent(this, (EntityLiving) entity, EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY);
-				if (!event.isCancelled()) {
-					if (event.getTarget() == null)
-						setGoalTarget(null);
-					else {
-						setGoalTarget(((CraftLivingEntity) event.getTarget()).getHandle());
-					}
-				}
-			}
-
-		}
-
-		super.o(entity);
-	}
-	
-	
-	
 }

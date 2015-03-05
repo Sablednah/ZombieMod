@@ -1,6 +1,6 @@
 package me.sablednah.zombiemod;
 
-import net.minecraft.server.v1_7_R4.MathHelper;
+import net.minecraft.server.v1_8_R1.MathHelper;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

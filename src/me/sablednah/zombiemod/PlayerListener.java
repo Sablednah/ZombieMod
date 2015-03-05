@@ -3,13 +3,14 @@ package me.sablednah.zombiemod;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.server.v1_7_R4.EntityEnderSignal;
+import net.minecraft.server.v1_8_R1.BlockPosition;
+import net.minecraft.server.v1_8_R1.EntityEnderSignal;
 
 import org.bukkit.Chunk;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
@@ -187,11 +188,11 @@ public class PlayerListener implements Listener {
 
 						ItemStack ep = new ItemStack(Material.EYE_OF_ENDER, 1);
 						p.getInventory().remove(ep);
-						net.minecraft.server.v1_7_R4.World paramWorld = ((CraftWorld) p.getWorld()).getHandle();
+						net.minecraft.server.v1_8_R1.World paramWorld = ((CraftWorld) p.getWorld()).getHandle();
 						EntityEnderSignal localEntityEnderSignal = new EntityEnderSignal(paramWorld, l.getX(), l.getY(), l.getZ());
 						// localEntityEnderSignal.a(closest.getChunk().getX(), (int) closest.getY() / 16,
 						// closest.getChunk().getZ());
-						localEntityEnderSignal.a(closest.getX(), closest.getBlockY(), closest.getZ());
+						localEntityEnderSignal.a(new BlockPosition(closest.getX(), closest.getBlockY(), closest.getZ()));
 						paramWorld.addEntity(localEntityEnderSignal);
 						l.getWorld().playEffect(l, Effect.BOW_FIRE, 0);
 					}

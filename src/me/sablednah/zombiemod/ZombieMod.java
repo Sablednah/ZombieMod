@@ -193,7 +193,7 @@ public class ZombieMod extends JavaPlugin {
         this.getServer().getScheduler().scheduleSyncRepeatingTask(this, new ProximitySystems(this), 200L, 100L);
         
        
-        logger.info("[" + myName + "] Online.");
+        logger.info("[" + myName + "] Online...");
     }
     
     public PutredineImmortui getZombie(Entity entity) {
@@ -282,7 +282,8 @@ public class ZombieMod extends JavaPlugin {
         // Look for defaults in the jar
         InputStream defConfigStream = getResource("lang.yml");
         if (defConfigStream != null) {
-            YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
+            @SuppressWarnings("deprecation")
+			YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(defConfigStream);
             LangConfig.setDefaults(defConfig);
         }
     }

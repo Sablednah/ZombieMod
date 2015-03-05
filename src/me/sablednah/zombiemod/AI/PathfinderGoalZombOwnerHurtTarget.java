@@ -1,43 +1,42 @@
 package me.sablednah.zombiemod.AI;
 
 import me.sablednah.zombiemod.ZombieType;
-import net.minecraft.server.v1_7_R4.EntityLiving;
+import net.minecraft.server.v1_8_R1.EntityLiving;
+import net.minecraft.server.v1_8_R1.PathfinderGoalTarget;
 
-public class PathfinderGoalZombOwnerHurtTarget extends PathfinderGoalZombTarget {
+import org.bukkit.event.entity.EntityTargetEvent;
 
+public class PathfinderGoalZombOwnerHurtTarget extends PathfinderGoalTarget {
 	ZombieType		a;
 	EntityLiving	b;
-	private int		e;
+	private int		c;
 
-	public PathfinderGoalZombOwnerHurtTarget(ZombieType paramEntityTameableAnimal) {
-		super(paramEntityTameableAnimal, false);
-		this.a = paramEntityTameableAnimal;
+	public PathfinderGoalZombOwnerHurtTarget(ZombieType entitytameableanimal) {
+		super(entitytameableanimal, false);
+		this.a = entitytameableanimal;
 		a(1);
 	}
 
 	public boolean a() {
-		if (!this.a.isTamed())
+		if (!this.a.isTamed()) {
 			return false;
-		EntityLiving localEntityLiving = this.a.getOwner();
-		if (localEntityLiving == null)
+		}
+		EntityLiving entityliving = this.a.getOwner();
+		if (entityliving == null) {
 			return false;
-		
-		//System.out.print("Running ownerhurt target: a()");
-		
-		this.b = localEntityLiving.aL();
-		int i = localEntityLiving.aM();
-		return (i != this.e) && (a(this.b, false)) && (this.a.a(this.b, localEntityLiving));
+		}
+		this.b = entityliving.be();
+		int i = entityliving.bf();
+
+		return (i != this.c) && (a(this.b, false)) && (this.a.a(this.b, entityliving));
 	}
 
 	public void c() {
-		this.c.setGoalTarget(this.b);
-
-		EntityLiving localEntityLiving = this.a.getOwner();
-		if (localEntityLiving != null) {
-			//System.out.print("Running ownerhurt target: c()");
-			this.e = localEntityLiving.aM();
+		this.e.setGoalTarget(this.b, EntityTargetEvent.TargetReason.OWNER_ATTACKED_TARGET, true);
+		EntityLiving entityliving = this.a.getOwner();
+		if (entityliving != null) {
+			this.c = entityliving.bf();
 		}
-
 		super.c();
 	}
 }

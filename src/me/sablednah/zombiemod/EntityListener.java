@@ -17,8 +17,8 @@ import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 //import org.bukkit.World.Environment;
-import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
-//import org.bukkit.craftbukkit.v1_7_R4.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
+//import org.bukkit.craftbukkit.v1_8_R1.entity.CraftEntity;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Bat;
 import org.bukkit.entity.Creature;
@@ -451,7 +451,7 @@ public class EntityListener implements Listener {
                     	if (shooter.hasMetadata("level")) { ((Player)entity).sendMessage("shooter Level: "+shooter.getMetadata("level").get(0).asInt()); }
                     	
 /*                    	if (attacker != null ) {
-	                    	net.minecraft.server.v1_7_R4.Entity h = ((CraftEntity)shooter).getHandle();
+	                    	net.minecraft.server.v1_8_R1.Entity h = ((CraftEntity)shooter).getHandle();
 	                		ZombieType zt = (ZombieType)h;                		
 		                	Double dlvl = zt.getDamage();
 		            		((Player)entity).sendMessage("Zomb damage: "+ dlvl );
@@ -463,7 +463,7 @@ public class EntityListener implements Listener {
                 if (entity.getType()==EntityType.PLAYER) {
                 	if (damager.hasMetadata("level")) { ((Player)entity).sendMessage("damager Level: "+damager.getMetadata("level").get(0).asInt()); }
 /*                	if (attacker != null ) {
-                		net.minecraft.server.v1_7_R4.Entity h = ((CraftEntity)damager).getHandle();
+                		net.minecraft.server.v1_8_R1.Entity h = ((CraftEntity)damager).getHandle();
                 		ZombieType zt = (ZombieType)h;                		
 	                	Double dlvl = zt.getDamage();
 	            		((Player)entity).sendMessage("Zomb damage: "+ dlvl );
@@ -676,7 +676,6 @@ public class EntityListener implements Listener {
     }
     
     // disable targeting
-    @SuppressWarnings("deprecation")
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityTarget(EntityTargetEvent event) {
         Entity entity = event.getEntity();
@@ -835,7 +834,7 @@ public class EntityListener implements Listener {
                                 
                                 if(solo){
                                 
-                                net.minecraft.server.v1_7_R4.World mcWorld = ((CraftWorld) z.getWorld()).getHandle();
+                                net.minecraft.server.v1_8_R1.World mcWorld = ((CraftWorld) z.getWorld()).getHandle();
                                 
                                 if (ZombieMod.debugMode) {
                                     ZombieMod.logger.info("[zm]  " + zombieCorpeData.commonName + " rises from the dead! ");

@@ -1,47 +1,42 @@
 package me.sablednah.zombiemod.AI;
 
 import me.sablednah.zombiemod.ZombieType;
-import net.minecraft.server.v1_7_R4.EntityLiving;
+import net.minecraft.server.v1_8_R1.EntityLiving;
+import net.minecraft.server.v1_8_R1.PathfinderGoalTarget;
 
-public class PathfinderGoalZombOwnerHurtByTarget extends PathfinderGoalZombTarget {
-	
+import org.bukkit.event.entity.EntityTargetEvent;
+
+public class PathfinderGoalZombOwnerHurtByTarget extends PathfinderGoalTarget {
 	ZombieType		a;
 	EntityLiving	b;
-	private int		e;
+	private int		c;
 
-	public PathfinderGoalZombOwnerHurtByTarget(ZombieType paramEntityTameableAnimal) {
-		super(paramEntityTameableAnimal, false);
-		this.a = paramEntityTameableAnimal;
+	public PathfinderGoalZombOwnerHurtByTarget(ZombieType entitytameableanimal) {
+		super(entitytameableanimal, false);
+		this.a = entitytameableanimal;
 		a(1);
 	}
 
 	public boolean a() {
-
-		if (!this.a.isTamed())
+		if (!this.a.isTamed()) {
 			return false;
-		EntityLiving localEntityLiving = this.a.getOwner();
-		if (localEntityLiving == null)
+		}
+		EntityLiving entityliving = this.a.getOwner();
+		if (entityliving == null) {
 			return false;
+		}
+		this.b = entityliving.getLastDamager();
+		int i = entityliving.bd();
 
-		this.b = localEntityLiving.getLastDamager();
-		int i = localEntityLiving.aK();
-		boolean ret = (i != this.e) && (a(this.b, false)) && (this.a.a(this.b, localEntityLiving));
-
-		//System.out.print("Running ownerhurtby target: a()  ret: "+ret);
-		
-		return ret;
+		return (i != this.c) && (a(this.b, false)) && (this.a.a(this.b, entityliving));
 	}
 
 	public void c() {
-
-		this.c.setGoalTarget(this.b);
-
-		EntityLiving localEntityLiving = this.a.getOwner();
-		if (localEntityLiving != null) {
-			//System.out.print("Running ownerhurtby target: c()");
-			this.e = localEntityLiving.aK();
+		this.e.setGoalTarget(this.b, EntityTargetEvent.TargetReason.TARGET_ATTACKED_OWNER, true);
+		EntityLiving entityliving = this.a.getOwner();
+		if (entityliving != null) {
+			this.c = entityliving.bd();
 		}
-
 		super.c();
 	}
 }

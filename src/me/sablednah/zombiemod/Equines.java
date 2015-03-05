@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.bukkit.entity.LivingEntity;
 
-import net.minecraft.server.v1_7_R4.NBTTagCompound;
+import net.minecraft.server.v1_8_R1.NBTTagCompound;
 
 
 public class Equines {

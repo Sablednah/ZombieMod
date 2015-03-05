@@ -3,15 +3,15 @@ package me.sablednah.zombiemod;
 import java.util.List;
 import java.util.Map;
 
-import net.minecraft.server.v1_7_R4.BiomeBase;
-import net.minecraft.server.v1_7_R4.BiomeMeta;
-import net.minecraft.server.v1_7_R4.EntityInsentient;
-import net.minecraft.server.v1_7_R4.EntityTypes;
-import net.minecraft.server.v1_7_R4.GroupDataEntity;
-import net.minecraft.server.v1_7_R4.World;
+import net.minecraft.server.v1_8_R1.BiomeBase;
+import net.minecraft.server.v1_8_R1.BiomeMeta;
+import net.minecraft.server.v1_8_R1.EntityInsentient;
+import net.minecraft.server.v1_8_R1.EntityTypes;
+import net.minecraft.server.v1_8_R1.GroupDataEntity;
+import net.minecraft.server.v1_8_R1.World;
 
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_7_R4.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R1.CraftWorld;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 
@@ -58,11 +58,10 @@ public enum RegisterEntities {
 	// me.sablednah.zombiemod.EntityBlaze.class),
 	// WITHER("WitherBoss", 64, EntityType.WITHER, net.minecraft.server.v1_7_R1.EntityWither.class,
 	// me.sablednah.zombiemod.EntityWither.class),
-	// WITCH("Witch", 66, EntityType.WITCH, net.minecraft.server.v1_7_R1.EntityWitch.class,
-	// me.sablednah.zombiemod.EntityWitch.class),
-	ZOMBIE("Zombie", 54, EntityType.ZOMBIE, net.minecraft.server.v1_7_R4.EntityZombie.class, me.sablednah.zombiemod.ZombieType.class),
-	GIANT_ZOMBIE("Giant", 53, EntityType.GIANT, net.minecraft.server.v1_7_R4.EntityGiantZombie.class, me.sablednah.zombiemod.ZombieGiantType.class),
-	IRON_GOLEM("VillagerGolem", 99, EntityType.IRON_GOLEM, net.minecraft.server.v1_7_R4.EntityIronGolem.class, me.sablednah.zombiemod.AngryGolem.class);
+	HORSE("Horse", 100, EntityType.HORSE, net.minecraft.server.v1_8_R1.EntityHorse.class, me.sablednah.zombiemod.ZombieSteed.class),
+	ZOMBIE("Zombie", 54, EntityType.ZOMBIE, net.minecraft.server.v1_8_R1.EntityZombie.class, me.sablednah.zombiemod.ZombieType.class),
+	GIANT_ZOMBIE("Giant", 53, EntityType.GIANT, net.minecraft.server.v1_8_R1.EntityGiantZombie.class, me.sablednah.zombiemod.ZombieGiantType.class),
+	IRON_GOLEM("VillagerGolem", 99, EntityType.IRON_GOLEM, net.minecraft.server.v1_8_R1.EntityIronGolem.class, me.sablednah.zombiemod.AngryGolem.class);
 
 	private String								name;
 	private int									id;
@@ -117,7 +116,7 @@ public enum RegisterEntities {
 				break;
 			}
 
-			for (String field : new String[] { "as", "at", "au", "av" }) {
+			for (String field : new String[] { "at", "au", "av", "aw" }) {
 				try {
 					List<BiomeMeta> mobList = ReflectionUtils.getFieldValue(BiomeBase.class, field, List.class, biomeBase);
 
@@ -175,9 +174,9 @@ public enum RegisterEntities {
 
 		EntityInsentient entity = this.createEntity(world);
 		entity.setPositionRotation(location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
-		entity.prepare((GroupDataEntity) null);
+		entity.prepare(null, (GroupDataEntity) null);
 		world.addEntity(entity, SpawnReason.CUSTOM);
-		entity.p();
+		// entity.p();  does nothing in 1.7.10 gone in 1.8.0
 	}
 
 }

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import net.md_5.bungee.api.ChatColor;
-import net.minecraft.server.v1_7_R4.MathHelper;
+import net.minecraft.server.v1_8_R1.MathHelper;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Effect;
 import org.bukkit.Location;
@@ -48,7 +48,6 @@ public class Animations implements Runnable {
 		this.plugin = p;
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public void run() {
 		// trigger animations
@@ -440,7 +439,7 @@ public class Animations implements Runnable {
 										// no "owner" find one
 										List<Entity> nbe = e.getNearbyEntities(32.0D, 32.0D, 32.0D);
 										for (Entity ent : nbe) {
-											if (ent.getType() == EntityType.PLAYER) {
+											if (ent.getType() == EntityType.PLAYER && !(e.hasMetadata("NPC"))  ) {
 												z.setOwner(((Player) ent).getName());
 												System.out.print("Haunting: " + ((Player) ent).getName());
 												break;
@@ -708,6 +707,8 @@ public class Animations implements Runnable {
 												PutredineImmortui zomb;
 												if (z.abilities.contains("BORG")) {
 													zomb = new PutredineImmortui(plugin, "zomborg");
+												} else if (z.abilities.contains("SPIDER")) {
+													zomb = new PutredineImmortui(plugin, "spiderdrone");
 												} else {
 													zomb = new PutredineImmortui(plugin);
 												}
@@ -793,9 +794,11 @@ public class Animations implements Runnable {
 															Block b1 = target.getBlock();
 															Block b2 = target.add(0, 1, 0).getBlock();
 															if (b1.getType() == Material.AIR) {
+																plugin.getServer().getScheduler().runTaskLater(plugin, new ReplaceMaterial(b1.getLocation(),b1.getType(),Material.WEB), 100);
 																b1.setType(Material.WEB);
 															}
 															if (b2.getType() == Material.AIR) {
+																plugin.getServer().getScheduler().runTaskLater(plugin, new ReplaceMaterial(b2.getLocation(),b2.getType(),Material.WEB), 100);
 																b2.setType(Material.WEB);
 															}
 														}
@@ -840,6 +843,23 @@ public class Animations implements Runnable {
 		}
 
 	}
+
+	public class ReplaceMaterial implements Runnable {
+		public Location l;
+		public Material m;
+		public Material temp;
+		public ReplaceMaterial(Location l, Material m, Material temp){
+			this.l=l;
+			this.m=m;
+			this.temp=temp;
+		}
+		public void run() {
+			if (l.getBlock().getType() == temp) { // only swap if correct material
+				l.getBlock().setType(m);
+			}
+		}
+	}
+
 }
 
 // :/ so much for "lightweight"...
