@@ -127,7 +127,18 @@ Two things it is worth re-deriving if you touch that area, because nothing else 
   deliberately bad id too, or an over-eager resolver will match garbage unnoticed. Gradle cannot
   pipe stdin to the dev server console, so this is the only headless route.
 
-### Adding a goal type
+### Adding a goal type or spawn condition
+
+Goals and spawn conditions use the identical shape — a record whose fields mirror the thing it
+builds, a `MapCodec`, and a line in the matching `*Types` registry. `SpawnConditionTypes.register`
+is deliberately **public**: the interesting conditions (CityWorld's wilderness-vs-city, a claim
+mod's protected chunks) live outside this mod and must not become hard dependencies.
+
+`SpawnRules` keeps `reasons` as a plain field rather than a condition, because spawn reason isn't a
+property of the *place* and needs a restrictive default — an empty condition list has to mean
+"anywhere", but an unspecified reason set must not mean "every reason".
+
+### Goal specifics
 
 1. A record in `core/goal/GoalSpecs` whose fields are the vanilla goal's constructor arguments, with
    a `MapCodec` and a `TYPE` id.

@@ -94,30 +94,40 @@ would claim every zombie in the world and plain zombies would quietly cease to e
 So with `vanillaWeight = 100` and genera weighted 30 and 10, any eligible zombie spawn comes out
 roughly 71% vanilla, 21% the first genus, 7% the second.
 
-The optional `spawn` block narrows where a genus is eligible. Every field is optional; omit the whole
-block and it can appear anywhere its base mob does.
-
-| Field | Meaning |
-|-------|---------|
-| `biomes` | Biome allow-list. Accepts a tag (`"#minecraft:is_forest"`) or a list of ids. |
-| `dimensions` | Dimension allow-list, e.g. `["minecraft:the_nether"]`. |
-| `min_y` / `max_y` | Height band. |
-| `max_light` / `min_light` | Light level at the spawn point — `"max_light": 7` means darkness only. |
-| `require_see_sky` | `true` for outdoors only, `false` for underground/indoors only. |
-| `reasons` | Which spawn reasons count. Defaults to `natural`, `chunk_generation`, `spawner`. |
-
-That default is deliberately narrow: a genus riding `conversion` would replace drowning zombies and
-cured villagers, and one riding `reinforcement` could summon a horde of itself. A genus that wants
-those has to ask for them.
+The optional `spawn` block narrows where a genus is eligible. Omit it and the genus can appear
+anywhere its base mob does.
 
 ```json
 "spawn": {
-  "dimensions": ["minecraft:overworld"],
-  "biomes": "#minecraft:is_forest",
-  "max_light": 7,
-  "max_y": 62
+  "reasons": ["natural", "spawner"],
+  "conditions": [
+    { "type": "zombiemod:dimension", "dimensions": ["minecraft:overworld"] },
+    { "type": "zombiemod:biome", "biomes": "#minecraft:is_forest" },
+    { "type": "zombiemod:light", "max": 7 },
+    { "type": "zombiemod:height", "max": 62 }
+  ]
 }
 ```
+
+**Conditions are ANDed** — every one must pass. `reasons` defaults to `natural`,
+`chunk_generation` and `spawner`; that's deliberately narrow, because a genus riding `conversion`
+would replace drowning zombies and cured villagers, and one riding `reinforcement` could summon a
+horde of itself.
+
+| Condition | Options |
+|-----------|---------|
+| `zombiemod:biome` | `biomes` — a tag (`"#minecraft:is_swamp"`) or a list of ids |
+| `zombiemod:dimension` | `dimensions` — list of dimension ids |
+| `zombiemod:height` | `min`, `max` — either may be omitted |
+| `zombiemod:light` | `min`, `max` — light at the spawn point, so it follows day/night outdoors |
+| `zombiemod:see_sky` | `value` (default `true`) — open sky above, or deliberately not |
+| `zombiemod:any_of` | `conditions` — passes if any nested condition passes |
+| `zombiemod:not` | `condition` — inverts one |
+
+Conditions are a **registry**, not a fixed list, so another mod can contribute its own types via
+`SpawnConditionTypes.register`. That's how CityWorld integration is planned to work — a
+`cityworld:lot` condition letting a genus prefer the wilderness or a particular district, as an
+optional dependency that ZombieMod itself never links against.
 
 ### Goal types
 
@@ -187,10 +197,8 @@ Not yet:
   appears where already works (`spawn.biomes` takes a biome tag, so swamp- or ice-flavoured zombies
   are a datapack away); making a swamp spawn *more* zombies than vanilla needs
   `neoforge:add_spawns` biome modifiers. Planned.
-- **Spawn conditions aren't extensible.** They're a fixed set. Planned: a codec-dispatched condition
-  registry in the same shape as goals, so other mods — starting with
-  [CityWorld](https://github.com/Sablednah/CityWorld-ReForged) — can contribute conditions like
-  "only in the wilderness" or "only on a city lot", as an optional dependency.
+- **No CityWorld integration yet.** The condition registry is in place for it; the adapter itself —
+  "only in the wilderness", "only on a city lot" — isn't written.
 - The 1.8 plugin's per-tick abilities: `EXPLODE`, `HEAL`, `STOMP`, `LIGHTNING`, `WEB`, `SPIDER`,
   `BORG`, `HUNTER`, and the rest.
 - Navigation swapping (spider climbing), mounts/jockeys.
@@ -239,6 +247,9 @@ neoforge/ZombieModEvents                FinalizeSpawnEvent + EntityJoinLevelEven
 | `core/goal/GoalSpecs.java` | One record per goal type; fields mirror the vanilla constructor. |
 | `core/goal/GoalSpecTypes.java` | Registry the `"type"` field dispatches through. |
 | `core/goal/TargetClass.java` | The `target` name → Java class map. |
+| `core/spawn/SpawnRules.java` | Reasons plus a list of conditions. |
+| `core/spawn/SpawnConditions.java` | One record per condition type. |
+| `core/spawn/SpawnConditionTypes.java` | Condition registry; `register` is public for other mods. |
 | `neoforge/GenusApplier.java` | Applies a genus to a live mob. |
 | `neoforge/ZombieModEvents.java` | Spawn and level-join hooks; weighted genus selection. |
 

@@ -6,6 +6,7 @@ import java.util.Optional;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.sablednah.zombiemod.core.goal.GoalSpec;
+import com.sablednah.zombiemod.core.spawn.SpawnRules;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;

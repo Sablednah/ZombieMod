@@ -9,7 +9,7 @@ import com.mojang.logging.LogUtils;
 import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.core.Genus;
-import com.sablednah.zombiemod.core.SpawnRules;
+import com.sablednah.zombiemod.core.spawn.SpawnRules;
 
 import org.slf4j.Logger;
 
@@ -129,7 +129,7 @@ public final class ZombieModEvents {
             if (genus.weight() <= 0 || genus.base() != mob.getType()) {
                 continue;
             }
-            if (!genus.spawn().allowsDimension(dimension) || !genus.spawn().allows(level, pos, reason)) {
+            if (!genus.spawn().allows(level, pos, dimension, reason)) {
                 continue;
             }
             candidates.add(holder);
