@@ -87,6 +87,43 @@ Here is the coward, in full:
 | `attributes` | `{}` | Any other attribute by id, e.g. `{"minecraft:armor": 8.0}`. Covers everything the named fields don't, including other mods' attributes. |
 | `head` | *(none)* | A player head to wear — `"head": "Notch"`, or the full profile form with an explicit texture. Beats `armor_color` for the head slot. |
 | `navigation` | `default` | `climb` borrows the spider's wall navigator, `swim` and `amphibious` the aquatic ones. |
+| `equipment` | `{}` | Held and worn items — see below. Beats `armor_color` and `head` for any slot it names. |
+
+### Equipment
+
+```json
+"equipment": {
+  "mainhand": "minecraft:iron_sword",
+  "offhand": "minecraft:shield",
+  "head": "minecraft:iron_helmet",
+  "chest": "minecraft:chainmail_chestplate",
+  "legs": "minecraft:chainmail_leggings",
+  "feet": "minecraft:iron_boots",
+  "drop_chance": 0.0
+}
+```
+
+Each slot takes either a bare item id or a full stack with components, so a genus can carry
+something enchanted, renamed, trimmed or dyed:
+
+```json
+"mainhand": {
+  "id": "minecraft:iron_axe",
+  "components": {
+    "minecraft:enchantments": { "minecraft:sharpness": 2 },
+    "minecraft:custom_name": "\"Pry Bar\""
+  }
+}
+```
+
+`drop_chance` defaults to **0** for every slot. Kitting a genus out shouldn't turn it into a loot
+piñata, and a farmable diamond-armour zombie is an economy bug rather than a feature.
+
+Appearance cascades broad → specific: `armor_color` dresses all four armour slots, `head` replaces
+the helmet, `equipment` overrides whichever slots it names.
+
+Note that a mob wearing *any* helmet doesn't burn in daylight — vanilla behaviour, and it applies to
+the dyed leather set too, so most genera survive the morning without asking.
 
 ### Spawning
 
@@ -192,6 +229,7 @@ First firings are staggered per mob, so a horde that spawned together doesn't ac
 | `zombiemod:leap` | `range`, `power`, `lift` — pounce at the victim |
 | `zombiemod:pull` | `range`, `power` — drag nearby players toward it |
 | `zombiemod:summon` | `entity`, `count`, `max_nearby`, `radius` — spawn reinforcements |
+| `zombiemod:alert` | `radius`, `who`, `max_alerted` — hand your target to everything nearby |
 | `zombiemod:particles` | `particle`, `count`, `spread` |
 | `zombiemod:sound` | `sound`, `volume`, `pitch` |
 
@@ -224,9 +262,9 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**22 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+**25 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
 Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker. They're ordinary datapack files, so override or delete any of
+Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper. They're ordinary datapack files, so override or delete any of
 them from a higher-priority datapack.
 
 See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and
@@ -276,8 +314,6 @@ Not yet:
   Not shipped enabled, because silently changing vanilla spawn rates on install would be rude.
 - **No CityWorld integration yet.** The condition registry is in place for it; the adapter itself —
   "only in the wilderness", "only on a city lot" — isn't written.
-- Per-genus **equipment** (real armour and weapons, not just dyed leather) — the biggest gap.
-- An `alert` ability: one zombie noticing you and the rest turning around.
 - Day/night behaviour switching, sound-driven aggro, horde events. See
   [`docs/TROPES.md`](docs/TROPES.md) for the full survey of what's missing and what each needs.
 - Navigation swapping (spider climbing), mounts/jockeys.

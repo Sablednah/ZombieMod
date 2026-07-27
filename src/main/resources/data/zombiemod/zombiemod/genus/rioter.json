@@ -1,0 +1,79 @@
+{
+  "name": "Rioter",
+  "base": "minecraft:zombie",
+  "weight": 6,
+  "health": 34.0,
+  "damage": 5.0,
+  "speed": 0.9,
+  "follow_range": 26.0,
+  "equipment": {
+    "mainhand": "minecraft:iron_sword",
+    "offhand": "minecraft:shield",
+    "head": "minecraft:iron_helmet",
+    "chest": "minecraft:chainmail_chestplate",
+    "legs": "minecraft:chainmail_leggings",
+    "feet": "minecraft:iron_boots",
+    "drop_chance": 0.0
+  },
+  "attributes": {
+    "minecraft:knockback_resistance": 0.5,
+    "minecraft:armor_toughness": 2.0
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.7
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:alert",
+      "interval": 60,
+      "radius": 14.0,
+      "who": "monster",
+      "max_alerted": 6
+    }
+  ]
+}

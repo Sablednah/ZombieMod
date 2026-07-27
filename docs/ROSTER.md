@@ -1,6 +1,6 @@
 # The shipped roster
 
-22 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+25 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -59,6 +59,14 @@ overworld spot the eligible genera total roughly 190, so a little over half of z
 | **Bogman** | 10 | A *drowned*, amphibious, swamp only. Inflicts Hunger. |
 | **Dust Stalker** | 10 | A *husk*, desert/badlands/savanna. Kicks up blinding dust. |
 
+## Armed and organised
+
+| Genus | Weight | Idea |
+|-------|-------:|------|
+| **Screamer** | 5 | Won't fight you. Acquires you as a target, keeps its distance, and screams — handing you to every monster within 24 blocks. The horde does the work. |
+| **Rioter** | 6 | Iron helmet, chainmail, shield, sword. Knockback-resistant, and alerts its mates at short range. |
+| **Sapper** | 4 | A husk with a Sharpness II iron axe named *Pry Bar*. Demonstrates the full item-stack form with components. |
+
 ## What these demonstrate
 
 Worth reading the files rather than just the table — between them they exercise every feature:
@@ -72,3 +80,6 @@ Worth reading the files rather than just the table — between them they exercis
   the two swamps directly.
 - **Abilities as parts** — Boomer is `fuse` + `effect` + `particles`; nobody had to write a "boomer
   ability".
+- **Equipment both ways** — Rioter uses bare item ids, Sapper the full stack form with enchantments
+  and a custom name.
+- **A genus that fights by not fighting** — Screamer has no `melee_attack` at all.

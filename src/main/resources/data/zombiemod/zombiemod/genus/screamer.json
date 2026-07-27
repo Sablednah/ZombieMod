@@ -1,0 +1,82 @@
+{
+  "name": "Screamer",
+  "base": "minecraft:zombie",
+  "weight": 5,
+  "health": 16.0,
+  "damage": 1.0,
+  "speed": 1.2,
+  "follow_range": 40.0,
+  "scale": 0.9,
+  "armor_color": 13153496,
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 1.1
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 40.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:alert",
+      "interval": 40,
+      "radius": 24.0,
+      "who": "monster",
+      "max_alerted": 16
+    },
+    {
+      "type": "zombiemod:sound",
+      "interval": 40,
+      "chance": 0.8,
+      "sound": "minecraft:entity.enderman.scream",
+      "volume": 1.4,
+      "pitch": 1.4
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 20,
+      "particle": "minecraft:note",
+      "count": 4,
+      "spread": 0.6
+    }
+  ]
+}

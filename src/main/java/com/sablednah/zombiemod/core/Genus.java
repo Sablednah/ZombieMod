@@ -76,19 +76,22 @@ public record Genus(
      * @param scale      body size multiplier, a synced attribute since 1.20.5
      * @param armorColor dyes a full leather set this RGB colour
      * @param head       a player head to wear; beats armorColor for the head slot
+     * @param equipment  held and worn items; beats both of the above for any slot it names
      */
     public record Appearance(Optional<String> name, double scale, Optional<Integer> armorColor,
-            Optional<ResolvableProfile> head) {
+            Optional<ResolvableProfile> head, Equipment equipment) {
 
-        public static final Appearance PLAIN =
-                new Appearance(Optional.empty(), 1.0D, Optional.empty(), Optional.empty());
+        public static final Appearance PLAIN = new Appearance(Optional.empty(), 1.0D,
+                Optional.empty(), Optional.empty(), Equipment.NONE);
 
         public static final com.mojang.serialization.MapCodec<Appearance> MAP_CODEC =
                 RecordCodecBuilder.mapCodec(i -> i.group(
                         Codec.STRING.optionalFieldOf("name").forGetter(Appearance::name),
                         Codec.DOUBLE.optionalFieldOf("scale", 1.0D).forGetter(Appearance::scale),
                         Codec.INT.optionalFieldOf("armor_color").forGetter(Appearance::armorColor),
-                        ResolvableProfile.CODEC.optionalFieldOf("head").forGetter(Appearance::head))
+                        ResolvableProfile.CODEC.optionalFieldOf("head").forGetter(Appearance::head),
+                        Equipment.CODEC.optionalFieldOf("equipment", Equipment.NONE)
+                                .forGetter(Appearance::equipment))
                         .apply(i, Appearance::new));
     }
 
@@ -142,6 +145,10 @@ public record Genus(
 
     public Optional<ResolvableProfile> head() {
         return appearance.head();
+    }
+
+    public Equipment equipment() {
+        return appearance.equipment();
     }
 
     /** Display name as a component, or empty if this genus goes unnamed. */

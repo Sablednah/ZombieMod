@@ -10,7 +10,7 @@ features.
 
 | Trope | Source | Build it from |
 |-------|--------|---------------|
-| **Screamer / Witch** | L4D, Dead Rising | `summon` on a short interval + a loud `sound`; passive until hurt (`hurt_by_target` only, no `nearest_target`) — that's the Witch exactly: harmless until you disturb her. |
+| **Witch** | L4D | Passive until hurt — `hurt_by_target` only, no `nearest_target` — then lethal. Harmless until you disturb her. |
 | **Jockey** | L4D | `leap` with high `lift` and low `power`, small `scale`. Won't actually ride you, but reads as a leaper. |
 | **Crawler (legless)** | CoD Zombies | `scale` 0.5 + `gravity` attribute raised + slow speed. |
 | **Toxic barrel / Tarman** | Return of the Living Dead | `fuse` with a big `effect` payload instead of much `power`. |
@@ -24,11 +24,8 @@ features.
 
 | Trope | Needs | Notes |
 |-------|-------|-------|
-| **Boomer bile / horde magnet** | `attract` ability | Pull nearby hostiles' targets onto one player. The genuinely missing L4D mechanic — bile is scarier than the explosion. |
 | **Smoker tongue (real)** | `tether` ability | Persistent pull with line-of-sight break, rather than one shove. |
-| **Screamer (real)** | `alert` ability | Wake and target-set every hostile in a radius. Distinct from `summon` — uses the mobs already there. |
 | **Infector / patient zero** | `convert` ability | Turn a killed villager/player-corpse into a genus. The 1.8 mod's player-corpse feature lives here. |
-| **Armoured / riot** | `equipment` field | Real armour and weapons per genus, not just dyed leather. Also unlocks weapon-wielding zombies. |
 | **Blinker / phaser** | `teleport` ability | Short-range blink toward the victim, enderman-style. |
 | **Spitter (projectile)** | `projectile` ability | Actually fire something — arrow, snowball, small fireball — instead of an aura. |
 | **Necromancer** | `resurrect` ability | Re-raise nearby zombie corpses. Needs death tracking. |
@@ -57,11 +54,18 @@ Worth being explicit so nobody spends a weekend on them.
 | **Gore, blood decals** | Client rendering. |
 | **Infection spreading to players** | Doable as effects, but "you turn into a zombie on death" is a separate gameplay mod, not a mob type. |
 
+## Done since this was written
+
+**`equipment`** and **`alert`** both shipped — see Rioter, Sapper and Screamer in
+[ROSTER.md](ROSTER.md). Boomer bile is largely covered by `alert` too: the horde-magnet effect was
+always the scary half.
+
 ## The one I'd build next
 
-**`equipment`.** It's cheap, it's the biggest visual jump left after player heads, and it unlocks a
-whole family at once — riot police, soldiers, miners, the armoured horde. Right now a genus can be
-any colour you like as long as it's leather.
+**Day/night behaviour switching.** It's the difference between a monster and a *world* — the same
+genus docile at noon and hunting at midnight, and it's what makes Dying Light's nights work. It
+reuses the `SpawnCondition` registry for the gating, so most of the machinery already exists; what's
+new is swapping goal sets on a live mob rather than only at spawn.
 
-After that, **`alert`** — because the scariest thing in zombie fiction isn't any single monster, it's
-one of them noticing you and everything else turning around.
+After that **`convert`** — turning what you kill into one of them. It's the single most load-bearing
+idea in the genre and the mod currently has no answer to it.

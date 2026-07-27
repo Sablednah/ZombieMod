@@ -424,6 +424,61 @@ public final class Abilities {
     }
 
     /**
+     * Point everything nearby at whatever you're fighting.
+     *
+     * <p>The scariest moment in zombie fiction isn't any one monster — it's one of them noticing you
+     * and the rest turning around. This is that: when the mob has a target, hand that target to
+     * every eligible mob in radius that doesn't already have one.
+     *
+     * <p>Two deliberate restraints. It only fires when the caller <em>has</em> a target, so it can't
+     * manufacture aggro out of nothing; and it skips mobs already fighting something, so a screamer
+     * can't yank a horde off the player it has cornered. {@code max_alerted} caps the sweep — an
+     * uncapped one in a mob farm is a tick-time problem.
+     */
+    public record Alert(int interval, float chance, double radius, Class<? extends LivingEntity> who,
+            int maxAlerted) implements Ability {
+
+        public static final Identifier TYPE = id("alert");
+
+        public static final MapCodec<Alert> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Abilities.<Alert>intervalField(40),
+                Abilities.<Alert>chanceField(1.0F),
+                Codec.DOUBLE.optionalFieldOf("radius", 16.0D).forGetter(Alert::radius),
+                com.sablednah.zombiemod.core.goal.TargetClass.CODEC
+                        .optionalFieldOf("who", (Class<? extends LivingEntity>) net.minecraft.world.entity.monster.Monster.class)
+                        .forGetter(Alert::who),
+                Codec.INT.optionalFieldOf("max_alerted", 12).forGetter(Alert::maxAlerted))
+                .apply(i, Alert::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public void run(ServerLevel level, Mob mob) {
+            LivingEntity victim = mob.getTarget();
+            if (victim == null || !victim.isAlive()) {
+                return;
+            }
+            int alerted = 0;
+            for (LivingEntity other : level.getEntitiesOfClass(who, mob.getBoundingBox().inflate(radius))) {
+                if (alerted >= maxAlerted) {
+                    break;
+                }
+                if (other == mob || other == victim || !(other instanceof Mob listener)) {
+                    continue;
+                }
+                if (listener.getTarget() != null) {
+                    continue; // already busy - don't pull it off its current fight
+                }
+                listener.setTarget(victim);
+                alerted++;
+            }
+        }
+    }
+
+    /**
      * Drag the victim toward you. The Smoker's tongue, minus the tongue.
      */
     public record Pull(int interval, float chance, double range, double power) implements Ability {
