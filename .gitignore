@@ -1,0 +1,27 @@
+# Gradle / build output
+/build/
+/.gradle/
+/repo/
+
+# Dev run directories
+/run/
+/runs/
+/server/
+
+# Portable JDK, if one is ever dropped here (MobHealth-Forge's is used by default).
+# Anything else under tools/ is source and must stay tracked - WoodDye lost a generator
+# script to a blanket /tools/ ignore once already.
+/tools/*
+!/tools/*.py
+!/tools/*.sh
+
+# Legacy Eclipse project for the 1.8 Bukkit plugin (kept as reference, see CLAUDE.md)
+/bin/
+
+# IDE
+/.idea/
+*.iml
+/.vscode/
+
+# Claude Code local settings
+/.claude/settings.local.json
