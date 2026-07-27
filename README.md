@@ -182,7 +182,8 @@ First firings are staggered per mob, so a horde that spawned together doesn't ac
 | `zombiemod:effect` | `effect`, `target`, `duration`, `amplifier`, `radius` — apply a potion effect |
 | `zombiemod:heal` | `amount` — regenerate |
 | `zombiemod:lightning` | `target`, `radius`, `visual_only` — call down a bolt |
-| `zombiemod:explode` | `power`, `destroy_blocks`, `kills_self`, `trigger_radius` |
+| `zombiemod:explode` | `power`, `destroy_blocks`, `kills_self`, `trigger_radius` — immediate |
+| `zombiemod:fuse` | `fuse_ticks`, `trigger_radius`, `swell_to`, `power`, `destroy_blocks`, `kills_self`, `sound` — creeper-style |
 | `zombiemod:shockwave` | `radius`, `damage`, `knockup` — launch and hurt everything nearby |
 | `zombiemod:particles` | `particle`, `count`, `spread` |
 | `zombiemod:sound` | `sound`, `volume`, `pitch` |
@@ -193,6 +194,22 @@ Two defaults worth knowing. `explode` has `destroy_blocks: false` — a zombie t
 a very different proposition from one that hurts, so griefing is opt-in. And it only fires when
 something is actually within `trigger_radius`, or an interval-timed bomb is just a mob that deletes
 itself in an empty field.
+
+#### The fuse, and what a vanilla client can't do
+
+`zombiemod:fuse` is a creeper in zombie form: come within `trigger_radius` and it hisses, freezes,
+swells and detonates — and stands down (at double speed) if you back off.
+
+The swell is real, not a trick of particles. A creeper's own swell can't be borrowed —
+`DATA_SWELL_DIR` is defined against `Creeper.class` and it's `CreeperRenderer` that inflates the
+model, so a vanilla client has no way to draw a swelling zombie. But `minecraft:scale` *is* a synced
+attribute, so ramping it over the fuse genuinely inflates the mob on an unmodified client. It swells
+relative to whatever size the genus already is, so a big genus gets bigger rather than snapping to a
+fixed size.
+
+That's the general shape of this mod's limits: anything bound to a specific mob's *renderer* is out
+of reach, and anything expressed through synced attributes, equipment, effects, sounds or particles
+is fair game.
 
 Rather than one ability per 1.8 name, the set is compositional: `effect` + `particles` + `sound`
 between them build most of the old flavour abilities, so you assemble a screamer or a plague carrier

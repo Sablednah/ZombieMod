@@ -39,4 +39,25 @@ public interface Ability {
      * @param mob   the mob performing it
      */
     void run(ServerLevel level, Mob mob);
+
+    /**
+     * Per-mob state, for abilities that build up over several ticks rather than firing and
+     * finishing — a fuse burning down, a wind-up before a leap.
+     *
+     * <p>Returning {@code null} (the default) means stateless: {@link #run} is called on the
+     * interval and that's the whole story. Returning a state means {@link State#tick} is called
+     * instead, and the ability owns its own timing from there.
+     *
+     * <p>Note this is the one crack in "implementations are stateless" — deliberately, and confined
+     * to the returned object. The {@code Ability} record itself stays shared and immutable; only the
+     * {@code State} is per-mob, created once by {@code AbilityGoal}.
+     */
+    default State newState() {
+        return null;
+    }
+
+    /** Per-mob state for a stateful ability. */
+    interface State {
+        void tick(ServerLevel level, Mob mob);
+    }
 }

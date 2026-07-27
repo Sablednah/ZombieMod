@@ -35,7 +35,7 @@
     { "type": "zombiemod:heal",      "interval": 60, "amount": 1.0 },
     { "type": "zombiemod:effect",    "interval": 60, "chance": 0.5, "target": "nearby_players",
       "effect": "minecraft:poison", "duration": 80, "amplifier": 0, "radius": 4.0 },
-    { "type": "zombiemod:explode",   "interval": 20, "power": 2.5, "destroy_blocks": false,
-      "kills_self": true, "trigger_radius": 2.5 }
+    { "type": "zombiemod:fuse", "fuse_ticks": 35, "trigger_radius": 3.0, "swell_to": 1.6,
+      "power": 3.0, "destroy_blocks": false, "kills_self": true }
   ]
 }

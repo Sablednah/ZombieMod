@@ -31,11 +31,15 @@ final class AbilityGoal extends Goal {
 
     private final Mob mob;
     private final Ability ability;
+    private final Ability.State state;
     private int ticks;
 
     AbilityGoal(Mob mob, Ability ability) {
         this.mob = mob;
         this.ability = ability;
+        // Stateful abilities (a fuse, a wind-up) get one state object per mob; stateless ones get
+        // null and just have run() called.
+        this.state = ability.newState();
         // No flags: never competes with movement, looking or targeting.
         this.setFlags(EnumSet.noneOf(Goal.Flag.class));
 
@@ -73,7 +77,11 @@ final class AbilityGoal extends Goal {
         }
 
         try {
-            ability.run(level, mob);
+            if (state != null) {
+                state.tick(level, mob);
+            } else {
+                ability.run(level, mob);
+            }
         } catch (Exception e) {
             // One bad ability must not take the entity's whole tick down with it, and a datapack
             // author needs to see which one.

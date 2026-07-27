@@ -191,6 +191,116 @@ public final class Abilities {
         }
     }
 
+    /**
+     * Prime, swell, detonate — and stand down if you back off.
+     *
+     * <p>A creeper's actual swell can't be borrowed: {@code DATA_SWELL_DIR} is defined against
+     * {@code Creeper.class} and it is {@code CreeperRenderer} that inflates the model, so a vanilla
+     * client has no way to draw a swelling zombie. What it <em>can</em> draw is the
+     * {@code minecraft:scale} attribute, which is synced — so this ramps scale over the fuse and the
+     * mob genuinely inflates, no client mod involved.
+     *
+     * <p>The rest is assembled from things a vanilla client already knows: the creeper's own primed
+     * sound, smoke, and pinning the mob in place while it burns. Unwinds at double speed when the
+     * trigger leaves, which is what creepers do and what makes them fair.
+     */
+    public record Fuse(int interval, float chance, int fuseTicks, double triggerRadius, double swellTo,
+            float power, boolean destroyBlocks, boolean killsSelf, Holder<SoundEvent> sound)
+            implements Ability {
+
+        public static final Identifier TYPE = id("fuse");
+
+        public static final MapCodec<Fuse> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Abilities.<Fuse>intervalField(1),
+                Abilities.<Fuse>chanceField(1.0F),
+                Codec.INT.optionalFieldOf("fuse_ticks", 30).forGetter(Fuse::fuseTicks),
+                Codec.DOUBLE.optionalFieldOf("trigger_radius", 3.0D).forGetter(Fuse::triggerRadius),
+                Codec.DOUBLE.optionalFieldOf("swell_to", 1.5D).forGetter(Fuse::swellTo),
+                Codec.FLOAT.optionalFieldOf("power", 3.0F).forGetter(Fuse::power),
+                Codec.BOOL.optionalFieldOf("destroy_blocks", false).forGetter(Fuse::destroyBlocks),
+                Codec.BOOL.optionalFieldOf("kills_self", true).forGetter(Fuse::killsSelf),
+                BuiltInRegistries.SOUND_EVENT.holderByNameCodec()
+                        .optionalFieldOf("sound", BuiltInRegistries.SOUND_EVENT
+                                .wrapAsHolder(net.minecraft.sounds.SoundEvents.CREEPER_PRIMED))
+                        .forGetter(Fuse::sound))
+                .apply(i, Fuse::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        /** Never called — this ability is stateful. */
+        @Override
+        public void run(ServerLevel level, Mob mob) {}
+
+        @Override
+        public State newState() {
+            return new FuseState(this);
+        }
+    }
+
+    /** The burn-down for one {@link Fuse} on one mob. */
+    private static final class FuseState implements Ability.State {
+
+        private final Fuse fuse;
+        private int burning;
+        private double baseScale = Double.NaN;
+
+        FuseState(Fuse fuse) {
+            this.fuse = fuse;
+        }
+
+        @Override
+        public void tick(ServerLevel level, Mob mob) {
+            var scale = mob.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SCALE);
+            if (Double.isNaN(baseScale) && scale != null) {
+                // Capture the genus's own scale once, so swelling is relative to whatever size this
+                // thing already is rather than snapping to a fixed number.
+                baseScale = scale.getBaseValue();
+            }
+
+            boolean triggered = !Targets.nearbyPlayers(level, mob, fuse.triggerRadius()).isEmpty();
+
+            if (triggered) {
+                if (burning == 0) {
+                    level.playSound(null, mob.getX(), mob.getY(), mob.getZ(), fuse.sound().value(),
+                            SoundSource.HOSTILE, 1.0F, 0.5F);
+                }
+                burning++;
+                // Stop advancing: a bomb that keeps chasing while it swells reads as a bug, and it
+                // denies the player the one counter-play a creeper offers.
+                mob.getNavigation().stop();
+            } else if (burning > 0) {
+                burning = Math.max(0, burning - 2);
+            } else {
+                return;
+            }
+
+            float progress = Math.min(1.0F, (float) burning / Math.max(1, fuse.fuseTicks()));
+            if (scale != null && !Double.isNaN(baseScale)) {
+                scale.setBaseValue(baseScale * (1.0D + (fuse.swellTo() - 1.0D) * progress));
+            }
+            if (burning > 0 && burning % 4 == 0) {
+                level.sendParticles(ParticleTypes.SMOKE, mob.getX(), mob.getY() + mob.getBbHeight() * 0.7D,
+                        mob.getZ(), 3, 0.15D, 0.1D, 0.15D, 0.01D);
+            }
+
+            if (burning >= fuse.fuseTicks()) {
+                level.explode(mob, mob.getX(), mob.getY(), mob.getZ(), fuse.power(),
+                        fuse.destroyBlocks() ? Level.ExplosionInteraction.MOB : Level.ExplosionInteraction.NONE);
+                if (fuse.killsSelf()) {
+                    mob.discard();
+                } else {
+                    burning = 0;
+                    if (scale != null && !Double.isNaN(baseScale)) {
+                        scale.setBaseValue(baseScale);
+                    }
+                }
+            }
+        }
+    }
+
     /** Knock everything nearby into the air and hurt it. The old STOMP / SHOCKWAVE. */
     public record Shockwave(int interval, float chance, double radius, float damage, double knockup)
             implements Ability {
