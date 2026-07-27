@@ -183,8 +183,14 @@ Working:
 Not yet:
 
 - **Genera don't add spawns of their own.** They claim spawns the base mob was already making, so a
-  world has the same number of zombies as vanilla — just more varied ones. Adding density per biome
-  wants `neoforge:add_spawns` biome modifiers.
+  world has the same number of zombies as vanilla — just more varied ones. Choosing *which* genus
+  appears where already works (`spawn.biomes` takes a biome tag, so swamp- or ice-flavoured zombies
+  are a datapack away); making a swamp spawn *more* zombies than vanilla needs
+  `neoforge:add_spawns` biome modifiers. Planned.
+- **Spawn conditions aren't extensible.** They're a fixed set. Planned: a codec-dispatched condition
+  registry in the same shape as goals, so other mods — starting with
+  [CityWorld](https://github.com/Sablednah/CityWorld-ReForged) — can contribute conditions like
+  "only in the wilderness" or "only on a city lot", as an optional dependency.
 - The 1.8 plugin's per-tick abilities: `EXPLODE`, `HEAL`, `STOMP`, `LIGHTNING`, `WEB`, `SPIDER`,
   `BORG`, `HUNTER`, and the rest.
 - Navigation swapping (spider climbing), mounts/jockeys.
