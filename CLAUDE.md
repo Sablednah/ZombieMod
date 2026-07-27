@@ -127,6 +127,19 @@ Two things it is worth re-deriving if you touch that area, because nothing else 
   deliberately bad id too, or an over-eager resolver will match garbage unnoticed. Gradle cannot
   pipe stdin to the dev server console, so this is the only headless route.
 
+### Abilities ride the goal selector
+
+`AbilityGoal` wraps each ability as a `Goal` with an **empty flag set**, which is the whole trick:
+`GoalSelector.tick` blocks a goal only when one of its flags is taken, so a flagless goal starts
+immediately and runs alongside whatever the mob is actually doing. It also sets
+`requiresUpdateEveryTick()`, which matters because `tickRunningGoals(false)` on off-ticks skips
+goals that don't declare it.
+
+This replaces the 1.8 plugin's global per-tick sweep (`Animations` + an `intervals` counter). Riding
+the entity's own ticking means no live-mob registry to maintain, no leak on removal, no cost for
+non-ticking chunks, and per-mob timing is just a field. Ability implementations are stateless and
+shared; the timer lives in the goal.
+
 ### Adding a goal type or spawn condition
 
 Goals and spawn conditions use the identical shape — a record whose fields mirror the thing it

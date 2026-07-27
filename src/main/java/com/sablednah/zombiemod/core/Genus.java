@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.sablednah.zombiemod.core.ability.Ability;
 import com.sablednah.zombiemod.core.goal.GoalSpec;
 import com.sablednah.zombiemod.core.spawn.SpawnRules;
 
@@ -39,6 +40,7 @@ import net.minecraft.world.entity.EntityType;
  * @param targetGoals   who to pick a fight with, added to the targetSelector
  * @param spawn         where and when this genus may claim a spawn; absent means anywhere its base
  *                      mob appears
+ * @param abilities     things it does repeatedly while alive, independent of where it walks
  */
 public record Genus(
         Optional<String> name,
@@ -53,7 +55,8 @@ public record Genus(
         boolean clearGoals,
         List<GoalSpec> goals,
         List<GoalSpec> targetGoals,
-        SpawnRules spawn) {
+        SpawnRules spawn,
+        List<Ability> abilities) {
 
     public static final Codec<Genus> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.STRING.optionalFieldOf("name").forGetter(Genus::name),
@@ -69,7 +72,8 @@ public record Genus(
             Codec.BOOL.optionalFieldOf("clear_goals", true).forGetter(Genus::clearGoals),
             GoalSpec.CODEC.listOf().optionalFieldOf("goals", List.of()).forGetter(Genus::goals),
             GoalSpec.CODEC.listOf().optionalFieldOf("target_goals", List.of()).forGetter(Genus::targetGoals),
-            SpawnRules.CODEC.optionalFieldOf("spawn", SpawnRules.ANY).forGetter(Genus::spawn))
+            SpawnRules.CODEC.optionalFieldOf("spawn", SpawnRules.ANY).forGetter(Genus::spawn),
+            Ability.CODEC.listOf().optionalFieldOf("abilities", List.of()).forGetter(Genus::abilities))
             .apply(i, Genus::new));
 
     /** Display name as a component, or empty if this genus goes unnamed. */

@@ -17,8 +17,8 @@ plugin.
 | License | MIT |
 | Side | **Server-side only** — players do not need the mod installed |
 
-> **Alpha.** The genus format, AI system and spawning all work. The 1.8 plugin's special abilities
-> do not exist yet. See [Status](#status).
+> **Alpha.** The genus format, AI, spawning and abilities all work. See [Status](#status) for what
+> is still missing.
 
 ## Install
 
@@ -83,6 +83,7 @@ Here is the coward, in full:
 | `goals` | `[]` | What it does. |
 | `target_goals` | `[]` | Who it picks a fight with. |
 | `spawn` | *(anywhere)* | Where and when it may appear — see below. |
+| `abilities` | `[]` | Things it does repeatedly while alive — see below. |
 
 ### Spawning
 
@@ -158,6 +159,45 @@ no movement goals will stand dead still and track you with its head. One with `a
 
 Same engine, entirely different monsters, no code.
 
+### Abilities
+
+Goals decide where a zombie *goes*. Abilities are what it *does* — the 1.8 plugin's per-tick tricks,
+now declared per genus with their own timing.
+
+```json
+"abilities": [
+  { "type": "zombiemod:particles", "interval": 20, "particle": "minecraft:sneeze" },
+  { "type": "zombiemod:heal",      "interval": 60, "amount": 1.0 },
+  { "type": "zombiemod:effect",    "interval": 60, "chance": 0.5, "target": "nearby_players",
+    "effect": "minecraft:poison", "duration": 80, "radius": 4.0 },
+  { "type": "zombiemod:explode",   "interval": 20, "power": 2.5, "trigger_radius": 2.5 }
+]
+```
+
+Every ability takes `interval` (ticks between attempts, 20 = one second) and `chance` (0–1).
+First firings are staggered per mob, so a horde that spawned together doesn't act in lockstep.
+
+| Ability | Options |
+|---------|---------|
+| `zombiemod:effect` | `effect`, `target`, `duration`, `amplifier`, `radius` — apply a potion effect |
+| `zombiemod:heal` | `amount` — regenerate |
+| `zombiemod:lightning` | `target`, `radius`, `visual_only` — call down a bolt |
+| `zombiemod:explode` | `power`, `destroy_blocks`, `kills_self`, `trigger_radius` |
+| `zombiemod:shockwave` | `radius`, `damage`, `knockup` — launch and hurt everything nearby |
+| `zombiemod:particles` | `particle`, `count`, `spread` |
+| `zombiemod:sound` | `sound`, `volume`, `pitch` |
+
+`target` is `self`, `victim` (whatever it's currently attacking) or `nearby_players`.
+
+Two defaults worth knowing. `explode` has `destroy_blocks: false` — a zombie that eats your build is
+a very different proposition from one that hurts, so griefing is opt-in. And it only fires when
+something is actually within `trigger_radius`, or an interval-timed bomb is just a mob that deletes
+itself in an empty field.
+
+Rather than one ability per 1.8 name, the set is compositional: `effect` + `particles` + `sound`
+between them build most of the old flavour abilities, so you assemble a screamer or a plague carrier
+out of parts instead of waiting for that exact ability to exist.
+
 ## Configuration (`config/zombiemod-server.toml`)
 
 | Option | Default | Purpose |
@@ -189,6 +229,7 @@ Working:
 - Genus survives world save/reload (goals are rebuilt, attributes persist in NBT)
 - Weighted spawning with per-genus conditions (biome, dimension, height, light, spawn reason),
   and a configurable share of spawns left vanilla
+- Abilities: potion effects, healing, lightning, explosions, shockwaves, particles, sounds
 
 Not yet:
 
@@ -199,12 +240,16 @@ Not yet:
   `neoforge:add_spawns` biome modifiers. Planned.
 - **No CityWorld integration yet.** The condition registry is in place for it; the adapter itself —
   "only in the wilderness", "only on a city lot" — isn't written.
-- The 1.8 plugin's per-tick abilities: `EXPLODE`, `HEAL`, `STOMP`, `LIGHTNING`, `WEB`, `SPIDER`,
-  `BORG`, `HUNTER`, and the rest.
+- More abilities: `WEB`, `SPIDER` (climbing), `BORG`, `HUNTER`, `BREEDER`, `INFEST` from the 1.8 set.
 - Navigation swapping (spider climbing), mounts/jockeys.
 - Richer appearance: player-head faces via the `minecraft:profile` component, which would give each
   genus a distinct face on a vanilla client.
 - Optional client mod for real models and animation.
+
+**A malformed genus file stops the world loading**, rather than being skipped — that's how vanilla
+treats every datapack registry, but it bites harder here because these files are meant to be
+hand-written. The server log names the file and the field; check it before assuming a world is
+corrupt.
 
 Known limitation: goal targets come from a fixed list of classes, because vanilla's targeting goals
 are typed on a Java class rather than an entity id. So "avoid wolves" works; "avoid a modded mob"

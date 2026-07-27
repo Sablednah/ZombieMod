@@ -95,6 +95,13 @@ public final class GenusApplier {
         }
         addAll(mob, genus.goals(), mob.goalSelector, "goals");
         addAll(mob, genus.targetGoals(), mob.targetSelector, "target_goals");
+
+        // Abilities ride the goal selector too - see AbilityGoal for why. Priority is irrelevant
+        // because they carry no control flags, but a high number keeps them visually last in any
+        // debug dump of the goal list.
+        for (com.sablednah.zombiemod.core.ability.Ability ability : genus.abilities()) {
+            mob.goalSelector.addGoal(99, new AbilityGoal(mob, ability));
+        }
     }
 
     private static void addAll(Mob mob, java.util.List<GoalSpec> specs,
