@@ -1,0 +1,74 @@
+# The shipped roster
+
+22 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+files — override any of them by putting a file with the same name in a higher-priority datapack, or
+delete the lot by shipping an empty override.
+
+Weights are relative, drawn against `vanillaWeight` in the config (default 200). In a typical dark
+overworld spot the eligible genera total roughly 190, so a little over half of zombies stay plain.
+
+## Speed horror — *28 Days Later*, *Dying Light*
+
+| Genus | Weight | Idea |
+|-------|-------:|------|
+| **Runner** | 25 | Fast, fragile, dark only. Occasional Speed bursts. The one that made zombies scary again. |
+| **Volatile** | 4 | Night-time surface only. Very fast, leaps, roars, trails soul particles. Dying Light's night terror. |
+
+## The classic — *Night of the Living Dead*
+
+| Genus | Weight | Idea |
+|-------|-------:|------|
+| **Walker** | 35 | Slow, tough, knockback-resistant, groans at low pitch. The shambling default. |
+| **Swarmling** | 12 | Half-size, fast, weak, no abilities. Individually trivial, unpleasant in numbers. |
+
+## Special infected — *Left 4 Dead*
+
+| Genus | Weight | Idea |
+|-------|-------:|------|
+| **Boomer** | 8 | Bloated, slow, swells and bursts, blinds everything nearby. |
+| **Smoker** | 6 | Keeps its distance and drags you in. Heavy smoke, wheezing. |
+| **Hunter** | 7 | Climbs walls, pounces, and hunts pets as well as players. |
+| **Charger** | 6 | Low, heavy, launches itself with big knockback. |
+| **Spitter** | 7 | Won't melee. Poisons from range. |
+| **Tank** | 2 | 2.2× scale, 120 HP, immovable, shockwaves that launch you. Deep underground only. |
+
+## Fungal — *The Last of Us*
+
+| Genus | Weight | Idea |
+|-------|-------:|------|
+| **Clicker** | 9 | Nearly blind (10-block follow range) but hits like a truck. Clicks. Underground. |
+| **Bloater** | 8 | Huge, poisonous, regenerates, detonates on approach. |
+| **Stalker** | 10 | Stands dead still and watches from up to 48 blocks. Never approaches. |
+
+## The 1.8 plugin's own
+
+| Genus | Weight | Idea | Old ability |
+|-------|-------:|------|-------------|
+| **Crawler** | 10 | Tiny, climbs walls, survives falls. | `SPIDER` |
+| **Stormcaller** | 2 | Calls lightning on its victim from 20 blocks. Open sky only. | `LIGHTNING` |
+| **Breeder** | 3 | Summons more zombies, capped at 6 nearby. | `BREEDER` |
+| **Juggernaut** | 4 | 16 armour, 6 toughness, self-heals. | `BORG` |
+| **Coward** | 30 | Runs away from players. | *(the original oddity)* |
+
+## Elemental and biome-flavoured
+
+| Genus | Weight | Idea |
+|-------|-------:|------|
+| **Ember** | 5 | Nether or deep underground. Immune to burning, trails flame. |
+| **Frost** | 8 | Snowy biomes. Chills you with Slowness. |
+| **Bogman** | 10 | A *drowned*, amphibious, swamp only. Inflicts Hunger. |
+| **Dust Stalker** | 10 | A *husk*, desert/badlands/savanna. Kicks up blinding dust. |
+
+## What these demonstrate
+
+Worth reading the files rather than just the table — between them they exercise every feature:
+
+- **Different base mobs** — Bogman is a drowned, Dust Stalker a husk. Anything vanilla works.
+- **Navigation swaps** — Hunter and Crawler climb; Bogman is amphibious.
+- **Attributes beyond the named fields** — Tank sets `attack_knockback` and `step_height`, Ember zeroes
+  `burning_time`, Bogman raises `oxygen_bonus`.
+- **Composed conditions** — Ember uses `any_of` to mean "the Nether *or* deep underground".
+- **Explicit biome lists where no tag exists** — there is no `#minecraft:is_swamp`, so Bogman names
+  the two swamps directly.
+- **Abilities as parts** — Boomer is `fuse` + `effect` + `particles`; nobody had to write a "boomer
+  ability".

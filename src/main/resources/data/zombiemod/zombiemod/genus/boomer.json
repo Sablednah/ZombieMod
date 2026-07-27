@@ -1,0 +1,85 @@
+{
+  "name": "Boomer",
+  "base": "minecraft:zombie",
+  "weight": 8,
+  "health": 16.0,
+  "damage": 1.0,
+  "speed": 0.7,
+  "follow_range": 20.0,
+  "scale": 1.45,
+  "armor_color": 7240238,
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:particles",
+      "interval": 25,
+      "particle": "minecraft:sneeze",
+      "count": 5
+    },
+    {
+      "type": "zombiemod:fuse",
+      "fuse_ticks": 25,
+      "trigger_radius": 3.0,
+      "swell_to": 1.7,
+      "power": 1.5,
+      "destroy_blocks": false,
+      "kills_self": true
+    },
+    {
+      "type": "zombiemod:effect",
+      "interval": 30,
+      "chance": 0.6,
+      "target": "nearby_players",
+      "effect": "minecraft:blindness",
+      "duration": 100,
+      "radius": 4.0
+    }
+  ]
+}

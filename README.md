@@ -84,6 +84,9 @@ Here is the coward, in full:
 | `target_goals` | `[]` | Who it picks a fight with. |
 | `spawn` | *(anywhere)* | Where and when it may appear — see below. |
 | `abilities` | `[]` | Things it does repeatedly while alive — see below. |
+| `attributes` | `{}` | Any other attribute by id, e.g. `{"minecraft:armor": 8.0}`. Covers everything the named fields don't, including other mods' attributes. |
+| `head` | *(none)* | A player head to wear — `"head": "Notch"`, or the full profile form with an explicit texture. Beats `armor_color` for the head slot. |
+| `navigation` | `default` | `climb` borrows the spider's wall navigator, `swim` and `amphibious` the aquatic ones. |
 
 ### Spawning
 
@@ -92,8 +95,9 @@ Which genus gets it is a weighted draw — and **"leave it as a plain zombie" is
 draw**, weighted by `vanillaWeight` in the config. Without that, the moment you shipped one genus it
 would claim every zombie in the world and plain zombies would quietly cease to exist.
 
-So with `vanillaWeight = 100` and genera weighted 30 and 10, any eligible zombie spawn comes out
-roughly 71% vanilla, 21% the first genus, 7% the second.
+So with `vanillaWeight = 200` and genera weighted 30 and 10, any eligible zombie spawn comes out
+roughly 83% vanilla, 12.5% the first genus, 4% the second. The 22 shipped genera total around 190 in
+a typical dark overworld spot, which leaves you a little over half plain zombies.
 
 The optional `spawn` block narrows where a genus is eligible. Omit it and the genus can appear
 anywhere its base mob does.
@@ -185,6 +189,9 @@ First firings are staggered per mob, so a horde that spawned together doesn't ac
 | `zombiemod:explode` | `power`, `destroy_blocks`, `kills_self`, `trigger_radius` — immediate |
 | `zombiemod:fuse` | `fuse_ticks`, `trigger_radius`, `swell_to`, `power`, `destroy_blocks`, `kills_self`, `sound` — creeper-style |
 | `zombiemod:shockwave` | `radius`, `damage`, `knockup` — launch and hurt everything nearby |
+| `zombiemod:leap` | `range`, `power`, `lift` — pounce at the victim |
+| `zombiemod:pull` | `range`, `power` — drag nearby players toward it |
+| `zombiemod:summon` | `entity`, `count`, `max_nearby`, `radius` — spawn reinforcements |
 | `zombiemod:particles` | `particle`, `count`, `spread` |
 | `zombiemod:sound` | `sound`, `volume`, `pitch` |
 
@@ -215,12 +222,22 @@ Rather than one ability per 1.8 name, the set is compositional: `effect` + `part
 between them build most of the old flavour abilities, so you assemble a screamer or a plague carrier
 out of parts instead of waiting for that exact ability to exist.
 
+## What's included
+
+**22 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
+Ember, Frost, Bogman, Dust Stalker. They're ordinary datapack files, so override or delete any of
+them from a higher-priority datapack.
+
+See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and
+[`docs/TROPES.md`](docs/TROPES.md) for what's still missing from the genre.
+
 ## Configuration (`config/zombiemod-server.toml`)
 
 | Option | Default | Purpose |
 |--------|---------|---------|
 | `enabled` | `true` | Master switch. Off means everything spawns exactly as vanilla would. |
-| `vanillaWeight` | `100` | How strongly to leave a mob alone, weighed against the genera that could claim it. `0` means a genus claims every eligible spawn. |
+| `vanillaWeight` | `200` | How strongly to leave a mob alone, weighed against the genera that could claim it. `0` means a genus claims every eligible spawn. |
 | `logSpawns` | `false` | Log every genus spawn to the console. Noisy; for tuning weights. |
 
 ## Commands
@@ -250,14 +267,19 @@ Working:
 
 Not yet:
 
-- **Genera don't add spawns of their own.** They claim spawns the base mob was already making, so a
+- **Genera don't add spawns of their own** (by default). They claim spawns the base mob was already making, so a
   world has the same number of zombies as vanilla — just more varied ones. Choosing *which* genus
   appears where already works (`spawn.biomes` takes a biome tag, so swamp- or ice-flavoured zombies
   are a datapack away); making a swamp spawn *more* zombies than vanilla needs
-  `neoforge:add_spawns` biome modifiers. Planned.
+  `neoforge:add_spawns` biome modifiers — a worked example is in
+  [`docs/examples/add_spawns_biome_modifier.json`](docs/examples/add_spawns_biome_modifier.json).
+  Not shipped enabled, because silently changing vanilla spawn rates on install would be rude.
 - **No CityWorld integration yet.** The condition registry is in place for it; the adapter itself —
   "only in the wilderness", "only on a city lot" — isn't written.
-- More abilities: `WEB`, `SPIDER` (climbing), `BORG`, `HUNTER`, `BREEDER`, `INFEST` from the 1.8 set.
+- Per-genus **equipment** (real armour and weapons, not just dyed leather) — the biggest gap.
+- An `alert` ability: one zombie noticing you and the rest turning around.
+- Day/night behaviour switching, sound-driven aggro, horde events. See
+  [`docs/TROPES.md`](docs/TROPES.md) for the full survey of what's missing and what each needs.
 - Navigation swapping (spider climbing), mounts/jockeys.
 - Richer appearance: player-head faces via the `minecraft:profile` component, which would give each
   genus a distinct face on a vanilla client.

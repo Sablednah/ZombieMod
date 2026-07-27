@@ -1,0 +1,88 @@
+{
+  "name": "Breeder",
+  "base": "minecraft:zombie",
+  "weight": 3,
+  "health": 36.0,
+  "damage": 2.0,
+  "speed": 0.8,
+  "follow_range": 24.0,
+  "scale": 1.3,
+  "armor_color": 8010330,
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:summon",
+      "interval": 220,
+      "chance": 0.5,
+      "entity": "minecraft:zombie",
+      "count": 2,
+      "max_nearby": 6,
+      "radius": 10.0
+    },
+    {
+      "type": "zombiemod:sound",
+      "interval": 220,
+      "chance": 0.5,
+      "sound": "minecraft:entity.evoker.prepare_summon",
+      "volume": 0.9,
+      "pitch": 0.7
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 20,
+      "particle": "minecraft:angry_villager",
+      "count": 3
+    }
+  ]
+}

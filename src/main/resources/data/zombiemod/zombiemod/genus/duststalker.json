@@ -1,0 +1,94 @@
+{
+  "name": "Dust Stalker",
+  "base": "minecraft:husk",
+  "weight": 10,
+  "health": 24.0,
+  "damage": 5.0,
+  "speed": 1.1,
+  "follow_range": 28.0,
+  "armor_color": 12756060,
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:any_of",
+        "conditions": [
+          {
+            "type": "zombiemod:biome",
+            "biomes": "#minecraft:is_badlands"
+          },
+          {
+            "type": "zombiemod:biome",
+            "biomes": "#minecraft:is_savanna"
+          },
+          {
+            "type": "zombiemod:biome",
+            "biomes": [
+              "minecraft:desert"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:particles",
+      "interval": 20,
+      "particle": "minecraft:ash",
+      "count": 4
+    },
+    {
+      "type": "zombiemod:effect",
+      "interval": 70,
+      "chance": 0.4,
+      "target": "nearby_players",
+      "effect": "minecraft:blindness",
+      "duration": 60,
+      "radius": 4.0
+    }
+  ]
+}

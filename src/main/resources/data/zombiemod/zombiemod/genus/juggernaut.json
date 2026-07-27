@@ -1,0 +1,71 @@
+{
+  "name": "Juggernaut",
+  "base": "minecraft:zombie",
+  "weight": 4,
+  "health": 60.0,
+  "damage": 6.0,
+  "speed": 0.65,
+  "follow_range": 24.0,
+  "scale": 1.25,
+  "armor_color": 5000277,
+  "attributes": {
+    "minecraft:armor": 16.0,
+    "minecraft:armor_toughness": 6.0,
+    "minecraft:knockback_resistance": 0.9
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.5
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:heal",
+      "interval": 80,
+      "amount": 1.0
+    }
+  ]
+}

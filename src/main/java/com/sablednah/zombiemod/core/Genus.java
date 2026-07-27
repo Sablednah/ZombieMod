@@ -1,6 +1,7 @@
 package com.sablednah.zombiemod.core;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.mojang.serialization.Codec;
@@ -9,9 +10,12 @@ import com.sablednah.zombiemod.core.ability.Ability;
 import com.sablednah.zombiemod.core.goal.GoalSpec;
 import com.sablednah.zombiemod.core.spawn.SpawnRules;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.item.component.ResolvableProfile;
 
 /**
  * One zombie type, as defined by a datapack file.
@@ -41,25 +45,71 @@ import net.minecraft.world.entity.EntityType;
  * @param spawn         where and when this genus may claim a spawn; absent means anywhere its base
  *                      mob appears
  * @param abilities     things it does repeatedly while alive, independent of where it walks
+ * @param attributes    any other attribute by id, e.g. {@code minecraft:armor}. The named fields
+ *                      above are shorthand for the common ones; this covers everything else,
+ *                      including attributes added by other mods
+ * @param head          a player head to wear, by name or with an explicit texture. The strongest
+ *                      per-genus identity available to a vanilla client
+ * @param navigation    how it moves — {@code climb} borrows the spider's wall navigator
  */
 public record Genus(
-        Optional<String> name,
+        Appearance appearance,
         EntityType<?> base,
         int weight,
         Optional<Double> health,
         Optional<Double> damage,
         double speed,
         Optional<Double> followRange,
-        double scale,
-        Optional<Integer> armorColor,
         boolean clearGoals,
         List<GoalSpec> goals,
         List<GoalSpec> targetGoals,
         SpawnRules spawn,
-        List<Ability> abilities) {
+        List<Ability> abilities,
+        Map<Holder<Attribute>, Double> attributes,
+        Navigation navigation) {
+
+    /**
+     * How it looks. Grouped only because {@code RecordCodecBuilder.group} tops out at 16 fields -
+     * a {@code MapCodec} reads sibling keys, so these stay flat in the JSON.
+     *
+     * @param name       display name, shown when you look at it
+     * @param scale      body size multiplier, a synced attribute since 1.20.5
+     * @param armorColor dyes a full leather set this RGB colour
+     * @param head       a player head to wear; beats armorColor for the head slot
+     */
+    public record Appearance(Optional<String> name, double scale, Optional<Integer> armorColor,
+            Optional<ResolvableProfile> head) {
+
+        public static final Appearance PLAIN =
+                new Appearance(Optional.empty(), 1.0D, Optional.empty(), Optional.empty());
+
+        public static final com.mojang.serialization.MapCodec<Appearance> MAP_CODEC =
+                RecordCodecBuilder.mapCodec(i -> i.group(
+                        Codec.STRING.optionalFieldOf("name").forGetter(Appearance::name),
+                        Codec.DOUBLE.optionalFieldOf("scale", 1.0D).forGetter(Appearance::scale),
+                        Codec.INT.optionalFieldOf("armor_color").forGetter(Appearance::armorColor),
+                        ResolvableProfile.CODEC.optionalFieldOf("head").forGetter(Appearance::head))
+                        .apply(i, Appearance::new));
+    }
+
+    /** How a genus gets around. */
+    public enum Navigation {
+        /** Whatever the base mob normally uses. */
+        DEFAULT,
+        /** The spider's wall-climbing navigator - the 1.8 mod's SPIDER ability. */
+        CLIMB,
+        /** Swims properly instead of walking along the bottom. */
+        SWIM,
+        /** Handles both land and water, like a drowned. */
+        AMPHIBIOUS;
+
+        public static final Codec<Navigation> CODEC = Codec.STRING.xmap(
+                v -> valueOf(v.toUpperCase(java.util.Locale.ROOT)),
+                v -> v.name().toLowerCase(java.util.Locale.ROOT));
+    }
 
     public static final Codec<Genus> CODEC = RecordCodecBuilder.create(i -> i.group(
-            Codec.STRING.optionalFieldOf("name").forGetter(Genus::name),
+            Appearance.MAP_CODEC.forGetter(Genus::appearance),
             BuiltInRegistries.ENTITY_TYPE.byNameCodec()
                     .optionalFieldOf("base", (EntityType<?>) EntityType.ZOMBIE).forGetter(Genus::base),
             Codec.INT.optionalFieldOf("weight", 0).forGetter(Genus::weight),
@@ -67,17 +117,35 @@ public record Genus(
             Codec.DOUBLE.optionalFieldOf("damage").forGetter(Genus::damage),
             Codec.DOUBLE.optionalFieldOf("speed", 1.0D).forGetter(Genus::speed),
             Codec.DOUBLE.optionalFieldOf("follow_range").forGetter(Genus::followRange),
-            Codec.DOUBLE.optionalFieldOf("scale", 1.0D).forGetter(Genus::scale),
-            Codec.INT.optionalFieldOf("armor_color").forGetter(Genus::armorColor),
             Codec.BOOL.optionalFieldOf("clear_goals", true).forGetter(Genus::clearGoals),
             GoalSpec.CODEC.listOf().optionalFieldOf("goals", List.of()).forGetter(Genus::goals),
             GoalSpec.CODEC.listOf().optionalFieldOf("target_goals", List.of()).forGetter(Genus::targetGoals),
             SpawnRules.CODEC.optionalFieldOf("spawn", SpawnRules.ANY).forGetter(Genus::spawn),
-            Ability.CODEC.listOf().optionalFieldOf("abilities", List.of()).forGetter(Genus::abilities))
+            Ability.CODEC.listOf().optionalFieldOf("abilities", List.of()).forGetter(Genus::abilities),
+            Codec.unboundedMap(BuiltInRegistries.ATTRIBUTE.holderByNameCodec(), Codec.DOUBLE)
+                    .optionalFieldOf("attributes", Map.of()).forGetter(Genus::attributes),
+            Navigation.CODEC.optionalFieldOf("navigation", Navigation.DEFAULT).forGetter(Genus::navigation))
             .apply(i, Genus::new));
+
+    // Convenience delegates so callers don't care that appearance is grouped.
+    public Optional<String> name() {
+        return appearance.name();
+    }
+
+    public double scale() {
+        return appearance.scale();
+    }
+
+    public Optional<Integer> armorColor() {
+        return appearance.armorColor();
+    }
+
+    public Optional<ResolvableProfile> head() {
+        return appearance.head();
+    }
 
     /** Display name as a component, or empty if this genus goes unnamed. */
     public Optional<Component> displayName() {
-        return name.map(Component::literal);
+        return name().map(Component::literal);
     }
 }

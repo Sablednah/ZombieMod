@@ -1,0 +1,73 @@
+{
+  "name": "Charger",
+  "base": "minecraft:zombie",
+  "weight": 6,
+  "health": 45.0,
+  "damage": 7.0,
+  "speed": 1.1,
+  "follow_range": 32.0,
+  "scale": 1.35,
+  "armor_color": 8016432,
+  "attributes": {
+    "minecraft:knockback_resistance": 0.8,
+    "minecraft:attack_knockback": 2.0
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:leap",
+      "interval": 45,
+      "chance": 0.8,
+      "range": 14.0,
+      "power": 1.4,
+      "lift": 0.3
+    }
+  ]
+}

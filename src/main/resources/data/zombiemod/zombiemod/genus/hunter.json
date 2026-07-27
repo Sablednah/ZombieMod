@@ -1,0 +1,88 @@
+{
+  "name": "Hunter",
+  "base": "minecraft:zombie",
+  "weight": 7,
+  "health": 22.0,
+  "damage": 5.0,
+  "speed": 1.3,
+  "follow_range": 32.0,
+  "scale": 0.95,
+  "armor_color": 3029594,
+  "navigation": "climb",
+  "attributes": {
+    "minecraft:safe_fall_distance": 12.0,
+    "minecraft:step_height": 1.2
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 3,
+      "target": "wolf"
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 3,
+      "target": "cat"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:leap",
+      "interval": 40,
+      "chance": 0.7,
+      "range": 12.0,
+      "power": 1.15,
+      "lift": 0.55
+    }
+  ]
+}

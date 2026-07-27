@@ -27,10 +27,12 @@ public final class ZombieModConfig {
         VANILLA_WEIGHT = b.comment(
                         "How strongly to leave a mob alone, weighed against the genera that could claim it.",
                         "This is an ordinary entry in the same weighted draw as every genus, so if your",
-                        "genera total 100 and this is 100, roughly half of all zombies stay vanilla.",
-                        "Set to 0 to have a genus claim every eligible spawn - no plain zombies will remain",
-                        "anywhere a genus is eligible.")
-                .defineInRange("vanillaWeight", 100, 0, Integer.MAX_VALUE);
+                        "genera total 200 and this is 200, roughly half of all zombies stay vanilla.",
+                        "The genera shipped with the mod total around 190 in a typical dark overworld",
+                        "spot, so the default of 200 leaves you a little over half plain zombies.",
+                        "Raise it for a mostly-vanilla world; lower it for an infested one; set it to 0",
+                        "and a genus claims every eligible spawn.")
+                .defineInRange("vanillaWeight", 200, 0, Integer.MAX_VALUE);
 
         LOG_SPAWNS = b.comment("Log every genus spawn to the server console. Noisy; for tuning weights.")
                 .define("logSpawns", false);

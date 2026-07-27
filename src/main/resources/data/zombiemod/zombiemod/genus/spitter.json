@@ -1,0 +1,72 @@
+{
+  "name": "Spitter",
+  "base": "minecraft:zombie",
+  "weight": 7,
+  "health": 14.0,
+  "damage": 1.0,
+  "speed": 1.0,
+  "follow_range": 24.0,
+  "scale": 1.05,
+  "armor_color": 10135598,
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:effect",
+      "interval": 60,
+      "chance": 0.7,
+      "target": "nearby_players",
+      "effect": "minecraft:poison",
+      "duration": 120,
+      "amplifier": 1,
+      "radius": 7.0
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 10,
+      "particle": "minecraft:spit",
+      "count": 4
+    }
+  ]
+}

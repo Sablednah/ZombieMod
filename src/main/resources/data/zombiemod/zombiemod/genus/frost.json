@@ -1,0 +1,90 @@
+{
+  "name": "Frost",
+  "base": "minecraft:zombie",
+  "weight": 8,
+  "health": 24.0,
+  "damage": 4.0,
+  "speed": 0.9,
+  "follow_range": 24.0,
+  "armor_color": 10275036,
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:biome",
+        "biomes": [
+          "minecraft:snowy_plains",
+          "minecraft:snowy_taiga",
+          "minecraft:ice_spikes",
+          "minecraft:frozen_river",
+          "minecraft:snowy_beach",
+          "minecraft:snowy_slopes",
+          "minecraft:frozen_peaks",
+          "minecraft:jagged_peaks",
+          "minecraft:grove"
+        ]
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:effect",
+      "interval": 45,
+      "chance": 0.6,
+      "target": "nearby_players",
+      "effect": "minecraft:slowness",
+      "duration": 100,
+      "amplifier": 1,
+      "radius": 5.0
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 10,
+      "particle": "minecraft:snowflake",
+      "count": 4
+    }
+  ]
+}

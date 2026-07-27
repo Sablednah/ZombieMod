@@ -337,6 +337,125 @@ public final class Abilities {
         }
     }
 
+    /**
+     * Launch at the current victim. The L4D Hunter, the Charger, any leaper.
+     *
+     * <p>Deliberately a pounce and not teleportation: it sets velocity toward the target, so walls
+     * and ceilings still stop it and the player can dodge.
+     */
+    public record Leap(int interval, float chance, double range, double power, double lift)
+            implements Ability {
+
+        public static final Identifier TYPE = id("leap");
+
+        public static final MapCodec<Leap> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Abilities.<Leap>intervalField(60),
+                Abilities.<Leap>chanceField(0.5F),
+                Codec.DOUBLE.optionalFieldOf("range", 8.0D).forGetter(Leap::range),
+                Codec.DOUBLE.optionalFieldOf("power", 0.9D).forGetter(Leap::power),
+                Codec.DOUBLE.optionalFieldOf("lift", 0.45D).forGetter(Leap::lift))
+                .apply(i, Leap::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public void run(ServerLevel level, Mob mob) {
+            LivingEntity victim = mob.getTarget();
+            if (victim == null || !victim.isAlive() || !mob.onGround()) {
+                return;
+            }
+            double distSqr = victim.distanceToSqr(mob);
+            if (distSqr > range * range || distSqr < 4.0D) {
+                return; // too far to reach, or already on top of them
+            }
+            Vec3 toward = new Vec3(victim.getX() - mob.getX(), 0.0D, victim.getZ() - mob.getZ()).normalize();
+            mob.setDeltaMovement(toward.x * power, lift, toward.z * power);
+            mob.hurtMarked = true;
+        }
+    }
+
+    /**
+     * Spawn more of something. The 1.8 BREEDER, and every horde-that-grows trope.
+     *
+     * <p>{@code max_nearby} is not optional politeness — a breeder without a cap is a server-killing
+     * exponential, and the one thing a datapack author will forget.
+     */
+    public record Summon(int interval, float chance, EntityType<?> entity, int count, int maxNearby,
+            double radius) implements Ability {
+
+        public static final Identifier TYPE = id("summon");
+
+        public static final MapCodec<Summon> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Abilities.<Summon>intervalField(200),
+                Abilities.<Summon>chanceField(0.25F),
+                BuiltInRegistries.ENTITY_TYPE.byNameCodec()
+                        .optionalFieldOf("entity", (EntityType<?>) EntityType.ZOMBIE).forGetter(Summon::entity),
+                Codec.INT.optionalFieldOf("count", 1).forGetter(Summon::count),
+                Codec.INT.optionalFieldOf("max_nearby", 6).forGetter(Summon::maxNearby),
+                Codec.DOUBLE.optionalFieldOf("radius", 8.0D).forGetter(Summon::radius))
+                .apply(i, Summon::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public void run(ServerLevel level, Mob mob) {
+            int nearby = level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,
+                    mob.getBoundingBox().inflate(radius), e -> e.getType() == entity).size();
+            if (nearby >= maxNearby) {
+                return;
+            }
+            for (int n = 0; n < count && nearby + n < maxNearby; n++) {
+                var spawned = entity.create(level, net.minecraft.world.entity.EntitySpawnReason.REINFORCEMENT);
+                if (spawned == null) {
+                    return;
+                }
+                spawned.snapTo(mob.getX() + (mob.getRandom().nextDouble() - 0.5D) * 3.0D, mob.getY(),
+                        mob.getZ() + (mob.getRandom().nextDouble() - 0.5D) * 3.0D,
+                        mob.getRandom().nextFloat() * 360.0F, 0.0F);
+                level.addFreshEntity(spawned);
+            }
+        }
+    }
+
+    /**
+     * Drag the victim toward you. The Smoker's tongue, minus the tongue.
+     */
+    public record Pull(int interval, float chance, double range, double power) implements Ability {
+
+        public static final Identifier TYPE = id("pull");
+
+        public static final MapCodec<Pull> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Abilities.<Pull>intervalField(80),
+                Abilities.<Pull>chanceField(0.4F),
+                Codec.DOUBLE.optionalFieldOf("range", 12.0D).forGetter(Pull::range),
+                Codec.DOUBLE.optionalFieldOf("power", 0.6D).forGetter(Pull::power))
+                .apply(i, Pull::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public void run(ServerLevel level, Mob mob) {
+            for (LivingEntity victim : Targets.nearbyPlayers(level, mob, range)) {
+                if (!mob.hasLineOfSight(victim)) {
+                    continue;
+                }
+                Vec3 toward = new Vec3(mob.getX() - victim.getX(), 0.0D, mob.getZ() - victim.getZ()).normalize();
+                Vec3 v = victim.getDeltaMovement();
+                victim.setDeltaMovement(v.x + toward.x * power, v.y + 0.15D, v.z + toward.z * power);
+                victim.hurtMarked = true;
+            }
+        }
+    }
+
     // ------------------------------------------------------------------ flavour
 
     /** Emit particles. Pure decoration, and the cheapest way to make a genus recognisable. */

@@ -21,6 +21,9 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
+import net.minecraft.world.entity.ai.navigation.WallClimberNavigation;
+import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
@@ -79,6 +82,27 @@ public final class GenusApplier {
 
         genus.armorColor().ifPresent(rgb -> dressIn(mob, rgb));
 
+        // A player head beats the dyed helmet: it is the strongest identity a vanilla client can
+        // show, so if a genus asks for one it wins the slot.
+        genus.head().ifPresent(profile -> {
+            ItemStack skull = new ItemStack(Items.PLAYER_HEAD);
+            skull.set(DataComponents.PROFILE, profile);
+            mob.setItemSlot(EquipmentSlot.HEAD, skull);
+            mob.setDropChance(EquipmentSlot.HEAD, 0.0F);
+        });
+
+        // Anything the named fields don't cover, including other mods' attributes.
+        genus.attributes().forEach((attribute, value) -> {
+            AttributeInstance instance = mob.getAttribute(attribute);
+            if (instance != null) {
+                instance.setBaseValue(value);
+            } else {
+                LOG.warn("[{}] {} has no attribute {} - ignored", ZombieMod.MOD_ID,
+                        mob.getType().builtInRegistryHolder().key().identifier(),
+                        attribute.getRegisteredName());
+            }
+        });
+
         // Something this distinctive shouldn't quietly despawn while the player walks away.
         mob.setPersistenceRequired();
     }
@@ -93,6 +117,7 @@ public final class GenusApplier {
             mob.goalSelector.removeAllGoals(g -> true);
             mob.targetSelector.removeAllGoals(g -> true);
         }
+        applyNavigation(mob, genus);
         addAll(mob, genus.goals(), mob.goalSelector, "goals");
         addAll(mob, genus.targetGoals(), mob.targetSelector, "target_goals");
 
@@ -101,6 +126,23 @@ public final class GenusApplier {
         // debug dump of the goal list.
         for (com.sablednah.zombiemod.core.ability.Ability ability : genus.abilities()) {
             mob.goalSelector.addGoal(99, new AbilityGoal(mob, ability));
+        }
+    }
+
+    /**
+     * Swap the movement brain. This is the 1.8 mod's proudest trick — it bolted the spider's
+     * navigator onto a zombie to make one that climbs walls — and it is now a field assignment
+     * rather than reflection. {@code Mob.getNavigation()} only reads the field, so replacing it is
+     * enough; every goal built afterwards picks up the new navigator.
+     */
+    private static void applyNavigation(Mob mob, Genus genus) {
+        switch (genus.navigation()) {
+            case DEFAULT -> {
+                // leave whatever the base mob came with
+            }
+            case CLIMB -> mob.navigation = new WallClimberNavigation(mob, mob.level());
+            case SWIM -> mob.navigation = new WaterBoundPathNavigation(mob, mob.level());
+            case AMPHIBIOUS -> mob.navigation = new AmphibiousPathNavigation(mob, mob.level());
         }
     }
 

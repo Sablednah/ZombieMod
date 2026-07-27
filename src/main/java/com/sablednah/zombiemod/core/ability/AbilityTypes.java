@@ -28,6 +28,9 @@ public final class AbilityTypes {
         register(Abilities.Explode.TYPE, Abilities.Explode.CODEC);
         register(Abilities.Fuse.TYPE, Abilities.Fuse.CODEC);
         register(Abilities.Shockwave.TYPE, Abilities.Shockwave.CODEC);
+        register(Abilities.Leap.TYPE, Abilities.Leap.CODEC);
+        register(Abilities.Summon.TYPE, Abilities.Summon.CODEC);
+        register(Abilities.Pull.TYPE, Abilities.Pull.CODEC);
         register(Abilities.Particles.TYPE, Abilities.Particles.CODEC);
         register(Abilities.Sound.TYPE, Abilities.Sound.CODEC);
     }

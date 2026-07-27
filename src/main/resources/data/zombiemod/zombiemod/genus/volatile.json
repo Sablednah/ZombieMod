@@ -1,0 +1,94 @@
+{
+  "name": "Volatile",
+  "base": "minecraft:zombie",
+  "weight": 4,
+  "health": 34.0,
+  "damage": 7.0,
+  "speed": 1.45,
+  "follow_range": 48.0,
+  "scale": 1.15,
+  "armor_color": 2825018,
+  "attributes": {
+    "minecraft:knockback_resistance": 0.4,
+    "minecraft:step_height": 1.2
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      },
+      {
+        "type": "zombiemod:see_sky",
+        "value": true
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:leap",
+      "interval": 50,
+      "chance": 0.6,
+      "range": 10.0,
+      "power": 1.0
+    },
+    {
+      "type": "zombiemod:sound",
+      "interval": 90,
+      "chance": 0.5,
+      "sound": "minecraft:entity.warden.roar",
+      "volume": 0.7,
+      "pitch": 1.6
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 15,
+      "particle": "minecraft:soul",
+      "count": 2
+    }
+  ]
+}

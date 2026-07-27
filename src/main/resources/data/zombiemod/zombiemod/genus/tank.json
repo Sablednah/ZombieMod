@@ -1,0 +1,87 @@
+{
+  "name": "Tank",
+  "base": "minecraft:zombie",
+  "weight": 2,
+  "health": 120.0,
+  "damage": 10.0,
+  "speed": 0.7,
+  "follow_range": 40.0,
+  "scale": 2.2,
+  "armor_color": 7031342,
+  "attributes": {
+    "minecraft:armor": 10.0,
+    "minecraft:knockback_resistance": 1.0,
+    "minecraft:attack_knockback": 2.5,
+    "minecraft:step_height": 1.5
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:height",
+        "max": 40
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.5
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:shockwave",
+      "interval": 70,
+      "chance": 0.7,
+      "radius": 5.0,
+      "damage": 4.0,
+      "knockup": 1.0
+    },
+    {
+      "type": "zombiemod:sound",
+      "interval": 110,
+      "chance": 0.6,
+      "sound": "minecraft:entity.ravager.roar",
+      "volume": 1.2,
+      "pitch": 0.5
+    }
+  ]
+}

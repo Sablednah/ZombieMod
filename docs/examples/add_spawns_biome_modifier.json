@@ -1,0 +1,22 @@
+{
+  "_comment": [
+    "Spawn DENSITY example - not loaded by ZombieMod, copy into your own datapack at",
+    "data/<yourpack>/neoforge/biome_modifier/more_zombies.json",
+    "",
+    "ZombieMod's genera claim spawns that vanilla was already going to make; they never add",
+    "spawns of their own. This is how you add them. It adds ordinary minecraft:zombie spawn",
+    "entries, and ZombieMod's weighted draw then decides which genus each one becomes - so",
+    "'more zombies in swamps' and 'swamp-flavoured zombies' compose rather than fighting.",
+    "",
+    "Vanilla's own overworld zombie entry is weight 95, minCount 4, maxCount 4. Treat that as",
+    "your yardstick: the weight below is added alongside it, not instead of it."
+  ],
+  "type": "neoforge:add_spawns",
+  "biomes": ["minecraft:swamp", "minecraft:mangrove_swamp"],
+  "spawners": {
+    "type": "minecraft:zombie",
+    "weight": 40,
+    "minCount": 2,
+    "maxCount": 4
+  }
+}
