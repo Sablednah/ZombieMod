@@ -6,16 +6,22 @@ import java.util.Optional;
 
 
 import com.mojang.logging.LogUtils;
+import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.core.Genus;
+import com.sablednah.zombiemod.core.SpawnRules;
 
 import org.slf4j.Logger;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
@@ -66,12 +72,23 @@ public final class ZombieModEvents {
         // getLevel() is a ServerLevelAccessor, which during chunk generation is a WorldGenRegion
         // rather than the ServerLevel itself. Going through getLevel() covers both - an instanceof
         // check here would silently skip every mob placed at world generation.
+        if (!ZombieModConfig.ENABLED.get()) {
+            return;
+        }
         ServerLevel level = event.getLevel().getLevel();
         Mob mob = event.getEntity();
         if (mob.getPersistentData().getString(GenusApplier.GENUS_TAG).isPresent()) {
             return; // already ours (e.g. spawned by command, which assigns before adding)
         }
-        rollGenus(level, mob).ifPresent(holder -> GenusApplier.assign(mob, holder));
+
+        BlockPos pos = mob.blockPosition();
+        rollGenus(level, mob, pos, event.getSpawnType()).ifPresent(holder -> {
+            GenusApplier.assign(mob, holder);
+            if (ZombieModConfig.LOG_SPAWNS.get()) {
+                LOG.info("ZombieMod: {} at {} {} {} ({})", holder.key().identifier(),
+                        pos.getX(), pos.getY(), pos.getZ(), event.getSpawnType());
+            }
+        });
     }
 
     @SubscribeEvent
@@ -86,23 +103,39 @@ public final class ZombieModEvents {
     }
 
     /**
-     * Weighted pick among the genera whose {@code base} matches this mob, exactly the job the 1.8
-     * mod's {@code WeightedProbMap} did. A genus with weight 0 is opted out of natural spawning and
-     * can only be summoned deliberately.
+     * Weighted pick among the genera eligible for this spawn — the job the 1.8 mod's
+     * {@code WeightedProbMap} did, plus the per-genus spawn conditions it never had.
+     *
+     * <p>A genus qualifies when its {@code base} matches the mob vanilla was about to spawn, its
+     * weight is above zero (weight 0 means "command only"), and its {@link SpawnRules} accept this
+     * position and spawn reason.
+     *
+     * <p>The configured vanilla weight rides in the same draw as an ordinary entry. That matters:
+     * without it the first genus to become eligible would claim <em>every</em> zombie in the world
+     * and plain zombies would quietly cease to exist — the 1.8 plugin's actual behaviour, and not
+     * one anybody chose.
      */
-    private Optional<Holder.Reference<Genus>> rollGenus(ServerLevel level, Mob mob) {
+    private Optional<Holder.Reference<Genus>> rollGenus(
+            ServerLevel level, Mob mob, BlockPos pos, EntitySpawnReason reason) {
+
         HolderLookup.RegistryLookup<Genus> lookup = level.registryAccess().lookupOrThrow(ZombieModRegistries.GENUS);
+        ResourceKey<Level> dimension = level.dimension();
 
         List<Holder.Reference<Genus>> candidates = new ArrayList<>();
-        int total = 0;
+        int total = ZombieModConfig.VANILLA_WEIGHT.get();
+
         for (Holder.Reference<Genus> holder : lookup.listElements().toList()) {
             Genus genus = holder.value();
-            if (genus.weight() > 0 && genus.base() == mob.getType()) {
-                candidates.add(holder);
-                total += genus.weight();
+            if (genus.weight() <= 0 || genus.base() != mob.getType()) {
+                continue;
             }
+            if (!genus.spawn().allowsDimension(dimension) || !genus.spawn().allows(level, pos, reason)) {
+                continue;
+            }
+            candidates.add(holder);
+            total += genus.weight();
         }
-        if (total <= 0) {
+        if (candidates.isEmpty() || total <= 0) {
             return Optional.empty();
         }
 
@@ -114,6 +147,6 @@ public final class ZombieModEvents {
                 return Optional.of(holder);
             }
         }
-        return Optional.empty();
+        return Optional.empty(); // the roll landed in the vanilla slice - leave this mob alone
     }
 }

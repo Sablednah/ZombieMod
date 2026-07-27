@@ -10,6 +10,11 @@
   "scale": 1.05,
   "armor_color": 3162118,
 
+  "spawn": {
+    "dimensions": ["minecraft:overworld"],
+    "max_light": 7
+  },
+
   "clear_goals": true,
   "goals": [
     { "type": "zombiemod:float",       "priority": 0 },

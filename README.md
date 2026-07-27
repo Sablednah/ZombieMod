@@ -17,8 +17,8 @@ plugin.
 | License | MIT |
 | Side | **Server-side only** — players do not need the mod installed |
 
-> **Alpha.** The genus format and AI system work and are in use; natural spawning is not wired up
-> yet, so genera currently only appear via command. See [Status](#status).
+> **Alpha.** The genus format, AI system and spawning all work. The 1.8 plugin's special abilities
+> do not exist yet. See [Status](#status).
 
 ## Install
 
@@ -82,6 +82,42 @@ Here is the coward, in full:
 | `clear_goals` | `true` | Throw away the vanilla AI before adding yours. Set `false` to *add* behaviour to a normal zombie. |
 | `goals` | `[]` | What it does. |
 | `target_goals` | `[]` | Who it picks a fight with. |
+| `spawn` | *(anywhere)* | Where and when it may appear — see below. |
+
+### Spawning
+
+A genus with a `weight` above zero can claim a spawn that its `base` mob was going to make anyway.
+Which genus gets it is a weighted draw — and **"leave it as a plain zombie" is an entry in that same
+draw**, weighted by `vanillaWeight` in the config. Without that, the moment you shipped one genus it
+would claim every zombie in the world and plain zombies would quietly cease to exist.
+
+So with `vanillaWeight = 100` and genera weighted 30 and 10, any eligible zombie spawn comes out
+roughly 71% vanilla, 21% the first genus, 7% the second.
+
+The optional `spawn` block narrows where a genus is eligible. Every field is optional; omit the whole
+block and it can appear anywhere its base mob does.
+
+| Field | Meaning |
+|-------|---------|
+| `biomes` | Biome allow-list. Accepts a tag (`"#minecraft:is_forest"`) or a list of ids. |
+| `dimensions` | Dimension allow-list, e.g. `["minecraft:the_nether"]`. |
+| `min_y` / `max_y` | Height band. |
+| `max_light` / `min_light` | Light level at the spawn point — `"max_light": 7` means darkness only. |
+| `require_see_sky` | `true` for outdoors only, `false` for underground/indoors only. |
+| `reasons` | Which spawn reasons count. Defaults to `natural`, `chunk_generation`, `spawner`. |
+
+That default is deliberately narrow: a genus riding `conversion` would replace drowning zombies and
+cured villagers, and one riding `reinforcement` could summon a horde of itself. A genus that wants
+those has to ask for them.
+
+```json
+"spawn": {
+  "dimensions": ["minecraft:overworld"],
+  "biomes": "#minecraft:is_forest",
+  "max_light": 7,
+  "max_y": 62
+}
+```
 
 ### Goal types
 
@@ -112,6 +148,14 @@ no movement goals will stand dead still and track you with its head. One with `a
 
 Same engine, entirely different monsters, no code.
 
+## Configuration (`config/zombiemod-server.toml`)
+
+| Option | Default | Purpose |
+|--------|---------|---------|
+| `enabled` | `true` | Master switch. Off means everything spawns exactly as vanilla would. |
+| `vanillaWeight` | `100` | How strongly to leave a mob alone, weighed against the genera that could claim it. `0` means a genus claims every eligible spawn. |
+| `logSpawns` | `false` | Log every genus spawn to the console. Noisy; for tuning weights. |
+
 ## Commands
 
 | Command | |
@@ -133,12 +177,14 @@ Working:
 - AI assembled from JSON, with vanilla goals as the building blocks
 - Attributes, scale, dyed armour, custom names
 - Genus survives world save/reload (goals are rebuilt, attributes persist in NBT)
-- Weighted selection between genera sharing a base mob
+- Weighted spawning with per-genus conditions (biome, dimension, height, light, spawn reason),
+  and a configurable share of spawns left vanilla
 
 Not yet:
 
-- **Natural spawning.** `weight` currently only decides *which* genus rides a spawn vanilla was
-  already going to make — genera don't yet add spawns of their own, per-biome. Next up.
+- **Genera don't add spawns of their own.** They claim spawns the base mob was already making, so a
+  world has the same number of zombies as vanilla — just more varied ones. Adding density per biome
+  wants `neoforge:add_spawns` biome modifiers.
 - The 1.8 plugin's per-tick abilities: `EXPLODE`, `HEAL`, `STOMP`, `LIGHTNING`, `WEB`, `SPIDER`,
   `BORG`, `HUNTER`, and the rest.
 - Navigation swapping (spider climbing), mounts/jockeys.
@@ -159,7 +205,7 @@ export JAVA_HOME=/path/to/jdk21
 
 ./gradlew compileJava   # fast inner loop
 ./gradlew build         # jar in build/libs/zombiemod-<version>.jar
-./gradlew runServer     # dev dedicated server (needs run/eula.txt)
+./gradlew runServer     # dev dedicated server on port 25567 (needs run/eula.txt)
 ./deploy.sh             # build and copy into a CurseForge test instance
 ```
 

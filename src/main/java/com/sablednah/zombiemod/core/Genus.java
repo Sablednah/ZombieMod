@@ -36,6 +36,8 @@ import net.minecraft.world.entity.EntityType;
  * @param clearGoals    wipe the vanilla AI before adding ours (what the 1.8 code did by reflection)
  * @param goals         behaviours, added to the mob's goalSelector
  * @param targetGoals   who to pick a fight with, added to the targetSelector
+ * @param spawn         where and when this genus may claim a spawn; absent means anywhere its base
+ *                      mob appears
  */
 public record Genus(
         Optional<String> name,
@@ -49,7 +51,8 @@ public record Genus(
         Optional<Integer> armorColor,
         boolean clearGoals,
         List<GoalSpec> goals,
-        List<GoalSpec> targetGoals) {
+        List<GoalSpec> targetGoals,
+        SpawnRules spawn) {
 
     public static final Codec<Genus> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.STRING.optionalFieldOf("name").forGetter(Genus::name),
@@ -64,7 +67,8 @@ public record Genus(
             Codec.INT.optionalFieldOf("armor_color").forGetter(Genus::armorColor),
             Codec.BOOL.optionalFieldOf("clear_goals", true).forGetter(Genus::clearGoals),
             GoalSpec.CODEC.listOf().optionalFieldOf("goals", List.of()).forGetter(Genus::goals),
-            GoalSpec.CODEC.listOf().optionalFieldOf("target_goals", List.of()).forGetter(Genus::targetGoals))
+            GoalSpec.CODEC.listOf().optionalFieldOf("target_goals", List.of()).forGetter(Genus::targetGoals),
+            SpawnRules.CODEC.optionalFieldOf("spawn", SpawnRules.ANY).forGetter(Genus::spawn))
             .apply(i, Genus::new));
 
     /** Display name as a component, or empty if this genus goes unnamed. */

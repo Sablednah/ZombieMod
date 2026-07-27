@@ -54,6 +54,11 @@ neoForge {
         server {
             server()
             programArgument '--nogui'
+            // Off the default 25565 so this dev server cannot collide with a CityWorld runServer
+            // or a real test server. A clash fails with "bind(..) failed: Address already in use"
+            // -> "Failed to initialize server" -> a crash report, which reads like a code fault
+            // and is not one.
+            programArguments.addAll '--port', '25567'
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
         }
 

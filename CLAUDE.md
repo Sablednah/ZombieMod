@@ -36,6 +36,13 @@ export PATH="$JAVA_HOME/bin:$PATH"
 ./deploy.sh             # build + copy into the CurseForge test instance
 ```
 
+- **The dev server runs on port 25567**, set in `build.gradle`, so it cannot collide with a
+  CityWorld `runServer` or one of Sable's real test servers on 25565. **Kill the previous
+  `runServer` before starting another** — a lingering one still holds the port and the clash
+  surfaces as `bind(..) failed: Address already in use` → `Failed to initialize server` → a crash
+  report, which reads like a code fault and is not one. `pkill -f "gradlew runServer"`, then confirm
+  with `ss -ltn | grep 25567`.
+
 - **The first build after changing `accesstransformer.cfg` is slow (10+ minutes).** ModDevGradle
   re-runs the neoform runtime to recompile Minecraft with the AT applied, and that result is keyed
   on the AT, so it cannot reuse the sibling projects' cache. It is working, not hung — check with
@@ -107,6 +114,12 @@ Two things it is worth re-deriving if you touch that area, because nothing else 
 - **Goal counts.** Compare `mob.goalSelector.getAvailableGoals().size()` against
   `genus.goals().size()` after applying. `GoalSpec.build` returning null is a log line, not a
   failure, so a genus can load "successfully" with no AI at all.
+- **Force-load the chunk before reading light or biome.** `getMaxLocalRawBrightness` on an unloaded
+  chunk returns **15**, so a probe testing a `max_light` condition underground will silently
+  conclude "too bright" and prove nothing. `level.getChunkAt(pos)` first. (Not a problem in the real
+  game — mobs only spawn in loaded chunks.)
+- **Test conditions in both directions.** A filter that excludes everything looks identical to one
+  that works. Prove a genus is admitted where it should be, not just excluded where it shouldn't.
 - **Command parsing *and* execution.**
   `server.getCommands().getDispatcher().parse(cmd, server.createCommandSourceStack())`, check both
   `getExceptions()` and `getReader().canRead()`, then `execute(parsed)`. Parsing alone is not

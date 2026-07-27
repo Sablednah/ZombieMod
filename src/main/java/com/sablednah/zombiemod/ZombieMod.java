@@ -8,7 +8,9 @@ import org.slf4j.Logger;
 
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
@@ -31,8 +33,9 @@ public class ZombieMod {
     public static final String MOD_ID = "zombiemod";
     private static final Logger LOG = LogUtils.getLogger();
 
-    public ZombieMod(IEventBus modEventBus) {
+    public ZombieMod(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(ZombieModRegistries::register);
+        modContainer.registerConfig(ModConfig.Type.SERVER, ZombieModConfig.SPEC);
 
         NeoForge.EVENT_BUS.register(new ZombieModEvents());
         NeoForge.EVENT_BUS.register(this);
