@@ -91,6 +91,8 @@ Here is the coward, in full:
 | `loot` | *(none)* | `{ "table": "<id>", "replace": false }` — genus-specific drops. |
 | `xp` | *vanilla* | Experience dropped on death. A Tank worth the same 5xp as a stray zombie is a strange reward for a two-minute fight. |
 | `behaviours` | `[]` | Goal sets that switch on and off with a condition — see below. |
+| `ghost` | `false` | Take the name and face of a random player who has played on this server. |
+| `mount` | *(none)* | Something to ride in on — the old `jockey` field. |
 | `navigation` | `default` | `climb` borrows the spider's wall navigator, `swim` and `amphibious` the aquatic ones. |
 | `equipment` | `{}` | Held and worn items — see below. Beats `armor_color` and `head` for any slot it names. |
 
@@ -336,9 +338,9 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**38 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+**40 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
 Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg. They're ordinary datapack files, so override or delete any of
+Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg, Ghost, Outrider. They're ordinary datapack files, so override or delete any of
 them from a higher-priority datapack.
 
 See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and

@@ -127,6 +127,10 @@ public final class ZombieModEvents {
     /** Say so on login, or someone wonders for an hour why nothing can hurt them. */
     @SubscribeEvent
     public void onLogin(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity().level() instanceof ServerLevel level
+                && event.getEntity() instanceof net.minecraft.server.level.ServerPlayer joined) {
+            KnownPlayers.get(level).remember(joined.getGameProfile());
+        }
         if (ObserverMode.isOn(event.getEntity())) {
             event.getEntity().displayClientMessage(
                     net.minecraft.network.chat.Component.literal(

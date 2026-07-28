@@ -17,7 +17,7 @@ reachable, not that the code was translated.
 | `LIGHTNING` | ✅ | `lightning` |
 | `SHOCKWAVE` / `STOMP` | ✅ | `shockwave` |
 | `SPIDER` | ✅ | `navigation: climb` |
-| `GHOST` | ❌ | Named itself after a random offline player. Would be *better* now — a `head` from their profile means it could wear their face too. |
+| `GHOST` | ✅ | `ghost: true`. Wears their face as well as their name now, which the original couldn't without Spout. Needs a record of who has played here, since the profile cache answers questions but won't enumerate — hence `KnownPlayers`. |
 | `BORG` | ✅ | `adapt` — learns damage types rather than materials, and remembers across a restart. See Zomborg. |
 | `WEB` | ✅ | `place_block`. See Weaver. |
 | `INFEST` | ✅ | `break_blocks` with `infest: true`. See Infester. |
@@ -36,7 +36,7 @@ reachable, not that the code was translated.
 | `agro`, `coward`, `passive`, `noBurn` | ✅ | `follow_range`, goals, `burning_time` |
 | **Block breaking** | ✅ | `break_blocks`, gated on the mob being stuck, an explicit `allowed` list, and the `mobGriefing` gamerule. See Breaker. |
 | **Proximity spawning** | ❌ | `ProximitySystems`: spawned zombies just out of sight around each player, ignoring vanilla's rules, scaled by distance from world spawn. Different in feel from riding vanilla's spawn table — it's what made the world feel occupied. |
-| **Jockeys / mounts** | ❌ | A pipe-delimited `jockey` field put the zombie on a horse, chicken, spider… |
+| **Jockeys / mounts** | ✅ | A `mount` field taking an entity id. See Outrider. |
 | Angry iron golems | ⚠️ | The original registered a hostile `AngryGolem`. A genus with `base: minecraft:iron_golem` gets most of the way there — untested. |
 | XP and bounty on kill | ⚠️ | `xp` shipped. Bounty still needs an economy mod, and there is no Vault equivalent — Impactor is the closest thing to a common API. Deferred. |
 | DaySpawner | — | Already dead in the original: commented out at its scheduling site. |
@@ -44,9 +44,12 @@ reachable, not that the code was translated.
 
 ## What's actually left
 
-- **`GHOST`** — named itself after a random offline player. Needs a record of who has played here,
-  since there's no public "all known profiles" lookup. Cheap, and it lands better now: it can wear
-  their face as well as borrow their name.
-- **Proximity spawning** — "there are more of them than there should be, and they're already close".
-- **Jockeys / mounts** — the old pipe-delimited `jockey` field.
-- **Bounty** — waiting on an economy decision.
+Every ability from the original is now covered. Two systems and one dependency remain:
+
+- **Proximity spawning** — `ProximitySystems` put zombies just out of sight around each player,
+  ignoring vanilla's rules and scaling with distance from world spawn. "There are more of them than
+  there should be, and they're already close" is a different feeling from riding the vanilla spawn
+  table, and it's the last real gap.
+- **Angry iron golems** — probably just `base: minecraft:iron_golem` on a genus. Untested.
+- **Bounty** — waiting on an economy decision. There is no Vault equivalent on NeoForge; Impactor is
+  the closest thing to a common API, and it isn't on 1.21.11 yet.

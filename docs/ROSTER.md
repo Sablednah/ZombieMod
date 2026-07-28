@@ -1,6 +1,6 @@
 # The shipped roster
 
-38 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+40 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -111,6 +111,9 @@ He cannot hurt you. That's the point.
 | **Spitfire** | 5 | Fires small fireballs. The old `LAZER`, finally doing something an archer doesn't. |
 | **Weaver** | 6 | Climbs, and cobwebs the ground you're standing on. The old `WEB`. |
 | **Zomborg** | 3 | Learns what hurt it. Take four swings with a sword and the fifth barely registers — switch weapons. The old `BORG`, and the memory survives a restart. |
+
+| **Ghost** | 3 | Wears the name *and face* of a real player who has played on your server, trails soul particles, occasionally blinks behind you and sometimes just leaves. The old `GHOST` — which could only borrow the name. |
+| **Outrider** | 3 | Rides in on a zombie horse with an iron sword. The old `jockey` field. |
 
 ## What these demonstrate
 

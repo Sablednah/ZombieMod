@@ -1,0 +1,72 @@
+{
+  "name": "Outrider",
+  "base": "minecraft:zombie",
+  "weight": 3,
+  "health": 24.0,
+  "damage": 5.0,
+  "speed": 1.0,
+  "follow_range": 40.0,
+  "mount": "minecraft:zombie_horse",
+  "equipment": {
+    "mainhand": "minecraft:iron_sword",
+    "drop_chance": 0.0
+  },
+  "xp": 15,
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      },
+      {
+        "type": "zombiemod:see_sky",
+        "value": true
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 24.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": []
+}

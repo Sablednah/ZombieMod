@@ -1,0 +1,83 @@
+{
+  "name": "Ghost",
+  "base": "minecraft:zombie",
+  "weight": 3,
+  "health": 24.0,
+  "damage": 4.0,
+  "speed": 1.15,
+  "follow_range": 40.0,
+  "ghost": true,
+  "xp": 15,
+  "attributes": {
+    "minecraft:knockback_resistance": 0.3
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 24.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:particles",
+      "interval": 15,
+      "particle": "minecraft:soul",
+      "count": 2
+    },
+    {
+      "type": "zombiemod:teleport",
+      "interval": 90,
+      "chance": 0.35,
+      "mode": "behind",
+      "range": 20.0,
+      "distance": 2.0,
+      "vanish_chance": 0.15
+    }
+  ]
+}

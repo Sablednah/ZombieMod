@@ -99,6 +99,20 @@ public final class GenusApplier {
             mob.setDropChance(slot, genus.equipment().dropChance());
         });
 
+        // GHOST: wear a real player's name and face. The 1.8 version could only borrow the name,
+        // because skins needed Spout; a head component makes the whole disguise free.
+        if (genus.ghost() && mob.level() instanceof ServerLevel serverLevel) {
+            KnownPlayers.get(serverLevel).random(mob.getRandom()).ifPresent(seen -> {
+                mob.setCustomName(net.minecraft.network.chat.Component.literal(seen.name()));
+                mob.setCustomNameVisible(false);
+                ItemStack face = new ItemStack(Items.PLAYER_HEAD);
+                face.set(DataComponents.PROFILE, net.minecraft.world.item.component.ResolvableProfile
+                        .createUnresolved(seen.id()));
+                mob.setItemSlot(EquipmentSlot.HEAD, face);
+                mob.setDropChance(EquipmentSlot.HEAD, 0.0F);
+            });
+        }
+
         // Anything the named fields don't cover, including other mods' attributes.
         genus.attributes().forEach((attribute, value) -> {
             AttributeInstance instance = mob.getAttribute(attribute);
@@ -108,6 +122,22 @@ public final class GenusApplier {
                 LOG.warn("[{}] {} has no attribute {} - ignored", ZombieMod.MOD_ID,
                         mob.getType().builtInRegistryHolder().key().identifier(),
                         attribute.getRegisteredName());
+            }
+        });
+
+        // Jockeys. The 1.8 `jockey` field, which was a pipe-delimited string; this is an entity id.
+        genus.mount().ifPresent(type -> {
+            if (!(mob.level() instanceof ServerLevel serverLevel)) {
+                return;
+            }
+            var steed = type.create(serverLevel, net.minecraft.world.entity.EntitySpawnReason.JOCKEY);
+            if (steed != null) {
+                steed.snapTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), 0.0F);
+                if (steed instanceof Mob steedMob) {
+                    steedMob.setPersistenceRequired();
+                }
+                serverLevel.addFreshEntity(steed);
+                mob.startRiding(steed, true, true);
             }
         });
 

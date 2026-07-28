@@ -105,12 +105,15 @@ public record Genus(
      * @param armorColor dyes a full leather set this RGB colour
      * @param head       a player head to wear; beats armorColor for the head slot
      * @param equipment  held and worn items; beats both of the above for any slot it names
+     * @param ghost      take the name and face of a random player who has played here
+     * @param mount      something to ride in on - the old `jockey` field
      */
     public record Appearance(Optional<String> name, double scale, Optional<Integer> armorColor,
-            Optional<ResolvableProfile> head, Equipment equipment) {
+            Optional<ResolvableProfile> head, Equipment equipment, boolean ghost,
+            Optional<EntityType<?>> mount) {
 
         public static final Appearance PLAIN = new Appearance(Optional.empty(), 1.0D,
-                Optional.empty(), Optional.empty(), Equipment.NONE);
+                Optional.empty(), Optional.empty(), Equipment.NONE, false, Optional.empty());
 
         public static final com.mojang.serialization.MapCodec<Appearance> MAP_CODEC =
                 RecordCodecBuilder.mapCodec(i -> i.group(
@@ -119,7 +122,10 @@ public record Genus(
                         Codec.INT.optionalFieldOf("armor_color").forGetter(Appearance::armorColor),
                         ResolvableProfile.CODEC.optionalFieldOf("head").forGetter(Appearance::head),
                         Equipment.CODEC.optionalFieldOf("equipment", Equipment.NONE)
-                                .forGetter(Appearance::equipment))
+                                .forGetter(Appearance::equipment),
+                        Codec.BOOL.optionalFieldOf("ghost", false).forGetter(Appearance::ghost),
+                        BuiltInRegistries.ENTITY_TYPE.byNameCodec().optionalFieldOf("mount")
+                                .forGetter(Appearance::mount))
                         .apply(i, Appearance::new));
     }
 
@@ -179,6 +185,14 @@ public record Genus(
 
     public Equipment equipment() {
         return appearance.equipment();
+    }
+
+    public boolean ghost() {
+        return appearance.ghost();
+    }
+
+    public Optional<EntityType<?>> mount() {
+        return appearance.mount();
     }
 
     public Optional<BossSpec> boss() {
