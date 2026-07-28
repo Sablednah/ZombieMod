@@ -364,7 +364,17 @@ they switch off again if the mob heals — a boss with a regeneration ability sh
 enrage after clawing back to full. **Attributes apply once and stay**, because stats that yo-yo as
 health crosses a line read as broken rather than escalating.
 
-`title` shows as an action-bar line to players within 64 blocks; `sound` plays once on entry.
+`title` is announced once on entry and supports `&` colour codes. `announce` picks how:
+
+| Mode | |
+|------|--|
+| `action_bar` *(default)* | Above the hotbar. Brief — easy to miss mid-fight. |
+| `chat` | Stays put, so nobody misses it. |
+| `title` | Big text across the screen, like the Wither arriving. |
+| `title_and_chat` | Both. What Patient Zero uses. |
+| `none` | Silent. |
+
+`announce_radius` defaults to 64 blocks. `sound` plays once on entry regardless.
 
 ### Loot
 

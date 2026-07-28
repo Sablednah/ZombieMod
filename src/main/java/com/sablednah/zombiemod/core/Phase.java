@@ -26,14 +26,18 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
  * @param abilities   extra abilities while in this phase
  * @param attributes  attribute changes applied once, on entering
  * @param sound       played once, on entering
- * @param title       shown once as an action-bar line to players nearby, on entering
+ * @param title       announced once on entering; supports &-codes for colour
+ * @param announce    how to announce it
+ * @param announceRadius how far the announcement carries
  */
 public record Phase(
         double belowHealth,
         List<Ability> abilities,
         Map<Holder<Attribute>, Double> attributes,
         Optional<Holder<SoundEvent>> sound,
-        Optional<String> title) {
+        Optional<String> title,
+        Announce announce,
+        double announceRadius) {
 
     public static final Codec<Phase> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.DOUBLE.fieldOf("below_health").forGetter(Phase::belowHealth),
@@ -41,6 +45,8 @@ public record Phase(
             Codec.unboundedMap(BuiltInRegistries.ATTRIBUTE.holderByNameCodec(), Codec.DOUBLE)
                     .optionalFieldOf("attributes", Map.of()).forGetter(Phase::attributes),
             BuiltInRegistries.SOUND_EVENT.holderByNameCodec().optionalFieldOf("sound").forGetter(Phase::sound),
-            Codec.STRING.optionalFieldOf("title").forGetter(Phase::title))
+            Codec.STRING.optionalFieldOf("title").forGetter(Phase::title),
+            Announce.CODEC.optionalFieldOf("announce", Announce.ACTION_BAR).forGetter(Phase::announce),
+            Codec.DOUBLE.optionalFieldOf("announce_radius", 64.0D).forGetter(Phase::announceRadius))
             .apply(i, Phase::new));
 }

@@ -4,9 +4,12 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 
+import com.sablednah.zombiemod.core.Announce;
 import com.sablednah.zombiemod.core.Phase;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -77,6 +80,36 @@ final class PhaseGoal extends Goal {
         }
     }
 
+    private void announce(ServerLevel level, Phase phase, Component message) {
+        if (phase.announce() == Announce.NONE) {
+            return;
+        }
+        double radiusSqr = phase.announceRadius() * phase.announceRadius();
+        for (ServerPlayer player : level.players()) {
+            if (player.distanceToSqr(mob) > radiusSqr) {
+                continue;
+            }
+            switch (phase.announce()) {
+                case ACTION_BAR -> player.displayClientMessage(message, true);
+                case CHAT -> player.displayClientMessage(message, false);
+                case TITLE -> sendTitle(player, message);
+                case TITLE_AND_CHAT -> {
+                    sendTitle(player, message);
+                    player.displayClientMessage(message, false);
+                }
+                case NONE -> {
+                    // unreachable; handled above
+                }
+            }
+        }
+    }
+
+    /** Fade in, hold, fade out - roughly the Wither's own timing. */
+    private static void sendTitle(ServerPlayer player, Component message) {
+        player.connection.send(new ClientboundSetTitlesAnimationPacket(10, 50, 20));
+        player.connection.send(new ClientboundSetTitleTextPacket(message));
+    }
+
     private void enter(Phase phase) {
         phase.attributes().forEach((attribute, value) -> {
             AttributeInstance instance = mob.getAttribute(attribute);
@@ -90,13 +123,6 @@ final class PhaseGoal extends Goal {
         }
         phase.sound().ifPresent(sound -> level.playSound(null, mob.getX(), mob.getY(), mob.getZ(),
                 sound.value(), SoundSource.HOSTILE, 1.4F, 0.8F));
-        phase.title().ifPresent(text -> {
-            Component message = Component.literal(text);
-            for (ServerPlayer player : level.players()) {
-                if (player.distanceToSqr(mob) <= 64.0D * 64.0D) {
-                    player.displayClientMessage(message, true);
-                }
-            }
-        });
+        phase.title().ifPresent(text -> announce(level, phase, Announce.format(text)));
     }
 }
