@@ -464,6 +464,18 @@ its own loot table.
 Both require permission level `LEVEL_GAMEMASTERS` (op 2). `spawn` accepts either the full id
 (`zombiemod:coward`) or just the name (`coward`), and tab-completes both.
 
+| `/zombiemod observe [on\|off]` | Take no damage while staying a completely normal target. |
+
+`observe` exists because the usual ways to survive a test don't work here. Creative mode and every
+god-mode command set vanilla's invulnerable flag, and `LivingEntity.canBeSeenAsEnemy()` is
+`!isInvulnerable() && canBeSeenByAnyone()` — so an invulnerable player is one no zombie will ever
+walk towards. Useless when the thing you're testing *is* what zombies do.
+
+Observer mode changes nothing about the player: you're targeted, chased, swung at, knocked back and
+teleported behind exactly as before, and the damage is cancelled on arrival. Knockback still lands,
+so a Tank's shockwave still throws you across the room. It survives death and relogging, and says so
+when you join.
+
 There is deliberately **no** `/zombiemod reload` — genera are datapack data, so vanilla `/reload`
 already does the job.
 

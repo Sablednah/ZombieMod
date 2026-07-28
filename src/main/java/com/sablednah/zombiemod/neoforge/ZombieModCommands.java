@@ -39,6 +39,7 @@ import net.minecraft.world.phys.Vec3;
  *   <li>{@code /zombiemod list} — what genera the current datapacks define
  *   <li>{@code /zombiemod spawn <genus>} — put one where you're looking
  *   <li>{@code /zombiemod spawn <genus> <x> <y> <z>} — put one at a position
+ *   <li>{@code /zombiemod observe [on|off]} — take no damage, stay a target
  * </ul>
  *
  * There is no {@code reload}: genera are datapack data, so vanilla {@code /reload} already does it.
@@ -92,7 +93,28 @@ public final class ZombieModCommands {
                                                 ctx, "genus", ZombieModRegistries.GENUS, ERROR_UNKNOWN_GENUS),
                                         Vec3Argument.getVec3(ctx, "pos"))))));
 
+        root.then(Commands.literal("observe")
+                .executes(ctx -> setObserve(ctx.getSource(), !ObserverMode.isOn(ctx.getSource().getPlayerOrException())))
+                .then(Commands.literal("on").executes(ctx -> setObserve(ctx.getSource(), true)))
+                .then(Commands.literal("off").executes(ctx -> setObserve(ctx.getSource(), false))));
+
         dispatcher.register(root);
+    }
+
+    /**
+     * Take no damage without becoming invisible to mobs.
+     *
+     * <p>The reason this exists rather than pointing at {@code /gamemode creative} or another mod's
+     * god mode: both make mobs stop targeting you, and watching what zombies do is the entire point
+     * of testing this mod.
+     */
+    private static int setObserve(CommandSourceStack source, boolean on) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        ObserverMode.set(player, on);
+        source.sendSuccess(() -> Component.literal(on
+                ? "Observer mode ON - mobs still hunt you, nothing hurts you."
+                : "Observer mode OFF."), false);
+        return 1;
     }
 
     /** Full ids plus bare names, so both {@code coward} and {@code zombiemod:coward} tab-complete. */

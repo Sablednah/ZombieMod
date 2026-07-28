@@ -115,6 +115,26 @@ public final class ZombieModEvents {
      * you shoot it, not every N ticks. Most abilities ignore this; the lookup is skipped entirely
      * for anything without a genus tag, which is every ordinary mob in the world.
      */
+    /** Observer mode: cancel the damage, change nothing else about the player. */
+    @SubscribeEvent
+    public void onPlayerDamage(LivingIncomingDamageEvent event) {
+        if (event.getEntity() instanceof net.minecraft.world.entity.player.Player player
+                && !player.level().isClientSide() && ObserverMode.isOn(player)) {
+            event.setCanceled(true);
+        }
+    }
+
+    /** Say so on login, or someone wonders for an hour why nothing can hurt them. */
+    @SubscribeEvent
+    public void onLogin(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
+        if (ObserverMode.isOn(event.getEntity())) {
+            event.getEntity().displayClientMessage(
+                    net.minecraft.network.chat.Component.literal(
+                            "\u00a7eZombieMod observer mode is ON - you take no damage. \u00a77/zombiemod observe off"),
+                    false);
+        }
+    }
+
     @SubscribeEvent
     public void onIncomingDamage(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof Mob mob) || !(mob.level() instanceof ServerLevel level)) {
