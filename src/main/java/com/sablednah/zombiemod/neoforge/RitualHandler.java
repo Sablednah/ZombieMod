@@ -129,7 +129,7 @@ public final class RitualHandler {
                 LOG.warn("Ritual {} names genus {}, whose base is not a mob", ritualId, ritual.genus().identifier());
                 return;
             }
-            mob.snapTo(pos.getX() + 0.5D, pos.getY() + 1.5D, pos.getZ() + 0.5D,
+            mob.snapTo(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
                     level.getRandom().nextFloat() * 360.0F, 0.0F);
             GenusApplier.assign(mob, holder);
             level.addFreshEntity(mob);

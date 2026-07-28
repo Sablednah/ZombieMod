@@ -1,6 +1,14 @@
 {
+  "_comment": [
+    "Anchored on the SKULL, not the soul sand. The soul sand at the centre of a cross has",
+    "neighbours on all four sides and a skull on top, so it has no clickable face at all -",
+    "anchoring there produced a ritual that could not be performed. The skull is exposed,",
+    "and 'place the last skull' is how the Wither reads anyway."
+  ],
   "block": [
-    "minecraft:soul_sand"
+    "minecraft:wither_skeleton_skull",
+    "minecraft:zombie_head",
+    "minecraft:skeleton_skull"
   ],
   "item": [
     "minecraft:rotten_flesh"
@@ -12,8 +20,18 @@
   "pattern": [
     {
       "offset": [
-        1,
         0,
+        -1,
+        0
+      ],
+      "block": [
+        "minecraft:soul_sand"
+      ]
+    },
+    {
+      "offset": [
+        1,
+        -1,
         0
       ],
       "block": [
@@ -23,7 +41,7 @@
     {
       "offset": [
         -1,
-        0,
+        -1,
         0
       ],
       "block": [
@@ -33,7 +51,7 @@
     {
       "offset": [
         0,
-        0,
+        -1,
         1
       ],
       "block": [
@@ -43,22 +61,11 @@
     {
       "offset": [
         0,
-        0,
+        -1,
         -1
       ],
       "block": [
         "minecraft:soul_sand"
-      ]
-    },
-    {
-      "offset": [
-        0,
-        1,
-        0
-      ],
-      "block": [
-        "minecraft:zombie_head",
-        "minecraft:wither_skeleton_skull"
       ]
     }
   ]

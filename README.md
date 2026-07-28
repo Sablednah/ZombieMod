@@ -407,21 +407,29 @@ Both `block` and `item` accept a tag as well as a list.
 A ritual can also demand a **built structure**, offsets relative to the block you activate:
 
 ```json
+"block": ["minecraft:wither_skeleton_skull", "minecraft:zombie_head"],
 "pattern": [
-  { "offset": [ 1, 0,  0], "block": ["minecraft:soul_sand"] },
-  { "offset": [-1, 0,  0], "block": ["minecraft:soul_sand"] },
-  { "offset": [ 0, 0,  1], "block": ["minecraft:soul_sand"] },
-  { "offset": [ 0, 0, -1], "block": ["minecraft:soul_sand"] },
-  { "offset": [ 0, 1,  0], "block": ["minecraft:zombie_head", "minecraft:wither_skeleton_skull"] }
+  { "offset": [ 0, -1,  0], "block": ["minecraft:soul_sand"] },
+  { "offset": [ 1, -1,  0], "block": ["minecraft:soul_sand"] },
+  { "offset": [-1, -1,  0], "block": ["minecraft:soul_sand"] },
+  { "offset": [ 0, -1,  1], "block": ["minecraft:soul_sand"] },
+  { "offset": [ 0, -1, -1], "block": ["minecraft:soul_sand"] }
 ]
 ```
+
+**Anchor on a block the player can actually reach.** Offsets are relative to the block you
+right-click, so it must have an exposed face. The obvious first draft of the example above anchored
+on the centre soul sand — which has neighbours on four sides and a skull on top, leaving no clickable
+face and a ritual that could never be performed. Anchoring on the skull and describing the soul sand
+*below* it fixes that, and matches how the Wither reads: you place the last skull.
 
 All four horizontal rotations are tried, so the shape can be built facing any way. With
 `replace_block: true` the structure is consumed along with the activated block — otherwise one build
 summons bosses forever.
 
-The shipped example: **a soul sand cross with a zombie head or wither skull on top, right-clicked
-with rotten flesh**, which summons Patient Zero — 250 HP, 2× scale, netherite sword, two phases, and
+The shipped example: build a **soul sand cross**, put a **wither skeleton skull, zombie head or
+skeleton skull** on the centre, then **right-click the skull holding rotten flesh** — which summons
+Patient Zero — 250 HP, 2× scale, netherite sword, two phases, and
 its own loot table.
 
 **Or your own mod/plugin**, by running the command or spawning the mob and calling
