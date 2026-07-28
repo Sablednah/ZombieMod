@@ -7,10 +7,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 
 /**
  * Where and when a genus may claim a spawn.
@@ -51,12 +49,12 @@ public record SpawnRules(List<EntitySpawnReason> reasons, List<SpawnCondition> c
             SpawnCondition.CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(SpawnRules::conditions))
             .apply(i, SpawnRules::new));
 
-    public boolean allows(LevelReader level, BlockPos pos, ResourceKey<Level> dimension, EntitySpawnReason reason) {
+    public boolean allows(Level level, BlockPos pos, EntitySpawnReason reason) {
         if (!reasons.contains(reason)) {
             return false;
         }
         for (SpawnCondition condition : conditions) {
-            if (!condition.test(level, pos, dimension, reason)) {
+            if (!condition.test(level, pos)) {
                 return false;
             }
         }

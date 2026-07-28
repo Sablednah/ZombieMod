@@ -86,6 +86,7 @@ Here is the coward, in full:
 | `abilities` | `[]` | Things it does repeatedly while alive — see below. |
 | `attributes` | `{}` | Any other attribute by id, e.g. `{"minecraft:armor": 8.0}`. Covers everything the named fields don't, including other mods' attributes. |
 | `head` | *(none)* | A player head to wear — `"head": "Notch"`, or the full profile form with an explicit texture. Beats `armor_color` for the head slot. |
+| `behaviours` | `[]` | Goal sets that switch on and off with a condition — see below. |
 | `navigation` | `default` | `climb` borrows the spider's wall navigator, `swim` and `amphibious` the aquatic ones. |
 | `equipment` | `{}` | Held and worn items — see below. Beats `armor_color` and `head` for any slot it names. |
 
@@ -163,6 +164,7 @@ horde of itself.
 | `zombiemod:height` | `min`, `max` — either may be omitted |
 | `zombiemod:light` | `min`, `max` — light at the spawn point, so it follows day/night outdoors |
 | `zombiemod:see_sky` | `value` (default `true`) — open sky above, or deliberately not |
+| `zombiemod:time` | `phase` (`day`/`night`), or `min`/`max` on the 24000-tick cycle |
 | `zombiemod:any_of` | `conditions` — passes if any nested condition passes |
 | `zombiemod:not` | `condition` — inverts one |
 
@@ -170,6 +172,38 @@ Conditions are a **registry**, not a fixed list, so another mod can contribute i
 `SpawnConditionTypes.register`. That's how CityWorld integration is planned to work — a
 `cityworld:lot` condition letting a genus prefer the wilderness or a particular district, as an
 optional dependency that ZombieMod itself never links against.
+
+### Behaviours — day/night and other switching
+
+A genus's plain `goals` are always active. `behaviours` add goals that switch on and off underneath
+them, gated by the **same conditions that gate spawning**:
+
+```json
+"behaviours": [
+  {
+    "when": { "type": "zombiemod:time", "phase": "day" },
+    "goals": [
+      { "type": "zombiemod:avoid_entity", "priority": 2, "target": "player", "distance": 8.0 }
+    ]
+  },
+  {
+    "when": { "type": "zombiemod:time", "phase": "night" },
+    "goals": [ { "type": "zombiemod:melee_attack", "priority": 3, "speed": 1.15 } ],
+    "target_goals": [ { "type": "zombiemod:nearest_target", "priority": 2, "target": "player" } ]
+  }
+]
+```
+
+That's the Nightstalker: it flees from you in daylight and hunts you after dark. Any condition works,
+so "hostile only in the wilderness" or "docile in this biome" are the same shape.
+
+There's a new `zombiemod:time` condition for this — `{"phase": "day"}` or `{"phase": "night"}`, or an
+explicit `min`/`max` on the 24000-tick cycle. It's deliberately distinct from `light`: light asks *is
+it dark here*, which is true in a cave at noon; time asks *is it night in this world*, which is true
+in a lit room at midnight. Spawning usually wants light; behaviour switching usually wants time.
+
+Nothing is rebuilt when the condition flips — both sets are registered up front and each goal is
+gated through `canUse`, which is what the goal system is already for.
 
 ### Goal types
 
@@ -281,9 +315,9 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**28 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+**29 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
 Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine. They're ordinary datapack files, so override or delete any of
+Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker. They're ordinary datapack files, so override or delete any of
 them from a higher-priority datapack.
 
 See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and
@@ -334,7 +368,7 @@ Not yet:
   Not shipped enabled, because silently changing vanilla spawn rates on install would be rude.
 - **No CityWorld integration yet.** The condition registry is in place for it; the adapter itself —
   "only in the wilderness", "only on a city lot" — isn't written.
-- Day/night behaviour switching, sound-driven aggro, horde events. See
+- Sound-driven aggro, horde events, boss encounters. See
   [`docs/TROPES.md`](docs/TROPES.md) for the full survey of what's missing and what each needs.
 - Navigation swapping (spider climbing), mounts/jockeys.
 - Richer appearance: player-head faces via the `minecraft:profile` component, which would give each

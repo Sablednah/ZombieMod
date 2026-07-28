@@ -33,7 +33,6 @@ features.
 
 | Trope | Needs |
 |-------|-------|
-| **Day/night behaviour switch** | Conditional goal sets — "docile by day, hunts at night". Currently a genus has one fixed AI. Wants goals gated on a condition, reusing the `SpawnCondition` registry. |
 | **Hive mind / pack tactics** | Goals that read other ZombieMod mobs nearby — flanking, surrounding, holding back until numbers are up. |
 | **Mutation / stages** | A genus that becomes another genus on a trigger (damage taken, time alive). "Kill it before it turns." |
 | **Boss / named encounter** | See the dedicated section below — partly possible already. |
@@ -79,17 +78,16 @@ Worth being explicit so nobody spends a weekend on them.
 
 ## Done since this was written
 
-**`teleport`** shipped — see Ender Zombie and Weeping Zombie in [ROSTER.md](ROSTER.md).
+**`behaviours`** shipped — conditional goal sets, with a new `zombiemod:time` condition. See
+Nightstalker. **`teleport`** shipped — see Ender Zombie and Weeping Zombie in [ROSTER.md](ROSTER.md).
 **`equipment`** and **`alert`** both shipped — see Rioter, Sapper and Screamer in
 [ROSTER.md](ROSTER.md). Boomer bile is largely covered by `alert` too: the horde-magnet effect was
 always the scary half.
 
 ## The one I'd build next
 
-**Day/night behaviour switching.** It's the difference between a monster and a *world* — the same
-genus docile at noon and hunting at midnight, and it's what makes Dying Light's nights work. It
-reuses the `SpawnCondition` registry for the gating, so most of the machinery already exists; what's
-new is swapping goal sets on a live mob rather than only at spawn.
+The **boss-zombie list** above, in order: boss bar, then the use-item summon trigger, then structure
+patterns, then phases and loot.
 
 After that **`convert`** — turning what you kill into one of them. It's the single most load-bearing
 idea in the genre and the mod currently has no answer to it.

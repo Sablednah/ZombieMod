@@ -14,9 +14,7 @@ import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.biome.Biome;
 
 /** The spawn conditions ZombieMod ships. Adding one is a record plus a line in {@link SpawnConditionTypes}. */
@@ -41,7 +39,7 @@ public final class SpawnConditions {
         }
 
         @Override
-        public boolean test(LevelReader level, BlockPos pos, ResourceKey<Level> dimension, EntitySpawnReason reason) {
+        public boolean test(Level level, BlockPos pos) {
             return biomes.contains(level.getBiome(pos));
         }
     }
@@ -64,8 +62,8 @@ public final class SpawnConditions {
         }
 
         @Override
-        public boolean test(LevelReader level, BlockPos pos, ResourceKey<Level> dimension, EntitySpawnReason reason) {
-            return dimensions.contains(dimension);
+        public boolean test(Level level, BlockPos pos) {
+            return dimensions.contains(level.dimension());
         }
     }
 
@@ -85,7 +83,7 @@ public final class SpawnConditions {
         }
 
         @Override
-        public boolean test(LevelReader level, BlockPos pos, ResourceKey<Level> dimension, EntitySpawnReason reason) {
+        public boolean test(Level level, BlockPos pos) {
             int y = pos.getY();
             return min.map(m -> y >= m).orElse(true) && max.map(m -> y <= m).orElse(true);
         }
@@ -112,7 +110,7 @@ public final class SpawnConditions {
         }
 
         @Override
-        public boolean test(LevelReader level, BlockPos pos, ResourceKey<Level> dimension, EntitySpawnReason reason) {
+        public boolean test(Level level, BlockPos pos) {
             int light = level.getMaxLocalRawBrightness(pos);
             return min.map(m -> light >= m).orElse(true) && max.map(m -> light <= m).orElse(true);
         }
@@ -133,7 +131,7 @@ public final class SpawnConditions {
         }
 
         @Override
-        public boolean test(LevelReader level, BlockPos pos, ResourceKey<Level> dimension, EntitySpawnReason reason) {
+        public boolean test(Level level, BlockPos pos) {
             return level.canSeeSky(pos) == value;
         }
     }
@@ -158,13 +156,63 @@ public final class SpawnConditions {
         }
 
         @Override
-        public boolean test(LevelReader level, BlockPos pos, ResourceKey<Level> dimension, EntitySpawnReason reason) {
+        public boolean test(Level level, BlockPos pos) {
             for (SpawnCondition c : conditions) {
-                if (c.test(level, pos, dimension, reason)) {
+                if (c.test(level, pos)) {
                     return true;
                 }
             }
             return false;
+        }
+    }
+
+    /**
+     * Time of day, on the 24000-tick cycle.
+     *
+     * <p>Distinct from {@code light}, and both are useful: light asks "is it dark <em>here</em>",
+     * which is true in a cave at noon; time asks "is it night in this world", which is true in a
+     * lit room at midnight. Day/night behaviour switching wants time; spawn darkness wants light.
+     */
+    public record TimeOfDay(Optional<Phase> phase, Optional<Integer> min, Optional<Integer> max)
+            implements SpawnCondition {
+
+        public static final Identifier TYPE = id("time");
+
+        /** Vanilla's own boundaries: night runs 13000–23000, day the rest. */
+        public enum Phase {
+            DAY(0, 12999), NIGHT(13000, 23999);
+
+            final int from;
+            final int to;
+
+            Phase(int from, int to) {
+                this.from = from;
+                this.to = to;
+            }
+
+            public static final Codec<Phase> CODEC = Codec.STRING.xmap(
+                    v -> valueOf(v.toUpperCase(Locale.ROOT)),
+                    v -> v.name().toLowerCase(Locale.ROOT));
+        }
+
+        public static final MapCodec<TimeOfDay> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Phase.CODEC.optionalFieldOf("phase").forGetter(TimeOfDay::phase),
+                Codec.INT.optionalFieldOf("min").forGetter(TimeOfDay::min),
+                Codec.INT.optionalFieldOf("max").forGetter(TimeOfDay::max))
+                .apply(i, TimeOfDay::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public boolean test(Level level, BlockPos pos) {
+            int t = (int) (level.getDayTime() % 24000L);
+            if (phase.isPresent() && (t < phase.get().from || t > phase.get().to)) {
+                return false;
+            }
+            return min.map(m -> t >= m).orElse(true) && max.map(m -> t <= m).orElse(true);
         }
     }
 
@@ -183,8 +231,8 @@ public final class SpawnConditions {
         }
 
         @Override
-        public boolean test(LevelReader level, BlockPos pos, ResourceKey<Level> dimension, EntitySpawnReason reason) {
-            return !condition.test(level, pos, dimension, reason);
+        public boolean test(Level level, BlockPos pos) {
+            return !condition.test(level, pos);
         }
     }
 

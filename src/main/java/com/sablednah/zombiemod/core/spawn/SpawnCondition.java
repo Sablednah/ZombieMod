@@ -4,13 +4,10 @@ import com.mojang.serialization.Codec;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
-import net.minecraft.resources.ResourceKey;
 
 /**
- * One test a spawn must pass for a genus to claim it.
+ * One test about a place: is it dark here, is this a forest, is it night.
  *
  * <p>Conditions are a dispatched registry rather than fields on a record, for one specific reason:
  * the interesting conditions live outside this mod. "Only in CityWorld's wilderness", "only on a
@@ -18,7 +15,11 @@ import net.minecraft.resources.ResourceKey;
  * registry lets an optional adapter contribute a condition type without the core knowing anything
  * about it — the same shape {@code GoalSpec} uses for AI.
  *
- * <p>Implementations must be stateless; one instance is shared across every spawn check.
+ * <p>Used for two things now: gating where a genus may spawn, and gating which behaviours a live
+ * mob currently has. That second use is why the signature is deliberately narrow — a condition
+ * knows about a <em>place</em>, nothing about spawning.
+ *
+ * <p>Implementations must be stateless; one instance is shared across every check.
  */
 public interface SpawnCondition {
 
@@ -29,12 +30,9 @@ public interface SpawnCondition {
     Identifier type();
 
     /**
-     * @param level     the level the spawn is happening in
-     * @param pos       where the mob would appear
-     * @param dimension the level's dimension key, passed separately because it is not derivable
-     *                  from a {@link LevelReader}
-     * @param reason    why the mob is being spawned
-     * @return whether this condition permits the spawn
+     * @param level the level in question
+     * @param pos   the position in question
+     * @return whether this condition holds there
      */
-    boolean test(LevelReader level, BlockPos pos, ResourceKey<Level> dimension, EntitySpawnReason reason);
+    boolean test(Level level, BlockPos pos);
 }

@@ -129,6 +129,14 @@ public final class GenusApplier {
         addAll(mob, genus.goals(), mob.goalSelector, "goals");
         addAll(mob, genus.targetGoals(), mob.targetSelector, "target_goals");
 
+        // Conditional behaviours are registered alongside the base goals, not swapped in later -
+        // see ConditionalGoal for why rebuilding a live goal list is a trap.
+        for (com.sablednah.zombiemod.core.Behaviour behaviour : genus.behaviours()) {
+            addAll(mob, behaviour.goals(), mob.goalSelector, "behaviour goals", behaviour.when());
+            addAll(mob, behaviour.targetGoals(), mob.targetSelector, "behaviour target_goals",
+                    behaviour.when());
+        }
+
         // Abilities ride the goal selector too - see AbilityGoal for why. Priority is irrelevant
         // because they carry no control flags, but a high number keeps them visually last in any
         // debug dump of the goal list.
@@ -156,6 +164,12 @@ public final class GenusApplier {
 
     private static void addAll(Mob mob, java.util.List<GoalSpec> specs,
             net.minecraft.world.entity.ai.goal.GoalSelector selector, String what) {
+        addAll(mob, specs, selector, what, null);
+    }
+
+    private static void addAll(Mob mob, java.util.List<GoalSpec> specs,
+            net.minecraft.world.entity.ai.goal.GoalSelector selector, String what,
+            com.sablednah.zombiemod.core.spawn.SpawnCondition when) {
         for (GoalSpec spec : specs) {
             Goal goal = spec.build(mob);
             if (goal == null) {
@@ -165,7 +179,7 @@ public final class GenusApplier {
                         ZombieMod.MOD_ID, what, spec.type(), mob.getType().builtInRegistryHolder().key().identifier());
                 continue;
             }
-            selector.addGoal(spec.priority(), goal);
+            selector.addGoal(spec.priority(), when == null ? goal : new ConditionalGoal(mob, goal, when));
         }
     }
 

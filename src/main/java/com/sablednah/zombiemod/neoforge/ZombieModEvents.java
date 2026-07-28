@@ -56,9 +56,23 @@ public final class ZombieModEvents {
                 event.getServer().registryAccess().lookupOrThrow(ZombieModRegistries.GENUS);
 
         List<String> summary = lookup.listElements()
-                .map(h -> h.key().identifier().getPath()
-                        + " (" + h.value().goals().size() + "+" + h.value().targetGoals().size() + " goals, weight "
-                        + h.value().weight() + ")")
+                .map(h -> {
+                    Genus g = h.value();
+                    // Count behaviour goals too, or a genus whose whole personality is conditional
+                    // reads as nearly empty here - which is the opposite of what this line is for.
+                    int conditional = g.behaviours().stream()
+                            .mapToInt(b -> b.goals().size() + b.targetGoals().size()).sum();
+                    StringBuilder sb = new StringBuilder(h.key().identifier().getPath());
+                    sb.append(" (").append(g.goals().size()).append('+').append(g.targetGoals().size());
+                    if (conditional > 0) {
+                        sb.append('+').append(conditional).append(" cond");
+                    }
+                    sb.append(" goals");
+                    if (!g.abilities().isEmpty()) {
+                        sb.append(", ").append(g.abilities().size()).append(" abil");
+                    }
+                    return sb.append(", weight ").append(g.weight()).append(')').toString();
+                })
                 .sorted()
                 .toList();
 
@@ -143,8 +157,6 @@ public final class ZombieModEvents {
             ServerLevel level, Mob mob, BlockPos pos, EntitySpawnReason reason) {
 
         HolderLookup.RegistryLookup<Genus> lookup = level.registryAccess().lookupOrThrow(ZombieModRegistries.GENUS);
-        ResourceKey<Level> dimension = level.dimension();
-
         List<Holder.Reference<Genus>> candidates = new ArrayList<>();
         int total = ZombieModConfig.VANILLA_WEIGHT.get();
 
@@ -153,7 +165,7 @@ public final class ZombieModEvents {
             if (genus.weight() <= 0 || genus.base() != mob.getType()) {
                 continue;
             }
-            if (!genus.spawn().allows(level, pos, dimension, reason)) {
+            if (!genus.spawn().allows(level, pos, reason)) {
                 continue;
             }
             candidates.add(holder);

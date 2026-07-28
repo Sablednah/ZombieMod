@@ -29,6 +29,7 @@ public final class SpawnConditionTypes {
         register(SpawnConditions.Height.TYPE, SpawnConditions.Height.CODEC);
         register(SpawnConditions.Light.TYPE, SpawnConditions.Light.CODEC);
         register(SpawnConditions.SeeSky.TYPE, SpawnConditions.SeeSky.CODEC);
+        register(SpawnConditions.TimeOfDay.TYPE, SpawnConditions.TimeOfDay.CODEC);
         register(SpawnConditions.AnyOf.TYPE, SpawnConditions.AnyOf.CODEC);
         register(SpawnConditions.Not.TYPE, SpawnConditions.Not.CODEC);
     }

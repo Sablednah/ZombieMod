@@ -1,6 +1,6 @@
 # The shipped roster
 
-28 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+29 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -87,6 +87,12 @@ Weight 1 — rare on purpose. He is the whole teleport feature set pointed at on
 
 He cannot hurt you. That's the point.
 
+### Nightstalker
+
+| Genus | Weight | Idea |
+|-------|-------:|------|
+| **Nightstalker** | 12 | Runs from you in daylight and hunts you after dark. Same mob, two personalities, switched on the clock. |
+
 ## What these demonstrate
 
 Worth reading the files rather than just the table — between them they exercise every feature:
@@ -106,3 +112,4 @@ Worth reading the files rather than just the table — between them they exercis
 - **Weight 0** — Weeping Zombie never spawns naturally and exists only for `/zombiemod spawn`.
 - **A reactive ability** — Herobrine's teleport fires on being shot, outside the tick schedule.
 - **A mob with no attack at all** — Herobrine does 0 damage and has no melee goal.
+- **Conditional behaviour** — Nightstalker's `avoid_entity` and `melee_attack` are gated on the clock.

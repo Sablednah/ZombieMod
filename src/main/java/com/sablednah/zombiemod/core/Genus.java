@@ -50,6 +50,7 @@ import net.minecraft.world.item.component.ResolvableProfile;
  *                      including attributes added by other mods
  * @param head          a player head to wear, by name or with an explicit texture. The strongest
  *                      per-genus identity available to a vanilla client
+ * @param behaviours    goal sets that switch on and off with a condition — day/night and the like
  * @param navigation    how it moves — {@code climb} borrows the spider's wall navigator
  */
 public record Genus(
@@ -66,6 +67,7 @@ public record Genus(
         SpawnRules spawn,
         List<Ability> abilities,
         Map<Holder<Attribute>, Double> attributes,
+        List<Behaviour> behaviours,
         Navigation navigation) {
 
     /**
@@ -127,6 +129,7 @@ public record Genus(
             Ability.CODEC.listOf().optionalFieldOf("abilities", List.of()).forGetter(Genus::abilities),
             Codec.unboundedMap(BuiltInRegistries.ATTRIBUTE.holderByNameCodec(), Codec.DOUBLE)
                     .optionalFieldOf("attributes", Map.of()).forGetter(Genus::attributes),
+            Behaviour.CODEC.listOf().optionalFieldOf("behaviours", List.of()).forGetter(Genus::behaviours),
             Navigation.CODEC.optionalFieldOf("navigation", Navigation.DEFAULT).forGetter(Genus::navigation))
             .apply(i, Genus::new));
 

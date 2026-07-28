@@ -1,0 +1,96 @@
+{
+  "name": "Nightstalker",
+  "base": "minecraft:zombie",
+  "weight": 12,
+  "health": 26.0,
+  "damage": 5.0,
+  "speed": 1.0,
+  "follow_range": 32.0,
+  "armor_color": 3878730,
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.6
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 16.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    }
+  ],
+  "behaviours": [
+    {
+      "when": {
+        "type": "zombiemod:time",
+        "phase": "day"
+      },
+      "goals": [
+        {
+          "type": "zombiemod:avoid_entity",
+          "priority": 2,
+          "target": "player",
+          "distance": 8.0,
+          "walk_speed": 1.0,
+          "sprint_speed": 1.2
+        }
+      ]
+    },
+    {
+      "when": {
+        "type": "zombiemod:time",
+        "phase": "night"
+      },
+      "goals": [
+        {
+          "type": "zombiemod:melee_attack",
+          "priority": 3,
+          "speed": 1.15
+        }
+      ],
+      "target_goals": [
+        {
+          "type": "zombiemod:nearest_target",
+          "priority": 2,
+          "target": "player"
+        }
+      ]
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:sound",
+      "interval": 140,
+      "chance": 0.4,
+      "sound": "minecraft:entity.zombie.ambient",
+      "volume": 0.8,
+      "pitch": 0.8
+    }
+  ]
+}
