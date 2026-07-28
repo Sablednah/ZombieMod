@@ -230,6 +230,7 @@ First firings are staggered per mob, so a horde that spawned together doesn't ac
 | `zombiemod:pull` | `range`, `power` — drag nearby players toward it |
 | `zombiemod:summon` | `entity`, `count`, `max_nearby`, `radius` — spawn reinforcements |
 | `zombiemod:alert` | `radius`, `who`, `max_alerted` — hand your target to everything nearby |
+| `zombiemod:teleport` | `mode`, `range`, `distance`, `only_when_unseen` — blink; `mode: behind` lands behind the victim facing them |
 | `zombiemod:particles` | `particle`, `count`, `spread` |
 | `zombiemod:sound` | `sound`, `volume`, `pitch` |
 
@@ -262,9 +263,9 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**25 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+**27 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
 Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper. They're ordinary datapack files, so override or delete any of
+Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie. They're ordinary datapack files, so override or delete any of
 them from a higher-priority datapack.
 
 See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and

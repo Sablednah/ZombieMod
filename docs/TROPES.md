@@ -26,7 +26,6 @@ features.
 |-------|-------|-------|
 | **Smoker tongue (real)** | `tether` ability | Persistent pull with line-of-sight break, rather than one shove. |
 | **Infector / patient zero** | `convert` ability | Turn a killed villager/player-corpse into a genus. The 1.8 mod's player-corpse feature lives here. |
-| **Blinker / phaser** | `teleport` ability | Short-range blink toward the victim, enderman-style. |
 | **Spitter (projectile)** | `projectile` ability | Actually fire something — arrow, snowball, small fireball — instead of an aura. |
 | **Necromancer** | `resurrect` ability | Re-raise nearby zombie corpses. Needs death tracking. |
 
@@ -56,6 +55,7 @@ Worth being explicit so nobody spends a weekend on them.
 
 ## Done since this was written
 
+**`teleport`** shipped — see Ender Zombie and Weeping Zombie in [ROSTER.md](ROSTER.md).
 **`equipment`** and **`alert`** both shipped — see Rioter, Sapper and Screamer in
 [ROSTER.md](ROSTER.md). Boomer bile is largely covered by `alert` too: the horde-magnet effect was
 always the scary half.

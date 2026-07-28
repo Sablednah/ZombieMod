@@ -1,6 +1,6 @@
 # The shipped roster
 
-25 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+27 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -67,6 +67,13 @@ overworld spot the eligible genera total roughly 190, so a little over half of z
 | **Rioter** | 6 | Iron helmet, chainmail, shield, sword. Knockback-resistant, and alerts its mates at short range. |
 | **Sapper** | 4 | A husk with a Sharpness II iron axe named *Pry Bar*. Demonstrates the full item-stack form with components. |
 
+## Blinkers
+
+| Genus | Weight | Idea |
+|-------|-------:|------|
+| **Ender Zombie** | 4 | Teleports **behind you, already facing you**, every few seconds. The tell isn't seeing it move — it's the sound at your back. A 1.8 favourite, rebuilt. |
+| **Weeping Zombie** | *0* | The same trick with `only_when_unseen`: it will not blink while you're looking at it, so it closes every time you turn around. **Weight 0 — summon it deliberately**, it's too mean to meet by accident. |
+
 ## What these demonstrate
 
 Worth reading the files rather than just the table — between them they exercise every feature:
@@ -83,3 +90,4 @@ Worth reading the files rather than just the table — between them they exercis
 - **Equipment both ways** — Rioter uses bare item ids, Sapper the full stack form with enchantments
   and a custom name.
 - **A genus that fights by not fighting** — Screamer has no `melee_attack` at all.
+- **Weight 0** — Weeping Zombie never spawns naturally and exists only for `/zombiemod spawn`.

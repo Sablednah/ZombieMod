@@ -1,0 +1,59 @@
+{
+  "name": "Weeping Zombie",
+  "base": "minecraft:zombie",
+  "weight": 0,
+  "health": 40.0,
+  "damage": 7.0,
+  "speed": 0.9,
+  "follow_range": 48.0,
+  "scale": 1.05,
+  "armor_color": 3158074,
+  "attributes": {
+    "minecraft:knockback_resistance": 0.8
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 48.0,
+      "probability": 1.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:teleport",
+      "interval": 30,
+      "chance": 1.0,
+      "mode": "behind",
+      "range": 48.0,
+      "distance": 2.0,
+      "only_when_unseen": true
+    }
+  ]
+}

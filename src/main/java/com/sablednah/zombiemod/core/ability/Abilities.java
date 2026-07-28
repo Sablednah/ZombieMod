@@ -14,6 +14,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -508,6 +509,102 @@ public final class Abilities {
                 victim.setDeltaMovement(v.x + toward.x * power, v.y + 0.15D, v.z + toward.z * power);
                 victim.hurtMarked = true;
             }
+        }
+    }
+
+    /**
+     * Blink. The 1.8 mod had an ender zombie that appeared directly behind you, already facing you,
+     * and it was the nastiest thing in the roster.
+     *
+     * <p>{@code behind} is the reason this exists. It reads the victim's own facing and lands on the
+     * far side of them, then turns to face their back — so the tell isn't seeing it move, it's the
+     * sound behind you. {@code toward} is the ordinary enderman blink and {@code away} is a
+     * hit-and-run.
+     *
+     * <p>{@code only_when_unseen} makes it strictly worse to fight: it will not blink while you are
+     * looking at it, so it closes the distance every time you turn around. Off by default, because
+     * on by default is genuinely unpleasant.
+     */
+    public record Teleport(int interval, float chance, Mode mode, double range, double distance,
+            boolean onlyWhenUnseen) implements Ability {
+
+        public static final Identifier TYPE = id("teleport");
+
+        public enum Mode {
+            BEHIND, TOWARD, AWAY;
+
+            public static final Codec<Mode> CODEC = Codec.STRING.xmap(
+                    v -> valueOf(v.toUpperCase(java.util.Locale.ROOT)),
+                    v -> v.name().toLowerCase(java.util.Locale.ROOT));
+        }
+
+        public static final MapCodec<Teleport> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Abilities.<Teleport>intervalField(70),
+                Abilities.<Teleport>chanceField(0.5F),
+                Mode.CODEC.optionalFieldOf("mode", Mode.BEHIND).forGetter(Teleport::mode),
+                Codec.DOUBLE.optionalFieldOf("range", 24.0D).forGetter(Teleport::range),
+                Codec.DOUBLE.optionalFieldOf("distance", 2.0D).forGetter(Teleport::distance),
+                Codec.BOOL.optionalFieldOf("only_when_unseen", false).forGetter(Teleport::onlyWhenUnseen))
+                .apply(i, Teleport::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public void run(ServerLevel level, Mob mob) {
+            LivingEntity victim = mob.getTarget();
+            if (victim == null || !victim.isAlive()) {
+                return;
+            }
+            double distSqr = victim.distanceToSqr(mob);
+            if (distSqr > range * range) {
+                return;
+            }
+            if (onlyWhenUnseen && isWatching(victim, mob)) {
+                return;
+            }
+
+            Vec3 destination = switch (mode) {
+                // The victim's own look direction, flipped - their back.
+                case BEHIND -> victim.position().subtract(victim.getLookAngle().multiply(distance, 0.0D, distance));
+                case TOWARD -> victim.position().add(
+                        victim.position().subtract(mob.position()).normalize().scale(-distance));
+                case AWAY -> mob.position().add(
+                        mob.position().subtract(victim.position()).normalize().scale(distance));
+            };
+
+            Vec3 from = mob.position();
+            // randomTeleport is what the enderman uses: it walks down to solid ground and refuses
+            // to land in water or inside a block, so we don't have to hunt for a safe spot.
+            if (!mob.randomTeleport(destination.x, destination.y, destination.z, false)) {
+                return;
+            }
+
+            // Turn to face them. Body and head both, or it arrives looking the way it set off.
+            Vec3 toVictim = victim.position().subtract(mob.position());
+            float yaw = (float) (Math.toDegrees(Math.atan2(toVictim.z, toVictim.x)) - 90.0D);
+            mob.setYRot(yaw);
+            mob.setYBodyRot(yaw);
+            mob.setYHeadRot(yaw);
+            mob.getLookControl().setLookAt(victim, 90.0F, 90.0F);
+
+            level.playSound(null, from.x, from.y, from.z, SoundEvents.ENDERMAN_TELEPORT,
+                    SoundSource.HOSTILE, 1.0F, 1.0F);
+            level.playSound(null, mob.getX(), mob.getY(), mob.getZ(), SoundEvents.ENDERMAN_TELEPORT,
+                    SoundSource.HOSTILE, 1.0F, 1.0F);
+            level.sendParticles(ParticleTypes.PORTAL, from.x, from.y + 1.0D, from.z, 24, 0.4D, 0.6D, 0.4D, 0.1D);
+            level.sendParticles(ParticleTypes.PORTAL, mob.getX(), mob.getY() + 1.0D, mob.getZ(),
+                    24, 0.4D, 0.6D, 0.4D, 0.1D);
+        }
+
+        /** Is the victim looking more or less at this mob? */
+        private static boolean isWatching(LivingEntity victim, Mob mob) {
+            Vec3 look = victim.getViewVector(1.0F).normalize();
+            Vec3 toMob = mob.position().subtract(victim.getEyePosition()).normalize();
+            // ~53 degrees either side of straight ahead - roughly "on screen".
+            return look.dot(toMob) > 0.6D && victim.hasLineOfSight(mob);
         }
     }
 

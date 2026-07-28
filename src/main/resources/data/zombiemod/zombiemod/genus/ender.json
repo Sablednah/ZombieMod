@@ -1,0 +1,85 @@
+{
+  "name": "Ender Zombie",
+  "base": "minecraft:zombie",
+  "weight": 4,
+  "health": 30.0,
+  "damage": 6.0,
+  "speed": 1.0,
+  "follow_range": 40.0,
+  "scale": 1.1,
+  "armor_color": 1707814,
+  "attributes": {
+    "minecraft:knockback_resistance": 0.4
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 32.0,
+      "probability": 0.8
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:teleport",
+      "interval": 70,
+      "chance": 0.6,
+      "mode": "behind",
+      "range": 24.0,
+      "distance": 2.0,
+      "only_when_unseen": false
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 12,
+      "particle": "minecraft:portal",
+      "count": 3,
+      "spread": 0.4
+    }
+  ]
+}
