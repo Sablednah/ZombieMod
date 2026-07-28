@@ -65,7 +65,7 @@ public final class RitualHandler {
      * @return the rotation (0-3, quarter turns) the structure was found in, or -1 if it is absent.
      *         A ritual with no pattern always matches at rotation 0.
      */
-    private int matchPattern(ServerLevel level, BlockPos pos, SummonRitual ritual) {
+    static int matchPattern(ServerLevel level, BlockPos pos, SummonRitual ritual) {
         if (ritual.pattern().isEmpty()) {
             return 0;
         }
@@ -74,7 +74,7 @@ public final class RitualHandler {
         for (int rotation = 0; rotation < 4; rotation++) {
             boolean matched = true;
             for (SummonRitual.PatternBlock required : ritual.pattern()) {
-                BlockPos at = pos.offset(rotate(required.x(), required.z(), rotation));
+                BlockPos at = pos.offset(rotate(required.x(), required.y(), required.z(), rotation));
                 if (!required.block().contains(level.getBlockState(at).getBlockHolder())) {
                     matched = false;
                     break;
@@ -87,13 +87,19 @@ public final class RitualHandler {
         return -1;
     }
 
-    /** Quarter turns about the vertical axis. */
-    private static net.minecraft.core.Vec3i rotate(int x, int z, int rotation) {
+    /**
+     * Quarter turns about the vertical axis.
+     *
+     * <p>Rotation is horizontal, so y passes through untouched — an earlier version took only
+     * (x, z) and hardcoded y to 0, which silently discarded every vertical offset in every pattern.
+     * Patterns describing blocks above or below the anchor could never match.
+     */
+    static net.minecraft.core.Vec3i rotate(int x, int y, int z, int rotation) {
         return switch (rotation) {
-            case 1 -> new net.minecraft.core.Vec3i(-z, 0, x);
-            case 2 -> new net.minecraft.core.Vec3i(-x, 0, -z);
-            case 3 -> new net.minecraft.core.Vec3i(z, 0, -x);
-            default -> new net.minecraft.core.Vec3i(x, 0, z);
+            case 1 -> new net.minecraft.core.Vec3i(-z, y, x);
+            case 2 -> new net.minecraft.core.Vec3i(-x, y, -z);
+            case 3 -> new net.minecraft.core.Vec3i(z, y, -x);
+            default -> new net.minecraft.core.Vec3i(x, y, z);
         };
     }
 
@@ -113,7 +119,7 @@ public final class RitualHandler {
             // Consume the structure too. Leaving it standing would let one build summon endlessly,
             // which is fine for a trash mob and wrong for a boss.
             for (SummonRitual.PatternBlock part : ritual.pattern()) {
-                BlockPos at = pos.offset(rotate(part.x(), part.z(), rotation));
+                BlockPos at = pos.offset(rotate(part.x(), part.y(), part.z(), rotation));
                 if (part.block().contains(level.getBlockState(at).getBlockHolder())) {
                     level.setBlockAndUpdate(at, Blocks.AIR.defaultBlockState());
                 }

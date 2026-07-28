@@ -118,6 +118,11 @@ Two things it is worth re-deriving if you touch that area, because nothing else 
   chunk returns **15**, so a probe testing a `max_light` condition underground will silently
   conclude "too bright" and prove nothing. `level.getChunkAt(pos)` first. (Not a problem in the real
   game — mobs only spawn in loaded chunks.)
+- **A probe must call the real code, not re-derive it.** A ritual probe recomputed pattern offsets
+  itself instead of calling `RitualHandler.matchPattern`, reported 5/5 blocks matched, and sailed
+  past the actual bug — the rotation helper was dropping the Y component, so every vertical offset
+  in every pattern was silently discarded. The probe validated the *data* and never touched the
+  *logic*. If a probe duplicates the thing it is testing, it is testing the duplicate.
 - **Test conditions in both directions.** A filter that excludes everything looks identical to one
   that works. Prove a genus is admitted where it should be, not just excluded where it shouldn't.
 - **Command parsing *and* execution.**
