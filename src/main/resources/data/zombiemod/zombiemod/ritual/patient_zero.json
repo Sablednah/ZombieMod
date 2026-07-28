@@ -7,6 +7,59 @@
   ],
   "genus": "zombiemod:patient_zero",
   "consume": true,
-  "replace_block": false,
-  "count": 1
+  "replace_block": true,
+  "count": 1,
+  "pattern": [
+    {
+      "offset": [
+        1,
+        0,
+        0
+      ],
+      "block": [
+        "minecraft:soul_sand"
+      ]
+    },
+    {
+      "offset": [
+        -1,
+        0,
+        0
+      ],
+      "block": [
+        "minecraft:soul_sand"
+      ]
+    },
+    {
+      "offset": [
+        0,
+        0,
+        1
+      ],
+      "block": [
+        "minecraft:soul_sand"
+      ]
+    },
+    {
+      "offset": [
+        0,
+        0,
+        -1
+      ],
+      "block": [
+        "minecraft:soul_sand"
+      ]
+    },
+    {
+      "offset": [
+        0,
+        1,
+        0
+      ],
+      "block": [
+        "minecraft:zombie_head",
+        "minecraft:wither_skeleton_skull"
+      ]
+    }
+  ]
 }

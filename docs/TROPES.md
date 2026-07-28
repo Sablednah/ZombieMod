@@ -34,7 +34,7 @@ features.
 | Trope | Needs |
 |-------|-------|
 | **Hive mind / pack tactics** | Goals that read other ZombieMod mobs nearby — flanking, surrounding, holding back until numbers are up. |
-| **Mutation / stages** | A genus that becomes another genus on a trigger (damage taken, time alive). "Kill it before it turns." |
+| **Mutation / stages** | A genus that becomes *another genus* on a trigger. `phases` covers stages within one mob; this is the "kill it before it turns" version that swaps identity. |
 | **Boss / named encounter** | See the dedicated section below — partly possible already. |
 | **Horde events** | A timed wave director — the L4D crescendo. Server-level, not per-mob. |
 | **Sound-driven aggro** | Clicker done properly: blind, but hears sprinting and blocks breaking. Needs vibration/`GameEvent` listening. |
@@ -56,11 +56,12 @@ Named, summoned, one-off encounters rather than anything you meet in the wild.
 |-------|-------|
 | ~~**Boss bar**~~ | **Done** — a `boss` block on the genus. See Patient Zero. |
 | ~~**Use-item-on-block trigger**~~ | **Done** — the `zombiemod:ritual` datapack registry. |
-| **Summon structure** | The full Wither pattern: a multi-block shape that, when completed, replaces itself with the mob. Vanilla's `BlockPattern` is exactly what the Wither and Iron Golem use. Data-drive the pattern so it's a datapack file. |
-| **Phases** | "At 50% health it changes" — swap abilities or attributes at health thresholds. Rides the mutation/stages idea above, and could reuse `behaviours` if conditions could read the mob as well as the place. |
-| **Loot** | Genus-specific drops. Currently a genus drops whatever its base mob drops. Wants a loot-table id on the genus, applied on death. |
+| ~~**Summon structure**~~ | **Done** — a `pattern` on the ritual, offset-based, tried in all four rotations. |
+| ~~**Phases**~~ | **Done** — a `phases` list, abilities gated on health and attributes applied once. |
+| ~~**Loot**~~ | **Done** — a `loot` block naming a loot table. |
 
-Remaining order: structure patterns, then phases, then loot.
+**The whole boss list is done.** What's left for bosses is content rather than machinery: more of
+them, and better rituals.
 
 ## Hard or impossible
 

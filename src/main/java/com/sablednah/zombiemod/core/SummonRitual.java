@@ -1,6 +1,6 @@
 package com.sablednah.zombiemod.core;
 
-import java.util.Optional;
+import java.util.List;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -38,7 +38,39 @@ public record SummonRitual(
         ResourceKey<Genus> genus,
         boolean consume,
         boolean replaceBlock,
-        int count) {
+        int count,
+        List<PatternBlock> pattern) {
+
+    /**
+     * One block the structure must contain, positioned relative to the block you activate.
+     *
+     * <p>Offsets rather than vanilla's {@code BlockPattern} aisles: the aisle format is fiddly to
+     * author and worse to read in JSON, and a list of "there must be soul sand here" is obvious at a
+     * glance. The cost is that we do the rotation ourselves — see {@code RitualHandler}, which tries
+     * all four horizontal orientations so a player can build the shape facing any way.
+     *
+     * @param offset [x, y, z] from the activated block
+     * @param block  what must be there; accepts a tag
+     */
+    public record PatternBlock(List<Integer> offset, HolderSet<Block> block) {
+
+        public static final Codec<PatternBlock> CODEC = RecordCodecBuilder.create(i -> i.group(
+                Codec.INT.listOf(3, 3).fieldOf("offset").forGetter(PatternBlock::offset),
+                RegistryCodecs.homogeneousList(Registries.BLOCK).fieldOf("block").forGetter(PatternBlock::block))
+                .apply(i, PatternBlock::new));
+
+        public int x() {
+            return offset.get(0);
+        }
+
+        public int y() {
+            return offset.get(1);
+        }
+
+        public int z() {
+            return offset.get(2);
+        }
+    }
 
     private static final Codec<ResourceKey<Genus>> GENUS_KEY = Identifier.CODEC.xmap(
             id -> ResourceKey.create(
@@ -51,15 +83,13 @@ public record SummonRitual(
             GENUS_KEY.fieldOf("genus").forGetter(SummonRitual::genus),
             Codec.BOOL.optionalFieldOf("consume", true).forGetter(SummonRitual::consume),
             Codec.BOOL.optionalFieldOf("replace_block", false).forGetter(SummonRitual::replaceBlock),
-            Codec.INT.optionalFieldOf("count", 1).forGetter(SummonRitual::count))
+            Codec.INT.optionalFieldOf("count", 1).forGetter(SummonRitual::count),
+            PatternBlock.CODEC.listOf().optionalFieldOf("pattern", List.of()).forGetter(SummonRitual::pattern))
             .apply(i, SummonRitual::new));
 
     public boolean matches(Holder<Block> usedOn, Holder<Item> held) {
         return block.contains(usedOn) && item.contains(held);
     }
 
-    /** Unused today; kept so a future structure variant has an obvious home. */
-    public Optional<Identifier> pattern() {
-        return Optional.empty();
-    }
+
 }

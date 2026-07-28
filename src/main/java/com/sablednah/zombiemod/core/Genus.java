@@ -50,6 +50,8 @@ import net.minecraft.world.item.component.ResolvableProfile;
  *                      including attributes added by other mods
  * @param head          a player head to wear, by name or with an explicit texture. The strongest
  *                      per-genus identity available to a vanilla client
+ * @param phases        stages that open up as it is worn down
+ * @param loot          what it drops
  * @param boss          present makes this a boss: a bar at the top of the screen
  * @param behaviours    goal sets that switch on and off with a condition — day/night and the like
  * @param navigation    how it moves — {@code climb} borrows the spider's wall navigator
@@ -69,8 +71,27 @@ public record Genus(
         List<Ability> abilities,
         Map<Holder<Attribute>, Double> attributes,
         List<Behaviour> behaviours,
-        Optional<BossSpec> boss,
+        Encounter encounter,
         Navigation navigation) {
+
+    /**
+     * The boss-fight half of a genus: bar, stages, drops.
+     *
+     * <p>Grouped for the same reason as {@link Appearance} — {@code RecordCodecBuilder.group} stops
+     * at 16 fields — and it groups honestly, since these three only ever matter together. A
+     * {@code MapCodec} reads sibling keys, so all three stay flat in the JSON.
+     */
+    public record Encounter(Optional<BossSpec> boss, List<Phase> phases, Optional<LootSpec> loot) {
+
+        public static final Encounter NONE = new Encounter(Optional.empty(), List.of(), Optional.empty());
+
+        public static final com.mojang.serialization.MapCodec<Encounter> MAP_CODEC =
+                RecordCodecBuilder.mapCodec(i -> i.group(
+                        BossSpec.CODEC.optionalFieldOf("boss").forGetter(Encounter::boss),
+                        Phase.CODEC.listOf().optionalFieldOf("phases", List.of()).forGetter(Encounter::phases),
+                        LootSpec.CODEC.optionalFieldOf("loot").forGetter(Encounter::loot))
+                        .apply(i, Encounter::new));
+    }
 
     /**
      * How it looks. Grouped only because {@code RecordCodecBuilder.group} tops out at 16 fields -
@@ -132,7 +153,7 @@ public record Genus(
             Codec.unboundedMap(BuiltInRegistries.ATTRIBUTE.holderByNameCodec(), Codec.DOUBLE)
                     .optionalFieldOf("attributes", Map.of()).forGetter(Genus::attributes),
             Behaviour.CODEC.listOf().optionalFieldOf("behaviours", List.of()).forGetter(Genus::behaviours),
-            BossSpec.CODEC.optionalFieldOf("boss").forGetter(Genus::boss),
+            Encounter.MAP_CODEC.forGetter(Genus::encounter),
             Navigation.CODEC.optionalFieldOf("navigation", Navigation.DEFAULT).forGetter(Genus::navigation))
             .apply(i, Genus::new));
 
@@ -155,6 +176,18 @@ public record Genus(
 
     public Equipment equipment() {
         return appearance.equipment();
+    }
+
+    public Optional<BossSpec> boss() {
+        return encounter.boss();
+    }
+
+    public List<Phase> phases() {
+        return encounter.phases();
+    }
+
+    public Optional<LootSpec> loot() {
+        return encounter.loot();
     }
 
     /** Display name as a component, or empty if this genus goes unnamed. */

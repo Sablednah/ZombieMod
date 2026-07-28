@@ -97,7 +97,7 @@ He cannot hurt you. That's the point.
 
 | Genus | Weight | Idea |
 |-------|-------:|------|
-| **Patient Zero** | *0* | 250 HP, 2× scale, netherite sword, red notched boss bar, darkened sky and boss music. Calls in zombies, shockwaves, inflicts Mining Fatigue, regenerates. Summon with **rotten flesh on soul sand**, or `/zombiemod spawn patient_zero`. |
+| **Patient Zero** | *0* | 250 HP, 2× scale, netherite sword, red notched boss bar, darkened sky and boss music. Calls in zombies, shockwaves, inflicts Mining Fatigue, regenerates. Two phases — poisons at 66%, then at 33% speeds up, hits for 16 and starts blinking behind you. Drops netherite scrap and a notch apple. Summon by right-clicking **a soul sand cross with a zombie head on top, holding rotten flesh**, or `/zombiemod spawn patient_zero`. |
 
 ## What these demonstrate
 

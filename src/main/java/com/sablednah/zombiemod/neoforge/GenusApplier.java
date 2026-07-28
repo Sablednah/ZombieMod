@@ -144,6 +144,20 @@ public final class GenusApplier {
             mob.goalSelector.addGoal(99, new AbilityGoal(mob, ability));
         }
         genus.boss().ifPresent(spec -> mob.goalSelector.addGoal(99, new BossBarGoal(mob, spec)));
+
+        // Phase abilities are gated on health rather than added on entry, so they switch off again
+        // if the mob heals - a boss that regenerates past the threshold should lose the enrage.
+        for (com.sablednah.zombiemod.core.Phase phase : genus.phases()) {
+            double threshold = phase.belowHealth();
+            for (com.sablednah.zombiemod.core.ability.Ability ability : phase.abilities()) {
+                mob.goalSelector.addGoal(99, new ConditionalGoal(mob, new AbilityGoal(mob, ability),
+                        m -> m.getMaxHealth() > 0.0F && m.getHealth() / m.getMaxHealth() <= threshold,
+                        "health<=" + threshold));
+            }
+        }
+        if (!genus.phases().isEmpty()) {
+            mob.goalSelector.addGoal(99, new PhaseGoal(mob, genus.phases()));
+        }
     }
 
     /**
@@ -180,7 +194,9 @@ public final class GenusApplier {
                         ZombieMod.MOD_ID, what, spec.type(), mob.getType().builtInRegistryHolder().key().identifier());
                 continue;
             }
-            selector.addGoal(spec.priority(), when == null ? goal : new ConditionalGoal(mob, goal, when));
+            selector.addGoal(spec.priority(), when == null ? goal
+                    : new ConditionalGoal(mob, goal,
+                            m -> when.test(m.level(), m.blockPosition()), when.type().toString()));
         }
     }
 

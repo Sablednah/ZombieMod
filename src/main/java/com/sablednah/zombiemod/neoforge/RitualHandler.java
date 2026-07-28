@@ -48,7 +48,11 @@ public final class RitualHandler {
             if (!ritual.matches(block, item)) {
                 continue;
             }
-            perform(level, player, pos, ritual, holder.key().identifier().toString());
+            int rotation = matchPattern(level, pos, ritual);
+            if (rotation < 0) {
+                continue; // right block, right item, wrong structure
+            }
+            perform(level, player, pos, ritual, holder.key().identifier().toString(), rotation);
             // Cancel so the held item's own use doesn't also fire - otherwise summoning with a
             // flint and steel sets the ritual site on fire on the way out.
             event.setCanceled(true);
@@ -57,8 +61,44 @@ public final class RitualHandler {
         }
     }
 
+    /**
+     * @return the rotation (0-3, quarter turns) the structure was found in, or -1 if it is absent.
+     *         A ritual with no pattern always matches at rotation 0.
+     */
+    private int matchPattern(ServerLevel level, BlockPos pos, SummonRitual ritual) {
+        if (ritual.pattern().isEmpty()) {
+            return 0;
+        }
+        // Try all four horizontal orientations, so the shape can be built facing any way. Nobody
+        // wants to discover their ritual only works pointing north.
+        for (int rotation = 0; rotation < 4; rotation++) {
+            boolean matched = true;
+            for (SummonRitual.PatternBlock required : ritual.pattern()) {
+                BlockPos at = pos.offset(rotate(required.x(), required.z(), rotation));
+                if (!required.block().contains(level.getBlockState(at).getBlockHolder())) {
+                    matched = false;
+                    break;
+                }
+            }
+            if (matched) {
+                return rotation;
+            }
+        }
+        return -1;
+    }
+
+    /** Quarter turns about the vertical axis. */
+    private static net.minecraft.core.Vec3i rotate(int x, int z, int rotation) {
+        return switch (rotation) {
+            case 1 -> new net.minecraft.core.Vec3i(-z, 0, x);
+            case 2 -> new net.minecraft.core.Vec3i(-x, 0, -z);
+            case 3 -> new net.minecraft.core.Vec3i(z, 0, -x);
+            default -> new net.minecraft.core.Vec3i(x, 0, z);
+        };
+    }
+
     private void perform(ServerLevel level, ServerPlayer player, BlockPos pos, SummonRitual ritual,
-            String ritualId) {
+            String ritualId, int rotation) {
         var genusLookup = level.registryAccess().lookupOrThrow(ZombieModRegistries.GENUS);
         var found = genusLookup.get(ritual.genus());
         if (found.isEmpty()) {
@@ -70,6 +110,14 @@ public final class RitualHandler {
 
         if (ritual.replaceBlock()) {
             level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
+            // Consume the structure too. Leaving it standing would let one build summon endlessly,
+            // which is fine for a trash mob and wrong for a boss.
+            for (SummonRitual.PatternBlock part : ritual.pattern()) {
+                BlockPos at = pos.offset(rotate(part.x(), part.z(), rotation));
+                if (part.block().contains(level.getBlockState(at).getBlockHolder())) {
+                    level.setBlockAndUpdate(at, Blocks.AIR.defaultBlockState());
+                }
+            }
         }
         if (ritual.consume() && !player.isCreative()) {
             player.getMainHandItem().shrink(1);
@@ -81,7 +129,7 @@ public final class RitualHandler {
                 LOG.warn("Ritual {} names genus {}, whose base is not a mob", ritualId, ritual.genus().identifier());
                 return;
             }
-            mob.snapTo(pos.getX() + 0.5D, pos.getY() + 1.0D, pos.getZ() + 0.5D,
+            mob.snapTo(pos.getX() + 0.5D, pos.getY() + 1.5D, pos.getZ() + 0.5D,
                     level.getRandom().nextFloat() * 360.0F, 0.0F);
             GenusApplier.assign(mob, holder);
             level.addFreshEntity(mob);

@@ -108,5 +108,58 @@
       "volume": 1.6,
       "pitch": 0.4
     }
-  ]
+  ],
+  "phases": [
+    {
+      "below_health": 0.66,
+      "title": "Patient Zero convulses.",
+      "sound": "minecraft:entity.zombie_villager.converted",
+      "attributes": {
+        "minecraft:movement_speed": 0.26
+      },
+      "abilities": [
+        {
+          "type": "zombiemod:effect",
+          "interval": 80,
+          "chance": 0.6,
+          "target": "nearby_players",
+          "effect": "minecraft:poison",
+          "duration": 120,
+          "radius": 8.0
+        }
+      ]
+    },
+    {
+      "below_health": 0.33,
+      "title": "Patient Zero comes apart.",
+      "sound": "minecraft:entity.wither.spawn",
+      "attributes": {
+        "minecraft:movement_speed": 0.32,
+        "minecraft:attack_damage": 16.0
+      },
+      "abilities": [
+        {
+          "type": "zombiemod:summon",
+          "interval": 90,
+          "chance": 0.8,
+          "entity": "minecraft:zombie",
+          "count": 3,
+          "max_nearby": 14,
+          "radius": 14.0
+        },
+        {
+          "type": "zombiemod:teleport",
+          "interval": 60,
+          "chance": 0.5,
+          "mode": "behind",
+          "range": 24.0,
+          "distance": 2.0
+        }
+      ]
+    }
+  ],
+  "loot": {
+    "table": "zombiemod:entities/patient_zero",
+    "replace": false
+  }
 }

@@ -2,7 +2,7 @@ package com.sablednah.zombiemod.neoforge;
 
 import java.util.EnumSet;
 
-import com.sablednah.zombiemod.core.spawn.SpawnCondition;
+import java.util.function.Predicate;
 
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -23,6 +23,9 @@ import net.minecraft.world.entity.ai.goal.Goal;
  * <p>The condition is re-evaluated at most every {@link #CHECK_INTERVAL} ticks, because
  * {@code canUse} is polled every tick per goal and a biome or time lookup per goal per tick is
  * needless work for something that changes on the scale of minutes.
+ *
+ * <p>Takes a plain predicate rather than a {@code SpawnCondition} so boss phases can reuse it: a
+ * phase is the same idea gated on the mob's health instead of on the world.
  */
 final class ConditionalGoal extends Goal {
 
@@ -30,15 +33,17 @@ final class ConditionalGoal extends Goal {
 
     private final Mob mob;
     private final Goal delegate;
-    private final SpawnCondition condition;
+    private final Predicate<Mob> condition;
+    private final String label;
 
     private int cooldown;
     private boolean cached;
 
-    ConditionalGoal(Mob mob, Goal delegate, SpawnCondition condition) {
+    ConditionalGoal(Mob mob, Goal delegate, Predicate<Mob> condition, String label) {
         this.mob = mob;
         this.delegate = delegate;
         this.condition = condition;
+        this.label = label;
         // Inherit the delegate's control flags, or the selector will not know what this goal
         // competes for and two movement goals could run at once.
         this.setFlags(EnumSet.copyOf(delegate.getFlags()));
@@ -47,7 +52,7 @@ final class ConditionalGoal extends Goal {
     private boolean active() {
         if (--cooldown <= 0) {
             cooldown = CHECK_INTERVAL;
-            cached = condition.test(mob.level(), mob.blockPosition());
+            cached = condition.test(mob);
         }
         return cached;
     }
@@ -89,6 +94,6 @@ final class ConditionalGoal extends Goal {
 
     @Override
     public String toString() {
-        return "Conditional[" + condition.type() + " -> " + delegate + "]";
+        return "Conditional[" + label + " -> " + delegate + "]";
     }
 }

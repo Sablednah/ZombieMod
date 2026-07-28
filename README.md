@@ -87,6 +87,8 @@ Here is the coward, in full:
 | `attributes` | `{}` | Any other attribute by id, e.g. `{"minecraft:armor": 8.0}`. Covers everything the named fields don't, including other mods' attributes. |
 | `head` | *(none)* | A player head to wear — `"head": "Notch"`, or the full profile form with an explicit texture. Beats `armor_color` for the head slot. |
 | `boss` | *(none)* | Present makes this a boss — see below. |
+| `phases` | `[]` | Stages that open up as it's worn down — see below. |
+| `loot` | *(none)* | `{ "table": "<id>", "replace": false }` — genus-specific drops. |
 | `behaviours` | `[]` | Goal sets that switch on and off with a condition — see below. |
 | `navigation` | `default` | `climb` borrows the spider's wall navigator, `swim` and `amphibious` the aquatic ones. |
 | `equipment` | `{}` | Held and worn items — see below. Beats `armor_color` and `head` for any slot it names. |
@@ -345,6 +347,35 @@ the wild.
 `darken_sky`, `boss_music` and `fog` are the Wither's and Dragon's own effects. The bar appears for
 players within `range` and follows them in and out of it.
 
+### Phases
+
+```json
+"phases": [
+  { "below_health": 0.33,
+    "title": "Patient Zero comes apart.",
+    "sound": "minecraft:entity.wither.spawn",
+    "attributes": { "minecraft:attack_damage": 16.0 },
+    "abilities": [ { "type": "zombiemod:summon", "count": 3, "max_nearby": 14 } ] }
+]
+```
+
+Abilities and attributes behave differently on purpose. **Abilities are gated** on the threshold, so
+they switch off again if the mob heals — a boss with a regeneration ability shouldn't keep its
+enrage after clawing back to full. **Attributes apply once and stay**, because stats that yo-yo as
+health crosses a line read as broken rather than escalating.
+
+`title` shows as an action-bar line to players within 64 blocks; `sound` plays once on entry.
+
+### Loot
+
+```json
+"loot": { "table": "zombiemod:entities/patient_zero", "replace": false }
+```
+
+`replace` defaults to **false**, so genus drops are *added* to whatever the base mob gives. A horde
+that stops dropping rotten flesh is a surprising thing to inflict on a server just by adding a mob
+type. Set it true for a boss whose drops should be exactly its own.
+
 ### Summoning
 
 Bosses are meant to be called up, and there are three ways in:
@@ -371,9 +402,27 @@ several summons and a pack can add a ritual for someone else's genus without ove
 }
 ```
 
-Both `block` and `item` accept a tag as well as a list. The shipped example is **rotten flesh on
-soul sand**, which summons Patient Zero — 250 HP, 2× scale, netherite sword, calls in zombies,
-shockwaves, inflicts Mining Fatigue and regenerates.
+Both `block` and `item` accept a tag as well as a list.
+
+A ritual can also demand a **built structure**, offsets relative to the block you activate:
+
+```json
+"pattern": [
+  { "offset": [ 1, 0,  0], "block": ["minecraft:soul_sand"] },
+  { "offset": [-1, 0,  0], "block": ["minecraft:soul_sand"] },
+  { "offset": [ 0, 0,  1], "block": ["minecraft:soul_sand"] },
+  { "offset": [ 0, 0, -1], "block": ["minecraft:soul_sand"] },
+  { "offset": [ 0, 1,  0], "block": ["minecraft:zombie_head", "minecraft:wither_skeleton_skull"] }
+]
+```
+
+All four horizontal rotations are tried, so the shape can be built facing any way. With
+`replace_block: true` the structure is consumed along with the activated block — otherwise one build
+summons bosses forever.
+
+The shipped example: **a soul sand cross with a zombie head or wither skull on top, right-clicked
+with rotten flesh**, which summons Patient Zero — 250 HP, 2× scale, netherite sword, two phases, and
+its own loot table.
 
 **Or your own mod/plugin**, by running the command or spawning the mob and calling
 `GenusApplier.assign`.
