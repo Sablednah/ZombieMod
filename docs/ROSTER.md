@@ -1,6 +1,6 @@
 # The shipped roster
 
-30 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+31 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -98,6 +98,8 @@ He cannot hurt you. That's the point.
 | Genus | Weight | Idea |
 |-------|-------:|------|
 | **Patient Zero** | *0* | 250 HP, 2× scale, netherite sword, red notched boss bar, darkened sky and boss music. Calls in zombies, shockwaves, inflicts Mining Fatigue, regenerates. Two phases — poisons at 66%, then at 33% speeds up, hits for 16 and starts blinking behind you. Drops netherite scrap and a notch apple. Summon by building **a soul sand cross with a skull on the centre** and **right-clicking the skull with rotten flesh**, or `/zombiemod spawn patient_zero`. |
+
+| **The Butcher** | *0* | The mid-tier fight. 120 HP, 1.5× scale, Sharpness II iron axe, chainmail, yellow notched bar — but **no darkened sky and no boss music**, because a mid-boss shouldn't announce itself like the end of the world. Leaps at 60%, shockwaves and inflicts Weakness at 30%. Its phase changes use `action_bar` where Patient Zero uses `title_and_chat`. Summon with **a bone on a zombie head sat on an iron block**. |
 
 ## What these demonstrate
 

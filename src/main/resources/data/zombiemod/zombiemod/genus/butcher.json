@@ -1,0 +1,133 @@
+{
+  "name": "The Butcher",
+  "base": "minecraft:zombie",
+  "weight": 0,
+  "health": 120.0,
+  "damage": 8.0,
+  "speed": 1.05,
+  "follow_range": 40.0,
+  "scale": 1.5,
+  "equipment": {
+    "mainhand": {
+      "id": "minecraft:iron_axe",
+      "components": {
+        "minecraft:enchantments": {
+          "minecraft:sharpness": 2
+        }
+      }
+    },
+    "chest": "minecraft:chainmail_chestplate",
+    "legs": "minecraft:chainmail_leggings",
+    "drop_chance": 0.0
+  },
+  "attributes": {
+    "minecraft:armor": 8.0,
+    "minecraft:knockback_resistance": 0.7,
+    "minecraft:attack_knockback": 1.5,
+    "minecraft:step_height": 1.2
+  },
+  "boss": {
+    "color": "yellow",
+    "overlay": "notched_6",
+    "range": 48.0,
+    "title": "The Butcher"
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 32.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player",
+      "must_see": false
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:sound",
+      "interval": 110,
+      "chance": 0.5,
+      "sound": "minecraft:entity.hoglin.angry",
+      "volume": 1.2,
+      "pitch": 0.6
+    }
+  ],
+  "phases": [
+    {
+      "below_health": 0.6,
+      "title": "&6The Butcher smells blood.",
+      "announce": "action_bar",
+      "sound": "minecraft:entity.hoglin.angry",
+      "attributes": {
+        "minecraft:movement_speed": 0.28
+      },
+      "abilities": [
+        {
+          "type": "zombiemod:leap",
+          "interval": 55,
+          "chance": 0.6,
+          "range": 10.0,
+          "power": 1.0,
+          "lift": 0.4
+        }
+      ]
+    },
+    {
+      "below_health": 0.3,
+      "title": "&cThe Butcher swings wild.",
+      "announce": "action_bar",
+      "sound": "minecraft:entity.ravager.roar",
+      "attributes": {
+        "minecraft:attack_damage": 12.0,
+        "minecraft:movement_speed": 0.31
+      },
+      "abilities": [
+        {
+          "type": "zombiemod:shockwave",
+          "interval": 70,
+          "chance": 0.6,
+          "radius": 4.5,
+          "damage": 3.0,
+          "knockup": 0.7
+        },
+        {
+          "type": "zombiemod:effect",
+          "interval": 90,
+          "chance": 0.5,
+          "target": "nearby_players",
+          "effect": "minecraft:weakness",
+          "duration": 120,
+          "radius": 6.0
+        }
+      ]
+    }
+  ],
+  "loot": {
+    "table": "zombiemod:entities/butcher",
+    "replace": false
+  }
+}

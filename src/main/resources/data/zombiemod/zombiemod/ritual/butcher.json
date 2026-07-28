@@ -1,0 +1,24 @@
+{
+  "block": [
+    "minecraft:zombie_head"
+  ],
+  "item": [
+    "minecraft:bone"
+  ],
+  "genus": "zombiemod:butcher",
+  "consume": true,
+  "replace_block": true,
+  "count": 1,
+  "pattern": [
+    {
+      "offset": [
+        0,
+        -1,
+        0
+      ],
+      "block": [
+        "minecraft:iron_block"
+      ]
+    }
+  ]
+}
