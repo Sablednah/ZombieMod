@@ -18,10 +18,10 @@ reachable, not that the code was translated.
 | `SHOCKWAVE` / `STOMP` | ✅ | `shockwave` |
 | `SPIDER` | ✅ | `navigation: climb` |
 | `GHOST` | ❌ | Named itself after a random offline player. Would be *better* now — a `head` from their profile means it could wear their face too. |
-| `BORG` | ❌ | Adaptive resistance: it remembered the material that hurt it and stopped taking damage from that. Genuinely novel, and nothing in the port does it. |
-| `WEB` | ❌ | Placed cobwebs on its target. Needs a block-placing ability. |
-| `INFEST` | ❌ | Blocks it broke became silverfish blocks. Depends on block breaking below. |
-| `LAZER` | ❌ | A ranged attack. Needs a `projectile` ability or a ranged goal. *(Worth knowing: in the original both branches of the `LAZER` check called the same arrow goal, so it never actually differed from an ordinary archer.)* |
+| `BORG` | ✅ | `adapt` — learns damage types rather than materials, and remembers across a restart. See Zomborg. |
+| `WEB` | ✅ | `place_block`. See Weaver. |
+| `INFEST` | ✅ | `break_blocks` with `infest: true`. See Infester. |
+| `LAZER` | ✅ | `projectile`, which unlike the original actually lets a genus pick what it fires. *(In the original both branches of the `LAZER` check called the same arrow goal, so it never differed from an archer.)* |
 
 ## Systems
 
@@ -34,21 +34,19 @@ reachable, not that the code was translated.
 | Equipment and drop rates | ✅ | `equipment` + loot tables |
 | Sounds, particles, potions | ✅ | `sound`, `particles`, `effect` |
 | `agro`, `coward`, `passive`, `noBurn` | ✅ | `follow_range`, goals, `burning_time` |
-| **Block breaking** | ❌ | `Break`/`BreakRunner`: when a zombie's path to you was blocked and it stopped moving, it chewed through the wall. The `allowedbreaks` list capped what it could take. **This is the big one** — it's what made them threatening to a base rather than an obstacle to walk around. |
+| **Block breaking** | ✅ | `break_blocks`, gated on the mob being stuck, an explicit `allowed` list, and the `mobGriefing` gamerule. See Breaker. |
 | **Proximity spawning** | ❌ | `ProximitySystems`: spawned zombies just out of sight around each player, ignoring vanilla's rules, scaled by distance from world spawn. Different in feel from riding vanilla's spawn table — it's what made the world feel occupied. |
 | **Jockeys / mounts** | ❌ | A pipe-delimited `jockey` field put the zombie on a horse, chicken, spider… |
 | Angry iron golems | ⚠️ | The original registered a hostile `AngryGolem`. A genus with `base: minecraft:iron_golem` gets most of the way there — untested. |
-| XP and bounty on kill | ❌ | `xp` and `bounty` (via Vault). No economy dependency now; XP would be easy, bounty needs a target mod. |
+| XP and bounty on kill | ⚠️ | `xp` shipped. Bounty still needs an economy mod, and there is no Vault equivalent — Impactor is the closest thing to a common API. Deferred. |
 | DaySpawner | — | Already dead in the original: commented out at its scheduling site. |
 | BeardStat, Spout, LegendQuest, Factions | — | Gone. FTB Chunks/Teams and CityWorld are the modern replacements, planned as spawn conditions. |
 
-## If I were picking
+## What's actually left
 
-**Block breaking**, comfortably. It's the one absence you'd actually feel: right now a wall is a
-solution to zombies, and in the original it was a delay. Everything else on this list adds a monster;
-that one changes what the mod *is*.
-
-Then **proximity spawning**, because "there are more of them than there should be, and they're
-already close" is the other half of that feeling.
-
-`GHOST` is the cheap win — it's `head` plus a name lookup, and it lands better now than it did then.
+- **`GHOST`** — named itself after a random offline player. Needs a record of who has played here,
+  since there's no public "all known profiles" lookup. Cheap, and it lands better now: it can wear
+  their face as well as borrow their name.
+- **Proximity spawning** — "there are more of them than there should be, and they're already close".
+- **Jockeys / mounts** — the old pipe-delimited `jockey` field.
+- **Bounty** — waiting on an economy decision.

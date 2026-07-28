@@ -1,0 +1,119 @@
+{
+  "name": "Breaker",
+  "base": "minecraft:zombie",
+  "weight": 8,
+  "health": 28.0,
+  "damage": 5.0,
+  "speed": 0.95,
+  "follow_range": 32.0,
+  "armor_color": 7035450,
+  "attributes": {
+    "minecraft:knockback_resistance": 0.4
+  },
+  "xp": 12,
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 16.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:break_blocks",
+      "interval": 25,
+      "chance": 0.8,
+      "allowed": [
+        "minecraft:dirt",
+        "minecraft:grass_block",
+        "minecraft:coarse_dirt",
+        "minecraft:rooted_dirt",
+        "minecraft:podzol",
+        "minecraft:sand",
+        "minecraft:red_sand",
+        "minecraft:gravel",
+        "minecraft:clay",
+        "minecraft:snow_block",
+        "minecraft:glass",
+        "minecraft:glass_pane",
+        "minecraft:oak_door",
+        "minecraft:spruce_door",
+        "minecraft:birch_door",
+        "minecraft:jungle_door",
+        "minecraft:acacia_door",
+        "minecraft:dark_oak_door",
+        "minecraft:mangrove_door",
+        "minecraft:cherry_door",
+        "minecraft:bamboo_door",
+        "minecraft:pale_oak_door",
+        "minecraft:oak_trapdoor",
+        "minecraft:oak_fence",
+        "minecraft:oak_fence_gate",
+        "minecraft:oak_planks",
+        "minecraft:spruce_planks",
+        "minecraft:birch_planks",
+        "minecraft:torch",
+        "minecraft:wall_torch",
+        "minecraft:ladder",
+        "minecraft:cobweb",
+        "minecraft:hay_block",
+        "minecraft:melon",
+        "minecraft:pumpkin"
+      ],
+      "reach": 2.0
+    },
+    {
+      "type": "zombiemod:sound",
+      "interval": 60,
+      "chance": 0.4,
+      "sound": "minecraft:entity.zombie.ambient",
+      "volume": 1.0,
+      "pitch": 0.7
+    }
+  ]
+}

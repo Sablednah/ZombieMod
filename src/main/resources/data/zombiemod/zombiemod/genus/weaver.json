@@ -1,0 +1,83 @@
+{
+  "name": "Weaver",
+  "base": "minecraft:zombie",
+  "weight": 6,
+  "health": 22.0,
+  "damage": 3.0,
+  "speed": 1.15,
+  "follow_range": 24.0,
+  "scale": 0.9,
+  "armor_color": 14211288,
+  "navigation": "climb",
+  "xp": 10,
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 16.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:place_block",
+      "interval": 70,
+      "chance": 0.6,
+      "block": "minecraft:cobweb",
+      "target": "victim",
+      "radius": 10.0,
+      "air_only": true
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 30,
+      "chance": 0.4,
+      "particle": "minecraft:item_cobweb",
+      "count": 2
+    }
+  ]
+}

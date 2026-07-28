@@ -144,8 +144,14 @@ public final class ZombieModEvents {
             return;
         }
         GenusApplier.genusOf(mob, level).ifPresent(holder -> {
+            float amount = event.getAmount();
             for (Ability ability : holder.value().abilities()) {
-                ability.onHurt(level, mob, event.getSource());
+                amount = ability.onHurt(level, mob, event.getSource(), amount);
+            }
+            if (amount <= 0.0F) {
+                event.setCanceled(true);
+            } else if (amount != event.getAmount()) {
+                event.setAmount(amount);
             }
         });
     }

@@ -7,6 +7,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -616,12 +617,12 @@ public final class Abilities {
          * got close enough to hit it with a sword it should have to wear that.
          */
         @Override
-        public boolean onHurt(ServerLevel level, Mob mob, net.minecraft.world.damagesource.DamageSource source) {
-            if (!onProjectile || !source.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE)) {
-                return false;
+        public float onHurt(ServerLevel level, Mob mob, net.minecraft.world.damagesource.DamageSource source,
+                float amount) {
+            if (onProjectile && source.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE)) {
+                run(level, mob);
             }
-            run(level, mob);
-            return true;
+            return amount;
         }
 
         /** Leave, with the sound and particles but without the corpse. */
@@ -639,6 +640,209 @@ public final class Abilities {
             Vec3 toMob = mob.position().subtract(victim.getEyePosition()).normalize();
             // ~53 degrees either side of straight ahead - roughly "on screen".
             return look.dot(toMob) > 0.6D && victim.hasLineOfSight(mob);
+        }
+    }
+
+    /**
+     * Chew through whatever is in the way. The 1.8 {@code Break}/{@code BreakRunner} pair, and the
+     * single most consequential thing the original did — it is the difference between a wall being
+     * a solution to zombies and a wall being a delay.
+     *
+     * <p>Only fires when the mob has a target it cannot reach and has stopped making progress, so
+     * it eats walls rather than scenery. {@code allowed} has no default: a genus must name what it
+     * may break, which with the ability itself being opt-in makes two deliberate choices before
+     * anything of yours gets damaged. It also honours the {@code mobGriefing} gamerule, so the
+     * server-wide off switch everyone already knows about works.
+     */
+    public record BreakBlocks(int interval, float chance, HolderSet<net.minecraft.world.level.block.Block> allowed,
+            double reach, boolean infest) implements Ability {
+
+        public static final Identifier TYPE = id("break_blocks");
+
+        public static final MapCodec<BreakBlocks> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Abilities.<BreakBlocks>intervalField(30),
+                Abilities.<BreakBlocks>chanceField(0.8F),
+                net.minecraft.core.RegistryCodecs.homogeneousList(net.minecraft.core.registries.Registries.BLOCK)
+                        .fieldOf("allowed").forGetter(BreakBlocks::allowed),
+                Codec.DOUBLE.optionalFieldOf("reach", 2.0D).forGetter(BreakBlocks::reach),
+                Codec.BOOL.optionalFieldOf("infest", false).forGetter(BreakBlocks::infest))
+                .apply(i, BreakBlocks::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public void run(ServerLevel level, Mob mob) {
+            if (!level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING)) {
+                return;
+            }
+            LivingEntity victim = mob.getTarget();
+            if (victim == null || !victim.isAlive()) {
+                return;
+            }
+            // Stuck, not merely walking. A mob still making progress has no business demolishing
+            // the countryside it is walking past.
+            if (mob.getDeltaMovement().horizontalDistanceSqr() > 0.0016D) {
+                return;
+            }
+
+            net.minecraft.world.phys.Vec3 toward =
+                    victim.position().subtract(mob.position()).normalize().scale(reach);
+            net.minecraft.core.BlockPos at = net.minecraft.core.BlockPos.containing(
+                    mob.getX() + toward.x, mob.getY() + mob.getBbHeight() * 0.5D, mob.getZ() + toward.z);
+
+            for (net.minecraft.core.BlockPos candidate : new net.minecraft.core.BlockPos[]{at, at.above(), at.below()}) {
+                if (!allowed.contains(level.getBlockState(candidate).getBlockHolder())) {
+                    continue;
+                }
+                if (infest) {
+                    // The old INFEST: what it chewed through became someone else's problem.
+                    level.setBlockAndUpdate(candidate,
+                            net.minecraft.world.level.block.Blocks.INFESTED_STONE.defaultBlockState());
+                } else {
+                    level.destroyBlock(candidate, true, mob);
+                }
+                return;
+            }
+        }
+    }
+
+    /**
+     * Fire something. The old {@code LAZER}, which in the original was an ordinary arrow attack —
+     * both branches of its check called the same goal, so it never actually differed from an
+     * archer. This one lets a genus choose its projectile.
+     */
+    public record Projectile(int interval, float chance, EntityType<?> projectile, double range,
+            double power, double inaccuracy) implements Ability {
+
+        public static final Identifier TYPE = id("projectile");
+
+        public static final MapCodec<Projectile> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Abilities.<Projectile>intervalField(40),
+                Abilities.<Projectile>chanceField(0.7F),
+                BuiltInRegistries.ENTITY_TYPE.byNameCodec()
+                        .optionalFieldOf("projectile", (EntityType<?>) EntityType.ARROW).forGetter(Projectile::projectile),
+                Codec.DOUBLE.optionalFieldOf("range", 16.0D).forGetter(Projectile::range),
+                Codec.DOUBLE.optionalFieldOf("power", 1.6D).forGetter(Projectile::power),
+                Codec.DOUBLE.optionalFieldOf("inaccuracy", 6.0D).forGetter(Projectile::inaccuracy))
+                .apply(i, Projectile::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public void run(ServerLevel level, Mob mob) {
+            LivingEntity victim = mob.getTarget();
+            if (victim == null || !victim.isAlive() || victim.distanceToSqr(mob) > range * range
+                    || !mob.hasLineOfSight(victim)) {
+                return;
+            }
+            var created = projectile.create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
+            if (!(created instanceof net.minecraft.world.entity.projectile.Projectile shot)) {
+                return;
+            }
+            shot.snapTo(mob.getX(), mob.getEyeY() - 0.1D, mob.getZ(), mob.getYRot(), 0.0F);
+            shot.setOwner(mob);
+            double dx = victim.getX() - mob.getX();
+            double dy = victim.getEyeY() - shot.getY();
+            double dz = victim.getZ() - mob.getZ();
+            shot.shoot(dx, dy + Math.sqrt(dx * dx + dz * dz) * 0.2D, dz, (float) power, (float) inaccuracy);
+            level.addFreshEntity(shot);
+        }
+    }
+
+    /** Drop a block on the victim. The old WEB, generalised. */
+    public record PlaceBlock(int interval, float chance, net.minecraft.world.level.block.Block block,
+            Target target, double radius, boolean airOnly) implements Ability {
+
+        public static final Identifier TYPE = id("place_block");
+
+        public static final MapCodec<PlaceBlock> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Abilities.<PlaceBlock>intervalField(60),
+                Abilities.<PlaceBlock>chanceField(0.5F),
+                BuiltInRegistries.BLOCK.byNameCodec().optionalFieldOf("block",
+                        net.minecraft.world.level.block.Blocks.COBWEB).forGetter(PlaceBlock::block),
+                Target.CODEC.optionalFieldOf("target", Target.VICTIM).forGetter(PlaceBlock::target),
+                Codec.DOUBLE.optionalFieldOf("radius", 12.0D).forGetter(PlaceBlock::radius),
+                Codec.BOOL.optionalFieldOf("air_only", true).forGetter(PlaceBlock::airOnly))
+                .apply(i, PlaceBlock::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public void run(ServerLevel level, Mob mob) {
+            if (!level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING)) {
+                return;
+            }
+            for (LivingEntity victim : Targets.of(target, level, mob, radius)) {
+                net.minecraft.core.BlockPos at = victim.blockPosition();
+                // air_only by default: webbing someone in is fair, replacing their floor is not.
+                if (airOnly && !level.getBlockState(at).isAir()) {
+                    continue;
+                }
+                level.setBlockAndUpdate(at, block.defaultBlockState());
+            }
+        }
+    }
+
+    /**
+     * Adapt. The old {@code BORG}: it remembered what hurt it and stopped taking damage from that.
+     *
+     * <p>Memory lives in the mob's persistent data, so a Borg that has learned your sword still
+     * knows it after a restart — which is the whole joke.
+     */
+    public record Adapt(int interval, float chance, float resistance, int maxAdaptations)
+            implements Ability {
+
+        public static final Identifier TYPE = id("adapt");
+        private static final String TAG = "zombiemod:adapted";
+
+        public static final MapCodec<Adapt> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Abilities.<Adapt>intervalField(100),
+                Abilities.<Adapt>chanceField(1.0F),
+                Codec.FLOAT.optionalFieldOf("resistance", 0.8F).forGetter(Adapt::resistance),
+                Codec.INT.optionalFieldOf("max_adaptations", 4).forGetter(Adapt::maxAdaptations))
+                .apply(i, Adapt::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        /** Nothing on a timer; this ability is entirely reactive. */
+        @Override
+        public void run(ServerLevel level, Mob mob) {}
+
+        @Override
+        public float onHurt(ServerLevel level, Mob mob, net.minecraft.world.damagesource.DamageSource source,
+                float amount) {
+            String key = source.getMsgId();
+            net.minecraft.nbt.ListTag learned =
+                    mob.getPersistentData().getList(TAG).orElseGet(net.minecraft.nbt.ListTag::new);
+
+            for (int i = 0; i < learned.size(); i++) {
+                if (learned.getString(i).map(key::equals).orElse(false)) {
+                    return amount * (1.0F - Math.clamp(resistance, 0.0F, 1.0F));
+                }
+            }
+            if (learned.size() < maxAdaptations) {
+                learned.add(net.minecraft.nbt.StringTag.valueOf(key));
+                mob.getPersistentData().put(TAG, learned);
+                level.sendParticles(ParticleTypes.ELECTRIC_SPARK, mob.getX(),
+                        mob.getY() + mob.getBbHeight() * 0.6D, mob.getZ(), 12, 0.3D, 0.4D, 0.3D, 0.05D);
+                level.playSound(null, mob.getX(), mob.getY(), mob.getZ(),
+                        net.minecraft.sounds.SoundEvents.CONDUIT_ACTIVATE, SoundSource.HOSTILE, 0.7F, 1.8F);
+            }
+            // The blow that teaches it still lands in full. Learning should cost you a hit, not
+            // be free the first time.
+            return amount;
         }
     }
 

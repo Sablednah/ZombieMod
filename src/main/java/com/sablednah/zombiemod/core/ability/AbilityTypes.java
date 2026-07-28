@@ -33,6 +33,10 @@ public final class AbilityTypes {
         register(Abilities.Pull.TYPE, Abilities.Pull.CODEC);
         register(Abilities.Alert.TYPE, Abilities.Alert.CODEC);
         register(Abilities.Teleport.TYPE, Abilities.Teleport.CODEC);
+        register(Abilities.BreakBlocks.TYPE, Abilities.BreakBlocks.CODEC);
+        register(Abilities.Projectile.TYPE, Abilities.Projectile.CODEC);
+        register(Abilities.PlaceBlock.TYPE, Abilities.PlaceBlock.CODEC);
+        register(Abilities.Adapt.TYPE, Abilities.Adapt.CODEC);
         register(Abilities.Particles.TYPE, Abilities.Particles.CODEC);
         register(Abilities.Sound.TYPE, Abilities.Sound.CODEC);
     }

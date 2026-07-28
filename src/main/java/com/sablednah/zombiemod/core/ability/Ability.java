@@ -60,13 +60,16 @@ public interface Ability {
      * React to being hurt, outside the interval schedule.
      *
      * <p>Some behaviours are answers rather than habits — "always blinks away when shot" is not a
-     * thing that happens every N ticks, it happens when you shoot it. Abilities that don't care can
-     * ignore this; the default does nothing.
+     * thing that happens every N ticks, it happens when you shoot it. Others change the outcome:
+     * adaptive resistance has to reduce the damage, not merely notice it.
      *
-     * @return true if the ability acted, purely so callers can log or count
+     * <p>Returns the damage to actually apply, so returning {@code amount} unchanged is the
+     * do-nothing answer. Deliberately a number rather than the event object — that keeps NeoForge's
+     * event types out of {@code core}.
      */
-    default boolean onHurt(ServerLevel level, Mob mob, net.minecraft.world.damagesource.DamageSource source) {
-        return false;
+    default float onHurt(ServerLevel level, Mob mob, net.minecraft.world.damagesource.DamageSource source,
+            float amount) {
+        return amount;
     }
 
     /** Per-mob state for a stateful ability. */

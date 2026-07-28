@@ -29,6 +29,23 @@ public final class LootHandler {
                 .ifPresent(loot -> roll(level, mob, event, loot));
     }
 
+    /**
+     * Genus experience. A Tank worth the same 5xp as a stray zombie is a strange reward for a
+     * two-minute fight, and xp is the one currency every server already has.
+     */
+    @SubscribeEvent
+    public void onExperienceDrop(net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent event) {
+        if (!(event.getEntity() instanceof Mob mob) || !(mob.level() instanceof ServerLevel level)) {
+            return;
+        }
+        if (mob.getPersistentData().getString(GenusApplier.GENUS_TAG).isEmpty()) {
+            return;
+        }
+        GenusApplier.genusOf(mob, level)
+                .flatMap(holder -> holder.value().xp())
+                .ifPresent(event::setDroppedExperience);
+    }
+
     private void roll(ServerLevel level, Mob mob, LivingDropsEvent event, LootSpec loot) {
         // Loot tables are not in registryAccess() - they are a reloadable datapack registry reached
         // through the server. Looking in the wrong place fails with "Missing registry:

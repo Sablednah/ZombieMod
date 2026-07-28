@@ -89,6 +89,7 @@ Here is the coward, in full:
 | `boss` | *(none)* | Present makes this a boss — see below. |
 | `phases` | `[]` | Stages that open up as it's worn down — see below. |
 | `loot` | *(none)* | `{ "table": "<id>", "replace": false }` — genus-specific drops. |
+| `xp` | *vanilla* | Experience dropped on death. A Tank worth the same 5xp as a stray zombie is a strange reward for a two-minute fight. |
 | `behaviours` | `[]` | Goal sets that switch on and off with a condition — see below. |
 | `navigation` | `default` | `climb` borrows the spider's wall navigator, `swim` and `amphibious` the aquatic ones. |
 | `equipment` | `{}` | Held and worn items — see below. Beats `armor_color` and `head` for any slot it names. |
@@ -267,6 +268,10 @@ First firings are staggered per mob, so a horde that spawned together doesn't ac
 | `zombiemod:pull` | `range`, `power` — drag nearby players toward it |
 | `zombiemod:summon` | `entity`, `count`, `max_nearby`, `radius` — spawn reinforcements |
 | `zombiemod:alert` | `radius`, `who`, `max_alerted` — hand your target to everything nearby |
+| `zombiemod:break_blocks` | `allowed`, `reach`, `infest` — chew through walls when the path is blocked |
+| `zombiemod:projectile` | `projectile`, `range`, `power`, `inaccuracy` — fire something |
+| `zombiemod:place_block` | `block`, `target`, `radius`, `air_only` — cobweb the victim |
+| `zombiemod:adapt` | `resistance`, `max_adaptations` — learn what hurt it and stop taking it |
 | `zombiemod:teleport` | `mode`, `range`, `distance`, `only_when_unseen`, `min_distance`, `on_projectile`, `vanish_chance` — see below |
 | `zombiemod:particles` | `particle`, `count`, `spread` |
 | `zombiemod:sound` | `sound`, `volume`, `pitch` |
@@ -277,6 +282,19 @@ Two defaults worth knowing. `explode` has `destroy_blocks: false` — a zombie t
 a very different proposition from one that hurts, so griefing is opt-in. And it only fires when
 something is actually within `trigger_radius`, or an interval-timed bomb is just a mob that deletes
 itself in an empty field.
+
+#### Breaking things
+
+`break_blocks` is the one that changes what the mod *is*: right now a wall is a solution to zombies,
+and with a Breaker in the world it's a delay. It only fires when the mob has a target it can't reach
+*and* has stopped making progress, so it eats walls rather than scenery.
+
+Two deliberate opt-ins before anything of yours gets damaged: the ability itself, and `allowed`,
+which has **no default** — a genus must name every block it may break. It also honours the
+`mobGriefing` gamerule, so the server-wide off switch everyone already knows about works. Same for
+`place_block`.
+
+`infest: true` turns broken blocks into infested stone instead of dropping them — the old `INFEST`.
 
 #### Teleport, and the 1.8 BACKSTAB
 
@@ -318,9 +336,9 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**32 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+**38 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
 Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse. They're ordinary datapack files, so override or delete any of
+Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg. They're ordinary datapack files, so override or delete any of
 them from a higher-priority datapack.
 
 See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and
