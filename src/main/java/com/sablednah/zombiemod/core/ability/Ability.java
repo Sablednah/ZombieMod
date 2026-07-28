@@ -56,6 +56,19 @@ public interface Ability {
         return null;
     }
 
+    /**
+     * React to being hurt, outside the interval schedule.
+     *
+     * <p>Some behaviours are answers rather than habits — "always blinks away when shot" is not a
+     * thing that happens every N ticks, it happens when you shoot it. Abilities that don't care can
+     * ignore this; the default does nothing.
+     *
+     * @return true if the ability acted, purely so callers can log or count
+     */
+    default boolean onHurt(ServerLevel level, Mob mob, net.minecraft.world.damagesource.DamageSource source) {
+        return false;
+    }
+
     /** Per-mob state for a stateful ability. */
     interface State {
         void tick(ServerLevel level, Mob mob);

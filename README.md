@@ -230,7 +230,7 @@ First firings are staggered per mob, so a horde that spawned together doesn't ac
 | `zombiemod:pull` | `range`, `power` — drag nearby players toward it |
 | `zombiemod:summon` | `entity`, `count`, `max_nearby`, `radius` — spawn reinforcements |
 | `zombiemod:alert` | `radius`, `who`, `max_alerted` — hand your target to everything nearby |
-| `zombiemod:teleport` | `mode`, `range`, `distance`, `only_when_unseen` — blink; `mode: behind` lands behind the victim facing them |
+| `zombiemod:teleport` | `mode`, `range`, `distance`, `only_when_unseen`, `min_distance`, `on_projectile`, `vanish_chance` — see below |
 | `zombiemod:particles` | `particle`, `count`, `spread` |
 | `zombiemod:sound` | `sound`, `volume`, `pitch` |
 
@@ -240,6 +240,24 @@ Two defaults worth knowing. `explode` has `destroy_blocks: false` — a zombie t
 a very different proposition from one that hurts, so griefing is opt-in. And it only fires when
 something is actually within `trigger_radius`, or an interval-timed bomb is just a mob that deletes
 itself in an empty field.
+
+#### Teleport, and the 1.8 BACKSTAB
+
+`mode: behind` is the old plugin's BACKSTAB rebuilt: it reads the *victim's* look direction and
+lands 180° opposite — behind them, already facing their back. The tell isn't seeing it move, it's
+the sound at your shoulder.
+
+The rest of the options compose into stalking behaviour:
+
+| Option | Effect |
+|--------|--------|
+| `only_when_unseen` | Won't blink while you're looking at it — so it closes every time you turn away. |
+| `min_distance` | Always blinks if you get closer than this, overriding everything above. Cornering it is exactly when it shouldn't be standing there. |
+| `on_projectile` | Blinks the instant it's shot, outside the interval. Melee deliberately doesn't trigger it — get close enough to swing and it has to wear the hit. |
+| `vanish_chance` | Sometimes it just leaves instead. |
+
+"Looking at it" is a ~53° cone plus line of sight, so it's about what's on your screen rather than
+exact aim.
 
 #### The fuse, and what a vanilla client can't do
 
@@ -263,9 +281,9 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**27 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+**28 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
 Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie. They're ordinary datapack files, so override or delete any of
+Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine. They're ordinary datapack files, so override or delete any of
 them from a higher-priority datapack.
 
 See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and

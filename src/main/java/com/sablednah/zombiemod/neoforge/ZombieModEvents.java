@@ -9,6 +9,7 @@ import com.mojang.logging.LogUtils;
 import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.core.Genus;
+import com.sablednah.zombiemod.core.ability.Ability;
 import com.sablednah.zombiemod.core.spawn.SpawnRules;
 
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 
 /**
@@ -87,6 +89,28 @@ public final class ZombieModEvents {
             if (ZombieModConfig.LOG_SPAWNS.get()) {
                 LOG.info("ZombieMod: {} at {} {} {} ({})", holder.key().identifier(),
                         pos.getX(), pos.getY(), pos.getZ(), event.getSpawnType());
+            }
+        });
+    }
+
+    /**
+     * Give abilities a chance to react to damage.
+     *
+     * <p>Reactive behaviour can't ride the interval schedule — "blinks away when shot" happens when
+     * you shoot it, not every N ticks. Most abilities ignore this; the lookup is skipped entirely
+     * for anything without a genus tag, which is every ordinary mob in the world.
+     */
+    @SubscribeEvent
+    public void onIncomingDamage(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof Mob mob) || !(mob.level() instanceof ServerLevel level)) {
+            return;
+        }
+        if (mob.getPersistentData().getString(GenusApplier.GENUS_TAG).isEmpty()) {
+            return;
+        }
+        GenusApplier.genusOf(mob, level).ifPresent(holder -> {
+            for (Ability ability : holder.value().abilities()) {
+                ability.onHurt(level, mob, event.getSource());
             }
         });
     }

@@ -1,6 +1,6 @@
 # The shipped roster
 
-27 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+28 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -74,6 +74,19 @@ overworld spot the eligible genera total roughly 190, so a little over half of z
 | **Ender Zombie** | 4 | Teleports **behind you, already facing you**, every few seconds. The tell isn't seeing it move — it's the sound at your back. A 1.8 favourite, rebuilt. |
 | **Weeping Zombie** | *0* | The same trick with `only_when_unseen`: it will not blink while you're looking at it, so it closes every time you turn around. **Weight 0 — summon it deliberately**, it's too mean to meet by accident. |
 
+### Herobrine
+
+Weight 1 — rare on purpose. He is the whole teleport feature set pointed at one idea:
+
+- **Watches.** No melee goal, no stroll, 0 damage, 64-block sight. He only ever stands and looks.
+- **Moves when you don't.** `only_when_unseen` means he blinks only while you're facing away.
+- **Won't be approached.** `min_distance: 6` — get within six blocks and he's gone.
+- **Won't be shot.** `on_projectile` blinks him the instant an arrow lands.
+- **Sometimes just leaves.** `vanish_chance: 0.25` — a quarter of the time he despawns instead.
+- Wears a `head` of `"Herobrine"`, so on a vanilla client he has the face.
+
+He cannot hurt you. That's the point.
+
 ## What these demonstrate
 
 Worth reading the files rather than just the table — between them they exercise every feature:
@@ -91,3 +104,5 @@ Worth reading the files rather than just the table — between them they exercis
   and a custom name.
 - **A genus that fights by not fighting** — Screamer has no `melee_attack` at all.
 - **Weight 0** — Weeping Zombie never spawns naturally and exists only for `/zombiemod spawn`.
+- **A reactive ability** — Herobrine's teleport fires on being shot, outside the tick schedule.
+- **A mob with no attack at all** — Herobrine does 0 damage and has no melee goal.

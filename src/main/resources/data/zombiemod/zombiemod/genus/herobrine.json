@@ -1,0 +1,59 @@
+{
+  "name": "Herobrine",
+  "base": "minecraft:zombie",
+  "weight": 1,
+  "health": 40.0,
+  "damage": 0.0,
+  "speed": 0.9,
+  "follow_range": 64.0,
+  "head": "Herobrine",
+  "attributes": {
+    "minecraft:knockback_resistance": 1.0
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:look_at",
+      "priority": 1,
+      "target": "player",
+      "distance": 64.0,
+      "probability": 1.0
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 1,
+      "target": "player",
+      "must_see": false
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:teleport",
+      "interval": 20,
+      "chance": 1.0,
+      "mode": "behind",
+      "range": 64.0,
+      "distance": 3.0,
+      "only_when_unseen": true,
+      "min_distance": 6.0,
+      "on_projectile": true,
+      "vanish_chance": 0.25
+    }
+  ]
+}

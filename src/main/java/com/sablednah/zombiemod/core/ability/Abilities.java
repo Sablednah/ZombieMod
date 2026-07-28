@@ -526,7 +526,8 @@ public final class Abilities {
      * on by default is genuinely unpleasant.
      */
     public record Teleport(int interval, float chance, Mode mode, double range, double distance,
-            boolean onlyWhenUnseen) implements Ability {
+            boolean onlyWhenUnseen, double minDistance, boolean onProjectile, float vanishChance)
+            implements Ability {
 
         public static final Identifier TYPE = id("teleport");
 
@@ -544,7 +545,10 @@ public final class Abilities {
                 Mode.CODEC.optionalFieldOf("mode", Mode.BEHIND).forGetter(Teleport::mode),
                 Codec.DOUBLE.optionalFieldOf("range", 24.0D).forGetter(Teleport::range),
                 Codec.DOUBLE.optionalFieldOf("distance", 2.0D).forGetter(Teleport::distance),
-                Codec.BOOL.optionalFieldOf("only_when_unseen", false).forGetter(Teleport::onlyWhenUnseen))
+                Codec.BOOL.optionalFieldOf("only_when_unseen", false).forGetter(Teleport::onlyWhenUnseen),
+                Codec.DOUBLE.optionalFieldOf("min_distance", 0.0D).forGetter(Teleport::minDistance),
+                Codec.BOOL.optionalFieldOf("on_projectile", false).forGetter(Teleport::onProjectile),
+                Codec.FLOAT.optionalFieldOf("vanish_chance", 0.0F).forGetter(Teleport::vanishChance))
                 .apply(i, Teleport::new));
 
         @Override
@@ -562,7 +566,15 @@ public final class Abilities {
             if (distSqr > range * range) {
                 return;
             }
-            if (onlyWhenUnseen && isWatching(victim, mob)) {
+            // Too close overrides everything, including only_when_unseen: cornering it is exactly
+            // when it should not be standing there.
+            boolean crowded = minDistance > 0.0D && distSqr < minDistance * minDistance;
+            if (!crowded && onlyWhenUnseen && isWatching(victim, mob)) {
+                return;
+            }
+
+            if (vanishChance > 0.0F && mob.getRandom().nextFloat() < vanishChance) {
+                vanish(level, mob);
                 return;
             }
 
@@ -597,6 +609,28 @@ public final class Abilities {
             level.sendParticles(ParticleTypes.PORTAL, from.x, from.y + 1.0D, from.z, 24, 0.4D, 0.6D, 0.4D, 0.1D);
             level.sendParticles(ParticleTypes.PORTAL, mob.getX(), mob.getY() + 1.0D, mob.getZ(),
                     24, 0.4D, 0.6D, 0.4D, 0.1D);
+        }
+
+        /**
+         * Blink away when shot, regardless of the interval. Melee is deliberately excluded — if you
+         * got close enough to hit it with a sword it should have to wear that.
+         */
+        @Override
+        public boolean onHurt(ServerLevel level, Mob mob, net.minecraft.world.damagesource.DamageSource source) {
+            if (!onProjectile || !source.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE)) {
+                return false;
+            }
+            run(level, mob);
+            return true;
+        }
+
+        /** Leave, with the sound and particles but without the corpse. */
+        private static void vanish(ServerLevel level, Mob mob) {
+            level.playSound(null, mob.getX(), mob.getY(), mob.getZ(), SoundEvents.ENDERMAN_TELEPORT,
+                    SoundSource.HOSTILE, 1.0F, 0.7F);
+            level.sendParticles(ParticleTypes.PORTAL, mob.getX(), mob.getY() + 1.0D, mob.getZ(),
+                    40, 0.4D, 0.8D, 0.4D, 0.15D);
+            mob.discard();
         }
 
         /** Is the victim looking more or less at this mob? */
