@@ -36,9 +36,33 @@ features.
 | **Day/night behaviour switch** | Conditional goal sets — "docile by day, hunts at night". Currently a genus has one fixed AI. Wants goals gated on a condition, reusing the `SpawnCondition` registry. |
 | **Hive mind / pack tactics** | Goals that read other ZombieMod mobs nearby — flanking, surrounding, holding back until numbers are up. |
 | **Mutation / stages** | A genus that becomes another genus on a trigger (damage taken, time alive). "Kill it before it turns." |
-| **Boss / named encounter** | Boss bar, phases, loot. Would pair with your own MobHealth-NeoForge. |
+| **Boss / named encounter** | See the dedicated section below — partly possible already. |
 | **Horde events** | A timed wave director — the L4D crescendo. Server-level, not per-mob. |
 | **Sound-driven aggro** | Clicker done properly: blind, but hears sprinting and blocks breaking. Needs vibration/`GameEvent` listening. |
+
+## Boss zombies (owner's idea, 2026-07-28)
+
+Named, summoned, one-off encounters rather than anything you meet in the wild.
+
+**Already works today:**
+
+- `"weight": 0` keeps a genus off every natural spawn table entirely. Weeping Zombie proves it.
+- `/zombiemod spawn <genus> <x> <y> <z>` runs from **command blocks, the console and other mods** —
+  it takes an explicit position and needs no player, so a datapack or plugin can summon one.
+- Big stat blocks, equipment, several abilities at once — Tank is already 120 HP and 2.2× scale.
+
+**What's missing:**
+
+| Piece | Notes |
+|-------|-------|
+| **Boss bar** | A `ServerBossEvent` per boss mob, tracking its health and clearing on death. **MobHealth-NeoForge already implements exactly this** (`[bossbar]` display mode, configurable colour) — read that first rather than deriving it. Wants a `boss` block on the genus: `{ "bar_colour": "purple", "bar_style": "notched_10", "range": 64 }`. |
+| **Summon ritual** | The Wither pattern: a block structure that, when completed, replaces itself with the mob. Needs a pattern matcher (`BlockPattern` exists in vanilla and is exactly what the Wither and Iron Golem use) plus a placement hook. Data-drive the pattern so it's a datapack file, not code. |
+| **Use-item-on-block trigger** | The simpler variant — right-click block X holding item Y. Cheaper than pattern matching and covers most of the intent: a `zombiemod:summon_trigger` datapack registry mapping (block, item) → genus, consuming the item. |
+| **Phases** | "At 50% health it changes". Rides the mutation/stages idea above. |
+| **Loot** | Genus-specific drops. Currently a genus drops whatever its base mob drops. |
+
+Order I'd do them in: boss bar (cheap, reuses MobHealth), then the use-item trigger (cheap, covers
+most of the intent), then structure patterns, then phases and loot.
 
 ## Hard or impossible
 
