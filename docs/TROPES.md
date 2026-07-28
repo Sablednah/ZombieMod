@@ -25,7 +25,7 @@ features.
 | Trope | Needs | Notes |
 |-------|-------|-------|
 | **Smoker tongue (real)** | `tether` ability | Persistent pull with line-of-sight break, rather than one shove. |
-| **Infector / patient zero** | `convert` ability | Turn a killed villager/player-corpse into a genus. The 1.8 mod's player-corpse feature lives here. |
+| **Infector** | `convert` ability | Turn a killed *villager or mob* into a genus. The player half of this shipped — see player zombies in the README. |
 | **Spitter (projectile)** | `projectile` ability | Actually fire something — arrow, snowball, small fireball — instead of an aura. |
 | **Necromancer** | `resurrect` ability | Re-raise nearby zombie corpses. Needs death tracking. |
 

@@ -318,9 +318,9 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**31 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+**32 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
 Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher. They're ordinary datapack files, so override or delete any of
+Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse. They're ordinary datapack files, so override or delete any of
 them from a higher-priority datapack.
 
 See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and
@@ -444,6 +444,46 @@ its own loot table.
 
 **Or your own mod/plugin**, by running the command or spawning the mob and calling
 `GenusApplier.assign`.
+
+## Player zombies
+
+When a player dies, their corpse gets up wearing **their actual skin** — a player head built from
+their game profile, so it works on a completely vanilla client. The 1.8 version needed Spout
+installed on every client to manage that.
+
+**Off by default.** Turn it on in the config. It takes a player's dropped items and puts them inside
+a mob, which is a real gameplay decision and not one to make on someone's behalf just because they
+installed a mob pack.
+
+```toml
+[playerZombies]
+    enabled = false
+    takeItems = true                     # corpse carries your drops; kill it to get them back
+    genus = "zombiemod:player_zombie"    # the template it's built from
+    name = "Corpse %P"
+```
+
+The corpse is an ordinary genus, so edit `player_zombie.json` to change how it behaves. It doesn't
+burn in daylight — a corpse that quietly evaporates at dawn takes your inventory with it.
+
+### Recovery
+
+The most common complaint about the 1.8 version was *"my player zombie went missing"* — despawned,
+fell in a ravine, died in a mob grinder, dropped nothing. When that happened the items were simply
+gone, because nowhere else knew about them.
+
+So every corpse is **written down the moment it's raised**, items included, in a save-level ledger.
+A corpse that dies normally settles its own entry. Anything else, and an admin can put it right:
+
+| Command | |
+|---------|--|
+| `/zombiemod corpse list [player]` | Every recorded corpse, newest first, with position and stack count. |
+| `/zombiemod corpse give <player> [n]` | Hand the items back — straight to the owner if they're online, otherwise to you. |
+| `/zombiemod corpse respawn <player> [n]` | Rebuild the corpse where it fell, carrying its items again. |
+| `/zombiemod corpse forget <player> [n]` | Drop the record. |
+
+`n` is the index shown by `list`, defaulting to the most recent. All op-only, like every other
+ZombieMod command.
 
 ## Configuration (`config/zombiemod-server.toml`)
 

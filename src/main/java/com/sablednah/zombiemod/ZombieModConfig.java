@@ -13,6 +13,10 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.BooleanValue ENABLED;
     public static final ModConfigSpec.IntValue VANILLA_WEIGHT;
     public static final ModConfigSpec.BooleanValue LOG_SPAWNS;
+    public static final ModConfigSpec.BooleanValue PLAYER_ZOMBIES;
+    public static final ModConfigSpec.BooleanValue PLAYER_ZOMBIE_TAKES_ITEMS;
+    public static final ModConfigSpec.ConfigValue<String> PLAYER_ZOMBIE_GENUS;
+    public static final ModConfigSpec.ConfigValue<String> PLAYER_ZOMBIE_NAME;
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -36,6 +40,27 @@ public final class ZombieModConfig {
 
         LOG_SPAWNS = b.comment("Log every genus spawn to the server console. Noisy; for tuning weights.")
                 .define("logSpawns", false);
+
+        b.pop();
+
+        b.comment("Player zombies: when a player dies, their corpse gets up.",
+                "Off by default - this takes a player's dropped items and puts them inside a mob,",
+                "which is a real gameplay decision and not one to make on someone's behalf just",
+                "because they installed a mob pack.").push("playerZombies");
+
+        PLAYER_ZOMBIES = b.comment("Raise a zombie wearing the dead player's skin at their death spot.")
+                .define("enabled", false);
+
+        PLAYER_ZOMBIE_TAKES_ITEMS = b.comment(
+                        "The corpse carries what the player dropped; kill it to get your things back.",
+                        "With this off the items drop normally and the corpse is only a monument.")
+                .define("takeItems", true);
+
+        PLAYER_ZOMBIE_GENUS = b.comment("Which genus a corpse uses as its template.")
+                .define("genus", "zombiemod:player_zombie");
+
+        PLAYER_ZOMBIE_NAME = b.comment("Corpse name. %P is the player's name.")
+                .define("name", "Corpse %P");
 
         b.pop();
         SPEC = b.build();

@@ -6,9 +6,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.core.Genus;
 
@@ -28,6 +31,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -40,6 +44,7 @@ import net.minecraft.world.phys.Vec3;
  *   <li>{@code /zombiemod spawn <genus>} — put one where you're looking
  *   <li>{@code /zombiemod spawn <genus> <x> <y> <z>} — put one at a position
  *   <li>{@code /zombiemod observe [on|off]} — take no damage, stay a target
+ *   <li>{@code /zombiemod corpse list|give|respawn|forget} — player-zombie recovery
  * </ul>
  *
  * There is no {@code reload}: genera are datapack data, so vanilla {@code /reload} already does it.
@@ -51,6 +56,9 @@ public final class ZombieModCommands {
 
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_GENUS = new DynamicCommandExceptionType(
             genus -> Component.literal("No ZombieMod genus '" + genus + "'. Try /zombiemod list."));
+
+    private static final DynamicCommandExceptionType ERROR_NO_CORPSE = new DynamicCommandExceptionType(
+            player -> Component.literal("No such corpse for " + player + ". Try /zombiemod corpse list."));
 
     private static final DynamicCommandExceptionType ERROR_AMBIGUOUS_GENUS = new DynamicCommandExceptionType(
             matches -> Component.literal("Ambiguous genus name - matches " + matches + ". Use the full id."));
@@ -93,12 +101,140 @@ public final class ZombieModCommands {
                                                 ctx, "genus", ZombieModRegistries.GENUS, ERROR_UNKNOWN_GENUS),
                                         Vec3Argument.getVec3(ctx, "pos"))))));
 
+        // Corpse recovery. Op-only like the rest, and worth having even if player zombies are
+        // working perfectly: "my corpse went missing" was the single most common complaint about
+        // the 1.8 version, and an admin with no way to check had to guess.
+        root.then(Commands.literal("corpse")
+                .then(Commands.literal("list")
+                        .executes(ctx -> listCorpses(ctx.getSource(), Optional.empty()))
+                        .then(Commands.argument("player", StringArgumentType.word())
+                                .executes(ctx -> listCorpses(ctx.getSource(),
+                                        Optional.of(StringArgumentType.getString(ctx, "player"))))))
+                .then(Commands.literal("give")
+                        .then(Commands.argument("player", StringArgumentType.word())
+                                .executes(ctx -> giveCorpse(ctx.getSource(),
+                                        StringArgumentType.getString(ctx, "player"), 1))
+                                .then(Commands.argument("index", IntegerArgumentType.integer(1))
+                                        .executes(ctx -> giveCorpse(ctx.getSource(),
+                                                StringArgumentType.getString(ctx, "player"),
+                                                IntegerArgumentType.getInteger(ctx, "index"))))))
+                .then(Commands.literal("respawn")
+                        .then(Commands.argument("player", StringArgumentType.word())
+                                .executes(ctx -> respawnCorpse(ctx.getSource(),
+                                        StringArgumentType.getString(ctx, "player"), 1))))
+                .then(Commands.literal("forget")
+                        .then(Commands.argument("player", StringArgumentType.word())
+                                .executes(ctx -> forgetCorpse(ctx.getSource(),
+                                        StringArgumentType.getString(ctx, "player"), 1)))));
+
         root.then(Commands.literal("observe")
                 .executes(ctx -> setObserve(ctx.getSource(), !ObserverMode.isOn(ctx.getSource().getPlayerOrException())))
                 .then(Commands.literal("on").executes(ctx -> setObserve(ctx.getSource(), true)))
                 .then(Commands.literal("off").executes(ctx -> setObserve(ctx.getSource(), false))));
 
         dispatcher.register(root);
+    }
+
+    // ================================================================= corpse recovery
+
+    private static List<CorpseLedger.Entry> corpses(CommandSourceStack source, Optional<String> player) {
+        return CorpseLedger.get(source.getLevel()).find(player, false);
+    }
+
+    private static int listCorpses(CommandSourceStack source, Optional<String> player) {
+        List<CorpseLedger.Entry> found = corpses(source, player);
+        if (found.isEmpty()) {
+            source.sendSuccess(() -> Component.literal("No corpses recorded."), false);
+            return 0;
+        }
+        for (int i = 0; i < found.size() && i < 20; i++) {
+            CorpseLedger.Entry e = found.get(i);
+            int n = i + 1;
+            source.sendSuccess(() -> Component.literal(String.format(
+                    "#%d %s - %d %d %d in %s, day %d, %d item stacks%s",
+                    n, e.playerName(), e.x(), e.y(), e.z(), e.dimension(), e.day(), e.items().size(),
+                    e.claimed() ? " (already recovered)" : "")), false);
+        }
+        return found.size();
+    }
+
+    /** Index is 1-based and newest-first, matching what `list` just printed. */
+    private static CorpseLedger.Entry pick(CommandSourceStack source, String player, int index)
+            throws CommandSyntaxException {
+        List<CorpseLedger.Entry> found = corpses(source, Optional.of(player));
+        if (index < 1 || index > found.size()) {
+            throw ERROR_NO_CORPSE.create(player);
+        }
+        return found.get(index - 1);
+    }
+
+    private static int giveCorpse(CommandSourceStack source, String player, int index)
+            throws CommandSyntaxException {
+        CorpseLedger.Entry entry = pick(source, player, index);
+        if (entry.items().isEmpty()) {
+            source.sendFailure(Component.literal("That corpse was not carrying anything."));
+            return 0;
+        }
+
+        // Hand straight to the owner when they're online; otherwise drop at the admin's feet so
+        // the items exist somewhere rather than being quietly consumed by a failed lookup.
+        ServerPlayer owner = source.getServer().getPlayerList().getPlayerByName(entry.playerName());
+        ServerPlayer target = owner != null ? owner : source.getPlayerOrException();
+
+        for (ItemStack stack : entry.items()) {
+            ItemStack copy = stack.copy();
+            if (!target.getInventory().add(copy)) {
+                target.drop(copy, false);
+            }
+        }
+        CorpseLedger.get(source.getLevel()).claim(entry.id());
+
+        String where = owner != null ? entry.playerName() : source.getTextName() + " (owner offline)";
+        source.sendSuccess(() -> Component.literal(
+                "Returned " + entry.items().size() + " stacks to " + where + "."), true);
+        if (owner != null) {
+            owner.displayClientMessage(Component.literal("\u00a7eYour corpse's belongings have been returned."), false);
+        }
+        return 1;
+    }
+
+    private static int respawnCorpse(CommandSourceStack source, String player, int index)
+            throws CommandSyntaxException {
+        CorpseLedger.Entry entry = pick(source, player, index);
+        ServerLevel level = source.getLevel();
+
+        var genusId = Identifier.tryParse(ZombieModConfig.PLAYER_ZOMBIE_GENUS.get());
+        var holder = genusId == null ? Optional.<Holder.Reference<Genus>>empty()
+                : lookup(source).get(ResourceKey.create(ZombieModRegistries.GENUS, genusId));
+        if (holder.isEmpty()) {
+            source.sendFailure(Component.literal("Corpse genus not loaded; cannot rebuild it."));
+            return 0;
+        }
+
+        Entity created = holder.get().value().base().create(level, EntitySpawnReason.COMMAND);
+        if (!(created instanceof Mob corpse)) {
+            return 0;
+        }
+        corpse.snapTo(entry.x() + 0.5D, entry.y() + 0.5D, entry.z() + 0.5D, 0.0F, 0.0F);
+        GenusApplier.assign(corpse, holder.get());
+        corpse.setCustomName(Component.literal(
+                ZombieModConfig.PLAYER_ZOMBIE_NAME.get().replace("%P", entry.playerName())));
+        corpse.setCustomNameVisible(true);
+        PlayerZombies.rebuild(level, corpse, entry);
+        level.addFreshEntity(corpse);
+
+        source.sendSuccess(() -> Component.literal(String.format(
+                "Rebuilt %s's corpse at %d %d %d with %d stacks.",
+                entry.playerName(), entry.x(), entry.y(), entry.z(), entry.items().size())), true);
+        return 1;
+    }
+
+    private static int forgetCorpse(CommandSourceStack source, String player, int index)
+            throws CommandSyntaxException {
+        CorpseLedger.Entry entry = pick(source, player, index);
+        CorpseLedger.get(source.getLevel()).forget(entry.id());
+        source.sendSuccess(() -> Component.literal("Removed that corpse from the ledger."), true);
+        return 1;
     }
 
     /**
