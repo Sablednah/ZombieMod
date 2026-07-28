@@ -16,15 +16,20 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.ResourceKeyArgument;
+import net.minecraft.commands.arguments.coordinates.Vec3Argument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 /**
@@ -32,12 +37,16 @@ import net.minecraft.world.phys.Vec3;
  *
  * <ul>
  *   <li>{@code /zombiemod list} — what genera the current datapacks define
- *   <li>{@code /zombiemod spawn <genus>} — put one in front of you
+ *   <li>{@code /zombiemod spawn <genus>} — put one where you're looking
+ *   <li>{@code /zombiemod spawn <genus> <x> <y> <z>} — put one at a position
  * </ul>
  *
  * There is no {@code reload}: genera are datapack data, so vanilla {@code /reload} already does it.
  */
 public final class ZombieModCommands {
+
+    /** How far to trace when no position is given. Matches vanilla's own generous reach for /tp-alikes. */
+    private static final double LOOK_DISTANCE = 48.0D;
 
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_GENUS = new DynamicCommandExceptionType(
             genus -> Component.literal("No ZombieMod genus '" + genus + "'. Try /zombiemod list."));
@@ -69,9 +78,19 @@ public final class ZombieModCommands {
                         // Replaces the argument type's own suggestions so the bare name is offered
                         // alongside the full id.
                         .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(names(ctx.getSource()), builder))
+                        // No position: spawn where the player is looking.
                         .executes(ctx -> spawn(ctx.getSource(),
                                 ResourceKeyArgument.getRegistryKey(
-                                        ctx, "genus", ZombieModRegistries.GENUS, ERROR_UNKNOWN_GENUS)))));
+                                        ctx, "genus", ZombieModRegistries.GENUS, ERROR_UNKNOWN_GENUS),
+                                lookingAt(ctx.getSource())))
+                        // Explicit position. Vec3Argument gives ~ ~ ~ and ^ ^ ^5 for free, so
+                        // "5 blocks in front of me" is `^ ^ ^5` with no work on our part - and it
+                        // makes the command usable from the console and from command blocks.
+                        .then(Commands.argument("pos", Vec3Argument.vec3())
+                                .executes(ctx -> spawn(ctx.getSource(),
+                                        ResourceKeyArgument.getRegistryKey(
+                                                ctx, "genus", ZombieModRegistries.GENUS, ERROR_UNKNOWN_GENUS),
+                                        Vec3Argument.getVec3(ctx, "pos"))))));
 
         dispatcher.register(root);
     }
@@ -120,7 +139,29 @@ public final class ZombieModCommands {
         };
     }
 
-    private static int spawn(CommandSourceStack source, ResourceKey<Genus> key) throws CommandSyntaxException {
+    /**
+     * Where the player is looking, backed off from the surface they hit.
+     *
+     * <p>This is the default because spawning at the caller's feet is actively wrong for a good
+     * chunk of the roster: a Bloater born inside its own 3-block trigger radius detonates on the
+     * spot, and a Coward spawned underfoot spends its first second shoving you. The 1.8 plugin
+     * used the looked-at block for the same reason.
+     */
+    private static Vec3 lookingAt(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        HitResult hit = player.pick(LOOK_DISTANCE, 1.0F, false);
+
+        if (hit instanceof BlockHitResult block && hit.getType() == HitResult.Type.BLOCK) {
+            // Step out along the face we hit, so the mob stands on the surface rather than in it.
+            BlockPos at = block.getBlockPos().relative(block.getDirection());
+            return Vec3.atBottomCenterOf(at);
+        }
+        // Nothing in range - drop it at the end of the ray, wherever that is.
+        return player.getEyePosition().add(player.getLookAngle().scale(LOOK_DISTANCE));
+    }
+
+    private static int spawn(CommandSourceStack source, ResourceKey<Genus> key, Vec3 at)
+            throws CommandSyntaxException {
         ServerLevel level = source.getLevel();
 
         Holder.Reference<Genus> holder = resolve(source, key);
@@ -135,7 +176,6 @@ public final class ZombieModCommands {
             return 0;
         }
 
-        Vec3 at = source.getPosition();
         mob.snapTo(at.x, at.y, at.z, level.getRandom().nextFloat() * 360.0F, 0.0F);
 
         // Assign before adding: EntityJoinLevelEvent builds the AI from the genus tag, so the tag
@@ -143,7 +183,8 @@ public final class ZombieModCommands {
         GenusApplier.assign(mob, holder);
         level.addFreshEntity(mob);
 
-        source.sendSuccess(() -> Component.literal("Spawned " + genus.name().orElse(id.getPath()) + "."), true);
+        source.sendSuccess(() -> Component.literal(String.format("Spawned %s at %.1f %.1f %.1f.",
+                genus.name().orElse(id.getPath()), at.x, at.y, at.z)), true);
         return 1;
     }
 

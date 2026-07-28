@@ -283,7 +283,8 @@ See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it
 | Command | |
 |---------|--|
 | `/zombiemod list` | What genera the loaded datapacks define. |
-| `/zombiemod spawn <genus>` | Spawn one where you're standing. |
+| `/zombiemod spawn <genus>` | Spawn one where you're **looking**, up to 48 blocks. |
+| `/zombiemod spawn <genus> <x> <y> <z>` | Spawn one at a position. Accepts `~ ~ ~` relative and `^ ^ ^5` local coords — so `^ ^ ^5` is "five blocks in front of me". Works from the console and command blocks. |
 
 Both require permission level `LEVEL_GAMEMASTERS` (op 2). `spawn` accepts either the full id
 (`zombiemod:coward`) or just the name (`coward`), and tab-completes both.
