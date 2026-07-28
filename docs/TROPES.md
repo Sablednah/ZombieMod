@@ -54,14 +54,13 @@ Named, summoned, one-off encounters rather than anything you meet in the wild.
 
 | Piece | Notes |
 |-------|-------|
-| **Boss bar** | A `ServerBossEvent` per boss mob, tracking its health and clearing on death. **MobHealth-NeoForge already implements exactly this** (`[bossbar]` display mode, configurable colour) — read that first rather than deriving it. Wants a `boss` block on the genus: `{ "bar_colour": "purple", "bar_style": "notched_10", "range": 64 }`. |
-| **Summon ritual** | The Wither pattern: a block structure that, when completed, replaces itself with the mob. Needs a pattern matcher (`BlockPattern` exists in vanilla and is exactly what the Wither and Iron Golem use) plus a placement hook. Data-drive the pattern so it's a datapack file, not code. |
-| **Use-item-on-block trigger** | The simpler variant — right-click block X holding item Y. Cheaper than pattern matching and covers most of the intent: a `zombiemod:summon_trigger` datapack registry mapping (block, item) → genus, consuming the item. |
-| **Phases** | "At 50% health it changes". Rides the mutation/stages idea above. |
-| **Loot** | Genus-specific drops. Currently a genus drops whatever its base mob drops. |
+| ~~**Boss bar**~~ | **Done** — a `boss` block on the genus. See Patient Zero. |
+| ~~**Use-item-on-block trigger**~~ | **Done** — the `zombiemod:ritual` datapack registry. |
+| **Summon structure** | The full Wither pattern: a multi-block shape that, when completed, replaces itself with the mob. Vanilla's `BlockPattern` is exactly what the Wither and Iron Golem use. Data-drive the pattern so it's a datapack file. |
+| **Phases** | "At 50% health it changes" — swap abilities or attributes at health thresholds. Rides the mutation/stages idea above, and could reuse `behaviours` if conditions could read the mob as well as the place. |
+| **Loot** | Genus-specific drops. Currently a genus drops whatever its base mob drops. Wants a loot-table id on the genus, applied on death. |
 
-Order I'd do them in: boss bar (cheap, reuses MobHealth), then the use-item trigger (cheap, covers
-most of the intent), then structure patterns, then phases and loot.
+Remaining order: structure patterns, then phases, then loot.
 
 ## Hard or impossible
 

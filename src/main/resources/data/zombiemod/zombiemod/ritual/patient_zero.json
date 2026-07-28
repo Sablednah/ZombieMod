@@ -1,0 +1,12 @@
+{
+  "block": [
+    "minecraft:soul_sand"
+  ],
+  "item": [
+    "minecraft:rotten_flesh"
+  ],
+  "genus": "zombiemod:patient_zero",
+  "consume": true,
+  "replace_block": false,
+  "count": 1
+}

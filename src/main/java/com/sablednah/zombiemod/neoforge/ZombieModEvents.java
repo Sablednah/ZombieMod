@@ -25,6 +25,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -127,6 +128,20 @@ public final class ZombieModEvents {
                 ability.onHurt(level, mob, event.getSource());
             }
         });
+    }
+
+    /**
+     * Clear a boss bar when its mob goes, for any reason.
+     *
+     * <p>Hooked on leaving rather than on dying deliberately: despawn, chunk unload and dimension
+     * change all remove the entity without killing it, and each one would otherwise strand a bar on
+     * someone's screen with nothing left alive to clear it.
+     */
+    @SubscribeEvent
+    public void onLeaveLevel(EntityLeaveLevelEvent event) {
+        if (!event.getLevel().isClientSide()) {
+            BossBars.remove(event.getEntity().getId());
+        }
     }
 
     @SubscribeEvent

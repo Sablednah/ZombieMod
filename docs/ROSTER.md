@@ -1,6 +1,6 @@
 # The shipped roster
 
-29 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+30 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -92,6 +92,12 @@ He cannot hurt you. That's the point.
 | Genus | Weight | Idea |
 |-------|-------:|------|
 | **Nightstalker** | 12 | Runs from you in daylight and hunts you after dark. Same mob, two personalities, switched on the clock. |
+
+## Bosses
+
+| Genus | Weight | Idea |
+|-------|-------:|------|
+| **Patient Zero** | *0* | 250 HP, 2× scale, netherite sword, red notched boss bar, darkened sky and boss music. Calls in zombies, shockwaves, inflicts Mining Fatigue, regenerates. Summon with **rotten flesh on soul sand**, or `/zombiemod spawn patient_zero`. |
 
 ## What these demonstrate
 

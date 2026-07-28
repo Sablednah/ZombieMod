@@ -143,6 +143,7 @@ public final class GenusApplier {
         for (com.sablednah.zombiemod.core.ability.Ability ability : genus.abilities()) {
             mob.goalSelector.addGoal(99, new AbilityGoal(mob, ability));
         }
+        genus.boss().ifPresent(spec -> mob.goalSelector.addGoal(99, new BossBarGoal(mob, spec)));
     }
 
     /**

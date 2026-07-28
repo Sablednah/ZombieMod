@@ -86,6 +86,7 @@ Here is the coward, in full:
 | `abilities` | `[]` | Things it does repeatedly while alive — see below. |
 | `attributes` | `{}` | Any other attribute by id, e.g. `{"minecraft:armor": 8.0}`. Covers everything the named fields don't, including other mods' attributes. |
 | `head` | *(none)* | A player head to wear — `"head": "Notch"`, or the full profile form with an explicit texture. Beats `armor_color` for the head slot. |
+| `boss` | *(none)* | Present makes this a boss — see below. |
 | `behaviours` | `[]` | Goal sets that switch on and off with a condition — see below. |
 | `navigation` | `default` | `climb` borrows the spider's wall navigator, `swim` and `amphibious` the aquatic ones. |
 | `equipment` | `{}` | Held and worn items — see below. Beats `armor_color` and `head` for any slot it names. |
@@ -315,13 +316,67 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**29 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+**30 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
 Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker. They're ordinary datapack files, so override or delete any of
+Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero. They're ordinary datapack files, so override or delete any of
 them from a higher-priority datapack.
 
 See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and
 [`docs/TROPES.md`](docs/TROPES.md) for what's still missing from the genre.
+
+## Bosses
+
+Add a `boss` block and the genus gets a bar at the top of the screen. There's no separate flag —
+presence of the block is what makes it a boss. Pair it with `"weight": 0` so it never turns up in
+the wild.
+
+```json
+"boss": {
+  "color": "red",
+  "overlay": "notched_10",
+  "range": 64.0,
+  "darken_sky": true,
+  "boss_music": true,
+  "title": "Patient Zero"
+}
+```
+
+`color` takes any vanilla bar colour, `overlay` is `progress` or `notched_6/10/12/20`, and
+`darken_sky`, `boss_music` and `fog` are the Wither's and Dragon's own effects. The bar appears for
+players within `range` and follows them in and out of it.
+
+### Summoning
+
+Bosses are meant to be called up, and there are three ways in:
+
+**A command**, which works from command blocks and other mods since it takes an explicit position
+and needs no player:
+
+```
+/zombiemod spawn zombiemod:patient_zero ~ ~ ~
+```
+
+**A ritual** — use an item on a block. These are their own datapack registry at
+`data/<pack>/zombiemod/ritual/<name>.json`, rather than living on the genus, so one boss can have
+several summons and a pack can add a ritual for someone else's genus without overriding their file:
+
+```json
+{
+  "block": ["minecraft:soul_sand"],
+  "item": ["minecraft:rotten_flesh"],
+  "genus": "zombiemod:patient_zero",
+  "consume": true,
+  "replace_block": false,
+  "count": 1
+}
+```
+
+Both `block` and `item` accept a tag as well as a list. The shipped example is **rotten flesh on
+soul sand**, which summons Patient Zero — 250 HP, 2× scale, netherite sword, calls in zombies,
+shockwaves, inflicts Mining Fatigue and regenerates.
+
+**Or your own mod/plugin**, by running the command or spawning the mob and calling
+`GenusApplier.assign`.
 
 ## Configuration (`config/zombiemod-server.toml`)
 
