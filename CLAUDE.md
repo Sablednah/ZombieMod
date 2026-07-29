@@ -145,6 +145,14 @@ the entity's own ticking means no live-mob registry to maintain, no leak on remo
 non-ticking chunks, and per-mob timing is just a field. Ability implementations are stateless and
 shared; the timer lives in the goal.
 
+### Changing the world
+
+Anything that breaks or places blocks must go through
+`EventHooks.canEntityGrief(level, entity)`, never `getGameRules().get(GameRules.MOB_GRIEFING)`. The
+gamerule check compiles, works, and silently ignores every land-protection mod on the server,
+because the hook is what fires `EntityMobGriefingEvent` for them to veto. The hook falls back to the
+gamerule when nothing objects, so it is strictly the better call.
+
 ### Adding a goal type or spawn condition
 
 Goals and spawn conditions use the identical shape — a record whose fields mirror the thing it

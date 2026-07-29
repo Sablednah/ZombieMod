@@ -34,7 +34,7 @@ reachable, not that the code was translated.
 | Equipment and drop rates | ✅ | `equipment` + loot tables |
 | Sounds, particles, potions | ✅ | `sound`, `particles`, `effect` |
 | `agro`, `coward`, `passive`, `noBurn` | ✅ | `follow_range`, goals, `burning_time` |
-| **Block breaking** | ✅ | `break_blocks`, gated on the mob being stuck, an explicit `allowed` list, and the `mobGriefing` gamerule. See Breaker. |
+| **Block breaking** | ✅ | `break_blocks`, gated on the mob being stuck, an explicit `allowed` list, and NeoForge's `canEntityGrief` hook so claim mods can veto. See Breaker and Big Breaker. |
 | **Proximity spawning** | ❌ | `ProximitySystems`: spawned zombies just out of sight around each player, ignoring vanilla's rules, scaled by distance from world spawn. Different in feel from riding vanilla's spawn table — it's what made the world feel occupied. |
 | **Jockeys / mounts** | ✅ | A `mount` field taking an entity id. See Outrider. |
 | Angry iron golems | ⚠️ | The original registered a hostile `AngryGolem`. A genus with `base: minecraft:iron_golem` gets most of the way there — untested. |

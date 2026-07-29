@@ -292,9 +292,12 @@ and with a Breaker in the world it's a delay. It only fires when the mob has a t
 *and* has stopped making progress, so it eats walls rather than scenery.
 
 Two deliberate opt-ins before anything of yours gets damaged: the ability itself, and `allowed`,
-which has **no default** — a genus must name every block it may break. It also honours the
-`mobGriefing` gamerule, so the server-wide off switch everyone already knows about works. Same for
-`place_block`.
+which has **no default** — a genus must name every block it may break. It also asks NeoForge's `canEntityGrief` hook before touching anything — **not** the `mobGriefing`
+gamerule directly. That matters: the hook fires `EntityMobGriefingEvent`, which is how a
+land-protection mod (FTB Chunks, Open Parties and Claims, and friends) vetoes griefing per entity
+and per position. Reading the gamerule instead would work perfectly and quietly ignore every claim
+on the server. The hook still consults the gamerule when nothing objects, so the global off switch
+is unaffected. Same for `place_block`.
 
 `infest: true` turns broken blocks into infested stone instead of dropping them — the old `INFEST`.
 

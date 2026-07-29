@@ -40,6 +40,23 @@ public final class Abilities {
         return Identifier.fromNamespaceAndPath("zombiemod", path);
     }
 
+    /**
+     * May this mob change the world right now?
+     *
+     * <p>Goes through NeoForge's {@code canEntityGrief} rather than reading the {@code mobGriefing}
+     * gamerule directly. The two are not equivalent: the hook fires {@code EntityMobGriefingEvent},
+     * which is the documented way for a land-protection mod to veto griefing <em>per entity and per
+     * position</em>. Reading the gamerule works, and silently ignores every claim mod on the server —
+     * a breaker would happily eat its way into a protected base while the owner wondered why their
+     * claim did nothing.
+     *
+     * <p>The hook still consults the gamerule when nothing objects, so the global off switch is
+     * unaffected.
+     */
+    private static boolean canGrief(ServerLevel level, Mob mob) {
+        return net.neoforged.neoforge.event.EventHooks.canEntityGrief(level, mob);
+    }
+
     /** Shared timing fields, so every ability spells them the same way. */
     private static <T extends Ability> RecordCodecBuilder<T, Integer> intervalField(int fallback) {
         return Codec.INT.optionalFieldOf("interval", fallback).forGetter(Ability::interval);
@@ -675,7 +692,7 @@ public final class Abilities {
 
         @Override
         public void run(ServerLevel level, Mob mob) {
-            if (!level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING)) {
+            if (!canGrief(level, mob)) {
                 return;
             }
             LivingEntity victim = mob.getTarget();
@@ -778,7 +795,7 @@ public final class Abilities {
 
         @Override
         public void run(ServerLevel level, Mob mob) {
-            if (!level.getGameRules().get(net.minecraft.world.level.gamerules.GameRules.MOB_GRIEFING)) {
+            if (!canGrief(level, mob)) {
                 return;
             }
             for (LivingEntity victim : Targets.of(target, level, mob, radius)) {
