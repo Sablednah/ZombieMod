@@ -99,6 +99,18 @@ public final class ZombieModEvents {
         }
 
         BlockPos pos = mob.blockPosition();
+
+        if (ZombieModConfig.CLAIM_PROTECTION.get()
+                && ZombieModConfig.CLAIM_SPAWNS.get() != ZombieModConfig.ClaimSpawns.ALLOW
+                && com.sablednah.zombiemod.compat.FtbChunks.isClaimed(level, pos)) {
+            if (ZombieModConfig.CLAIM_SPAWNS.get() == ZombieModConfig.ClaimSpawns.NO_SPAWNS) {
+                event.setSpawnCancelled(true);
+            }
+            // VANILLA_ONLY: leave the mob alone rather than cancelling it, so a claim keeps ordinary
+            // mobs and loses only ours.
+            return;
+        }
+
         rollGenus(level, mob, pos, event.getSpawnType()).ifPresent(holder -> {
             GenusApplier.assign(mob, holder);
             if (ZombieModConfig.LOG_SPAWNS.get()) {
@@ -115,6 +127,32 @@ public final class ZombieModEvents {
      * you shoot it, not every N ticks. Most abilities ignore this; the lookup is skipped entirely
      * for anything without a genus tag, which is every ordinary mob in the world.
      */
+    /**
+     * Refuse griefing inside a claim.
+     *
+     * <p>Handles the same {@code EntityMobGriefingEvent} our abilities ask through, which means one
+     * check covers block breaking and block placing without either ability knowing claims exist.
+     *
+     * <p>Scoped to ZombieMod's own mobs on purpose. Vetoing griefing for every mob in the game would
+     * be doing a land-protection mod's job for it, silently, from a mob pack - and creepers are
+     * already covered, since explosions are the part FTB Chunks does protect.
+     */
+    @SubscribeEvent
+    public void onMobGriefing(net.neoforged.neoforge.event.entity.EntityMobGriefingEvent event) {
+        if (!ZombieModConfig.CLAIM_PROTECTION.get() || !ZombieModConfig.CLAIM_NO_GRIEFING.get()) {
+            return;
+        }
+        if (!(event.getEntity() instanceof Mob mob) || !(mob.level() instanceof ServerLevel level)) {
+            return;
+        }
+        if (mob.getPersistentData().getString(GenusApplier.GENUS_TAG).isEmpty()) {
+            return;
+        }
+        if (com.sablednah.zombiemod.compat.FtbChunks.isClaimed(level, mob.blockPosition())) {
+            event.setCanGrief(false);
+        }
+    }
+
     /** Observer mode: cancel the damage, change nothing else about the player. */
     @SubscribeEvent
     public void onPlayerDamage(LivingIncomingDamageEvent event) {

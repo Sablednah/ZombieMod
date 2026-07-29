@@ -160,6 +160,13 @@ public final class ZombieModCommands {
         src.sendSuccess(() -> Component.literal((ok ? "§a" : "§c") + "  corpse genus: " + genusId
                 + (ok ? " (loaded)" : " (NOT LOADED - no corpse will be raised)")), false);
 
+        boolean ftb = com.sablednah.zombiemod.compat.FtbChunks.available();
+        src.sendSuccess(() -> Component.literal((ftb ? "§a" : "§7") + "  FTB Chunks: "
+                + (ftb ? "linked" : "not present")
+                + "§r   respectClaims: " + ZombieModConfig.CLAIM_PROTECTION.get()
+                + "   noGriefingInClaims: " + ZombieModConfig.CLAIM_NO_GRIEFING.get()
+                + "   inClaims: " + ZombieModConfig.CLAIM_SPAWNS.get()), false);
+
         src.sendSuccess(() -> Component.literal("  genera loaded: "
                 + lookup(source).listElementIds().count()), false);
         src.sendSuccess(() -> Component.literal("§7  config is per-world in singleplayer:"), false);

@@ -17,6 +17,14 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.BooleanValue PLAYER_ZOMBIE_TAKES_ITEMS;
     public static final ModConfigSpec.ConfigValue<String> PLAYER_ZOMBIE_GENUS;
     public static final ModConfigSpec.ConfigValue<String> PLAYER_ZOMBIE_NAME;
+    public static final ModConfigSpec.BooleanValue CLAIM_PROTECTION;
+    public static final ModConfigSpec.BooleanValue CLAIM_NO_GRIEFING;
+    public static final ModConfigSpec.EnumValue<ClaimSpawns> CLAIM_SPAWNS;
+
+    /** How spawns inside a land claim are treated. */
+    public enum ClaimSpawns {
+        ALLOW, VANILLA_ONLY, NO_SPAWNS
+    }
 
     static {
         ModConfigSpec.Builder b = new ModConfigSpec.Builder();
@@ -61,6 +69,29 @@ public final class ZombieModConfig {
 
         PLAYER_ZOMBIE_NAME = b.comment("Corpse name. %P is the player's name.")
                 .define("name", "Corpse %P");
+
+        b.pop();
+
+        b.comment("Land claims (FTB Chunks). All of this is inert if FTB Chunks is not installed.",
+                "",
+                "Worth knowing why this exists: FTB Chunks protects explosions inside claims but does",
+                "not cover general mob block-breaking, so asking NeoForge's griefing hook gets no",
+                "answer from it and a claim does nothing against a Breaker. ZombieMod closes that",
+                "from its own side.").push("claims");
+
+        CLAIM_PROTECTION = b.comment("Respect FTB Chunks claims at all.")
+                .define("respectClaims", true);
+
+        CLAIM_NO_GRIEFING = b.comment("Stop ZombieMod's mobs breaking or placing blocks inside claims.")
+                .define("noGriefingInClaims", true);
+
+        CLAIM_SPAWNS = b.comment("What happens to spawns inside a claim:",
+                        "  ALLOW        - no special treatment",
+                        "  VANILLA_ONLY - genera never claim a spawn there, so you get ordinary mobs",
+                        "  NO_SPAWNS    - cancel the spawn entirely",
+                        "VANILLA_ONLY is the default: keeping ZombieMod out of someone's base is this",
+                        "mod's business, while emptying it of vanilla mobs is not.")
+                .defineEnum("inClaims", ClaimSpawns.VANILLA_ONLY);
 
         b.pop();
         SPEC = b.build();

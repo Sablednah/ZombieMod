@@ -171,6 +171,7 @@ horde of itself.
 | `zombiemod:light` | `min`, `max` — light at the spawn point, so it follows day/night outdoors |
 | `zombiemod:see_sky` | `value` (default `true`) — open sky above, or deliberately not |
 | `zombiemod:time` | `phase` (`day`/`night`), or `min`/`max` on the 24000-tick cycle |
+| `zombiemod:in_claim` | `value` (default `true`) — inside an FTB Chunks claim. Always `false` without FTB. |
 | `zombiemod:any_of` | `conditions` — passes if any nested condition passes |
 | `zombiemod:not` | `condition` — inverts one |
 
@@ -596,6 +597,45 @@ A corpse that dies normally settles its own entry. Anything else, and an admin c
 
 `n` is the index shown by `list`, defaulting to the most recent. All op-only, like every other
 ZombieMod command.
+
+## Land claims (FTB Chunks)
+
+If [FTB Chunks](https://www.curseforge.com/minecraft/mc-mods/ftb-chunks) is installed, ZombieMod
+respects claims: its mobs won't break or place blocks inside one, and genera don't claim spawns there.
+
+```toml
+[claims]
+    respectClaims = true
+    noGriefingInClaims = true
+    inClaims = "VANILLA_ONLY"   # ALLOW | VANILLA_ONLY | NO_SPAWNS
+```
+
+Worth knowing **why this is needed**, because it looks like it shouldn't be: `break_blocks` already
+asks NeoForge's `canEntityGrief` hook, which is how a protection mod vetoes griefing. But FTB Chunks
+protects *explosions* in claims and doesn't cover general mob block-breaking — there's an [open
+feature request for Wither protection](https://github.com/FTBTeam/FTB-Mods-Issues/issues/1144) for
+exactly that reason. So the hook fires, FTB declines to answer, and the claim does nothing. ZombieMod
+closes the gap from its own side.
+
+`inClaims` defaults to `VANILLA_ONLY` rather than `NO_SPAWNS`: keeping *our* mobs out of someone's
+base is this mod's business, while emptying it of vanilla mobs isn't. Set `NO_SPAWNS` if you want
+claims genuinely quiet.
+
+The griefing veto is scoped to ZombieMod's own mobs, for the same reason — silently vetoing griefing
+for every mob in the game would be doing a land-protection mod's job for it, from a mob pack.
+
+There's also a per-genus condition, so one genus can be claim-aware without changing the config:
+
+```json
+{ "type": "zombiemod:in_claim", "value": false }
+```
+
+**All of it is inert without FTB Chunks.** The bridge is reflection over three methods rather than a
+build dependency — no extra Maven repository, no pinned FTB version, and no way for an optional
+integration to break the thing it's optional to. Every failure path answers "not claimed", so the
+worst case is protection quietly doing nothing rather than zombies quietly breaking.
+
+`/zombiemod status` shows whether the link came up.
 
 ## Configuration
 

@@ -216,6 +216,32 @@ public final class SpawnConditions {
         }
     }
 
+    /**
+     * Inside (or outside) a land claim.
+     *
+     * <p>Registered whether or not FTB Chunks is installed, and answers "not claimed" when it isn't.
+     * That is the point: a genus file naming this condition must still load on a server without the
+     * mod, or a datapack becomes silently unportable and, worse, stops the world loading.
+     */
+    public record InClaim(boolean value) implements SpawnCondition {
+
+        public static final Identifier TYPE = id("in_claim");
+
+        public static final MapCodec<InClaim> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Codec.BOOL.optionalFieldOf("value", true).forGetter(InClaim::value))
+                .apply(i, InClaim::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public boolean test(Level level, BlockPos pos) {
+            return com.sablednah.zombiemod.compat.FtbChunks.isClaimed(level, pos) == value;
+        }
+    }
+
     /** Inverts a condition — "anywhere but the Nether", "not in daylight". */
     public record Not(SpawnCondition condition) implements SpawnCondition {
 
