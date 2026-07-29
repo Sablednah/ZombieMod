@@ -1,6 +1,6 @@
 # The shipped roster
 
-41 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+42 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -109,6 +109,7 @@ He cannot hurt you. That's the point.
 | **Big Breaker** | 2 | Rare, 70 HP, 1.7× scale, slow and armoured. Eats everything the Breaker does *plus deepslate and cobbled deepslate* — so hiding in the deep dark is no longer hiding. |
 | **Infester** | 4 | The same, except what it breaks becomes infested stone. The old `INFEST`. |
 | **Archer** | 7 | A *skeleton*, so it visibly draws the bow — the pose only exists on the skeleton renderer. Uses vanilla's own bow goal. |
+| **Lazer** | 2 | Keeps its distance and burns you with a **real guardian beam** — achieved by parenting an invisible Guardian to it, the only way that beam can exist. |
 | **Spitfire** | 5 | Fires small fireballs. The old `LAZER`, finally doing something an archer doesn't. |
 | **Weaver** | 6 | Climbs, and cobwebs the ground you're standing on. The old `WEB`. |
 | **Zomborg** | 3 | Learns what hurt it. Take four swings with a sword and the fifth barely registers — switch weapons. The old `BORG`, and the memory survives a restart. |

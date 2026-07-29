@@ -70,6 +70,7 @@ Worth being explicit so nobody spends a weekend on them.
 | Trope | Why |
 |-------|-----|
 | **Custom models** — lickers, crawling torsos, distended jaws | Needs a client mod. Vanilla clients can only render vanilla mob shapes. This is the wall the whole design is built against. |
+| **Renderer-bound effects** — the guardian beam, the skeleton's bow draw, the creeper swell | Each is drawn by one specific renderer. Sometimes there's a way round: the beam works by *parenting an invisible guardian* (see `beam`), the swell is approximated with the `scale` attribute, and the bow draw simply requires a skeleton `base`. Sometimes there isn't. |
 | **Creeper-style swell on a non-creeper** | Renderer-bound. *Approximated* by ramping the `scale` attribute — see `zombiemod:fuse`. |
 | **Grabs and pins** — the Jockey riding you, Smoker constricting | Vanilla has no player-restraint primitive. Could fake it with a mount, but the camera is wrong and players hate losing control. |
 | **Dismemberment / partial damage** | No vanilla concept of limb state on a mob. |

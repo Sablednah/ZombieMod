@@ -863,6 +863,129 @@ public final class Abilities {
         }
     }
 
+    /**
+     * A guardian beam, from something that is not a guardian.
+     *
+     * <p>The beam is drawn entirely by {@code GuardianRenderer} from the guardian's synced attack
+     * target, and no other renderer draws one — so unlike most things here it cannot be faked with
+     * particles and cannot be given to a zombie directly. What can be done is what it looks like:
+     * park a real Guardian, invisible and inert, inside the caster's head and point it at the
+     * victim. The client then renders a genuine beam between the two.
+     *
+     * <p>The guardian is invisible, silent, invulnerable, AI-less and never persists; it is moved to
+     * the caster every tick so the beam tracks, and discarded when the beam ends. Damage is applied
+     * by us at the end, so the guardian is scenery rather than a second attacker.
+     */
+    public record Beam(int interval, float chance, double range, float damage, int duration,
+            boolean elder) implements Ability {
+
+        public static final Identifier TYPE = id("beam");
+
+        public static final MapCodec<Beam> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Abilities.<Beam>intervalField(120),
+                Abilities.<Beam>chanceField(0.5F),
+                Codec.DOUBLE.optionalFieldOf("range", 20.0D).forGetter(Beam::range),
+                Codec.FLOAT.optionalFieldOf("damage", 6.0F).forGetter(Beam::damage),
+                Codec.INT.optionalFieldOf("duration", 60).forGetter(Beam::duration),
+                Codec.BOOL.optionalFieldOf("elder", false).forGetter(Beam::elder))
+                .apply(i, Beam::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        /** Never called - stateful. */
+        @Override
+        public void run(ServerLevel level, Mob mob) {}
+
+        @Override
+        public State newState() {
+            return new BeamState(this);
+        }
+    }
+
+    /** One beam's lifetime: acquire, hold, fire, clean up. */
+    private static final class BeamState implements Ability.State {
+
+        private final Beam beam;
+        private net.minecraft.world.entity.monster.Guardian emitter;
+        private LivingEntity victim;
+        private int remaining;
+        private int cooldown;
+
+        BeamState(Beam beam) {
+            this.beam = beam;
+        }
+
+        @Override
+        public void tick(ServerLevel level, Mob mob) {
+            if (remaining > 0) {
+                advance(level, mob);
+                return;
+            }
+            if (--cooldown > 0) {
+                return;
+            }
+            cooldown = beam.interval();
+            if (mob.getRandom().nextFloat() >= beam.chance()) {
+                return;
+            }
+            start(level, mob);
+        }
+
+        private void start(ServerLevel level, Mob mob) {
+            LivingEntity target = mob.getTarget();
+            if (target == null || !target.isAlive() || target.distanceToSqr(mob) > beam.range() * beam.range()
+                    || !mob.hasLineOfSight(target)) {
+                return;
+            }
+            var type = beam.elder()
+                    ? net.minecraft.world.entity.EntityType.ELDER_GUARDIAN
+                    : net.minecraft.world.entity.EntityType.GUARDIAN;
+            if (!(type.create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED)
+                    instanceof net.minecraft.world.entity.monster.Guardian guardian)) {
+                return;
+            }
+            guardian.setInvisible(true);
+            guardian.setSilent(true);
+            guardian.setInvulnerable(true);
+            guardian.setNoAi(true);
+            guardian.setNoGravity(true);
+            guardian.snapTo(mob.getX(), mob.getEyeY() - 0.2D, mob.getZ(), mob.getYRot(), 0.0F);
+            level.addFreshEntity(guardian);
+            guardian.setActiveAttackTarget(target.getId());
+
+            this.emitter = guardian;
+            this.victim = target;
+            this.remaining = beam.duration();
+        }
+
+        private void advance(ServerLevel level, Mob mob) {
+            remaining--;
+            boolean broken = emitter == null || !emitter.isAlive() || victim == null || !victim.isAlive()
+                    || !mob.isAlive() || victim.distanceToSqr(mob) > beam.range() * beam.range();
+
+            if (!broken) {
+                // Follow the caster so the beam originates from it rather than from where it stood.
+                emitter.snapTo(mob.getX(), mob.getEyeY() - 0.2D, mob.getZ(), mob.getYRot(), 0.0F);
+                emitter.setActiveAttackTarget(victim.getId());
+            }
+
+            if (remaining <= 0 || broken) {
+                if (!broken) {
+                    victim.hurtServer(level, level.damageSources().indirectMagic(mob, mob), beam.damage());
+                }
+                if (emitter != null) {
+                    emitter.discard();
+                }
+                emitter = null;
+                victim = null;
+                remaining = 0;
+            }
+        }
+    }
+
     // ------------------------------------------------------------------ flavour
 
     /** Emit particles. Pure decoration, and the cheapest way to make a genus recognisable. */

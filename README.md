@@ -306,6 +306,7 @@ First firings are staggered per mob, so a horde that spawned together doesn't ac
 | `zombiemod:break_blocks` | `allowed`, `reach`, `infest` — chew through walls when the path is blocked |
 | `zombiemod:projectile` | `projectile`, `range`, `power`, `inaccuracy` — fire something |
 | `zombiemod:place_block` | `block`, `target`, `radius`, `air_only` — cobweb the victim |
+| `zombiemod:beam` | `range`, `damage`, `duration`, `elder` — a real guardian beam, from anything |
 | `zombiemod:adapt` | `resistance`, `max_adaptations` — learn what hurt it and stop taking it |
 | `zombiemod:teleport` | `mode`, `range`, `distance`, `only_when_unseen`, `min_distance`, `on_projectile`, `vanish_chance` — see below |
 | `zombiemod:particles` | `particle`, `count`, `spread` |
@@ -317,6 +318,19 @@ Two defaults worth knowing. `explode` has `destroy_blocks: false` — a zombie t
 a very different proposition from one that hurts, so griefing is opt-in. And it only fires when
 something is actually within `trigger_radius`, or an interval-timed bomb is just a mob that deletes
 itself in an empty field.
+
+#### The beam
+
+`beam` is the one thing here that cannot be faked. A guardian's beam is drawn entirely by
+`GuardianRenderer` from that guardian's synced attack target, and no other renderer draws one — so
+particles can't imitate it and a zombie can't be given one.
+
+What *can* be done is give the zombie a guardian. The ability parks a real Guardian — invisible,
+silent, inert, never persisted — inside the caster's head, points it at the victim, and moves it with
+the caster each tick so the beam tracks. The client then renders a genuine beam between the two.
+Damage is applied by us at the end, so the guardian is scenery rather than a second attacker.
+
+`elder: true` uses an Elder Guardian for the wider beam. Patient Zero's final phase uses that.
 
 #### Breaking things
 
@@ -389,9 +403,9 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**41 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+**42 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
 Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg, Ghost, Outrider, Big Breaker. They're ordinary datapack files, so override or delete any of
+Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg, Ghost, Outrider, Big Breaker, Lazer. They're ordinary datapack files, so override or delete any of
 them from a higher-priority datapack.
 
 See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and

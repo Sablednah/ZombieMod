@@ -37,6 +37,7 @@ public final class AbilityTypes {
         register(Abilities.Projectile.TYPE, Abilities.Projectile.CODEC);
         register(Abilities.PlaceBlock.TYPE, Abilities.PlaceBlock.CODEC);
         register(Abilities.Adapt.TYPE, Abilities.Adapt.CODEC);
+        register(Abilities.Beam.TYPE, Abilities.Beam.CODEC);
         register(Abilities.Particles.TYPE, Abilities.Particles.CODEC);
         register(Abilities.Sound.TYPE, Abilities.Sound.CODEC);
     }

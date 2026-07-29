@@ -155,6 +155,15 @@
           "mode": "behind",
           "range": 24.0,
           "distance": 2.0
+        },
+        {
+          "type": "zombiemod:beam",
+          "interval": 100,
+          "chance": 0.6,
+          "range": 24.0,
+          "damage": 8.0,
+          "duration": 60,
+          "elder": true
         }
       ],
       "announce": "title_and_chat"
