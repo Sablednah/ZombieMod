@@ -659,66 +659,45 @@ so they travel with the save. **The file doesn't exist until you've loaded the w
 
 | Command | |
 |---------|--|
-| `/zombiemod list` | What genera the loaded datapacks define. |
+| `/zombiemod list` | Every genus the loaded datapacks define. |
 | `/zombiemod spawn <genus>` | Spawn one where you're **looking**, up to 48 blocks. |
-| `/zombiemod spawn <genus> <x> <y> <z>` | Spawn one at a position. Accepts `~ ~ ~` relative and `^ ^ ^5` local coords — so `^ ^ ^5` is "five blocks in front of me". Works from the console and command blocks. |
-
-Both require permission level `LEVEL_GAMEMASTERS` (op 2). `spawn` accepts either the full id
-(`zombiemod:coward`) or just the name (`coward`), and tab-completes both.
-
+| `/zombiemod spawn <genus> <x> <y> <z>` | Spawn one at a position. Accepts `~ ~ ~` relative and `^ ^ ^5` local — so `^ ^ ^5` is "five blocks in front of me". Works from the console and command blocks. |
+| `/zombiemod status` | What the mod believes its settings are, whether the corpse genus resolved, and whether FTB Chunks linked. **Start here when something seems not to work.** |
 | `/zombiemod observe [on\|off]` | Take no damage while staying a completely normal target. |
+| `/zombiemod corpse list [player]` | Every recorded player corpse, newest first. |
+| `/zombiemod corpse give <player> [n]` | Hand a corpse's items back. |
+| `/zombiemod corpse respawn <player> [n]` | Rebuild a corpse where it fell. |
+| `/zombiemod corpse forget <player> [n]` | Drop the record. |
+
+All require permission level `LEVEL_GAMEMASTERS` (op 2).
 
 `observe` exists because the usual ways to survive a test don't work here. Creative mode and every
 god-mode command set vanilla's invulnerable flag, and `LivingEntity.canBeSeenAsEnemy()` is
-`!isInvulnerable() && canBeSeenByAnyone()` — so an invulnerable player is one no zombie will ever
-walk towards. Useless when the thing you're testing *is* what zombies do.
-
-Observer mode changes nothing about the player: you're targeted, chased, swung at, knocked back and
-teleported behind exactly as before, and the damage is cancelled on arrival. Knockback still lands,
-so a Tank's shockwave still throws you across the room. It survives death and relogging, and says so
-when you join.
+`!isInvulnerable() && canBeSeenByAnyone()` — so an invulnerable player is one no zombie will ever walk
+towards. Useless when the thing you're testing *is* what zombies do. Observer mode changes nothing
+about the player: you're targeted, chased, swung at, knocked back and teleported behind exactly as
+before, and the damage is cancelled on arrival. Knockback still lands.
 
 There is deliberately **no** `/zombiemod reload` — genera are datapack data, so vanilla `/reload`
 already does the job.
 
 ## Status
 
-Working:
+**Alpha, but broadly working.** 43 genera, every ability from the 1.8 plugin rebuilt, and most of it
+confirmed in play. See [`docs/STATUS.md`](docs/STATUS.md) for what's verified, what's built but
+untested, and what's left — including the two things still missing from the original (proximity
+spawning, and bounty pending an economy decision).
 
-- Genera as a datapack registry, hot-reloadable
-- AI assembled from JSON, with vanilla goals as the building blocks
-- Attributes, scale, dyed armour, custom names
-- Genus survives world save/reload (goals are rebuilt, attributes persist in NBT)
-- Weighted spawning with per-genus conditions (biome, dimension, height, light, spawn reason),
-  and a configurable share of spawns left vanilla
-- Abilities: potion effects, healing, lightning, explosions, shockwaves, particles, sounds
+Known limitations worth knowing before you write a genus:
 
-Not yet:
-
-- **Genera don't add spawns of their own** (by default). They claim spawns the base mob was already making, so a
-  world has the same number of zombies as vanilla — just more varied ones. Choosing *which* genus
-  appears where already works (`spawn.biomes` takes a biome tag, so swamp- or ice-flavoured zombies
-  are a datapack away); making a swamp spawn *more* zombies than vanilla needs
-  `neoforge:add_spawns` biome modifiers — a worked example is in
-  [`docs/examples/add_spawns_biome_modifier.json`](docs/examples/add_spawns_biome_modifier.json).
-  Not shipped enabled, because silently changing vanilla spawn rates on install would be rude.
-- **No CityWorld integration yet.** The condition registry is in place for it; the adapter itself —
-  "only in the wilderness", "only on a city lot" — isn't written.
-- Sound-driven aggro, horde events, boss encounters. See
-  [`docs/TROPES.md`](docs/TROPES.md) for the full survey of what's missing and what each needs.
-- Navigation swapping (spider climbing), mounts/jockeys.
-- Richer appearance: player-head faces via the `minecraft:profile` component, which would give each
-  genus a distinct face on a vanilla client.
-- Optional client mod for real models and animation.
-
-**A malformed genus file stops the world loading**, rather than being skipped — that's how vanilla
-treats every datapack registry, but it bites harder here because these files are meant to be
-hand-written. The server log names the file and the field; check it before assuming a world is
-corrupt.
-
-Known limitation: goal targets come from a fixed list of classes, because vanilla's targeting goals
-are typed on a Java class rather than an entity id. So "avoid wolves" works; "avoid a modded mob"
-does not, yet.
+- **Goal targets** come from a fixed name→class list, because vanilla's targeting goals are typed on a
+  Java class rather than an entity id. "Avoid wolves" works; "avoid a modded mob" doesn't.
+- **A malformed genus file stops the world loading** rather than being skipped — standard
+  datapack-registry behaviour, harsher here because these files are hand-written. The log names the
+  file and the field.
+- **Renderer-bound effects** can't simply be handed to any mob. Sometimes there's a way round (the
+  guardian beam, the creeper-style swell, the bow draw) and sometimes there isn't. See
+  [`docs/TROPES.md`](docs/TROPES.md).
 
 ## Building from source
 

@@ -4,8 +4,14 @@
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
-Weights are relative, drawn against `vanillaWeight` in the config (default 200). In a typical dark
-overworld spot the eligible genera total roughly 190, so a little over half of zombies stay plain.
+Weights are relative, drawn against `vanillaWeight` in the config (default 200) — and crucially the
+draw is **per base mob**, so a husk genus only competes with other husk genera. Archer at weight 7
+gets essentially every eligible skeleton spawn, because nothing else wants skeletons.
+
+**The balance has drifted as the roster grew.** `vanillaWeight = 200` was set when the genera totalled
+about 190; they now total 265 on zombies alone, so roughly half of all eligible zombie spawns become a
+genus at night and slightly more underground. That may well be right for a mod called ZombieMod, but
+it's worth a deliberate decision rather than an accident — raising `vanillaWeight` is the one dial.
 
 ## Speed horror — *28 Days Later*, *Dying Light*
 

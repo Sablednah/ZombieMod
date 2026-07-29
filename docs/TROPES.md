@@ -87,8 +87,7 @@ always the scary half.
 
 ## The one I'd build next
 
-The **boss-zombie list** above, in order: boss bar, then the use-item summon trigger, then structure
-patterns, then phases and loot.
+**`convert`** — turning what you kill into one of them. The single most load-bearing idea in the
+genre, and the mod still has no answer to it. It's also where "kill it before it turns" lives.
 
-After that **`convert`** — turning what you kill into one of them. It's the single most load-bearing
-idea in the genre and the mod currently has no answer to it.
+Full ordering, and what's already done, is in [STATUS.md](STATUS.md).

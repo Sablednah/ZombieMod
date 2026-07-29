@@ -44,12 +44,29 @@ reachable, not that the code was translated.
 
 ## What's actually left
 
-Every ability from the original is now covered. Two systems and one dependency remain:
+**Every ability from the original is covered.** What remains:
 
 - **Proximity spawning** — `ProximitySystems` put zombies just out of sight around each player,
   ignoring vanilla's rules and scaling with distance from world spawn. "There are more of them than
   there should be, and they're already close" is a different feeling from riding the vanilla spawn
-  table, and it's the last real gap.
+  table, and it's the last real gap in how the mod *feels*.
 - **Angry iron golems** — probably just `base: minecraft:iron_golem` on a genus. Untested.
 - **Bounty** — waiting on an economy decision. There is no Vault equivalent on NeoForge; Impactor is
-  the closest thing to a common API, and it isn't on 1.21.11 yet.
+  the closest thing to a common API and isn't on 1.21.11. `xp` on the genus covers most of the intent.
+
+Live status, including what's built but unverified, is in [STATUS.md](STATUS.md).
+
+## Things the port does that the original didn't
+
+Worth recording, because "port" undersells some of it:
+
+| | |
+|---|---|
+| Spawn conditions | biome, dimension, height, light, time, sky, claims — the original had none |
+| Behaviours | the same genus docile by day and hunting at night |
+| Bosses | boss bars, health phases, loot tables, summon rituals with block patterns |
+| Corpse recovery | a durable ledger, so a lost player zombie is recoverable rather than gone |
+| Charged rays | an audible, abortable wind-up |
+| Land claims | FTB Chunks awareness, which didn't exist to integrate with |
+| Survives restart | the original lost every player zombie on shutdown — its own README said so |
+| Skins on vanilla clients | player heads, where the original needed Spout on every client |
