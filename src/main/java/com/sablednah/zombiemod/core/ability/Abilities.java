@@ -767,7 +767,12 @@ public final class Abilities {
             double dx = victim.getX() - mob.getX();
             double dy = victim.getEyeY() - shot.getY();
             double dz = victim.getZ() - mob.getZ();
-            shot.shoot(dx, dy + Math.sqrt(dx * dx + dz * dz) * 0.2D, dz, (float) power, (float) inaccuracy);
+            // Arc compensation is for projectiles that fall. Fireballs and their kin fly straight,
+            // so adding lift for them simply sends the shot over the victim's head - which is
+            // exactly what Spitfire was doing.
+            boolean falls = !(shot instanceof net.minecraft.world.entity.projectile.hurtingprojectile.AbstractHurtingProjectile);
+            double lift = falls ? Math.sqrt(dx * dx + dz * dz) * 0.2D : 0.0D;
+            shot.shoot(dx, dy + lift, dz, (float) power, (float) inaccuracy);
             level.addFreshEntity(shot);
         }
     }
@@ -905,6 +910,9 @@ public final class Abilities {
         }
     }
 
+    /** Where a live beam emitter is recorded on its caster, so it can be cleaned up externally. */
+    public static final String EMITTER_TAG = "zombiemod:beam_emitter";
+
     /** One beam's lifetime: acquire, hold, fire, clean up. */
     private static final class BeamState implements Ability.State {
 
@@ -947,7 +955,12 @@ public final class Abilities {
                     instanceof net.minecraft.world.entity.monster.Guardian guardian)) {
                 return;
             }
-            guardian.setInvisible(true);
+            // NOT setInvisible: LivingEntity.updateInvisibilityStatus() runs every tick and calls
+            // setInvisible(false) whenever the entity has no active effects, so the flag survives
+            // exactly one tick. The effect is the thing that persists.
+            guardian.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.INVISIBILITY,
+                    net.minecraft.world.effect.MobEffectInstance.INFINITE_DURATION, 0, false, false, false));
             guardian.setSilent(true);
             guardian.setInvulnerable(true);
             guardian.setNoAi(true);
@@ -955,6 +968,10 @@ public final class Abilities {
             guardian.snapTo(mob.getX(), mob.getEyeY() - 0.2D, mob.getZ(), mob.getYRot(), 0.0F);
             level.addFreshEntity(guardian);
             guardian.setActiveAttackTarget(target.getId());
+            // Remember it on the caster. A goal stops ticking the instant its mob dies, so the
+            // state cannot clean up after itself - and an orphaned emitter carries on beaming the
+            // player with nothing left alive to stop it.
+            mob.getPersistentData().putString(EMITTER_TAG, guardian.getUUID().toString());
 
             this.emitter = guardian;
             this.victim = target;
@@ -979,10 +996,73 @@ public final class Abilities {
                 if (emitter != null) {
                     emitter.discard();
                 }
+                mob.getPersistentData().remove(EMITTER_TAG);
                 emitter = null;
                 victim = null;
                 remaining = 0;
             }
+        }
+    }
+
+    /**
+     * A hitscan beam drawn with particles — the other way to do a laser.
+     *
+     * <p>Where {@code beam} borrows a real guardian and gets the authentic look at the cost of a
+     * second entity to manage, this draws the line itself: pick the victim, step particles along the
+     * ray, apply the damage. No entity, no cleanup, nothing to leak, and the colour is yours —
+     * {@code minecraft:dust} with an RGB and a scale reads as a proper coloured laser, and
+     * {@code minecraft:sonic_boom} borrows the Warden's look.
+     *
+     * <p>Instant by design. There is no travel time to dodge, which makes it meaningfully different
+     * from {@code projectile} rather than a reskin of it — if it can see you, it has hit you.
+     */
+    public record Ray(int interval, float chance, double range, float damage, ParticleOptions particle,
+            double density, boolean ignite) implements Ability {
+
+        public static final Identifier TYPE = id("ray");
+
+        public static final MapCodec<Ray> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Abilities.<Ray>intervalField(60),
+                Abilities.<Ray>chanceField(0.6F),
+                Codec.DOUBLE.optionalFieldOf("range", 20.0D).forGetter(Ray::range),
+                Codec.FLOAT.optionalFieldOf("damage", 4.0F).forGetter(Ray::damage),
+                Particles.PARTICLE_CODEC.optionalFieldOf("particle", ParticleTypes.END_ROD)
+                        .forGetter(Ray::particle),
+                Codec.DOUBLE.optionalFieldOf("density", 4.0D).forGetter(Ray::density),
+                Codec.BOOL.optionalFieldOf("ignite", false).forGetter(Ray::ignite))
+                .apply(i, Ray::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public void run(ServerLevel level, Mob mob) {
+            LivingEntity victim = mob.getTarget();
+            if (victim == null || !victim.isAlive() || victim.distanceToSqr(mob) > range * range
+                    || !mob.hasLineOfSight(victim)) {
+                return;
+            }
+
+            Vec3 from = mob.getEyePosition();
+            Vec3 to = victim.getEyePosition().subtract(0.0D, victim.getBbHeight() * 0.25D, 0.0D);
+            Vec3 along = to.subtract(from);
+            int steps = Math.max(2, (int) (along.length() * density));
+
+            for (int i = 0; i <= steps; i++) {
+                Vec3 at = from.add(along.scale((double) i / steps));
+                // Count 0 with zero speed means "exactly one particle, exactly here" - otherwise
+                // the server scatters them and the line reads as a cloud rather than a beam.
+                level.sendParticles(particle, at.x, at.y, at.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
+            }
+
+            victim.hurtServer(level, level.damageSources().indirectMagic(mob, mob), damage);
+            if (ignite) {
+                victim.igniteForSeconds(4.0F);
+            }
+            level.playSound(null, mob.getX(), mob.getY(), mob.getZ(),
+                    net.minecraft.sounds.SoundEvents.GUARDIAN_ATTACK, SoundSource.HOSTILE, 1.0F, 1.4F);
         }
     }
 
@@ -1000,7 +1080,7 @@ public final class Abilities {
          * bare id as well and keep genus files readable. The object form still works for the ones
          * that need it (dust colours, block/item particles).
          */
-        private static final Codec<ParticleOptions> PARTICLE_CODEC = Codec.withAlternative(
+        static final Codec<ParticleOptions> PARTICLE_CODEC = Codec.withAlternative(
                 ParticleTypes.CODEC,
                 Identifier.CODEC.comapFlatMap(
                         pid -> BuiltInRegistries.PARTICLE_TYPE.getValue(pid) instanceof SimpleParticleType simple

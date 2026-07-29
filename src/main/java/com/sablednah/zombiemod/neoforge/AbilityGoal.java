@@ -64,24 +64,33 @@ final class AbilityGoal extends Goal {
 
     @Override
     public void tick() {
-        if (++ticks < ability.interval()) {
-            return;
-        }
-        ticks = 0;
-
-        if (ability.chance() < 1.0F && mob.getRandom().nextFloat() >= ability.chance()) {
-            return;
-        }
         if (!(mob.level() instanceof ServerLevel level) || !mob.isAlive()) {
             return;
         }
 
-        try {
-            if (state != null) {
+        // A stateful ability ticks every tick and owns its own timing - which is what
+        // Ability.newState() promises. Applying the interval gate on top as well meant a beam that
+        // needed to hold and track every tick was only touched once every 120, so it never
+        // progressed and never followed its caster.
+        if (state != null) {
+            try {
                 state.tick(level, mob);
-            } else {
-                ability.run(level, mob);
+            } catch (Exception e) {
+                LOG.error("ZombieMod ability {} failed on {}", ability.type(), mob.getType(), e);
             }
+            return;
+        }
+
+        if (++ticks < ability.interval()) {
+            return;
+        }
+        ticks = 0;
+        if (ability.chance() < 1.0F && mob.getRandom().nextFloat() >= ability.chance()) {
+            return;
+        }
+
+        try {
+            ability.run(level, mob);
         } catch (Exception e) {
             // One bad ability must not take the entity's whole tick down with it, and a datapack
             // author needs to see which one.

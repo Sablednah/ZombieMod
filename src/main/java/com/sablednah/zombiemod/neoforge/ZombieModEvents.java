@@ -169,8 +169,27 @@ public final class ZombieModEvents {
      */
     @SubscribeEvent
     public void onLeaveLevel(EntityLeaveLevelEvent event) {
-        if (!event.getLevel().isClientSide()) {
-            BossBars.remove(event.getEntity().getId());
+        if (event.getLevel().isClientSide()) {
+            return;
+        }
+        BossBars.remove(event.getEntity().getId());
+
+        // A beam's emitter is a separate entity, and a dead caster's goals stop ticking before the
+        // beam can end itself - so without this the guardian keeps firing at the player forever.
+        if (event.getEntity() instanceof Mob mob && event.getLevel() instanceof ServerLevel level) {
+            mob.getPersistentData().getString(com.sablednah.zombiemod.core.ability.Abilities.EMITTER_TAG)
+                    .ifPresent(id -> {
+                        try {
+                            var emitter = level.getEntity(java.util.UUID.fromString(id));
+                            if (emitter != null) {
+                                emitter.discard();
+                            }
+                        } catch (IllegalArgumentException ignored) {
+                            // malformed tag; nothing to clean up
+                        }
+                        mob.getPersistentData().remove(
+                                com.sablednah.zombiemod.core.ability.Abilities.EMITTER_TAG);
+                    });
         }
     }
 

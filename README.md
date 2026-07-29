@@ -307,6 +307,7 @@ First firings are staggered per mob, so a horde that spawned together doesn't ac
 | `zombiemod:projectile` | `projectile`, `range`, `power`, `inaccuracy` — fire something |
 | `zombiemod:place_block` | `block`, `target`, `radius`, `air_only` — cobweb the victim |
 | `zombiemod:beam` | `range`, `damage`, `duration`, `elder` — a real guardian beam, from anything |
+| `zombiemod:ray` | `range`, `damage`, `particle`, `density`, `ignite` — a hitscan beam drawn with particles |
 | `zombiemod:adapt` | `resistance`, `max_adaptations` — learn what hurt it and stop taking it |
 | `zombiemod:teleport` | `mode`, `range`, `distance`, `only_when_unseen`, `min_distance`, `on_projectile`, `vanish_chance` — see below |
 | `zombiemod:particles` | `particle`, `count`, `spread` |
@@ -331,6 +332,21 @@ the caster each tick so the beam tracks. The client then renders a genuine beam 
 Damage is applied by us at the end, so the guardian is scenery rather than a second attacker.
 
 `elder: true` uses an Elder Guardian for the wider beam. Patient Zero's final phase uses that.
+
+**`ray` is the other way to do it**, and often the better one: it draws the line itself with
+particles and applies the damage, so there's no second entity to manage and nothing to leak. The
+trade is look — it won't be a guardian beam, but the colour is yours:
+
+```json
+{ "type": "zombiemod:ray", "range": 20.0, "damage": 4.0, "density": 6.0,
+  "particle": { "type": "minecraft:dust", "color": 16711680, "scale": 1.0 } }
+```
+
+`minecraft:dust` takes any RGB and reads as a proper coloured laser; `minecraft:sonic_boom` borrows
+the Warden's look; `end_rod` and `electric_spark` both work well. `density` is particles per block.
+
+Both are instant and unavoidable once fired, which is what makes them different from `projectile`
+rather than a reskin of it.
 
 #### Breaking things
 
@@ -403,9 +419,9 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**42 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+**43 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
 Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg, Ghost, Outrider, Big Breaker, Lazer. They're ordinary datapack files, so override or delete any of
+Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg, Ghost, Outrider, Big Breaker, Lazer, Howler. They're ordinary datapack files, so override or delete any of
 them from a higher-priority datapack.
 
 See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and

@@ -1,13 +1,13 @@
 {
-  "name": "Lazer",
+  "name": "Howler",
   "base": "minecraft:zombie",
   "weight": 2,
-  "health": 26.0,
-  "damage": 1.0,
-  "speed": 0.85,
-  "follow_range": 32.0,
-  "scale": 1.05,
-  "armor_color": 1994362,
+  "health": 30.0,
+  "damage": 2.0,
+  "speed": 0.9,
+  "follow_range": 28.0,
+  "scale": 1.1,
+  "armor_color": 1784394,
   "xp": 20,
   "spawn": {
     "conditions": [
@@ -20,6 +20,10 @@
       {
         "type": "zombiemod:light",
         "max": 7
+      },
+      {
+        "type": "zombiemod:height",
+        "max": 20
       }
     ]
   },
@@ -30,24 +34,20 @@
       "priority": 0
     },
     {
-      "type": "zombiemod:avoid_entity",
-      "priority": 2,
-      "target": "player",
-      "distance": 6.0,
-      "walk_speed": 1.0,
-      "sprint_speed": 1.2
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 0.9
     },
     {
       "type": "zombiemod:random_stroll",
       "priority": 7,
-      "speed": 0.7
+      "speed": 0.6
     },
     {
       "type": "zombiemod:look_at",
       "priority": 8,
       "target": "player",
-      "distance": 32.0,
-      "probability": 0.9
+      "distance": 28.0
     },
     {
       "type": "zombiemod:random_look",
@@ -68,22 +68,20 @@
   "abilities": [
     {
       "type": "zombiemod:ray",
-      "interval": 70,
-      "chance": 0.7,
-      "range": 20.0,
-      "damage": 4.0,
-      "density": 6.0,
-      "particle": {
-        "type": "minecraft:dust",
-        "color": 16711680,
-        "scale": 1.0
-      }
+      "interval": 100,
+      "chance": 0.6,
+      "range": 24.0,
+      "damage": 6.0,
+      "density": 2.0,
+      "particle": "minecraft:sonic_boom"
     },
     {
-      "type": "zombiemod:particles",
-      "interval": 15,
-      "particle": "minecraft:electric_spark",
-      "count": 2
+      "type": "zombiemod:sound",
+      "interval": 100,
+      "chance": 0.6,
+      "sound": "minecraft:entity.warden.roar",
+      "volume": 1.0,
+      "pitch": 1.2
     }
   ]
 }
