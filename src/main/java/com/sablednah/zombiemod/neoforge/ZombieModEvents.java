@@ -205,6 +205,31 @@ public final class ZombieModEvents {
      * change all remove the entity without killing it, and each one would otherwise strand a bar on
      * someone's screen with nothing left alive to clear it.
      */
+    /**
+     * Give abilities a chance to react to a kill.
+     *
+     * <p>Reads the killer from the damage source rather than the victim, so it fires for the thing
+     * that did it. Guarded on the genus tag first, which is a cheap string read and skips every
+     * ordinary death in the world.
+     */
+    @SubscribeEvent
+    public void onDeath(net.neoforged.neoforge.event.entity.living.LivingDeathEvent event) {
+        if (!(event.getEntity().level() instanceof ServerLevel level)) {
+            return;
+        }
+        if (!(event.getSource().getEntity() instanceof Mob killer)) {
+            return;
+        }
+        if (killer.getPersistentData().getString(GenusApplier.GENUS_TAG).isEmpty()) {
+            return;
+        }
+        GenusApplier.genusOf(killer, level).ifPresent(holder -> {
+            for (Ability ability : holder.value().abilities()) {
+                ability.onKill(level, killer, event.getEntity());
+            }
+        });
+    }
+
     @SubscribeEvent
     public void onLeaveLevel(EntityLeaveLevelEvent event) {
         if (event.getLevel().isClientSide()) {

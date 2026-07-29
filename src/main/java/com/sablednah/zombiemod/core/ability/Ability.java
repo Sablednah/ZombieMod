@@ -72,6 +72,15 @@ public interface Ability {
         return amount;
     }
 
+    /**
+     * React to killing something.
+     *
+     * <p>The third kind of trigger, after "on a timer" and "when hurt". Conversion needs it: what a
+     * zombie kills getting up as one of them is the defining idea of the genre, and it is neither a
+     * habit nor a response to damage.
+     */
+    default void onKill(ServerLevel level, Mob mob, net.minecraft.world.entity.LivingEntity victim) {}
+
     /** Per-mob state for a stateful ability. */
     interface State {
         void tick(ServerLevel level, Mob mob);

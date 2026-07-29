@@ -40,6 +40,9 @@ public class ZombieMod {
         modEventBus.addListener(ZombieModRegistries::register);
         modContainer.registerConfig(ModConfig.Type.SERVER, ZombieModConfig.SPEC);
 
+        com.sablednah.zombiemod.core.ability.Convert.setRaiser(
+                com.sablednah.zombiemod.neoforge.Conversions::raise);
+
         NeoForge.EVENT_BUS.register(new ZombieModEvents());
         NeoForge.EVENT_BUS.register(new RitualHandler());
         NeoForge.EVENT_BUS.register(new LootHandler());

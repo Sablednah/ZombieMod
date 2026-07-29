@@ -25,7 +25,6 @@ features.
 | Trope | Needs | Notes |
 |-------|-------|-------|
 | **Smoker tongue (real)** | `tether` ability | Persistent pull with line-of-sight break, rather than one shove. |
-| **Infector** | `convert` ability | Turn a killed *villager or mob* into a genus. The player half of this shipped — see player zombies in the README. |
 | **Spitter (projectile)** | `projectile` ability | Actually fire something — arrow, snowball, small fireball — instead of an aura. |
 | **Necromancer** | `resurrect` ability | Re-raise nearby zombie corpses. Needs death tracking. |
 
@@ -79,7 +78,7 @@ Worth being explicit so nobody spends a weekend on them.
 
 ## Done since this was written
 
-**`behaviours`** shipped — conditional goal sets, with a new `zombiemod:time` condition. See
+**`convert`** shipped — see Carrier. **`behaviours`** shipped — conditional goal sets, with a new `zombiemod:time` condition. See
 Nightstalker. **`teleport`** shipped — see Ender Zombie and Weeping Zombie in [ROSTER.md](ROSTER.md).
 **`equipment`** and **`alert`** both shipped — see Rioter, Sapper and Screamer in
 [ROSTER.md](ROSTER.md). Boomer bile is largely covered by `alert` too: the horde-magnet effect was
@@ -87,7 +86,13 @@ always the scary half.
 
 ## The one I'd build next
 
-**`convert`** — turning what you kill into one of them. The single most load-bearing idea in the
-genre, and the mod still has no answer to it. It's also where "kill it before it turns" lives.
+**Proximity spawning** — the last thing missing from the original, and the last real gap in how the
+mod *feels*: zombies appearing just out of sight around each player rather than only riding vanilla's
+spawn table.
+
+After that, **infection as a delay rather than an instant**: `convert` turns a corpse immediately,
+where the trope is bitten now and turns later. An `infected` effect that converts on death from any
+cause within N seconds would be the fuller version — and it would let a player watch it happen to
+someone else.
 
 Full ordering, and what's already done, is in [STATUS.md](STATUS.md).

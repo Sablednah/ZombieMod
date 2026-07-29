@@ -1,0 +1,107 @@
+{
+  "name": "Carrier",
+  "base": "minecraft:zombie",
+  "weight": 5,
+  "health": 26.0,
+  "damage": 4.0,
+  "speed": 1.0,
+  "follow_range": 28.0,
+  "armor_color": 6978106,
+  "xp": 18,
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.8
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 20.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 3,
+      "target": "villager"
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 3,
+      "target": "animal"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:convert",
+      "chance": 1.0,
+      "victims": [
+        "minecraft:villager",
+        "minecraft:wandering_trader",
+        "minecraft:pillager",
+        "minecraft:vindicator",
+        "minecraft:witch",
+        "minecraft:cow",
+        "minecraft:sheep",
+        "minecraft:pig",
+        "minecraft:horse",
+        "minecraft:donkey",
+        "minecraft:mule",
+        "minecraft:llama",
+        "minecraft:goat",
+        "minecraft:iron_golem",
+        "minecraft:snow_golem"
+      ],
+      "max_nearby": 8,
+      "radius": 16.0,
+      "inherit_equipment": true,
+      "inherit_name": true
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 25,
+      "chance": 0.5,
+      "particle": "minecraft:spore_blossom_air",
+      "count": 3
+    }
+  ]
+}

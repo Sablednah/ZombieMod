@@ -307,6 +307,7 @@ First firings are staggered per mob, so a horde that spawned together doesn't ac
 | `zombiemod:break_blocks` | `allowed`, `reach`, `infest` — chew through walls when the path is blocked |
 | `zombiemod:projectile` | `projectile`, `range`, `power`, `inaccuracy` — fire something |
 | `zombiemod:place_block` | `block`, `target`, `radius`, `air_only` — cobweb the victim |
+| `zombiemod:convert` | `victims`, `genus`, `chance`, `max_nearby`, `radius`, `cooldown`, `inherit_equipment`, `inherit_name` — what it kills gets up as one of them |
 | `zombiemod:beam` | `range`, `damage`, `duration`, `elder` — a real guardian beam, from anything |
 | `zombiemod:ray` | `range`, `damage`, `particle`, `density`, `ignite` — a hitscan beam drawn with particles |
 | `zombiemod:adapt` | `resistance`, `max_adaptations` — learn what hurt it and stop taking it |
@@ -320,6 +321,35 @@ Two defaults worth knowing. `explode` has `destroy_blocks: false` — a zombie t
 a very different proposition from one that hurts, so griefing is opt-in. And it only fires when
 something is actually within `trigger_radius`, or an interval-timed bomb is just a mob that deletes
 itself in an empty field.
+
+#### Conversion
+
+`convert` is the defining idea of the genre: what a zombie kills gets up as one of them. It fires on a
+kill, so it's a consequence of the fight rather than something that happens nearby.
+
+```json
+{ "type": "zombiemod:convert",
+  "victims": ["minecraft:villager", "minecraft:cow", "minecraft:pig"],
+  "max_nearby": 8, "cooldown": 20 }
+```
+
+Where vanilla has an undead counterpart the corpse rises as its own kind — a villager becomes a
+**zombie villager**, a piglin a **zombified piglin**, a horse a **zombie horse**. "That used to be my
+villager" lands considerably harder than a generic zombie standing where it fell. Armour and custom
+names are inherited by default.
+
+Four guards, because unchecked this is how a server ends:
+
+- **`victims` has no default.** A genus must name what it can turn. Converting anything that dies
+  near a zombie isn't a feature, it's an outage.
+- **Nothing already undead is converted**, so zombies can't endlessly re-raise each other.
+- **`max_nearby`** caps how many of the risen genus may exist within `radius`.
+- **`cooldown`** limits how often one killer may convert at all, default once a second.
+
+That last one exists because `max_nearby` is measured with an entity query, and **an entity query
+can't see what was added earlier in the same tick** — so several kills landing together could each
+pass a cap all of them should have tripped. A rate limit needs nothing from the world to be correct.
+Tested: 40 kills in a single tick produce exactly one conversion.
 
 #### The beam
 
@@ -431,9 +461,9 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**43 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+**44 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
 Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg, Ghost, Outrider, Big Breaker, Lazer, Howler. They're ordinary datapack files, so override or delete any of
+Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg, Ghost, Outrider, Big Breaker, Lazer, Howler, Carrier. They're ordinary datapack files, so override or delete any of
 them from a higher-priority datapack.
 
 See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and

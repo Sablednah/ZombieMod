@@ -107,6 +107,31 @@
       "sound": "minecraft:entity.ravager.roar",
       "volume": 1.6,
       "pitch": 0.4
+    },
+    {
+      "type": "zombiemod:convert",
+      "chance": 1.0,
+      "victims": [
+        "minecraft:villager",
+        "minecraft:wandering_trader",
+        "minecraft:pillager",
+        "minecraft:vindicator",
+        "minecraft:witch",
+        "minecraft:cow",
+        "minecraft:sheep",
+        "minecraft:pig",
+        "minecraft:horse",
+        "minecraft:donkey",
+        "minecraft:mule",
+        "minecraft:llama",
+        "minecraft:goat",
+        "minecraft:iron_golem",
+        "minecraft:snow_golem"
+      ],
+      "max_nearby": 12,
+      "radius": 20.0,
+      "inherit_equipment": true,
+      "inherit_name": true
     }
   ],
   "phases": [

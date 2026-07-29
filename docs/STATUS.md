@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-07-29.
+Last updated 2026-07-30.
 
 ## Built and verified in game
 
@@ -26,6 +26,7 @@ Last updated 2026-07-29.
 | **Block breaking** | Tag-gated, griefing-hook aware, long target memory |
 | **Land claims** | FTB Chunks, by reflection, inert without it. Griefing veto verified in both directions: refuses inside a claim, breaks again the instant the claim is removed. |
 | **XP** | Per genus |
+| **Conversion** | What a genus kills rises as one of them, with an undead-counterpart mapping and four guards |
 | **Commands** | `list`, `spawn`, `status`, `observe`, `corpse …` |
 
 ## Built, not yet verified in game
@@ -37,6 +38,9 @@ Last updated 2026-07-29.
 - **`summon`'s `max_nearby` cap** under real pressure, i.e. a Breeder left alone in a loaded chunk.
 - **Corpse recovery edge cases** — a corpse lost to lava or a mob grinder, then `give`/`respawn`.
 - **Loot tables** — resolution is proven; nobody has watched Patient Zero drop his netherite scrap.
+- **Conversion in play.** The guards are tested (a listed victim rises, an unlisted one doesn't, an
+  undead one never does, and 40 kills in one tick produce exactly one). Nobody has watched a Carrier
+  work through a village, which is the case that matters.
 
 ## Left from the 1.8 plugin
 
@@ -51,9 +55,7 @@ Every ability is done. Two things aren't:
 
 ## Next, in the order I'd do it
 
-1. **`convert`** — turn what you kill into one of them. The biggest idea in the genre and the mod has
-   no answer to it. Also where "kill it before it turns" lives.
-2. **Proximity spawning** — see above.
+1. **Proximity spawning** — see above.
 3. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
