@@ -223,15 +223,17 @@ public final class GoalSpecs {
     // ---------------------------------------------------------------- targeting (targetSelector)
 
     /** Pick a victim. Goes in the genus's {@code target_goals}, not {@code goals}. */
-    public record NearestTarget(int priority, Class<? extends LivingEntity> target, boolean mustSee)
-            implements GoalSpec {
+    public record NearestTarget(int priority, Class<? extends LivingEntity> target, boolean mustSee,
+            int unseenMemory) implements GoalSpec {
 
         public static final Identifier TYPE = id("nearest_target");
 
         public static final MapCodec<NearestTarget> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
                 priorityField(2).forGetter(NearestTarget::priority),
                 TargetClass.CODEC.fieldOf("target").forGetter(NearestTarget::target),
-                com.mojang.serialization.Codec.BOOL.optionalFieldOf("must_see", true).forGetter(NearestTarget::mustSee))
+                com.mojang.serialization.Codec.BOOL.optionalFieldOf("must_see", true).forGetter(NearestTarget::mustSee),
+                com.mojang.serialization.Codec.INT.optionalFieldOf("unseen_memory", 60)
+                        .forGetter(NearestTarget::unseenMemory))
                 .apply(i, NearestTarget::new));
 
         @Override
@@ -241,7 +243,12 @@ public final class GoalSpecs {
 
         @Override
         public Goal build(Mob mob) {
-            return new NearestAttackableTargetGoal<>(mob, target, mustSee);
+            NearestAttackableTargetGoal<?> goal = new NearestAttackableTargetGoal<>(mob, target, mustSee);
+            // How long it holds a target it cannot see. Vanilla's 60 ticks is three seconds, which
+            // is fine for a mob that walks round obstacles and exactly wrong for one that digs
+            // through them: the moment the wall blocked line of sight it forgot why it was digging.
+            goal.setUnseenMemoryTicks(unseenMemory);
+            return goal;
         }
     }
 

@@ -61,7 +61,9 @@
     {
       "type": "zombiemod:nearest_target",
       "priority": 2,
-      "target": "player"
+      "target": "player",
+      "must_see": false,
+      "unseen_memory": 1200
     }
   ],
   "abilities": [

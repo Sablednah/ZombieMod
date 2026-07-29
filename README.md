@@ -224,7 +224,7 @@ Each goal takes a `priority` (**lower runs first**, as in vanilla) plus its own 
 | `zombiemod:random_stroll` | `speed` (1.0) | Wanders. Without it, an idle mob stands perfectly still. |
 | `zombiemod:random_look` | — | Idle head movement. Cheap, but its absence reads as "broken". |
 | `zombiemod:float` | — | Swims instead of sinking. |
-| `zombiemod:nearest_target` † | `target`, `must_see` (true) | Picks a victim. |
+| `zombiemod:nearest_target` † | `target`, `must_see` (true), `unseen_memory` (60) | Picks a victim. `unseen_memory` is how many ticks it holds a target it can't see. |
 | `zombiemod:hurt_by_target` † | — | Fights back when struck. |
 
 † Belongs in `target_goals`, not `goals`.
@@ -369,6 +369,11 @@ on the server. The hook still consults the gamerule when nothing objects, so the
 is unaffected. Same for `place_block`.
 
 `infest: true` turns broken blocks into infested stone instead of dropping them — the old `INFEST`.
+
+**Give a breaker a long memory.** Vanilla forgets an unseen target after 60 ticks, which is right
+for a mob that walks around obstacles and exactly wrong for one that digs through them — the instant
+the wall blocks line of sight it forgets why it was digging. The shipped breakers use
+`"must_see": false` with `"unseen_memory": 1200`, so they stay committed for a full minute.
 
 The shipped breakers name a **tag** rather than a list, so there's one place to change what gets
 eaten and server owners can override it without touching a genus:
