@@ -153,6 +153,57 @@ public final class ZombieModEvents {
         }
     }
 
+    /**
+     * Let abilities react to our mobs hurting something. Separate from the "our mob was hurt" path
+     * above, and read off the damage source rather than the victim.
+     */
+    @SubscribeEvent
+    public void onOutgoingDamage(LivingIncomingDamageEvent event) {
+        if (!(event.getSource().getEntity() instanceof Mob attacker)
+                || !(attacker.level() instanceof ServerLevel level)) {
+            return;
+        }
+        if (attacker.getPersistentData().getString(GenusApplier.GENUS_TAG).isEmpty()) {
+            return;
+        }
+        GenusApplier.genusOf(attacker, level).ifPresent(holder -> {
+            for (Ability ability : holder.value().abilities()) {
+                ability.onAttack(level, attacker, event.getEntity(), event.getAmount());
+            }
+        });
+    }
+
+    /**
+     * The infected turn, whatever killed them.
+     *
+     * <p>Checked on the victim rather than the killer, because that is the entire point: a bite a
+     * minute ago decides this, not whatever finished the job. Players included — a player who dies
+     * infected rises even where the player-zombie feature is off, since they were bitten.
+     */
+    @SubscribeEvent
+    public void onInfectedDeath(net.neoforged.neoforge.event.entity.living.LivingDeathEvent event) {
+        var victim = event.getEntity();
+        if (!(victim.level() instanceof ServerLevel level)) {
+            return;
+        }
+        long until = victim.getPersistentData().getLongOr(
+                com.sablednah.zombiemod.core.ability.Infect.UNTIL_TAG, -1L);
+        if (until < 0L || level.getGameTime() > until) {
+            return;
+        }
+        // The specific effect it was bitten with, not just any effect - milk clears it, which is
+        // the cure, and an unrelated potion must not stand in for it.
+        if (!com.sablednah.zombiemod.core.ability.Infect.stillMarked(victim)) {
+            com.sablednah.zombiemod.core.ability.Infect.clear(victim);
+            return;
+        }
+        var genusId = victim.getPersistentData().getString(
+                        com.sablednah.zombiemod.core.ability.Infect.GENUS_TAG)
+                .map(net.minecraft.resources.Identifier::tryParse);
+        com.sablednah.zombiemod.core.ability.Infect.clear(victim);
+        Conversions.raiseInfected(level, victim, genusId);
+    }
+
     /** Observer mode: cancel the damage, change nothing else about the player. */
     @SubscribeEvent
     public void onPlayerDamage(LivingIncomingDamageEvent event) {

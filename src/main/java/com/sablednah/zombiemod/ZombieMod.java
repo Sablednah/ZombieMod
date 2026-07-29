@@ -3,6 +3,7 @@ package com.sablednah.zombiemod;
 import com.mojang.logging.LogUtils;
 import com.sablednah.zombiemod.neoforge.LootHandler;
 import com.sablednah.zombiemod.neoforge.PlayerZombies;
+import com.sablednah.zombiemod.neoforge.ProximitySpawner;
 import com.sablednah.zombiemod.neoforge.RitualHandler;
 import com.sablednah.zombiemod.neoforge.ZombieModCommands;
 import com.sablednah.zombiemod.neoforge.ZombieModEvents;
@@ -47,6 +48,7 @@ public class ZombieMod {
         NeoForge.EVENT_BUS.register(new RitualHandler());
         NeoForge.EVENT_BUS.register(new LootHandler());
         NeoForge.EVENT_BUS.register(new PlayerZombies());
+        NeoForge.EVENT_BUS.register(new ProximitySpawner());
         NeoForge.EVENT_BUS.register(this);
 
         LOG.info("ZombieMod ReForged loaded - genera come from datapacks (data/<pack>/zombiemod/genus/).");

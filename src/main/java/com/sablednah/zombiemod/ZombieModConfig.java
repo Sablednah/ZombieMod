@@ -20,6 +20,13 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.BooleanValue CLAIM_PROTECTION;
     public static final ModConfigSpec.BooleanValue CLAIM_NO_GRIEFING;
     public static final ModConfigSpec.EnumValue<ClaimSpawns> CLAIM_SPAWNS;
+    public static final ModConfigSpec.BooleanValue PROXIMITY;
+    public static final ModConfigSpec.IntValue PROXIMITY_INTERVAL;
+    public static final ModConfigSpec.DoubleValue PROXIMITY_CHANCE;
+    public static final ModConfigSpec.IntValue PROXIMITY_MIN;
+    public static final ModConfigSpec.IntValue PROXIMITY_MAX;
+    public static final ModConfigSpec.IntValue PROXIMITY_CAP;
+    public static final ModConfigSpec.BooleanValue PROXIMITY_UNSEEN;
 
     /** How spawns inside a land claim are treated. */
     public enum ClaimSpawns {
@@ -92,6 +99,39 @@ public final class ZombieModConfig {
                         "VANILLA_ONLY is the default: keeping ZombieMod out of someone's base is this",
                         "mod's business, while emptying it of vanilla mobs is not.")
                 .defineEnum("inClaims", ClaimSpawns.VANILLA_ONLY);
+
+        b.pop();
+
+        b.comment("Proximity spawning: put zombies just out of sight around each player, instead of",
+                "only riding vanilla's spawn table.",
+                "",
+                "This is the 1.8 plugin's ProximitySystems, and it is what made that world feel",
+                "occupied rather than merely populated. It is also the one feature here that adds mobs",
+                "beyond what vanilla would have made, so it is OFF by default - installing a mob pack",
+                "should not silently change how many things are hunting you.").push("proximity");
+
+        PROXIMITY = b.comment("Spawn genera near players regardless of vanilla's spawn table.")
+                .define("enabled", false);
+
+        PROXIMITY_INTERVAL = b.comment("Ticks between attempts, per player. 100 is five seconds.")
+                .defineInRange("interval", 100, 20, 12000);
+
+        PROXIMITY_CHANCE = b.comment("Chance an attempt spawns anything at all.")
+                .defineInRange("chance", 0.5D, 0.0D, 1.0D);
+
+        PROXIMITY_MIN = b.comment("Closest it will spawn to a player.")
+                .defineInRange("minDistance", 16, 4, 128);
+
+        PROXIMITY_MAX = b.comment("Furthest it will spawn from a player.")
+                .defineInRange("maxDistance", 32, 8, 128);
+
+        PROXIMITY_CAP = b.comment("Stop once this many ZombieMod mobs are already near the player.",
+                        "The one number that decides whether this is atmosphere or a siege.")
+                .defineInRange("nearbyCap", 8, 1, 200);
+
+        PROXIMITY_UNSEEN = b.comment("Only spawn where the player cannot currently see the spot.",
+                        "The point is that they were always there, not that they appeared.")
+                .define("outOfSightOnly", true);
 
         b.pop();
         SPEC = b.build();

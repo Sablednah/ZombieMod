@@ -1,6 +1,6 @@
 # The shipped roster
 
-44 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+45 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -123,6 +123,12 @@ He cannot hurt you. That's the point.
 
 | **Ghost** | 3 | Wears the name *and face* of a real player who has played on your server, trails soul particles, occasionally blinks behind you and sometimes just leaves. The old `GHOST` — which could only borrow the name. |
 | **Outrider** | 3 | Rides in on a zombie horse with an iron sword. The old `jockey` field. |
+
+## The infected
+
+| Genus | Weight | Idea |
+|-------|-------:|------|
+| **Biter** | 6 | Hits softly and **infects**. Die within the minute — to anything, including a fall — and you get up as one of them. Milk cures it. The bite is the threat, not the damage. |
 
 ## The carrier
 

@@ -307,6 +307,7 @@ First firings are staggered per mob, so a horde that spawned together doesn't ac
 | `zombiemod:break_blocks` | `allowed`, `reach`, `infest` — chew through walls when the path is blocked |
 | `zombiemod:projectile` | `projectile`, `range`, `power`, `inaccuracy` — fire something |
 | `zombiemod:place_block` | `block`, `target`, `radius`, `air_only` — cobweb the victim |
+| `zombiemod:infect` | `chance`, `duration`, `effect`, `genus`, `announce` — bite now, turn later |
 | `zombiemod:convert` | `victims`, `genus`, `chance`, `max_nearby`, `radius`, `cooldown`, `inherit_equipment`, `inherit_name` — what it kills gets up as one of them |
 | `zombiemod:beam` | `range`, `damage`, `duration`, `elder` — a real guardian beam, from anything |
 | `zombiemod:ray` | `range`, `damage`, `particle`, `density`, `ignite` — a hitscan beam drawn with particles |
@@ -350,6 +351,27 @@ That last one exists because `max_nearby` is measured with an entity query, and 
 can't see what was added earlier in the same tick** — so several kills landing together could each
 pass a cap all of them should have tripped. A rate limit needs nothing from the world to be correct.
 Tested: 40 kills in a single tick produce exactly one conversion.
+
+#### Infection
+
+`convert` raises a corpse the instant it dies, which is the effect but not the story. The trope is a
+bite, a while of knowing, and then it doesn't matter what actually killed you.
+
+```json
+{ "type": "zombiemod:infect", "chance": 0.35, "duration": 1200, "effect": "minecraft:hunger" }
+```
+
+Get bitten and you're marked for a minute. **Die while marked — to anything at all, including a fall
+or another player — and you get up.** Re-biting refreshes rather than stacks, so a long fight isn't a
+death sentence measured in hits.
+
+**Milk cures it.** The marker is a real potion effect as well as a stored timer, and the death check
+requires both — so clearing the effect clears the infection. That's deliberate: a curable infection is
+a far better mechanic than an inevitable one, and it costs one extra condition. `duration` is also the
+effect's duration, so the HUD icon *is* the timer a player can read.
+
+Players turn too, even with the player-zombie feature switched off, because they were bitten rather
+than merely killed.
 
 #### The beam
 
@@ -461,9 +483,9 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**44 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+**45 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
 Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg, Ghost, Outrider, Big Breaker, Lazer, Howler, Carrier. They're ordinary datapack files, so override or delete any of
+Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg, Ghost, Outrider, Big Breaker, Lazer, Howler, Carrier, Biter. They're ordinary datapack files, so override or delete any of
 them from a higher-priority datapack.
 
 See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and
@@ -627,6 +649,34 @@ A corpse that dies normally settles its own entry. Anything else, and an admin c
 
 `n` is the index shown by `list`, defaulting to the most recent. All op-only, like every other
 ZombieMod command.
+
+## Proximity spawning
+
+Genera otherwise only ever claim spawns vanilla was already going to make, so the mod can change *what*
+you meet but never *how much* is out there. This is the 1.8 plugin's `ProximitySystems`, and it's the
+difference between a world that's populated and one that feels occupied.
+
+```toml
+[proximity]
+    enabled = false          # off by default - see below
+    interval = 100           # ticks between attempts, per player
+    chance = 0.5
+    minDistance = 16
+    maxDistance = 32
+    nearbyCap = 8            # the number that decides atmosphere vs siege
+    outOfSightOnly = true    # only spawn where the player can't watch it appear
+```
+
+**Off by default.** It's the only feature here that adds mobs beyond vanilla's own rules, and
+installing a mob pack shouldn't quietly change how many things are hunting you.
+
+Every candidate still has to pass the genus's own `spawn` conditions at the chosen position, so a
+Frost still only appears in snow and a Stalker still only in the dark. This adds *opportunities*; it
+doesn't bypass the rules. It also respects claims, refuses unloaded chunks, and asks NeoForge's
+spawn-position hook so spawn-control mods still get a say.
+
+`outOfSightOnly` is the one that matters for feel: the point is that they were always there, not that
+you watched them appear.
 
 ## Land claims (FTB Chunks)
 

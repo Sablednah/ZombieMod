@@ -27,6 +27,8 @@ Last updated 2026-07-30.
 | **Land claims** | FTB Chunks, by reflection, inert without it. Griefing veto verified in both directions: refuses inside a claim, breaks again the instant the claim is removed. |
 | **XP** | Per genus |
 | **Conversion** | What a genus kills rises as one of them, with an undead-counterpart mapping and four guards |
+| **Infection** | Bite now, turn later, whatever kills you — and milk cures it |
+| **Proximity spawning** | Zombies out of sight around each player, off by default |
 | **Commands** | `list`, `spawn`, `status`, `observe`, `corpse …` |
 
 ## Built, not yet verified in game
@@ -41,6 +43,10 @@ Last updated 2026-07-30.
 - **Conversion in play.** The guards are tested (a listed victim rises, an unlisted one doesn't, an
   undead one never does, and 40 kills in one tick produce exactly one). Nobody has watched a Carrier
   work through a village, which is the case that matters.
+- **Infection end to end** — being bitten, seeing the timer, dying to something unrelated and getting
+  up. And the cure: milk clearing it before you die.
+- **Proximity spawning** — needs `enabled = true`. Whether `outOfSightOnly` actually prevents you
+  watching them appear, and whether `nearbyCap = 8` is atmosphere or a siege.
 
 ## Left from the 1.8 plugin
 

@@ -103,6 +103,53 @@ public final class Conversions {
         return true;
     }
 
+    /**
+     * Raise something because it was infected, rather than because something killed it.
+     *
+     * <p>No killer, deliberately: the whole point of infection is that what finished you off is
+     * irrelevant. That also means none of the killer-side guards apply here — the rate limit and the
+     * nearby cap exist to stop a single mob cascading, and an infection has already been paid for by
+     * a bite that landed a while ago.
+     */
+    public static void raiseInfected(ServerLevel level, LivingEntity victim, Optional<Identifier> genusId) {
+        HolderLookup.RegistryLookup<Genus> lookup =
+                level.registryAccess().lookupOrThrow(ZombieModRegistries.GENUS);
+        EntityType<?> risenType = Convert.undeadFormOf(victim.getType());
+
+        Optional<Holder.Reference<Genus>> chosen = genusId
+                .flatMap(id -> lookup.get(ResourceKey.create(ZombieModRegistries.GENUS, id)))
+                .or(() -> weighted(lookup, risenType, level.getRandom()));
+        if (chosen.isEmpty()) {
+            return;
+        }
+        Holder.Reference<Genus> holder = chosen.get();
+
+        var created = holder.value().base().create(level, EntitySpawnReason.CONVERSION);
+        if (!(created instanceof Mob risen)) {
+            return;
+        }
+        risen.snapTo(victim.getX(), victim.getY(), victim.getZ(), victim.getYRot(), 0.0F);
+        GenusApplier.assign(risen, holder);
+
+        if (victim.getCustomName() != null) {
+            risen.setCustomName(victim.getCustomName());
+            risen.setCustomNameVisible(victim.isCustomNameVisible());
+        }
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot.getType() != EquipmentSlot.Type.HUMANOID_ARMOR) {
+                continue;
+            }
+            var worn = victim.getItemBySlot(slot);
+            if (!worn.isEmpty() && risen.getItemBySlot(slot).isEmpty()) {
+                risen.setItemSlot(slot, worn.copy());
+                risen.setDropChance(slot, 0.0F);
+            }
+        }
+
+        Convert.announce(level, victim);
+        level.addFreshEntity(risen);
+    }
+
     /** Genera whose base matches the risen shape, drawn by weight. Weight 0 stays opt-in only. */
     private static Optional<Holder.Reference<Genus>> weighted(
             HolderLookup.RegistryLookup<Genus> lookup, EntityType<?> base, RandomSource random) {

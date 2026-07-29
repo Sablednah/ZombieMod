@@ -74,7 +74,7 @@ Worth being explicit so nobody spends a weekend on them.
 | **Grabs and pins** — the Jockey riding you, Smoker constricting | Vanilla has no player-restraint primitive. Could fake it with a mount, but the camera is wrong and players hate losing control. |
 | **Dismemberment / partial damage** | No vanilla concept of limb state on a mob. |
 | **Gore, blood decals** | Client rendering. |
-| **Infection spreading to players** | Doable as effects, but "you turn into a zombie on death" is a separate gameplay mod, not a mob type. |
+| ~~**Infection spreading to players**~~ | **Done** — `infect`, and it turns out to fit a mob type fine: the bite is the mob's, the turning is a consequence. Milk cures it. |
 
 ## Done since this was written
 
@@ -84,15 +84,18 @@ Nightstalker. **`teleport`** shipped — see Ender Zombie and Weeping Zombie in 
 [ROSTER.md](ROSTER.md). Boomer bile is largely covered by `alert` too: the horde-magnet effect was
 always the scary half.
 
+## Done since this was written
+
+Everything that was on this list as "the one I'd build next" has shipped: `equipment`, `alert`,
+`teleport`, day/night `behaviours`, the whole boss list, `convert`, `infect`, and proximity spawning.
+
 ## The one I'd build next
 
-**Proximity spawning** — the last thing missing from the original, and the last real gap in how the
-mod *feels*: zombies appearing just out of sight around each player rather than only riding vanilla's
-spawn table.
+**Horde events** — a wave director. Every monster here is an encounter; nothing yet orchestrates
+several of them into a night you remember. It's the last idea on this page that would change how the
+mod plays rather than what it contains.
 
-After that, **infection as a delay rather than an instant**: `convert` turns a corpse immediately,
-where the trope is bitten now and turns later. An `infected` effect that converts on death from any
-cause within N seconds would be the fuller version — and it would let a player watch it happen to
-someone else.
+After that, **mutation between genera** — a genus that becomes another on a trigger, so "kill it
+before it turns" applies to the monsters as well as to you.
 
 Full ordering, and what's already done, is in [STATUS.md](STATUS.md).

@@ -73,6 +73,15 @@ public interface Ability {
     }
 
     /**
+     * React to hurting something, without killing it.
+     *
+     * <p>Infection needs this: the bite is the event, and what happens next has nothing to do with
+     * whether that particular blow was fatal.
+     */
+    default void onAttack(ServerLevel level, Mob mob, net.minecraft.world.entity.LivingEntity victim,
+            float amount) {}
+
+    /**
      * React to killing something.
      *
      * <p>The third kind of trigger, after "on a timer" and "when hurt". Conversion needs it: what a

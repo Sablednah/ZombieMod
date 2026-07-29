@@ -40,6 +40,7 @@ public final class AbilityTypes {
         register(Abilities.Beam.TYPE, Abilities.Beam.CODEC);
         register(Abilities.Ray.TYPE, Abilities.Ray.CODEC);
         register(Convert.TYPE, Convert.CODEC);
+        register(Infect.TYPE, Infect.CODEC);
         register(Abilities.Particles.TYPE, Abilities.Particles.CODEC);
         register(Abilities.Sound.TYPE, Abilities.Sound.CODEC);
     }

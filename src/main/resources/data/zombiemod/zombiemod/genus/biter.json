@@ -1,0 +1,84 @@
+{
+  "name": "Biter",
+  "base": "minecraft:zombie",
+  "weight": 6,
+  "health": 22.0,
+  "damage": 3.0,
+  "speed": 1.1,
+  "follow_range": 28.0,
+  "armor_color": 8014410,
+  "xp": 15,
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.05
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.8
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 20.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 3,
+      "target": "villager"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:infect",
+      "chance": 0.35,
+      "duration": 1200,
+      "effect": "minecraft:hunger",
+      "announce": true
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 30,
+      "chance": 0.4,
+      "particle": "minecraft:spore_blossom_air",
+      "count": 2
+    }
+  ]
+}
