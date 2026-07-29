@@ -298,6 +298,21 @@ which has **no default** — a genus must name every block it may break. It also
 
 `infest: true` turns broken blocks into infested stone instead of dropping them — the old `INFEST`.
 
+The shipped breakers name a **tag** rather than a list, so there's one place to change what gets
+eaten and server owners can override it without touching a genus:
+
+| Tag | Contains |
+|-----|----------|
+| `#zombiemod:breakable/soft` | Dirt, sand, gravel, glass, doors, planks, torches, ladders… |
+| `#zombiemod:breakable/stone` | Stone, cobblestone, mossy cobblestone, granite, diorite, andesite, tuff, calcite, dripstone |
+| `#zombiemod:breakable/deepslate` | Deepslate, cobbled deepslate |
+| `#zombiemod:breakable/breaker` | soft + stone |
+| `#zombiemod:breakable/big_breaker` | breaker + deepslate |
+
+**Nothing player-crafted is in any of them.** Stone bricks, deepslate bricks, polished variants,
+concrete and metal blocks are all absent, so a properly built base still holds. That's a deliberate
+line: breakers should make a hole in the hillside you hid in, not walk through your walls.
+
 #### Teleport, and the 1.8 BACKSTAB
 
 `mode: behind` is the old plugin's BACKSTAB rebuilt: it reads the *victim's* look direction and
@@ -338,9 +353,9 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**40 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
+**41 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
 Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg, Ghost, Outrider. They're ordinary datapack files, so override or delete any of
+Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg, Ghost, Outrider, Big Breaker. They're ordinary datapack files, so override or delete any of
 them from a higher-priority datapack.
 
 See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and

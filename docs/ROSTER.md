@@ -1,6 +1,6 @@
 # The shipped roster
 
-40 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+41 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -106,6 +106,7 @@ He cannot hurt you. That's the point.
 | Genus | Weight | Idea |
 |-------|-------:|------|
 | **Breaker** | 8 | Chews through dirt, glass, doors and planks when it can't reach you. The 1.8 `Break`/`BreakRunner`, and the reason bases needed defending. |
+| **Big Breaker** | 2 | Rare, 70 HP, 1.7× scale, slow and armoured. Eats everything the Breaker does *plus deepslate and cobbled deepslate* — so hiding in the deep dark is no longer hiding. |
 | **Infester** | 4 | The same, except what it breaks becomes infested stone. The old `INFEST`. |
 | **Archer** | 7 | Won't melee. Fires arrows. |
 | **Spitfire** | 5 | Fires small fireballs. The old `LAZER`, finally doing something an archer doesn't. |

@@ -1,16 +1,20 @@
 {
-  "name": "Breaker",
+  "name": "Big Breaker",
   "base": "minecraft:zombie",
-  "weight": 8,
-  "health": 28.0,
-  "damage": 5.0,
-  "speed": 0.95,
-  "follow_range": 32.0,
-  "armor_color": 7035450,
+  "weight": 2,
+  "health": 70.0,
+  "damage": 8.0,
+  "speed": 0.8,
+  "follow_range": 40.0,
+  "scale": 1.7,
+  "armor_color": 3816002,
+  "xp": 30,
   "attributes": {
-    "minecraft:knockback_resistance": 0.4
+    "minecraft:armor": 10.0,
+    "minecraft:knockback_resistance": 0.9,
+    "minecraft:attack_knockback": 1.5,
+    "minecraft:step_height": 1.5
   },
-  "xp": 12,
   "spawn": {
     "conditions": [
       {
@@ -34,18 +38,18 @@
     {
       "type": "zombiemod:melee_attack",
       "priority": 3,
-      "speed": 1.0
+      "speed": 0.9
     },
     {
       "type": "zombiemod:random_stroll",
       "priority": 7,
-      "speed": 0.9
+      "speed": 0.5
     },
     {
       "type": "zombiemod:look_at",
       "priority": 8,
       "target": "player",
-      "distance": 16.0
+      "distance": 32.0
     },
     {
       "type": "zombiemod:random_look",
@@ -60,24 +64,32 @@
     {
       "type": "zombiemod:nearest_target",
       "priority": 2,
-      "target": "player"
+      "target": "player",
+      "must_see": false
     }
   ],
   "abilities": [
     {
       "type": "zombiemod:break_blocks",
-      "interval": 25,
-      "chance": 0.8,
-      "allowed": "#zombiemod:breakable/breaker",
-      "reach": 2.0
+      "interval": 20,
+      "chance": 0.9,
+      "allowed": "#zombiemod:breakable/big_breaker",
+      "reach": 2.5
     },
     {
       "type": "zombiemod:sound",
-      "interval": 60,
-      "chance": 0.4,
-      "sound": "minecraft:entity.zombie.ambient",
-      "volume": 1.0,
-      "pitch": 0.7
+      "interval": 90,
+      "chance": 0.5,
+      "sound": "minecraft:entity.ravager.roar",
+      "volume": 1.1,
+      "pitch": 0.5
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 20,
+      "chance": 0.5,
+      "particle": "minecraft:ash",
+      "count": 3
     }
   ]
 }
