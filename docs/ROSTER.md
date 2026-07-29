@@ -108,7 +108,7 @@ He cannot hurt you. That's the point.
 | **Breaker** | 8 | Chews through dirt, glass, doors and planks when it can't reach you. The 1.8 `Break`/`BreakRunner`, and the reason bases needed defending. |
 | **Big Breaker** | 2 | Rare, 70 HP, 1.7× scale, slow and armoured. Eats everything the Breaker does *plus deepslate and cobbled deepslate* — so hiding in the deep dark is no longer hiding. |
 | **Infester** | 4 | The same, except what it breaks becomes infested stone. The old `INFEST`. |
-| **Archer** | 7 | Won't melee. Fires arrows. |
+| **Archer** | 7 | A *skeleton*, so it visibly draws the bow — the pose only exists on the skeleton renderer. Uses vanilla's own bow goal. |
 | **Spitfire** | 5 | Fires small fireballs. The old `LAZER`, finally doing something an archer doesn't. |
 | **Weaver** | 6 | Climbs, and cobwebs the ground you're standing on. The old `WEB`. |
 | **Zomborg** | 3 | Learns what hurt it. Take four swings with a sword and the fifth barely registers — switch weapons. The old `BORG`, and the memory survives a restart. |

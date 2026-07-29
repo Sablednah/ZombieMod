@@ -201,7 +201,11 @@ public final class GenusApplier {
             case DEFAULT -> {
                 // leave whatever the base mob came with
             }
-            case CLIMB -> mob.navigation = new WallClimberNavigation(mob, mob.level());
+            case CLIMB -> {
+                mob.navigation = new WallClimberNavigation(mob, mob.level());
+                // The navigator plans the climb; ClimbGoal performs it. Neither works alone.
+                mob.goalSelector.addGoal(0, new ClimbGoal(mob));
+            }
             case SWIM -> mob.navigation = new WaterBoundPathNavigation(mob, mob.level());
             case AMPHIBIOUS -> mob.navigation = new AmphibiousPathNavigation(mob, mob.level());
         }

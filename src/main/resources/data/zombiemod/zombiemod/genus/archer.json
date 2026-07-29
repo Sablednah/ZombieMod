@@ -1,17 +1,17 @@
 {
   "name": "Archer",
-  "base": "minecraft:zombie",
+  "base": "minecraft:skeleton",
   "weight": 7,
   "health": 20.0,
   "damage": 2.0,
   "speed": 1.0,
   "follow_range": 32.0,
   "armor_color": 5917226,
+  "xp": 8,
   "equipment": {
     "mainhand": "minecraft:bow",
     "drop_chance": 0.0
   },
-  "xp": 8,
   "spawn": {
     "conditions": [
       {
@@ -31,6 +31,13 @@
     {
       "type": "zombiemod:float",
       "priority": 0
+    },
+    {
+      "type": "zombiemod:bow_attack",
+      "priority": 4,
+      "speed": 1.0,
+      "interval": 20,
+      "range": 15.0
     },
     {
       "type": "zombiemod:random_stroll",
@@ -57,17 +64,6 @@
       "type": "zombiemod:nearest_target",
       "priority": 2,
       "target": "player"
-    }
-  ],
-  "abilities": [
-    {
-      "type": "zombiemod:projectile",
-      "interval": 40,
-      "chance": 0.8,
-      "projectile": "minecraft:arrow",
-      "range": 20.0,
-      "power": 1.6,
-      "inaccuracy": 8.0
     }
   ]
 }

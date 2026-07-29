@@ -93,7 +93,7 @@ Here is the coward, in full:
 | `behaviours` | `[]` | Goal sets that switch on and off with a condition — see below. |
 | `ghost` | `false` | Take the name and face of a random player who has played on this server. |
 | `mount` | *(none)* | Something to ride in on — the old `jockey` field. |
-| `navigation` | `default` | `climb` borrows the spider's wall navigator, `swim` and `amphibious` the aquatic ones. |
+| `navigation` | `default` | `climb` makes it scale walls like a spider, `swim` and `amphibious` the aquatic ones. |
 | `equipment` | `{}` | Held and worn items — see below. Beats `armor_color` and `head` for any slot it names. |
 
 ### Equipment
@@ -219,6 +219,7 @@ Each goal takes a `priority` (**lower runs first**, as in vanilla) plus its own 
 |------|---------|------|
 | `zombiemod:avoid_entity` | `target`, `distance` (8.0), `walk_speed` (1.0), `sprint_speed` (1.35) | Runs away. **This is the coward.** |
 | `zombiemod:melee_attack` | `speed` (1.0), `follow_unseen` (false) | Walks up and hits its target. |
+| `zombiemod:bow_attack` | `speed`, `interval`, `range` | Draws and looses a bow, using vanilla's own goal. See the note below. |
 | `zombiemod:look_at` | `target` (player), `distance` (8.0), `probability` (0.02) | Watches. At high range and probability, **this is Herobrine**. |
 | `zombiemod:random_stroll` | `speed` (1.0) | Wanders. Without it, an idle mob stands perfectly still. |
 | `zombiemod:random_look` | — | Idle head movement. Cheap, but its absence reads as "broken". |
@@ -230,6 +231,38 @@ Each goal takes a `priority` (**lower runs first**, as in vanilla) plus its own 
 
 `target` is one of: `player`, `living`, `mob`, `monster`, `animal`, `villager`, `zombie`, `wolf`,
 `ocelot`, `cat`.
+
+### Climbing
+
+`"navigation": "climb"` does two things, and it needs both. `WallClimberNavigation` lets the
+pathfinder route straight up a wall — but *executing* that path needs `onClimbable()` to be true,
+which is how the spider does it: it overrides `onClimbable` to return a climbing flag set from
+`horizontalCollision` each tick. A vanilla zombie's `onClimbable` only answers for ladders and vines,
+so the navigator alone plans a climb the mob can't perform and it stands at the bottom of the wall.
+
+So a climbing genus also gets a goal that pushes it upward while it's pressed against something —
+same result, no mixin. Like a spider, it climbs whenever it collides, target or not.
+
+### Bows, and why the base mob matters
+
+`bow_attack` gives real bow behaviour — nock, draw, hold, release — but whether it *looks* right is
+a renderer question, and the answer is narrow:
+
+```java
+// AbstractSkeletonRenderer — the only humanoid renderer with this branch
+state.isAggressive() && state.getMainHandItem().is(Items.BOW) ? ArmPose.BOW_AND_ARROW : ...
+```
+
+`AbstractZombieRenderer` has no bow case, so **a zombie with a bow will fire arrows perfectly and
+never draw the string.** For the animation, give the genus a skeleton `base` — which is what the
+shipped Archer does.
+
+The goal also only applies to mobs vanilla considers ranged (`Monster & RangedAttackMob`):
+skeletons, strays, bogged, drowned, witches, illusioners. On anything else it's skipped with a log
+line, like any goal that doesn't fit.
+
+For a ranged *zombie*, use the `projectile` ability instead — no draw animation, but it works on
+anything and can fire whatever you like. That's what Spitfire does with fireballs.
 
 ### A note on goals
 

@@ -179,6 +179,47 @@ public final class GoalSpecs {
         }
     }
 
+    /**
+     * Draw a bow properly — nock, pull, hold, release — using vanilla's own goal.
+     *
+     * <p>Whether it <em>looks</em> right is a renderer question, and the answer is narrow:
+     * {@code AbstractSkeletonRenderer} is the only humanoid renderer with a {@code BOW_AND_ARROW}
+     * arm pose, gated on the mob being aggressive and holding a bow. {@code AbstractZombieRenderer}
+     * has no such branch, so a zombie will fire arrows perfectly and never draw the bow. If you want
+     * the animation, give the genus a skeleton {@code base}.
+     *
+     * <p>Only applies to mobs vanilla considers ranged ({@code Monster & RangedAttackMob}) —
+     * skeletons, strays, bogged, drowned, witches, illusioners. Anything else is skipped with a log
+     * line, like any other goal that does not fit.
+     */
+    public record BowAttack(int priority, double speed, int interval, float range) implements GoalSpec {
+
+        public static final Identifier TYPE = id("bow_attack");
+
+        public static final MapCodec<BowAttack> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                priorityField(4).forGetter(BowAttack::priority),
+                com.mojang.serialization.Codec.DOUBLE.optionalFieldOf("speed", 1.0D).forGetter(BowAttack::speed),
+                com.mojang.serialization.Codec.INT.optionalFieldOf("interval", 20).forGetter(BowAttack::interval),
+                com.mojang.serialization.Codec.FLOAT.optionalFieldOf("range", 15.0F).forGetter(BowAttack::range))
+                .apply(i, BowAttack::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        @Override
+        public Goal build(Mob mob) {
+            if (!(mob instanceof net.minecraft.world.entity.monster.Monster)
+                    || !(mob instanceof net.minecraft.world.entity.monster.RangedAttackMob)) {
+                return null;
+            }
+            return new net.minecraft.world.entity.ai.goal.RangedBowAttackGoal(
+                    (net.minecraft.world.entity.monster.Monster) mob, speed, interval, range);
+        }
+    }
+
     // ---------------------------------------------------------------- targeting (targetSelector)
 
     /** Pick a victim. Goes in the genus's {@code target_goals}, not {@code goals}. */
