@@ -45,6 +45,7 @@ import net.minecraft.world.phys.Vec3;
  *   <li>{@code /zombiemod spawn <genus> <x> <y> <z>} — put one at a position
  *   <li>{@code /zombiemod observe [on|off]} — take no damage, stay a target
  *   <li>{@code /zombiemod corpse list|give|respawn|forget} — player-zombie recovery
+ *   <li>{@code /zombiemod status} — what the mod thinks its settings are
  * </ul>
  *
  * There is no {@code reload}: genera are datapack data, so vanilla {@code /reload} already does it.
@@ -127,12 +128,47 @@ public final class ZombieModCommands {
                                 .executes(ctx -> forgetCorpse(ctx.getSource(),
                                         StringArgumentType.getString(ctx, "player"), 1)))));
 
+        // Shows what the mod thinks its settings are. Exists because a server config is per-world in
+        // singleplayer, so editing the global config/ copy silently does nothing - and "I turned it
+        // on and nothing happened" is indistinguishable from a bug without a way to look.
+        root.then(Commands.literal("status").executes(ctx -> status(ctx.getSource())));
+
         root.then(Commands.literal("observe")
                 .executes(ctx -> setObserve(ctx.getSource(), !ObserverMode.isOn(ctx.getSource().getPlayerOrException())))
                 .then(Commands.literal("on").executes(ctx -> setObserve(ctx.getSource(), true)))
                 .then(Commands.literal("off").executes(ctx -> setObserve(ctx.getSource(), false))));
 
         dispatcher.register(root);
+    }
+
+    private static int status(CommandSourceStack source) {
+        var src = source;
+        src.sendSuccess(() -> Component.literal("§eZombieMod status"), false);
+        src.sendSuccess(() -> Component.literal("  enabled: " + ZombieModConfig.ENABLED.get()
+                + "   vanillaWeight: " + ZombieModConfig.VANILLA_WEIGHT.get()
+                + "   logSpawns: " + ZombieModConfig.LOG_SPAWNS.get()), false);
+
+        boolean pz = ZombieModConfig.PLAYER_ZOMBIES.get();
+        src.sendSuccess(() -> Component.literal((pz ? "§a" : "§c") + "  playerZombies: " + pz
+                + "§r   takeItems: " + ZombieModConfig.PLAYER_ZOMBIE_TAKES_ITEMS.get()), false);
+
+        // Resolve the corpse genus, because a valid-looking id that is not loaded fails silently at
+        // the moment of death - which is the worst possible time to find out.
+        String genusId = ZombieModConfig.PLAYER_ZOMBIE_GENUS.get();
+        Identifier id = Identifier.tryParse(genusId);
+        boolean ok = id != null && lookup(source).get(ResourceKey.create(ZombieModRegistries.GENUS, id)).isPresent();
+        src.sendSuccess(() -> Component.literal((ok ? "§a" : "§c") + "  corpse genus: " + genusId
+                + (ok ? " (loaded)" : " (NOT LOADED - no corpse will be raised)")), false);
+
+        src.sendSuccess(() -> Component.literal("  genera loaded: "
+                + lookup(source).listElementIds().count()), false);
+        src.sendSuccess(() -> Component.literal("§7  config is per-world in singleplayer:"), false);
+        src.sendSuccess(() -> Component.literal("§7  saves/<world>/serverconfig/zombiemod-server.toml"), false);
+        if (!pz) {
+            src.sendSuccess(() -> Component.literal(
+                    "§7  keepInventory must also be off, or there are no drops to take."), false);
+        }
+        return 1;
     }
 
     // ================================================================= corpse recovery
