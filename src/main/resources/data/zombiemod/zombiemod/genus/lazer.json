@@ -71,13 +71,14 @@
       "interval": 70,
       "chance": 0.7,
       "range": 20.0,
-      "damage": 4.0,
+      "damage": 6.0,
       "density": 6.0,
       "particle": {
         "type": "minecraft:dust",
         "color": 16711680,
         "scale": 1.0
-      }
+      },
+      "charge": 35
     },
     {
       "type": "zombiemod:particles",

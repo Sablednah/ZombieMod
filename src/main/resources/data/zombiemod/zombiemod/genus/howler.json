@@ -71,9 +71,11 @@
       "interval": 100,
       "chance": 0.6,
       "range": 24.0,
-      "damage": 6.0,
+      "damage": 9.0,
       "density": 2.0,
-      "particle": "minecraft:sonic_boom"
+      "particle": "minecraft:sonic_boom",
+      "charge": 45,
+      "charge_sound": "minecraft:entity.warden.sonic_charge"
     },
     {
       "type": "zombiemod:sound",

@@ -345,8 +345,14 @@ trade is look — it won't be a guardian beam, but the colour is yours:
 `minecraft:dust` takes any RGB and reads as a proper coloured laser; `minecraft:sonic_boom` borrows
 the Warden's look; `end_rod` and `electric_spark` both work well. `density` is particles per block.
 
-Both are instant and unavoidable once fired, which is what makes them different from `projectile`
-rather than a reskin of it.
+A `ray` **charges before it fires** — `charge` is the wind-up in ticks (default 30, i.e. 1.5s). The
+wind-up is loud as well as bright, and the warning sound's volume is scaled to the weapon's range, so
+a shot that reaches 24 blocks can be heard at 24 blocks. The point is that a player learns the noise
+and moves, including when it's behind them.
+
+Breaking line of sight or leaving range during the wind-up **aborts the shot**. That's what makes the
+telegraph honest rather than decorative — set `charge: 0` for the old instant behaviour if you want
+something genuinely unfair.
 
 #### Breaking things
 

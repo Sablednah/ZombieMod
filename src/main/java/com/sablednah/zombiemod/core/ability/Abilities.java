@@ -1017,7 +1017,7 @@ public final class Abilities {
      * from {@code projectile} rather than a reskin of it — if it can see you, it has hit you.
      */
     public record Ray(int interval, float chance, double range, float damage, ParticleOptions particle,
-            double density, boolean ignite) implements Ability {
+            double density, boolean ignite, int charge, Holder<SoundEvent> chargeSound) implements Ability {
 
         public static final Identifier TYPE = id("ray");
 
@@ -1029,7 +1029,12 @@ public final class Abilities {
                 Particles.PARTICLE_CODEC.optionalFieldOf("particle", ParticleTypes.END_ROD)
                         .forGetter(Ray::particle),
                 Codec.DOUBLE.optionalFieldOf("density", 4.0D).forGetter(Ray::density),
-                Codec.BOOL.optionalFieldOf("ignite", false).forGetter(Ray::ignite))
+                Codec.BOOL.optionalFieldOf("ignite", false).forGetter(Ray::ignite),
+                Codec.INT.optionalFieldOf("charge", 30).forGetter(Ray::charge),
+                BuiltInRegistries.SOUND_EVENT.holderByNameCodec()
+                        .optionalFieldOf("charge_sound", BuiltInRegistries.SOUND_EVENT
+                                .wrapAsHolder(net.minecraft.sounds.SoundEvents.GUARDIAN_ATTACK))
+                        .forGetter(Ray::chargeSound))
                 .apply(i, Ray::new));
 
         @Override
@@ -1037,32 +1042,116 @@ public final class Abilities {
             return TYPE;
         }
 
+        /** Never called - stateful, because a charge is several ticks long. */
         @Override
-        public void run(ServerLevel level, Mob mob) {
-            LivingEntity victim = mob.getTarget();
-            if (victim == null || !victim.isAlive() || victim.distanceToSqr(mob) > range * range
-                    || !mob.hasLineOfSight(victim)) {
+        public void run(ServerLevel level, Mob mob) {}
+
+        @Override
+        public State newState() {
+            return new RayState(this);
+        }
+    }
+
+    /**
+     * Wind up, then fire.
+     *
+     * <p>The charge exists to make the shot answerable. Instant hitscan damage from something you
+     * may not have noticed is not a fight, it is a tax — so the wind-up is deliberately loud as well
+     * as bright: a sound at the caster carries whether or not the particles are on screen, which
+     * matters most in exactly the case a beam is nastiest, when it is behind you.
+     *
+     * <p>Breaking line of sight or leaving range during the wind-up aborts it. That is the whole
+     * point: the telegraph is only fair if there is something to do about it.
+     */
+    private static final class RayState implements Ability.State {
+
+        private final Ray ray;
+        private int cooldown;
+        private int charging;
+
+        RayState(Ray ray) {
+            this.ray = ray;
+        }
+
+        @Override
+        public void tick(ServerLevel level, Mob mob) {
+            if (charging > 0) {
+                advance(level, mob);
                 return;
             }
+            if (--cooldown > 0) {
+                return;
+            }
+            cooldown = ray.interval();
+            if (mob.getRandom().nextFloat() >= ray.chance() || !canSee(mob, mob.getTarget(), ray.range())) {
+                return;
+            }
+            if (ray.charge() <= 0) {
+                fire(level, mob);
+                return;
+            }
+            charging = ray.charge();
+            // Minecraft's audible radius is 16 blocks x volume, so scale the warning to the weapon:
+            // a shot that reaches 24 blocks must be heard at 24 blocks, or the telegraph is a lie
+            // for exactly the people it exists to protect.
+            float warning = (float) Math.max(1.0D, ray.range() / 16.0D);
+            level.playSound(null, mob.getX(), mob.getY(), mob.getZ(), ray.chargeSound().value(),
+                    SoundSource.HOSTILE, warning, 0.7F);
+        }
 
+        private void advance(ServerLevel level, Mob mob) {
+            LivingEntity victim = mob.getTarget();
+            if (!canSee(mob, victim, ray.range())) {
+                charging = 0; // lost it - the counter-play worked
+                return;
+            }
+            charging--;
+
+            // Gather at the eye, thickening as it nears release, so the wind-up reads as a build-up
+            // rather than a steady glow.
+            float progress = 1.0F - (float) charging / Math.max(1, ray.charge());
+            Vec3 eye = mob.getEyePosition();
+            level.sendParticles(ray.particle(), eye.x, eye.y, eye.z,
+                    1 + (int) (progress * 4.0F), 0.25D * (1.0F - progress), 0.25D * (1.0F - progress),
+                    0.25D * (1.0F - progress), 0.0D);
+            if (charging % 6 == 0) {
+                level.playSound(null, mob.getX(), mob.getY(), mob.getZ(), ray.chargeSound().value(),
+                        SoundSource.HOSTILE, 0.6F, 1.0F + progress);
+            }
+
+            if (charging <= 0) {
+                fire(level, mob);
+            }
+        }
+
+        private void fire(ServerLevel level, Mob mob) {
+            LivingEntity victim = mob.getTarget();
+            if (!canSee(mob, victim, ray.range())) {
+                return;
+            }
             Vec3 from = mob.getEyePosition();
             Vec3 to = victim.getEyePosition().subtract(0.0D, victim.getBbHeight() * 0.25D, 0.0D);
             Vec3 along = to.subtract(from);
-            int steps = Math.max(2, (int) (along.length() * density));
+            int steps = Math.max(2, (int) (along.length() * ray.density()));
 
             for (int i = 0; i <= steps; i++) {
                 Vec3 at = from.add(along.scale((double) i / steps));
-                // Count 0 with zero speed means "exactly one particle, exactly here" - otherwise
-                // the server scatters them and the line reads as a cloud rather than a beam.
-                level.sendParticles(particle, at.x, at.y, at.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
+                // Count 0 with zero speed means "exactly one particle, exactly here" - otherwise the
+                // server scatters them and the line reads as a cloud rather than a beam.
+                level.sendParticles(ray.particle(), at.x, at.y, at.z, 0, 0.0D, 0.0D, 0.0D, 0.0D);
             }
 
-            victim.hurtServer(level, level.damageSources().indirectMagic(mob, mob), damage);
-            if (ignite) {
+            victim.hurtServer(level, level.damageSources().indirectMagic(mob, mob), ray.damage());
+            if (ray.ignite()) {
                 victim.igniteForSeconds(4.0F);
             }
             level.playSound(null, mob.getX(), mob.getY(), mob.getZ(),
-                    net.minecraft.sounds.SoundEvents.GUARDIAN_ATTACK, SoundSource.HOSTILE, 1.0F, 1.4F);
+                    net.minecraft.sounds.SoundEvents.GUARDIAN_ATTACK, SoundSource.HOSTILE, 1.0F, 1.6F);
+        }
+
+        private static boolean canSee(Mob mob, LivingEntity victim, double range) {
+            return victim != null && victim.isAlive() && mob.isAlive()
+                    && victim.distanceToSqr(mob) <= range * range && mob.hasLineOfSight(victim);
         }
     }
 
