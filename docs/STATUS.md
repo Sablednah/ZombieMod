@@ -24,13 +24,14 @@ Last updated 2026-07-29.
 | **Particle rays** | Hitscan with an audible, abortable charge-up |
 | **Adaptive resistance** | Learns damage types, remembers across restart |
 | **Block breaking** | Tag-gated, griefing-hook aware, long target memory |
-| **Land claims** | FTB Chunks, by reflection, inert without it |
+| **Land claims** | FTB Chunks, by reflection, inert without it. Griefing veto verified in both directions: refuses inside a claim, breaks again the instant the claim is removed. |
 | **XP** | Per genus |
 | **Commands** | `list`, `spawn`, `status`, `observe`, `corpse …` |
 
 ## Built, not yet verified in game
 
-- **`NO_SPAWNS` claim mode** — only `VANILLA_ONLY` (the default) has been exercised.
+- **`NO_SPAWNS` claim mode** — the griefing veto is verified, but only the default `VANILLA_ONLY`
+  spawn behaviour has been exercised; nobody has watched `NO_SPAWNS` cancel a spawn.
 - **Non-zombie bases beyond husk/drowned/skeleton** — `giant`, `zombie_villager`, `iron_golem`.
 - **`alert`** — Screamer handing its target to a horde.
 - **`summon`'s `max_nearby` cap** under real pressure, i.e. a Breeder left alone in a loaded chunk.
