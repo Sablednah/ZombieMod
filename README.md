@@ -592,7 +592,17 @@ A corpse that dies normally settles its own entry. Anything else, and an admin c
 `n` is the index shown by `list`, defaulting to the most recent. All op-only, like every other
 ZombieMod command.
 
-## Configuration (`config/zombiemod-server.toml`)
+## Configuration
+
+`zombiemod-server.toml` is a **server** config, so where it lives depends on how you're playing:
+
+| | |
+|---|---|
+| Dedicated server | `config/zombiemod-server.toml` |
+| Singleplayer / LAN | `saves/<world>/serverconfig/zombiemod-server.toml` |
+
+Per-world in singleplayer is deliberate on NeoForge's part — these settings change how a world plays,
+so they travel with the save. **The file doesn't exist until you've loaded the world once.**
 
 | Option | Default | Purpose |
 |--------|---------|---------|
