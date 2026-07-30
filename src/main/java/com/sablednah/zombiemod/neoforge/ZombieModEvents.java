@@ -82,6 +82,18 @@ public final class ZombieModEvents {
         } else {
             LOG.info("ZombieMod: {} genera loaded - {}", summary.size(), String.join(", ", summary));
         }
+
+        // Same reasoning as the genera line: an empty registry and a working one look identical
+        // from the console, and these two are easy to typo into nonexistence.
+        var hordes = event.getServer().registryAccess()
+                .lookupOrThrow(ZombieModRegistries.HORDE).listElements()
+                .map(h -> h.key().identifier().getPath() + " (" + h.value().waves().size() + " waves, "
+                        + h.value().totalCount() + " mobs, weight " + h.value().weight() + ")")
+                .sorted().toList();
+        var rituals = event.getServer().registryAccess()
+                .lookupOrThrow(ZombieModRegistries.RITUAL).listElementIds().count();
+        LOG.info("ZombieMod: {} hordes{}, {} rituals", hordes.size(),
+                hordes.isEmpty() ? "" : " - " + String.join(", ", hordes), rituals);
     }
 
     @SubscribeEvent

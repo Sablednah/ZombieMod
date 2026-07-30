@@ -35,7 +35,7 @@ features.
 | **Hive mind / pack tactics** | Goals that read other ZombieMod mobs nearby — flanking, surrounding, holding back until numbers are up. |
 | **Mutation / stages** | A genus that becomes *another genus* on a trigger. `phases` covers stages within one mob; this is the "kill it before it turns" version that swaps identity. |
 | **Boss / named encounter** | See the dedicated section below — partly possible already. |
-| **Horde events** | A timed wave director — the L4D crescendo. Server-level, not per-mob. |
+| ~~**Horde events**~~ | **Done** — a `zombiemod:horde` datapack registry with waves, a bar and conditions. |
 | **Sound-driven aggro** | Clicker done properly: blind, but hears sprinting and blocks breaking. Needs vibration/`GameEvent` listening. |
 
 ## Boss zombies (owner's idea, 2026-07-28)
@@ -91,11 +91,11 @@ Everything that was on this list as "the one I'd build next" has shipped: `equip
 
 ## The one I'd build next
 
-**Horde events** — a wave director. Every monster here is an encounter; nothing yet orchestrates
-several of them into a night you remember. It's the last idea on this page that would change how the
-mod plays rather than what it contains.
+**Mutation between genera** — a genus that becomes *another* on a trigger, so "kill it before it
+turns" applies to the monsters as well as to you. A Bloater that becomes something worse at low
+health, or a Walker that turns Runner when it sees you.
 
-After that, **mutation between genera** — a genus that becomes another on a trigger, so "kill it
-before it turns" applies to the monsters as well as to you.
+After that it's mostly content rather than machinery: more hordes, more genera, and the CityWorld
+conditions so a city block spawns differently from the wilderness around it.
 
 Full ordering, and what's already done, is in [STATUS.md](STATUS.md).

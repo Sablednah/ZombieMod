@@ -1,6 +1,7 @@
 package com.sablednah.zombiemod;
 
 import com.sablednah.zombiemod.core.Genus;
+import com.sablednah.zombiemod.core.HordeSpec;
 import com.sablednah.zombiemod.core.SummonRitual;
 
 import net.minecraft.core.Registry;
@@ -20,6 +21,10 @@ public final class ZombieModRegistries {
     public static final ResourceKey<Registry<Genus>> GENUS =
             ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(ZombieMod.MOD_ID, "genus"));
 
+    /** Horde events. Files at {@code data/<pack>/zombiemod/horde/}. */
+    public static final ResourceKey<Registry<HordeSpec>> HORDE =
+            ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(ZombieMod.MOD_ID, "horde"));
+
     /** Summon rituals: use item X on block Y, get genus Z. Files at {@code data/<pack>/zombiemod/ritual/}. */
     public static final ResourceKey<Registry<SummonRitual>> RITUAL =
             ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(ZombieMod.MOD_ID, "ritual"));
@@ -32,6 +37,7 @@ public final class ZombieModRegistries {
     static void register(DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(GENUS, Genus.CODEC, Genus.CODEC);
         event.dataPackRegistry(RITUAL, SummonRitual.CODEC, SummonRitual.CODEC);
+        event.dataPackRegistry(HORDE, HordeSpec.CODEC, HordeSpec.CODEC);
     }
 
     private ZombieModRegistries() {}

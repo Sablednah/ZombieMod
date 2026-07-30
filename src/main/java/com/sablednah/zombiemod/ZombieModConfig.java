@@ -31,6 +31,11 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.BooleanValue BOUNTY;
     public static final ModConfigSpec.ConfigValue<String> BOUNTY_OBJECTIVE;
     public static final ModConfigSpec.BooleanValue BOUNTY_ANNOUNCE;
+    public static final ModConfigSpec.BooleanValue HORDES;
+    public static final ModConfigSpec.IntValue HORDE_CHECK;
+    public static final ModConfigSpec.DoubleValue HORDE_CHANCE;
+    public static final ModConfigSpec.IntValue HORDE_COOLDOWN;
+    public static final ModConfigSpec.IntValue HORDE_CAP;
 
     /** How spawns inside a land claim are treated. */
     public enum ClaimSpawns {
@@ -168,6 +173,33 @@ public final class ZombieModConfig {
 
         BOUNTY_ANNOUNCE = b.comment("Show the payout on the killer's action bar.")
                 .define("announce", true);
+
+        b.pop();
+
+        b.comment("Horde events: nights when several of them arrive together.",
+                "",
+                "Everything else in this mod is an encounter - one monster, met on its own terms. A",
+                "horde is the layer above, and it is waves rather than a number on purpose: twenty at",
+                "once is a wall, while eight then twelve then twenty is a story with a middle.",
+                "",
+                "Off by default, for the same reason as proximity spawning.",
+                "Start one by hand with /zombiemod horde start.").push("hordes");
+
+        HORDES = b.comment("Let hordes start on their own.").define("enabled", false);
+
+        HORDE_CHECK = b.comment("Ticks between checks, per player.")
+                .defineInRange("checkInterval", 600, 100, 24000);
+
+        HORDE_CHANCE = b.comment("Chance a check starts one.")
+                .defineInRange("chance", 0.08D, 0.0D, 1.0D);
+
+        HORDE_COOLDOWN = b.comment("Minimum ticks between hordes for the same player.",
+                        "24000 is a full day. Rarity is most of what makes one memorable.")
+                .defineInRange("cooldown", 36000, 0, 1000000);
+
+        HORDE_CAP = b.comment("Never have more than this many horde mobs alive at once.",
+                        "The safety rail: a wave that cannot place its full count simply places fewer.")
+                .defineInRange("cap", 40, 4, 300);
 
         b.pop();
         SPEC = b.build();

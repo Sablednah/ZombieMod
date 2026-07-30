@@ -651,6 +651,58 @@ A corpse that dies normally settles its own entry. Anything else, and an admin c
 `n` is the index shown by `list`, defaulting to the most recent. All op-only, like every other
 ZombieMod command.
 
+## Horde events
+
+Everything else in this mod is an **encounter** — one monster, met on its own terms. A horde is the
+layer above: a director that decides when several arrive together, builds, peaks and subsides.
+
+Hordes are a datapack registry too, at `data/<pack>/zombiemod/horde/<name>.json`:
+
+```json
+{
+  "name": "&cThe Horde",
+  "weight": 10,
+  "radius": 40.0, "min_radius": 22.0,
+  "bar_color": "red",
+  "announce": "&4You hear them coming.",
+  "sound": "minecraft:entity.wither.spawn",
+  "conditions": [ { "type": "zombiemod:time", "phase": "night" } ],
+  "waves": [
+    { "count": 6,  "delay": 0 },
+    { "count": 10, "delay": 400 },
+    { "count": 16, "delay": 500 }
+  ]
+}
+```
+
+**Waves rather than a number, on purpose.** Twenty at once is a wall; six, then ten, then sixteen is a
+story with a middle. A wave can name specific `genera` or leave it out and draw from the weighted
+table as usual, and `conditions` are the same ones that gate spawning.
+
+Three ship: **The Horde** (a general build), **The Swarm** (many weak things, a different problem to
+solve) and **The Siege** (breakers first, so the way is open when the rest arrive).
+
+The bar counts **what's still alive**, not what's been spawned, because "twelve still out there" is
+the number a player actually wants. A horde ends when its last one falls rather than on a timer —
+which is what makes the quiet afterwards mean anything.
+
+```toml
+[hordes]
+    enabled = false     # off by default, like proximity spawning
+    chance = 0.08
+    cooldown = 36000    # a day and a half; rarity is most of what makes one memorable
+    cap = 40            # never more than this alive at once
+```
+
+```
+/zombiemod horde list
+/zombiemod horde start zombiemod:the_siege
+/zombiemod horde stop
+```
+
+One horde runs per player, so two people in different places get their own night rather than sharing
+one.
+
 ## Bounties
 
 A genus can carry a `bounty` — what killing it is worth. Every shipped genus has one, roughly
@@ -794,6 +846,7 @@ so they travel with the save. **The file doesn't exist until you've loaded the w
 | `/zombiemod list` | Every genus the loaded datapacks define. |
 | `/zombiemod spawn <genus>` | Spawn one where you're **looking**, up to 48 blocks. |
 | `/zombiemod spawn <genus> <x> <y> <z>` | Spawn one at a position. Accepts `~ ~ ~` relative and `^ ^ ^5` local — so `^ ^ ^5` is "five blocks in front of me". Works from the console and command blocks. |
+| `/zombiemod horde list\|start <horde>\|stop` | Wave events. |
 | `/zombiemod status` | What the mod believes its settings are, whether the corpse genus resolved, and whether FTB Chunks linked. **Start here when something seems not to work.** |
 | `/zombiemod observe [on\|off]` | Take no damage while staying a completely normal target. |
 | `/zombiemod corpse list [player]` | Every recorded player corpse, newest first. |

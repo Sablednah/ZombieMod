@@ -1,0 +1,47 @@
+{
+  "name": "&4The Siege",
+  "weight": 2,
+  "radius": 44.0,
+  "min_radius": 26.0,
+  "bar_color": "purple",
+  "announce": "&4They have come for the walls.",
+  "sound": "minecraft:entity.ravager.roar",
+  "conditions": [
+    {
+      "type": "zombiemod:dimension",
+      "dimensions": [
+        "minecraft:overworld"
+      ]
+    },
+    {
+      "type": "zombiemod:time",
+      "phase": "night"
+    }
+  ],
+  "waves": [
+    {
+      "count": 4,
+      "delay": 0,
+      "genera": [
+        "zombiemod:breaker"
+      ]
+    },
+    {
+      "count": 8,
+      "delay": 400,
+      "genera": [
+        "zombiemod:breaker",
+        "zombiemod:rioter",
+        "zombiemod:juggernaut"
+      ]
+    },
+    {
+      "count": 3,
+      "delay": 500,
+      "genera": [
+        "zombiemod:bigbreaker",
+        "zombiemod:tank"
+      ]
+    }
+  ]
+}

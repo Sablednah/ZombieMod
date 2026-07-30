@@ -45,6 +45,7 @@ import net.minecraft.world.phys.Vec3;
  *   <li>{@code /zombiemod spawn <genus> <x> <y> <z>} — put one at a position
  *   <li>{@code /zombiemod observe [on|off]} — take no damage, stay a target
  *   <li>{@code /zombiemod corpse list|give|respawn|forget} — player-zombie recovery
+ *   <li>{@code /zombiemod horde start|stop|list} — wave events
  *   <li>{@code /zombiemod status} — what the mod thinks its settings are
  * </ul>
  *
@@ -57,6 +58,9 @@ public final class ZombieModCommands {
 
     private static final DynamicCommandExceptionType ERROR_UNKNOWN_GENUS = new DynamicCommandExceptionType(
             genus -> Component.literal("No ZombieMod genus '" + genus + "'. Try /zombiemod list."));
+
+    private static final DynamicCommandExceptionType ERROR_NO_HORDE = new DynamicCommandExceptionType(
+            horde -> Component.literal("No horde '" + horde + "'. Try /zombiemod horde list."));
 
     private static final DynamicCommandExceptionType ERROR_NO_CORPSE = new DynamicCommandExceptionType(
             player -> Component.literal("No such corpse for " + player + ". Try /zombiemod corpse list."));
@@ -131,6 +135,27 @@ public final class ZombieModCommands {
         // Shows what the mod thinks its settings are. Exists because a server config is per-world in
         // singleplayer, so editing the global config/ copy silently does nothing - and "I turned it
         // on and nothing happened" is indistinguishable from a bug without a way to look.
+        root.then(Commands.literal("horde")
+                .then(Commands.literal("list").executes(ctx -> {
+                    var lookup = ctx.getSource().registryAccess()
+                            .lookupOrThrow(ZombieModRegistries.HORDE);
+                    var ids = lookup.listElementIds().map(k -> k.identifier().toString()).sorted().toList();
+                    ctx.getSource().sendSuccess(() -> Component.literal(ids.isEmpty()
+                            ? "No hordes defined." : ids.size() + " hordes: " + String.join(", ", ids)), false);
+                    return ids.size();
+                }))
+                .then(Commands.literal("stop").executes(ctx -> {
+                    boolean stopped = HordeDirector.stop(ctx.getSource().getPlayerOrException());
+                    ctx.getSource().sendSuccess(() -> Component.literal(
+                            stopped ? "Horde stopped." : "No horde running."), true);
+                    return stopped ? 1 : 0;
+                }))
+                .then(Commands.literal("start")
+                        .then(Commands.argument("horde", ResourceKeyArgument.key(ZombieModRegistries.HORDE))
+                                .executes(ctx -> startHorde(ctx.getSource(),
+                                        ResourceKeyArgument.getRegistryKey(ctx, "horde",
+                                                ZombieModRegistries.HORDE, ERROR_NO_HORDE))))));
+
         root.then(Commands.literal("status").executes(ctx -> status(ctx.getSource())));
 
         root.then(Commands.literal("observe")
@@ -139,6 +164,19 @@ public final class ZombieModCommands {
                 .then(Commands.literal("off").executes(ctx -> setObserve(ctx.getSource(), false))));
 
         dispatcher.register(root);
+    }
+
+    private static int startHorde(CommandSourceStack source,
+            ResourceKey<com.sablednah.zombiemod.core.HordeSpec> key) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        var spec = source.registryAccess().lookupOrThrow(ZombieModRegistries.HORDE).get(key)
+                .orElseThrow(() -> ERROR_NO_HORDE.create(key.identifier()));
+        if (!HordeDirector.start(source.getLevel(), player, spec.value())) {
+            source.sendFailure(Component.literal("A horde is already running for you."));
+            return 0;
+        }
+        source.sendSuccess(() -> Component.literal("Started " + spec.value().name() + "."), true);
+        return 1;
     }
 
     private static int status(CommandSourceStack source) {

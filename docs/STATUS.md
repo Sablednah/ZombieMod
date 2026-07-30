@@ -27,6 +27,7 @@ Last updated 2026-07-30.
 | **Land claims** | FTB Chunks, by reflection, inert without it. Griefing veto verified in both directions: refuses inside a claim, breaks again the instant the claim is removed. |
 | **XP** | Per genus |
 | **Bounty** | Per genus, with a pluggable payer and a scoreboard fallback |
+| **Horde events** | Wave director with a boss bar, three shipped hordes, off by default |
 | **Conversion** | What a genus kills rises as one of them, with an undead-counterpart mapping and four guards |
 | **Infection** | Bite now, turn later, whatever kills you — and milk cures it. Bite, timer and the infected-player double-raise verified. |
 | **Proximity spawning** | Zombies out of sight around each player, off by default |
@@ -52,6 +53,8 @@ Last updated 2026-07-30.
   watching them appear, and whether `nearbyCap = 8` is atmosphere or a siege. `/zombiemod status`
   reports the counters.
 - **Bounty payouts** — the scoreboard tally, and whether the numbers feel proportionate.
+- **Hordes.** They load and the commands parse; nobody has survived one. The numbers most likely to
+  be wrong are `cap = 40` and the wave delays — whether it builds or just arrives.
 
 ## Left from the 1.8 plugin
 
