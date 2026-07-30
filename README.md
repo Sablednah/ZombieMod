@@ -651,6 +651,81 @@ A corpse that dies normally settles its own entry. Anything else, and an admin c
 `n` is the index shown by `list`, defaulting to the most recent. All op-only, like every other
 ZombieMod command.
 
+## Mutation
+
+Everything else a genus describes is what a monster **is**. Mutation is the one that lets it stop
+being that — so "kill it before it turns" applies to the monsters as well as to you, and so a place
+can change what walks around in it.
+
+```json
+"mutations": [
+  {
+    "into": "zombiemod:runner",
+    "when": { "type": "zombiemod:health_below", "fraction": 0.35 },
+    "for": 0, "chance": 0.35,
+    "sound": "minecraft:entity.zombie.infect",
+    "particle": "minecraft:crit"
+  },
+  {
+    "into": "zombiemod:ember",
+    "when": { "type": "zombiemod:on_fire" },
+    "for": 60, "chance": 0.6
+  }
+]
+```
+
+`for` is how many ticks the trigger must hold **continuously**, and it defaults to a full second
+rather than zero because the triggers people reach for first are the twitchy ones — a zombie crossing
+a stream is in water for three ticks, and a mutation that fires on that reads as a bug even while
+doing exactly what the JSON asked. Step out of the water and the count resets to zero rather than
+decaying, or a mob could stutter in and out of a puddle and accumulate its way to a change that never
+really happened.
+
+### Triggers
+
+| | |
+|---|---|
+| `health_below` | `fraction` (default) or an absolute `amount` |
+| `on_fire` | burning, from any source including the sun |
+| `in_water` / `in_lava` | standing in it |
+| `touching` | a block tag or list, checked at its feet, its body and below it |
+| `where` | **any spawn condition**, asked where the mob is standing |
+| `all_of` / `any_of` / `not` | combined |
+
+`where` is the one that matters. Dimension, biome, height, light, time of day, sky and claim already
+exist as spawn conditions, so mutation gets all of them for free — and any condition an optional
+integration adds later comes along too:
+
+```json
+{ "type": "zombiemod:where",
+  "condition": { "type": "zombiemod:dimension", "dimensions": ["minecraft:the_nether"] } }
+```
+
+That's "the same zombie is a harder thing in the Nether", with no new trigger type needed.
+
+### What ships using it
+
+The **Walker** is the substrate — weight 35, the one you meet most, deliberately the plainest thing
+in the roster. What it becomes depends on what happens to it: hurt below a third it may break into a
+**Runner**; left burning it becomes an **Ember**; stood on ice long enough it turns **Frost**; and in
+the Nether it thickens into a **Charger**. The **Ember** closes the loop — hold one under water and
+it goes out, and what is left is a Walker again.
+
+### How it works, and why it costs an entity
+
+A mutation **replaces** the mob rather than re-dressing it. Re-applying a genus over a live one looks
+cheaper and is wrong in ways that would be miserable to diagnose: `speed` is *multiplied* into the
+existing value, so it would compound every time; equipment slots the new genus doesn't mention would
+keep the old gear; a `scale` of 1.0 is skipped rather than applied, so a shrinking mutation would
+silently keep the old size. Building a fresh mob and assigning the new genus once is the only version
+that's obviously right.
+
+Carried across: position, facing, **health as a fraction** (so mutating into something with triple
+the health isn't a free heal), current target, and burning. The whole persistent-data tag comes too,
+which is how a horde member stays a horde member — and the horde's roster is told about the swap
+directly, since it tracks members by identity. A 60-tick floor between one mob's mutations stops two
+genera that name each other from swapping entities forever.
+
 ## Horde events
 
 Everything else in this mod is an **encounter** — one monster, met on its own terms. A horde is the

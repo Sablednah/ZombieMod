@@ -372,6 +372,22 @@ public final class HordeDirector {
                 cleared ? "cleared" : "ended", active.player.getName().getString(), active.placed);
     }
 
+    /**
+     * A member mutated into something else and is now a different entity.
+     *
+     * <p>Without this the roster would still be watching a UUID that no longer resolves, count the
+     * mutant as dead, and end the horde with it still walking around - the exact failure the
+     * identity-based count was introduced to remove.
+     */
+    static void replaceMember(UUID was, UUID now) {
+        for (Active active : RUNNING.values()) {
+            if (active.spawned.remove(was)) {
+                active.spawned.add(now);
+                return;
+            }
+        }
+    }
+
     /** For {@code /zombiemod horde}. */
     public static boolean isRunning(ServerPlayer player) {
         return RUNNING.containsKey(player.getUUID());

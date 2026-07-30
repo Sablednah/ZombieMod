@@ -89,5 +89,16 @@
       "duration": 200
     }
   ],
-  "bounty": 3.0
+  "bounty": 3.0,
+  "mutations": [
+    {
+      "into": "zombiemod:walker",
+      "when": {
+        "type": "zombiemod:in_water"
+      },
+      "for": 40,
+      "sound": "minecraft:block.fire.extinguish",
+      "particle": "minecraft:cloud"
+    }
+  ]
 }

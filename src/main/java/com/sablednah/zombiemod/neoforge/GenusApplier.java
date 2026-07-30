@@ -173,6 +173,12 @@ public final class GenusApplier {
         for (com.sablednah.zombiemod.core.ability.Ability ability : genus.abilities()) {
             mob.goalSelector.addGoal(99, new AbilityGoal(mob, ability));
         }
+
+        // One goal for the whole mutation list rather than one each: they are checked in order and
+        // the first to fire ends the mob, so they are not independent of one another.
+        if (!genus.mutations().isEmpty()) {
+            mob.goalSelector.addGoal(99, new MutationGoal(mob, genus.mutations()));
+        }
         genus.boss().ifPresent(spec -> mob.goalSelector.addGoal(99, new BossBarGoal(mob, spec)));
 
         // Phase abilities are gated on health rather than added on entry, so they switch off again

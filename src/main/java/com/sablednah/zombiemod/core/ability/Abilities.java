@@ -1169,7 +1169,9 @@ public final class Abilities {
          * bare id as well and keep genus files readable. The object form still works for the ones
          * that need it (dust colours, block/item particles).
          */
-        static final Codec<ParticleOptions> PARTICLE_CODEC = Codec.withAlternative(
+        // Public because mutations reuse it: the "plain id or full options" spelling should be
+        // the same everywhere a datapack names a particle.
+        public static final Codec<ParticleOptions> PARTICLE_CODEC = Codec.withAlternative(
                 ParticleTypes.CODEC,
                 Identifier.CODEC.comapFlatMap(
                         pid -> BuiltInRegistries.PARTICLE_TYPE.getValue(pid) instanceof SimpleParticleType simple

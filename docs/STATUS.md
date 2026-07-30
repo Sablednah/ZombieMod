@@ -28,6 +28,7 @@ Last updated 2026-07-30.
 | **XP** | Per genus |
 | **Bounty** | Per genus, with a pluggable payer and a scoreboard fallback |
 | **Horde events** | Wave director with a boss bar, three shipped hordes, off by default |
+| **Mutation** | Genus becomes another genus on a trigger; 6 trigger types plus every spawn condition via `where` |
 | **Horde payoff** | Victory line, sound and XP on the last kill |
 | **Straggler glow** | Both paths: a bell ring lights them up, and a horde that goes a minute without a kill lights them up itself |
 | **Conversion** | What a genus kills rises as one of them, with an undead-counterpart mapping and four guards |

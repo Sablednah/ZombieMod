@@ -82,10 +82,11 @@ public record Genus(
      * {@code MapCodec} reads sibling keys, so all three stay flat in the JSON.
      */
     public record Encounter(Optional<BossSpec> boss, List<Phase> phases, Optional<LootSpec> loot,
-            Optional<Integer> xp, Optional<Double> bounty) {
+            Optional<Integer> xp, Optional<Double> bounty,
+            List<com.sablednah.zombiemod.core.mutate.MutationSpec> mutations) {
 
         public static final Encounter NONE = new Encounter(Optional.empty(), List.of(),
-                Optional.empty(), Optional.empty(), Optional.empty());
+                Optional.empty(), Optional.empty(), Optional.empty(), List.of());
 
         public static final com.mojang.serialization.MapCodec<Encounter> MAP_CODEC =
                 RecordCodecBuilder.mapCodec(i -> i.group(
@@ -93,7 +94,9 @@ public record Genus(
                         Phase.CODEC.listOf().optionalFieldOf("phases", List.of()).forGetter(Encounter::phases),
                         LootSpec.CODEC.optionalFieldOf("loot").forGetter(Encounter::loot),
                         Codec.INT.optionalFieldOf("xp").forGetter(Encounter::xp),
-                        Codec.DOUBLE.optionalFieldOf("bounty").forGetter(Encounter::bounty))
+                        Codec.DOUBLE.optionalFieldOf("bounty").forGetter(Encounter::bounty),
+                        com.sablednah.zombiemod.core.mutate.MutationSpec.CODEC.listOf()
+                                .optionalFieldOf("mutations", List.of()).forGetter(Encounter::mutations))
                         .apply(i, Encounter::new));
     }
 
@@ -214,6 +217,10 @@ public record Genus(
     }
 
     /** What killing this is worth, in whatever currency the server has. */
+    public List<com.sablednah.zombiemod.core.mutate.MutationSpec> mutations() {
+        return encounter.mutations();
+    }
+
     public Optional<Double> bounty() {
         return encounter.bounty();
     }

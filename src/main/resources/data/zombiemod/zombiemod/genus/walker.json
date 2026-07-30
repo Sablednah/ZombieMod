@@ -68,5 +68,53 @@
       "pitch": 0.6
     }
   ],
-  "bounty": 1.0
+  "bounty": 1.0,
+  "mutations": [
+    {
+      "into": "zombiemod:runner",
+      "when": {
+        "type": "zombiemod:health_below",
+        "fraction": 0.35
+      },
+      "for": 0,
+      "chance": 0.35,
+      "sound": "minecraft:entity.zombie.infect",
+      "particle": "minecraft:crit"
+    },
+    {
+      "into": "zombiemod:ember",
+      "when": {
+        "type": "zombiemod:on_fire"
+      },
+      "for": 60,
+      "chance": 0.6,
+      "sound": "minecraft:entity.blaze.shoot",
+      "particle": "minecraft:flame"
+    },
+    {
+      "into": "zombiemod:frost",
+      "when": {
+        "type": "zombiemod:touching",
+        "blocks": "#minecraft:ice"
+      },
+      "for": 60,
+      "sound": "minecraft:block.glass.break",
+      "particle": "minecraft:snowflake"
+    },
+    {
+      "into": "zombiemod:charger",
+      "when": {
+        "type": "zombiemod:where",
+        "condition": {
+          "type": "zombiemod:dimension",
+          "dimensions": [
+            "minecraft:the_nether"
+          ]
+        }
+      },
+      "for": 100,
+      "sound": "minecraft:entity.zombie_villager.converted",
+      "particle": "minecraft:soul_fire_flame"
+    }
+  ]
 }
