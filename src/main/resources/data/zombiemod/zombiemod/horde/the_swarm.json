@@ -5,6 +5,8 @@
   "min_radius": 18.0,
   "bar_color": "yellow",
   "announce": "&6Something small is moving, and there is a lot of it.",
+  "victory": "&aThe swarm is scattered.",
+  "xp": 80,
   "sound": "minecraft:entity.zombie.ambient",
   "conditions": [
     {

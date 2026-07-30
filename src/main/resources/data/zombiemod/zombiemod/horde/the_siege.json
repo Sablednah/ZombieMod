@@ -5,6 +5,8 @@
   "min_radius": 26.0,
   "bar_color": "purple",
   "announce": "&4They have come for the walls.",
+  "victory": "&aThe walls held.",
+  "xp": 150,
   "sound": "minecraft:entity.ravager.roar",
   "conditions": [
     {

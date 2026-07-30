@@ -684,7 +684,26 @@ solve) and **The Siege** (breakers first, so the way is open when the rest arriv
 
 The bar counts **what's still alive**, not what's been spawned, because "twelve still out there" is
 the number a player actually wants. A horde ends when its last one falls rather than on a timer —
-which is what makes the quiet afterwards mean anything.
+which is what makes the quiet afterwards mean anything, and it ends with a line, a sound and the
+`xp` the horde is worth, on top of whatever the mobs themselves dropped. A bar that simply vanishes
+reads as the feature stopping rather than as you winning.
+
+### Finding the last one
+
+Which leaves the problem every wave-defence has, and that Minecraft itself has never solved: one
+survivor, somewhere, in the dark. Two answers, both borrowed from vanilla's instincts rather than
+invented:
+
+**Ring a bell.** Exactly what vanilla does for a raid, so the gesture is already learned. Any bell
+within `bellRadius` (48 by default, vanilla's number) makes the horde's survivors glow. It's hooked
+on the ring itself, so an arrow or a redstone pulse works as well as your hand. None of vanilla's
+code is reusable here — `BellBlockEntity.makeRaidersGlow` is private and filters on the
+`#minecraft:raiders` entity tag, which a zombie must never be in, since that tag is what makes
+something count towards a raid.
+
+**Or wait.** Once the last wave is out, a horde that has gone `glowAfter` ticks without a kill lights
+its own survivors up. Measured from the last kill rather than from the start, deliberately: a long
+fight you're winning isn't the problem, and shouldn't be treated as one.
 
 ```toml
 [hordes]
@@ -692,6 +711,10 @@ which is what makes the quiet afterwards mean anything.
     chance = 0.08
     cooldown = 36000    # a day and a half; rarity is most of what makes one memorable
     cap = 40            # never more than this alive at once
+    bellGlow = true     # ring a bell to light up the stragglers
+    bellRadius = 48.0
+    glowAfter = 1200    # ...or a minute without a kill and they light themselves up. 0 disables
+    glowDuration = 200
 ```
 
 ```

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-
 import com.mojang.logging.LogUtils;
 import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;

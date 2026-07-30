@@ -36,6 +36,10 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.DoubleValue HORDE_CHANCE;
     public static final ModConfigSpec.IntValue HORDE_COOLDOWN;
     public static final ModConfigSpec.IntValue HORDE_CAP;
+    public static final ModConfigSpec.BooleanValue HORDE_BELL;
+    public static final ModConfigSpec.DoubleValue HORDE_BELL_RADIUS;
+    public static final ModConfigSpec.IntValue HORDE_GLOW_STALL;
+    public static final ModConfigSpec.IntValue HORDE_GLOW_DURATION;
 
     /** How spawns inside a land claim are treated. */
     public enum ClaimSpawns {
@@ -200,6 +204,26 @@ public final class ZombieModConfig {
         HORDE_CAP = b.comment("Never have more than this many horde mobs alive at once.",
                         "The safety rail: a wave that cannot place its full count simply places fewer.")
                 .defineInRange("cap", 40, 4, 300);
+
+        HORDE_BELL = b.comment("Ringing a bell makes nearby horde mobs glow.",
+                        "Vanilla does exactly this for raids, so the gesture is already learned - but its",
+                        "version is hard-gated on the #minecraft:raiders entity tag and every method in the",
+                        "path is private, so this is our own implementation of the same idea.")
+                .define("bellGlow", true);
+
+        HORDE_BELL_RADIUS = b.comment("How far a bell reaches. 48 is what vanilla uses for raiders.")
+                .defineInRange("bellRadius", 48.0D, 8.0D, 256.0D);
+
+        HORDE_GLOW_STALL = b.comment("Once the last wave is out, make survivors glow after this many",
+                        "ticks without a kill. 1200 is a minute of finding nothing.",
+                        "",
+                        "Deliberately measured from the last kill rather than from the start: a long fight",
+                        "you are winning is not the problem. Hunting one straggler across a dark forest is,",
+                        "and it is a problem Minecraft has never solved well. 0 disables it.")
+                .defineInRange("glowAfter", 1200, 0, 24000);
+
+        HORDE_GLOW_DURATION = b.comment("How long the glow lasts, in ticks. Refreshed while stalled.")
+                .defineInRange("glowDuration", 200, 20, 6000);
 
         b.pop();
         SPEC = b.build();

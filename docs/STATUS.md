@@ -28,6 +28,8 @@ Last updated 2026-07-30.
 | **XP** | Per genus |
 | **Bounty** | Per genus, with a pluggable payer and a scoreboard fallback |
 | **Horde events** | Wave director with a boss bar, three shipped hordes, off by default |
+| **Horde payoff** | Victory line, sound and XP on the last kill |
+| **Straggler glow** | Bell ring, or automatic after a minute with no kill |
 | **Conversion** | What a genus kills rises as one of them, with an undead-counterpart mapping and four guards |
 | **Infection** | Bite now, turn later, whatever kills you — and milk cures it. Bite, timer and the infected-player double-raise verified. |
 | **Proximity spawning** | Zombies out of sight around each player, off by default |
@@ -53,8 +55,14 @@ Last updated 2026-07-30.
   watching them appear, and whether `nearbyCap = 8` is atmosphere or a siege. `/zombiemod status`
   reports the counters.
 - **Bounty payouts** — the scoreboard tally, and whether the numbers feel proportionate.
-- **Hordes.** They load and the commands parse; nobody has survived one. The numbers most likely to
-  be wrong are `cap = 40` and the wave delays — whether it builds or just arrives.
+- **Hordes.** One Siege survived, which found both of the gaps now closed. The numbers most likely
+  to be wrong are still `cap = 40` and the wave delays — whether it builds or just arrives.
+- **The stall glow.** The bell path is verified end to end headlessly; the `glowAfter` watchdog
+  needs a real player, since a horde cannot run without one. Untested: whether 1200 ticks is the
+  right amount of hunting before the game gives in and helps.
+- **Horde counting and chunk unloads.** Survivors are counted by identity now, so distance no longer
+  loses them, but a mob in an unloaded chunk still reads as gone and would end the horde early.
+  Unlikely at these radii; not impossible if a player runs.
 
 ## Left from the 1.8 plugin
 

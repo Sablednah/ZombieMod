@@ -2,9 +2,11 @@ package com.sablednah.zombiemod.neoforge;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import com.mojang.logging.LogUtils;
@@ -26,11 +28,16 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.BossEvent;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.PlayLevelSoundEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /**
@@ -61,9 +68,21 @@ public final class HordeDirector {
         final HordeSpec spec;
         final ServerPlayer player;
         final ServerBossEvent bar;
+        /**
+         * Exactly who it made.
+         *
+         * <p>Counting by identity rather than by a box around the player, because a box gets the
+         * last-straggler case wrong in the worst way: a mob that wandered past the edge stops being
+         * counted, the horde declares itself over, and the thing is still out there. Forty UUID
+         * lookups a tick is nothing, and it is right at any distance.
+         */
+        final Set<UUID> spawned = new HashSet<>();
         int wave;
         int countdown;
         int placed;
+        /** Kill-progress watchdog, for the glow. */
+        int lastAlive = -1;
+        int stalled;
 
         Active(HordeSpec spec, ServerPlayer player) {
             this.spec = spec;
@@ -168,7 +187,7 @@ public final class HordeDirector {
         if (active == null) {
             return false;
         }
-        finish(active, player.level() instanceof ServerLevel level ? level : null);
+        finish(active, player.level() instanceof ServerLevel level ? level : null, false);
         return true;
     }
 
@@ -176,11 +195,11 @@ public final class HordeDirector {
     private boolean advance(Active active) {
         ServerPlayer player = active.player;
         if (player.isRemoved() || !(player.level() instanceof ServerLevel level)) {
-            finish(active, null);
+            finish(active, null, false);
             return false;
         }
 
-        int alive = countAlive(level, active);
+        List<Mob> alive = survivors(level, active);
 
         if (active.wave < active.spec.waves().size()) {
             if (--active.countdown <= 0) {
@@ -189,19 +208,37 @@ public final class HordeDirector {
                 active.placed += spawnWave(level, player, active, wave);
                 active.wave++;
             }
-        } else if (alive <= 0) {
+        } else if (alive.isEmpty()) {
             // Last wave is out and nothing is left standing. Ending on the last kill rather than a
             // timer is what makes the quiet afterwards mean something.
-            finish(active, level);
+            finish(active, level, true);
             LAST_FINISHED.put(player.getUUID(), level.getGameTime());
             return false;
+        } else {
+            // Every wave is out and some are still up: the only phase where "where is it?" is the
+            // question. Count ticks since the last kill, and once that runs long enough, stop making
+            // them hunt. Nothing here fires while a wave is still due, so a slow build is never
+            // mistaken for a player who is stuck.
+            if (alive.size() != active.lastAlive) {
+                active.stalled = 0;
+            } else {
+                active.stalled++;
+            }
+            int after = ZombieModConfig.HORDE_GLOW_STALL.get();
+            // Refreshed on a slow beat rather than every tick: re-applying an effect changes its
+            // duration, which marks the entity dirty and ships a packet, so a per-tick refresh would
+            // be twenty of them a second per mob to achieve exactly nothing.
+            if (after > 0 && active.stalled >= after && active.stalled % 40 == 0) {
+                glow(alive, ZombieModConfig.HORDE_GLOW_DURATION.get());
+            }
         }
+        active.lastAlive = alive.size();
 
         if (active.bar != null) {
             int total = Math.max(1, active.spec.totalCount());
-            active.bar.setProgress(Math.clamp((float) alive / total, 0.0F, 1.0F));
+            active.bar.setProgress(Math.clamp((float) alive.size() / total, 0.0F, 1.0F));
             active.bar.setName(Component.literal(
-                    Announce.format(active.spec.name()).getString() + "  §7" + alive + " left"));
+                    Announce.format(active.spec.name()).getString() + "  §7" + alive.size() + " left"));
         }
         return true;
     }
@@ -212,7 +249,7 @@ public final class HordeDirector {
         int placed = 0;
 
         for (int i = 0; i < wave.count(); i++) {
-            if (countAlive(level, active) + placed >= ZombieModConfig.HORDE_CAP.get()) {
+            if (survivors(level, active).size() + placed >= ZombieModConfig.HORDE_CAP.get()) {
                 break;
             }
             BlockPos at = SpawnPlacement.ringAround(level, player.blockPosition(),
@@ -241,6 +278,7 @@ public final class HordeDirector {
                     level.getRandom().nextFloat() * 360.0F, 0.0F);
             GenusApplier.assign(mob, chosen.get());
             mob.getPersistentData().putString(HORDE_TAG, active.id.toString());
+            active.spawned.add(mob.getUUID());
             // Point it at the player immediately. A horde that wanders off looking for something to
             // do is just a crowd.
             mob.setTarget(player);
@@ -257,23 +295,81 @@ public final class HordeDirector {
         return lookup.get(ResourceKey.create(ZombieModRegistries.GENUS, id));
     }
 
-    private static int countAlive(ServerLevel level, Active active) {
-        String id = active.id.toString();
-        return level.getEntitiesOfClass(Mob.class,
-                active.player.getBoundingBox().inflate(active.spec.radius() + 32.0D),
-                m -> m.isAlive() && id.equals(m.getPersistentData().getString(HORDE_TAG).orElse(null)))
-                .size();
+    /** Everything it placed that is still standing, wherever that is. */
+    private static List<Mob> survivors(ServerLevel level, Active active) {
+        List<Mob> alive = new ArrayList<>();
+        for (UUID id : active.spawned) {
+            if (level.getEntity(id) instanceof Mob mob && mob.isAlive()) {
+                alive.add(mob);
+            }
+        }
+        return alive;
     }
 
-    private static void finish(Active active, ServerLevel level) {
+    /**
+     * Light them up.
+     *
+     * <p>Vanilla does this for raids and the gesture is worth borrowing wholesale, but none of it is
+     * reusable: {@code BellBlockEntity.makeRaidersGlow} is private and filters on the
+     * {@code #minecraft:raiders} entity tag, which a zombie is never in and must not be put in — that
+     * tag is what makes something count towards a raid.
+     */
+    private static void glow(List<Mob> mobs, int duration) {
+        for (Mob mob : mobs) {
+            mob.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0, false, false));
+        }
+    }
+
+    /**
+     * A bell rung anywhere is a bell rung for every horde in earshot.
+     *
+     * <p>Hooked on the sound rather than on the interaction so that it works however the bell was
+     * struck — by hand, by arrow, by redstone — which is the same set vanilla honours. The cost when
+     * no horde is running is one reference comparison on a map that is empty, which is why the
+     * emptiness check comes first: this event fires for every sound in the level.
+     */
+    @SubscribeEvent
+    public void onSound(PlayLevelSoundEvent.AtPosition event) {
+        if (RUNNING.isEmpty() || !ZombieModConfig.HORDE_BELL.get()
+                || event.getSound().value() != SoundEvents.BELL_BLOCK
+                || !(event.getLevel() instanceof ServerLevel level)) {
+            return;
+        }
+        double radius = ZombieModConfig.HORDE_BELL_RADIUS.get();
+        Vec3 at = event.getPosition();
+
+        for (Active active : RUNNING.values()) {
+            if (active.player.level() != level) {
+                continue;
+            }
+            List<Mob> heard = survivors(level, active).stream()
+                    .filter(m -> m.position().closerThan(at, radius))
+                    .toList();
+            if (!heard.isEmpty()) {
+                glow(heard, ZombieModConfig.HORDE_GLOW_DURATION.get());
+            }
+        }
+    }
+
+    private static void finish(Active active, ServerLevel level, boolean cleared) {
         if (active.bar != null) {
             active.bar.removeAllPlayers();
             active.bar.setVisible(false);
         }
-        if (level != null) {
-            LOG.info("ZombieMod: horde '{}' ended for {} ({} placed)",
-                    active.spec.name(), active.player.getName().getString(), active.placed);
+        if (level == null) {
+            return;
         }
+        if (cleared) {
+            ServerPlayer player = active.player;
+            player.displayClientMessage(Announce.format(active.spec.victoryText()), false);
+            if (active.spec.xp() > 0) {
+                player.giveExperiencePoints(active.spec.xp());
+            }
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0F, 1.0F);
+        }
+        LOG.info("ZombieMod: horde '{}' {} for {} ({} placed)", active.spec.name(),
+                cleared ? "cleared" : "ended", active.player.getName().getString(), active.placed);
     }
 
     /** For {@code /zombiemod horde}. */
