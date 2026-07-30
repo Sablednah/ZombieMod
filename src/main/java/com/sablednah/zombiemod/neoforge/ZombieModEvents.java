@@ -197,6 +197,17 @@ public final class ZombieModEvents {
             com.sablednah.zombiemod.core.ability.Infect.clear(victim);
             return;
         }
+        // A player dying infected would otherwise raise twice: once here, and once from the
+        // player-zombie corpse a moment later when drops are handled. Both is the default because
+        // only the corpse carries the loot, so the pair reads as a decoy rather than a duplicate -
+        // but it should be a choice rather than an accident of event ordering.
+        if (victim instanceof net.minecraft.world.entity.player.Player
+                && ZombieModConfig.PLAYER_ZOMBIES.get()
+                && !ZombieModConfig.PLAYER_ZOMBIE_INFECTED_TOO.get()) {
+            com.sablednah.zombiemod.core.ability.Infect.clear(victim);
+            return;
+        }
+
         var genusId = victim.getPersistentData().getString(
                         com.sablednah.zombiemod.core.ability.Infect.GENUS_TAG)
                 .map(net.minecraft.resources.Identifier::tryParse);

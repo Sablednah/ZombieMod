@@ -17,6 +17,7 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.BooleanValue PLAYER_ZOMBIE_TAKES_ITEMS;
     public static final ModConfigSpec.ConfigValue<String> PLAYER_ZOMBIE_GENUS;
     public static final ModConfigSpec.ConfigValue<String> PLAYER_ZOMBIE_NAME;
+    public static final ModConfigSpec.BooleanValue PLAYER_ZOMBIE_INFECTED_TOO;
     public static final ModConfigSpec.BooleanValue CLAIM_PROTECTION;
     public static final ModConfigSpec.BooleanValue CLAIM_NO_GRIEFING;
     public static final ModConfigSpec.EnumValue<ClaimSpawns> CLAIM_SPAWNS;
@@ -76,6 +77,15 @@ public final class ZombieModConfig {
 
         PLAYER_ZOMBIE_NAME = b.comment("Corpse name. %P is the player's name.")
                 .define("name", "Corpse %P");
+
+        PLAYER_ZOMBIE_INFECTED_TOO = b.comment(
+                        "A player who dies infected raises BOTH: the corpse, wearing their face and",
+                        "carrying their belongings, and a second zombie from the infection itself.",
+                        "",
+                        "Only the corpse has the loot, so the pair works as a decoy - killing the",
+                        "wrong one gets you nothing. Set false if you would rather one death meant",
+                        "one zombie.")
+                .define("infectionAlsoRaises", true);
 
         b.pop();
 
