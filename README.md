@@ -678,6 +678,18 @@ spawn-position hook so spawn-control mods still get a say.
 `outOfSightOnly` is the one that matters for feel: the point is that they were always there, not that
 you watched them appear.
 
+Which makes it **impossible to tell whether it's working by looking** — so `/zombiemod status` reports
+what it's been doing:
+
+```
+proximity: true   240 attempts, 12 spawned (no spot 31, in view 190, at cap 7, claimed 0, no genus 0)
+```
+
+The breakdown matters more than the total. 240 attempts producing 12 tells you little; 190 of them
+rejected *for being in view* tells you exactly which knob to turn — lower `outOfSightOnly`, or push
+`minDistance` out so there's more cover between you and the spot. `logSpawns = true` logs each one
+with its distance.
+
 ## Land claims (FTB Chunks)
 
 If [FTB Chunks](https://www.curseforge.com/minecraft/mc-mods/ftb-chunks) is installed, ZombieMod

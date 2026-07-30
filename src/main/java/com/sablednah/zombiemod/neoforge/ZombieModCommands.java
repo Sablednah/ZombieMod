@@ -167,6 +167,10 @@ public final class ZombieModCommands {
                 + "   noGriefingInClaims: " + ZombieModConfig.CLAIM_NO_GRIEFING.get()
                 + "   inClaims: " + ZombieModConfig.CLAIM_SPAWNS.get()), false);
 
+        boolean prox = ZombieModConfig.PROXIMITY.get();
+        src.sendSuccess(() -> Component.literal((prox ? "§a" : "§7") + "  proximity: " + prox
+                + "§r   " + ProximitySpawner.COUNTERS), false);
+
         src.sendSuccess(() -> Component.literal("  genera loaded: "
                 + lookup(source).listElementIds().count()), false);
         src.sendSuccess(() -> Component.literal("§7  config is per-world in singleplayer:"), false);

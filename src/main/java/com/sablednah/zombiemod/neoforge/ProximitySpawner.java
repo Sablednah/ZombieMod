@@ -24,6 +24,9 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
+import com.mojang.logging.LogUtils;
+import org.slf4j.Logger;
+
 /**
  * Puts zombies near players, rather than only decorating the ones vanilla decided to make.
  *
@@ -39,6 +42,40 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
  * dark. This adds opportunities; it does not bypass the rules.
  */
 public final class ProximitySpawner {
+
+    /**
+     * Counters, because this feature is designed to be unobservable and therefore indistinguishable
+     * from broken. {@code outOfSightOnly} means you are never supposed to catch one arriving, so
+     * "is it working?" cannot be answered by looking - only by asking.
+     *
+     * <p>The breakdown matters more than the total: 200 attempts producing nothing tells you very
+     * little, while 200 attempts of which 180 were rejected for being in view tells you exactly which
+     * knob to turn.
+     */
+    public static final class Counters {
+        public int attempts;
+        public int spawned;
+        public int noSpot;
+        public int inView;
+        public int capped;
+        public int claimed;
+        public int noGenus;
+
+        public void reset() {
+            attempts = spawned = noSpot = inView = capped = claimed = noGenus = 0;
+        }
+
+        @Override
+        public String toString() {
+            return String.format(
+                    "%d attempts, %d spawned (no spot %d, in view %d, at cap %d, claimed %d, no genus %d)",
+                    attempts, spawned, noSpot, inView, capped, claimed, noGenus);
+        }
+    }
+
+    public static final Counters COUNTERS = new Counters();
+
+    private static final Logger LOG = LogUtils.getLogger();
 
     private int ticks;
 
@@ -60,6 +97,7 @@ public final class ProximitySpawner {
                 if (level.getRandom().nextDouble() >= ZombieModConfig.PROXIMITY_CHANCE.get()) {
                     continue;
                 }
+                COUNTERS.attempts++;
                 trySpawnNear(level, player);
             }
         }
@@ -69,17 +107,20 @@ public final class ProximitySpawner {
         RandomSource random = level.getRandom();
 
         if (countNearby(level, player) >= ZombieModConfig.PROXIMITY_CAP.get()) {
+            COUNTERS.capped++;
             return;
         }
 
         BlockPos at = findSpot(level, player, random);
         if (at == null) {
+            COUNTERS.noSpot++;
             return;
         }
 
         if (ZombieModConfig.CLAIM_PROTECTION.get()
                 && ZombieModConfig.CLAIM_SPAWNS.get() != ZombieModConfig.ClaimSpawns.ALLOW
                 && FtbChunks.isClaimed(level, at)) {
+            COUNTERS.claimed++;
             return;
         }
 
@@ -99,6 +140,7 @@ public final class ProximitySpawner {
             total += genus.weight();
         }
         if (eligible.isEmpty()) {
+            COUNTERS.noGenus++;
             return;
         }
 
@@ -130,6 +172,16 @@ public final class ProximitySpawner {
 
         GenusApplier.assign(mob, chosen);
         level.addFreshEntity(mob);
+        COUNTERS.spawned++;
+
+        if (ZombieModConfig.LOG_SPAWNS.get()) {
+            // Proximity spawns bypass FinalizeSpawnEvent, so logSpawns missed them entirely - which
+            // is precisely the feature you most want a log line for.
+            LOG.info("ZombieMod: proximity {} at {} {} {} ({} blocks from {})",
+                    chosen.key().identifier(), at.getX(), at.getY(), at.getZ(),
+                    (int) Math.sqrt(player.distanceToSqr(at.getX(), at.getY(), at.getZ())),
+                    player.getName().getString());
+        }
     }
 
     /**
@@ -139,6 +191,7 @@ public final class ProximitySpawner {
         int min = ZombieModConfig.PROXIMITY_MIN.get();
         int max = Math.max(min + 1, ZombieModConfig.PROXIMITY_MAX.get());
 
+        boolean sawIt = false;
         for (int attempt = 0; attempt < 8; attempt++) {
             double angle = random.nextDouble() * Math.PI * 2.0D;
             double distance = min + random.nextDouble() * (max - min);
@@ -158,9 +211,16 @@ public final class ProximitySpawner {
                 continue;
             }
             if (ZombieModConfig.PROXIMITY_UNSEEN.get() && canSee(level, player, candidate)) {
+                sawIt = true;
                 continue;
             }
             return candidate;
+        }
+        // Attribute the failure to the most useful cause: if any candidate was rejected only for
+        // being visible, that is the knob to turn, not the terrain.
+        if (sawIt) {
+            COUNTERS.inView++;
+            COUNTERS.noSpot--;
         }
         return null;
     }
