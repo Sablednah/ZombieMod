@@ -28,8 +28,7 @@ Last updated 2026-07-30.
 | **XP** | Per genus |
 | **Bounty** | Per genus, with a pluggable payer and a scoreboard fallback |
 | **Horde events** | Wave director with a boss bar, three shipped hordes, off by default |
-| **Horde payoff** | Victory line, sound and XP on the last kill |
-| **Straggler glow** | Bell ring, or automatic after a minute with no kill |
+| **Straggler glow** | Both paths: a bell ring lights them up, and a horde that goes a minute without a kill lights them up itself |
 | **Conversion** | What a genus kills rises as one of them, with an undead-counterpart mapping and four guards |
 | **Infection** | Bite now, turn later, whatever kills you — and milk cures it. Bite, timer and the infected-player double-raise verified. |
 | **Proximity spawning** | Zombies out of sight around each player, off by default |
@@ -40,6 +39,8 @@ Last updated 2026-07-30.
 - **`NO_SPAWNS` claim mode** — the griefing veto is verified, but only the default `VANILLA_ONLY`
   spawn behaviour has been exercised; nobody has watched `NO_SPAWNS` cancel a spawn.
 - **Non-zombie bases beyond husk/drowned/skeleton** — `giant`, `zombie_villager`, `iron_golem`.
+- **Horde payoff** — the victory line, sound and XP on the last kill. Built alongside the glow but
+  not separately confirmed; it needs a horde fought all the way to its end.
 - **`alert`** — Screamer handing its target to a horde.
 - **`summon`'s `max_nearby` cap** under real pressure, i.e. a Breeder left alone in a loaded chunk.
 - **Corpse recovery edge cases** — a corpse lost to lava or a mob grinder, then `give`/`respawn`.
@@ -56,10 +57,8 @@ Last updated 2026-07-30.
   reports the counters.
 - **Bounty payouts** — the scoreboard tally, and whether the numbers feel proportionate.
 - **Hordes.** One Siege survived, which found both of the gaps now closed. The numbers most likely
-  to be wrong are still `cap = 40` and the wave delays — whether it builds or just arrives.
-- **The stall glow.** The bell path is verified end to end headlessly; the `glowAfter` watchdog
-  needs a real player, since a horde cannot run without one. Untested: whether 1200 ticks is the
-  right amount of hunting before the game gives in and helps.
+  to be wrong are still `cap = 40` and the wave delays — whether it builds or just arrives — and
+  now `glowAfter = 1200`: whether a minute is the right amount of hunting before the game gives in.
 - **Horde counting and chunk unloads.** Survivors are counted by identity now, so distance no longer
   loses them, but a mob in an unloaded chunk still reads as gone and would end the horde early.
   Unlikely at these radii; not impossible if a player runs.
