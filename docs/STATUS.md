@@ -27,7 +27,7 @@ Last updated 2026-07-30.
 | **Land claims** | FTB Chunks, by reflection, inert without it. Griefing veto verified in both directions: refuses inside a claim, breaks again the instant the claim is removed. |
 | **XP** | Per genus |
 | **Conversion** | What a genus kills rises as one of them, with an undead-counterpart mapping and four guards |
-| **Infection** | Bite now, turn later, whatever kills you — and milk cures it |
+| **Infection** | Bite now, turn later, whatever kills you — and milk cures it. Bite, timer and the infected-player double-raise verified. |
 | **Proximity spawning** | Zombies out of sight around each player, off by default |
 | **Commands** | `list`, `spawn`, `status`, `observe`, `corpse …` |
 
@@ -43,8 +43,10 @@ Last updated 2026-07-30.
 - **Conversion in play.** The guards are tested (a listed victim rises, an unlisted one doesn't, an
   undead one never does, and 40 kills in one tick produce exactly one). Nobody has watched a Carrier
   work through a village, which is the case that matters.
-- **Infection end to end** — being bitten, seeing the timer, dying to something unrelated and getting
-  up. And the cure: milk clearing it before you die.
+- **Infection's two remaining paths.** Being bitten and then dying to something *unrelated* — a fall,
+  drowning — which is the whole point of the delay. And the cure: milk clearing it before you die.
+- **Corpse recovery after killing only the decoy.** The one path where a bug would genuinely cost
+  someone their inventory.
 - **Proximity spawning** — needs `enabled = true`. Whether `outOfSightOnly` actually prevents you
   watching them appear, and whether `nearbyCap = 8` is atmosphere or a siege.
 
