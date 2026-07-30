@@ -56,8 +56,9 @@ Last updated 2026-07-30.
   reports the counters.
 - **Bounty payouts** — the scoreboard tally, and whether the numbers feel proportionate.
 - **Hordes.** One Siege survived, which found both of the gaps now closed. The numbers most likely
-  to be wrong are still `cap = 40` and the wave delays — whether it builds or just arrives — and
-  now `glowAfter = 1200`: whether a minute is the right amount of hunting before the game gives in.
+  to be wrong are still `cap = 40` and the wave delays — whether it builds or just arrives.
+  `glowAfter = 1200` is settled: in play it fired just as the player was giving up and heading for a
+  bell, which is exactly where that threshold wants to sit.
 - **Horde counting and chunk unloads.** Survivors are counted by identity now, so distance no longer
   loses them, but a mob in an unloaded chunk still reads as gone and would end the horde early.
   Unlikely at these radii; not impossible if a player runs.

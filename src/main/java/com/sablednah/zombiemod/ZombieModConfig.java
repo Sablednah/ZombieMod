@@ -219,7 +219,11 @@ public final class ZombieModConfig {
                         "",
                         "Deliberately measured from the last kill rather than from the start: a long fight",
                         "you are winning is not the problem. Hunting one straggler across a dark forest is,",
-                        "and it is a problem Minecraft has never solved well. 0 disables it.")
+                        "and it is a problem Minecraft has never solved well. 0 disables it.",
+                        "",
+                        "1200 is tuned rather than guessed: in play it fires at about the moment a player",
+                        "gives up searching and starts walking back to a bell, which is where it wants to be.",
+                        "Much shorter and it robs the hunt; much longer and you have already given up on it.")
                 .defineInRange("glowAfter", 1200, 0, 24000);
 
         HORDE_GLOW_DURATION = b.comment("How long the glow lasts, in ticks. Refreshed while stalled.")
