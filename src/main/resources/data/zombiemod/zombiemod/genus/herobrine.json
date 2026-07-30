@@ -55,5 +55,6 @@
       "on_projectile": true,
       "vanish_chance": 0.25
     }
-  ]
+  ],
+  "bounty": 25.0
 }

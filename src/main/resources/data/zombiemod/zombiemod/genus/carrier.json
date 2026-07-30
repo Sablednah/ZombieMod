@@ -103,5 +103,6 @@
       "particle": "minecraft:spore_blossom_air",
       "count": 3
     }
-  ]
+  ],
+  "bounty": 5.0
 }

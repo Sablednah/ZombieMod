@@ -67,5 +67,6 @@
       "interval": 80,
       "amount": 1.0
     }
-  ]
+  ],
+  "bounty": 8.0
 }

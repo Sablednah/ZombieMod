@@ -88,5 +88,6 @@
       "effect": "minecraft:fire_resistance",
       "duration": 200
     }
-  ]
+  ],
+  "bounty": 3.0
 }

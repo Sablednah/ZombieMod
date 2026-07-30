@@ -55,5 +55,6 @@
       "distance": 2.0,
       "only_when_unseen": true
     }
-  ]
+  ],
+  "bounty": 20.0
 }

@@ -38,7 +38,7 @@ reachable, not that the code was translated.
 | **Proximity spawning** | ❌ | `ProximitySystems`: spawned zombies just out of sight around each player, ignoring vanilla's rules, scaled by distance from world spawn. Different in feel from riding vanilla's spawn table — it's what made the world feel occupied. |
 | **Jockeys / mounts** | ✅ | A `mount` field taking an entity id. See Outrider. |
 | Angry iron golems | ⚠️ | The original registered a hostile `AngryGolem`. A genus with `base: minecraft:iron_golem` gets most of the way there — untested. |
-| XP and bounty on kill | ⚠️ | `xp` shipped. Bounty still needs an economy mod, and there is no Vault equivalent — Impactor is the closest thing to a common API. Deferred. |
+| XP and bounty on kill | ✅ | Both shipped. `xp` is vanilla; `bounty` is a number on the genus with a pluggable payer, falling back to a scoreboard objective so it works with no economy mod at all. |
 | DaySpawner | — | Already dead in the original: commented out at its scheduling site. |
 | BeardStat, Spout, LegendQuest, Factions | — | Gone. FTB Chunks/Teams and CityWorld are the modern replacements, planned as spawn conditions. |
 
@@ -51,8 +51,7 @@ reachable, not that the code was translated.
   there should be, and they're already close" is a different feeling from riding the vanilla spawn
   table, and it's the last real gap in how the mod *feels*.
 - **Angry iron golems** — probably just `base: minecraft:iron_golem` on a genus. Untested.
-- **Bounty** — waiting on an economy decision. There is no Vault equivalent on NeoForge; Impactor is
-  the closest thing to a common API and isn't on 1.21.11. `xp` on the genus covers most of the intent.
+- **Nothing else.** Bounty was the last, and it shipped without committing to an economy mod.
 
 Live status, including what's built but unverified, is in [STATUS.md](STATUS.md).
 

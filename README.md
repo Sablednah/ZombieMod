@@ -89,6 +89,7 @@ Here is the coward, in full:
 | `boss` | *(none)* | Present makes this a boss — see below. |
 | `phases` | `[]` | Stages that open up as it's worn down — see below. |
 | `loot` | *(none)* | `{ "table": "<id>", "replace": false }` — genus-specific drops. |
+| `bounty` | *(none)* | What killing it is worth — see below. |
 | `xp` | *vanilla* | Experience dropped on death. A Tank worth the same 5xp as a stray zombie is a strange reward for a two-minute fight. |
 | `behaviours` | `[]` | Goal sets that switch on and off with a condition — see below. |
 | `ghost` | `false` | Take the name and face of a random player who has played on this server. |
@@ -649,6 +650,45 @@ A corpse that dies normally settles its own entry. Anything else, and an admin c
 
 `n` is the index shown by `list`, defaulting to the most recent. All op-only, like every other
 ZombieMod command.
+
+## Bounties
+
+A genus can carry a `bounty` — what killing it is worth. Every shipped genus has one, roughly
+proportional to how much trouble it is: a Walker is 1, a Tank 15, Patient Zero 150.
+
+**Who pays it is a separate question.** There's no Vault on NeoForge — no abstraction every economy
+mod implements — so ZombieMod doesn't pick one for you. An economy adapter registers itself:
+
+```java
+Bounties.register((player, amount) -> myEconomy.deposit(player, amount));
+```
+
+Payers are additive, not exclusive, so an adapter registering doesn't stop the built-in tally — a
+server may reasonably want both the money and the count.
+
+### With no economy mod
+
+The fallback is the **scoreboard**, which is a real reward on a vanilla server rather than a number
+waiting for a dependency. Opt in with one command:
+
+```
+/scoreboard objectives add zombiemod.bounty dummy
+/scoreboard objectives setdisplay sidebar zombiemod.bounty
+```
+
+ZombieMod only tallies into an objective that **already exists**, so nothing appears on a server that
+never asked for it. Scores are integers, so fractional bounties accumulate as their floor — paying
+less than the genus is worth being the better error of the two.
+
+```toml
+[bounty]
+    enabled = true
+    objective = "zombiemod.bounty"   # blank to disable
+    announce = true                  # action-bar payout on the kill
+```
+
+Shooting one from a distance counts — the payout reads the damage source's owner, so a bounty that
+only paid for melee would quietly punish the players being careful.
 
 ## Proximity spawning
 

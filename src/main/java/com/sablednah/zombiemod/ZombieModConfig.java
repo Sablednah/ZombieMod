@@ -28,6 +28,9 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.IntValue PROXIMITY_MAX;
     public static final ModConfigSpec.IntValue PROXIMITY_CAP;
     public static final ModConfigSpec.BooleanValue PROXIMITY_UNSEEN;
+    public static final ModConfigSpec.BooleanValue BOUNTY;
+    public static final ModConfigSpec.ConfigValue<String> BOUNTY_OBJECTIVE;
+    public static final ModConfigSpec.BooleanValue BOUNTY_ANNOUNCE;
 
     /** How spawns inside a land claim are treated. */
     public enum ClaimSpawns {
@@ -142,6 +145,29 @@ public final class ZombieModConfig {
         PROXIMITY_UNSEEN = b.comment("Only spawn where the player cannot currently see the spot.",
                         "The point is that they were always there, not that they appeared.")
                 .define("outOfSightOnly", true);
+
+        b.pop();
+
+        b.comment("Bounties: what killing a genus is worth.",
+                "",
+                "A genus carries a number; who pays it is a separate question. There is no Vault on",
+                "NeoForge - no abstraction every economy mod implements - so ZombieMod does not pick",
+                "one for you. An economy adapter registers itself and gets called.",
+                "",
+                "With no economy mod at all the scoreboard is the fallback, which is a real reward on",
+                "a vanilla server rather than a number waiting for a dependency. Opt in with:",
+                "  /scoreboard objectives add zombiemod.bounty dummy",
+                "  /scoreboard objectives setdisplay sidebar zombiemod.bounty").push("bounty");
+
+        BOUNTY = b.comment("Pay out bounties at all.").define("enabled", true);
+
+        BOUNTY_OBJECTIVE = b.comment(
+                        "Scoreboard objective to tally into. Only used if it already exists, so",
+                        "nothing appears on a server that never asked for it. Blank to disable.")
+                .define("objective", "zombiemod.bounty");
+
+        BOUNTY_ANNOUNCE = b.comment("Show the payout on the killer's action bar.")
+                .define("announce", true);
 
         b.pop();
         SPEC = b.build();

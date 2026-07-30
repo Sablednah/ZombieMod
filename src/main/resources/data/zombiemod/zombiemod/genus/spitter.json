@@ -68,5 +68,6 @@
       "particle": "minecraft:spit",
       "count": 4
     }
-  ]
+  ],
+  "bounty": 3.0
 }

@@ -82,17 +82,18 @@ public record Genus(
      * {@code MapCodec} reads sibling keys, so all three stay flat in the JSON.
      */
     public record Encounter(Optional<BossSpec> boss, List<Phase> phases, Optional<LootSpec> loot,
-            Optional<Integer> xp) {
+            Optional<Integer> xp, Optional<Double> bounty) {
 
-        public static final Encounter NONE =
-                new Encounter(Optional.empty(), List.of(), Optional.empty(), Optional.empty());
+        public static final Encounter NONE = new Encounter(Optional.empty(), List.of(),
+                Optional.empty(), Optional.empty(), Optional.empty());
 
         public static final com.mojang.serialization.MapCodec<Encounter> MAP_CODEC =
                 RecordCodecBuilder.mapCodec(i -> i.group(
                         BossSpec.CODEC.optionalFieldOf("boss").forGetter(Encounter::boss),
                         Phase.CODEC.listOf().optionalFieldOf("phases", List.of()).forGetter(Encounter::phases),
                         LootSpec.CODEC.optionalFieldOf("loot").forGetter(Encounter::loot),
-                        Codec.INT.optionalFieldOf("xp").forGetter(Encounter::xp))
+                        Codec.INT.optionalFieldOf("xp").forGetter(Encounter::xp),
+                        Codec.DOUBLE.optionalFieldOf("bounty").forGetter(Encounter::bounty))
                         .apply(i, Encounter::new));
     }
 
@@ -210,6 +211,11 @@ public record Genus(
     /** Experience dropped on death, or absent to keep the base mob's. */
     public Optional<Integer> xp() {
         return encounter.xp();
+    }
+
+    /** What killing this is worth, in whatever currency the server has. */
+    public Optional<Double> bounty() {
+        return encounter.bounty();
     }
 
     /** Display name as a component, or empty if this genus goes unnamed. */

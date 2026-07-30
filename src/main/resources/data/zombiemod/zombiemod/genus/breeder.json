@@ -84,5 +84,6 @@
       "particle": "minecraft:angry_villager",
       "count": 3
     }
-  ]
+  ],
+  "bounty": 8.0
 }

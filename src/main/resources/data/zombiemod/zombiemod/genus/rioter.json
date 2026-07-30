@@ -75,5 +75,6 @@
       "who": "monster",
       "max_alerted": 6
     }
-  ]
+  ],
+  "bounty": 4.0
 }

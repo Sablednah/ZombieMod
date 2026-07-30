@@ -49,5 +49,6 @@
       "priority": 9
     }
   ],
-  "target_goals": []
+  "target_goals": [],
+  "bounty": 1.0
 }

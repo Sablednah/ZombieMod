@@ -62,5 +62,6 @@
       "priority": 2,
       "target": "player"
     }
-  ]
+  ],
+  "bounty": 1.0
 }

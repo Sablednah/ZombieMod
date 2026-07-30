@@ -26,6 +26,7 @@ Last updated 2026-07-30.
 | **Block breaking** | Tag-gated, griefing-hook aware, long target memory |
 | **Land claims** | FTB Chunks, by reflection, inert without it. Griefing veto verified in both directions: refuses inside a claim, breaks again the instant the claim is removed. |
 | **XP** | Per genus |
+| **Bounty** | Per genus, with a pluggable payer and a scoreboard fallback |
 | **Conversion** | What a genus kills rises as one of them, with an undead-counterpart mapping and four guards |
 | **Infection** | Bite now, turn later, whatever kills you — and milk cures it. Bite, timer and the infected-player double-raise verified. |
 | **Proximity spawning** | Zombies out of sight around each player, off by default |
@@ -48,7 +49,9 @@ Last updated 2026-07-30.
 - **Corpse recovery after killing only the decoy.** The one path where a bug would genuinely cost
   someone their inventory.
 - **Proximity spawning** — needs `enabled = true`. Whether `outOfSightOnly` actually prevents you
-  watching them appear, and whether `nearbyCap = 8` is atmosphere or a siege.
+  watching them appear, and whether `nearbyCap = 8` is atmosphere or a siege. `/zombiemod status`
+  reports the counters.
+- **Bounty payouts** — the scoreboard tally, and whether the numbers feel proportionate.
 
 ## Left from the 1.8 plugin
 

@@ -129,5 +129,6 @@
   "loot": {
     "table": "zombiemod:entities/butcher",
     "replace": false
-  }
+  },
+  "bounty": 50.0
 }

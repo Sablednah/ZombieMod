@@ -292,6 +292,26 @@ public final class ZombieModEvents {
         });
     }
 
+    /**
+     * Pay whoever killed a genus. Reads the source's owner, so shooting one from a distance counts -
+     * a bounty that only paid for melee would quietly punish exactly the players being careful.
+     */
+    @SubscribeEvent
+    public void onBountyDeath(net.neoforged.neoforge.event.entity.living.LivingDeathEvent event) {
+        if (!(event.getEntity() instanceof Mob mob) || !(mob.level() instanceof ServerLevel level)) {
+            return;
+        }
+        if (!(event.getSource().getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) {
+            return;
+        }
+        if (mob.getPersistentData().getString(GenusApplier.GENUS_TAG).isEmpty()) {
+            return;
+        }
+        GenusApplier.genusOf(mob, level).ifPresent(holder -> holder.value().bounty().ifPresent(
+                amount -> Bounties.award(level, player, amount,
+                        holder.value().displayName().orElse(mob.getName()))));
+    }
+
     @SubscribeEvent
     public void onLeaveLevel(EntityLeaveLevelEvent event) {
         if (event.getLevel().isClientSide()) {

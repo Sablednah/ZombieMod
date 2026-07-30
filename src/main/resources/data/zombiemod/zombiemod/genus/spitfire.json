@@ -71,5 +71,6 @@
       "particle": "minecraft:flame",
       "count": 3
     }
-  ]
+  ],
+  "bounty": 4.0
 }

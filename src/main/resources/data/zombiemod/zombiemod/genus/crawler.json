@@ -72,5 +72,6 @@
       "particle": "minecraft:item_cobweb",
       "count": 2
     }
-  ]
+  ],
+  "bounty": 2.0
 }

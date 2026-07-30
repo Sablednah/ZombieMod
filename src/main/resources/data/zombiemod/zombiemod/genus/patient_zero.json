@@ -197,5 +197,6 @@
   "loot": {
     "table": "zombiemod:entities/patient_zero",
     "replace": false
-  }
+  },
+  "bounty": 150.0
 }
