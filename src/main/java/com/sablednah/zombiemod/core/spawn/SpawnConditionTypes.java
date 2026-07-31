@@ -31,6 +31,9 @@ public final class SpawnConditionTypes {
         register(SpawnConditions.SeeSky.TYPE, SpawnConditions.SeeSky.CODEC);
         register(SpawnConditions.TimeOfDay.TYPE, SpawnConditions.TimeOfDay.CODEC);
         register(SpawnConditions.InClaim.TYPE, SpawnConditions.InClaim.CODEC);
+        register(SpawnConditions.CityDistrict.TYPE, SpawnConditions.CityDistrict.CODEC);
+        register(SpawnConditions.CityLot.TYPE, SpawnConditions.CityLot.CODEC);
+        register(SpawnConditions.CityNature.TYPE, SpawnConditions.CityNature.CODEC);
         register(SpawnConditions.AnyOf.TYPE, SpawnConditions.AnyOf.CODEC);
         register(SpawnConditions.Not.TYPE, SpawnConditions.Not.CODEC);
     }

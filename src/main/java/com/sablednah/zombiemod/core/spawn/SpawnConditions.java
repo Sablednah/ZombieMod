@@ -242,6 +242,114 @@ public final class SpawnConditions {
         }
     }
 
+    // ---------------------------------------------------------------- CityWorld
+
+    /*
+     * The three below all answer "no" when CityWorld is absent, or when the level is an ordinary
+     * one. Failing closed rather than open is the only defensible default: a genus that says it
+     * belongs in a highrise district is opting into CityWorld, and the alternative — treating an
+     * unanswerable question as satisfied — would put city-only monsters everywhere in a vanilla
+     * world, which is both surprising and much harder to diagnose than their simply not appearing.
+     */
+
+    /**
+     * Which district: {@code HIGHRISE}, {@code FARM}, {@code NATURE}, {@code INDUSTRIAL} and the
+     * rest, or the context class name for finer grain.
+     *
+     * <p>This is the coarse "what kind of place is this", and the one most genera want.
+     */
+    public record CityDistrict(List<String> districts, List<String> classes) implements SpawnCondition {
+
+        public static final Identifier TYPE = id("city_district");
+
+        public static final MapCodec<CityDistrict> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Codec.STRING.listOf().optionalFieldOf("districts", List.of()).forGetter(CityDistrict::districts),
+                Codec.STRING.listOf().optionalFieldOf("classes", List.of()).forGetter(CityDistrict::classes))
+                .apply(i, CityDistrict::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public boolean test(Level level, BlockPos pos) {
+            return com.sablednah.zombiemod.compat.CityWorld.lotAt(level, pos)
+                    .filter(lot -> matches(districts, lot.context()) && matches(classes, lot.contextClass()))
+                    .isPresent();
+        }
+    }
+
+    /**
+     * Which lot: {@code ROAD} for something that hunts the streets, {@code STRUCTURE} for something
+     * that lives indoors, or a named schematic for something that haunts one specific building.
+     */
+    public record CityLot(List<String> styles, List<String> classes, List<String> schematics)
+            implements SpawnCondition {
+
+        public static final Identifier TYPE = id("city_lot");
+
+        public static final MapCodec<CityLot> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Codec.STRING.listOf().optionalFieldOf("styles", List.of()).forGetter(CityLot::styles),
+                Codec.STRING.listOf().optionalFieldOf("classes", List.of()).forGetter(CityLot::classes),
+                Codec.STRING.listOf().optionalFieldOf("schematics", List.of()).forGetter(CityLot::schematics))
+                .apply(i, CityLot::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public boolean test(Level level, BlockPos pos) {
+            return com.sablednah.zombiemod.compat.CityWorld.lotAt(level, pos)
+                    .filter(lot -> matches(styles, lot.style())
+                            && matches(classes, lot.lotClass())
+                            && matches(schematics, lot.schematic()))
+                    .isPresent();
+        }
+    }
+
+    /**
+     * How wild the generator graded this place: 0.0 is dense city, 1.0 is wilderness.
+     *
+     * <p>The one worth reaching for when you want density rather than a category — "more of them the
+     * further into town you get" is a range on this, not a list of district names.
+     */
+    public record CityNature(double min, double max) implements SpawnCondition {
+
+        public static final Identifier TYPE = id("city_nature");
+
+        public static final MapCodec<CityNature> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Codec.DOUBLE.optionalFieldOf("min", 0.0D).forGetter(CityNature::min),
+                Codec.DOUBLE.optionalFieldOf("max", 1.0D).forGetter(CityNature::max))
+                .apply(i, CityNature::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public boolean test(Level level, BlockPos pos) {
+            return com.sablednah.zombiemod.compat.CityWorld.lotAt(level, pos)
+                    .filter(lot -> lot.nature() >= min && lot.nature() <= max)
+                    .isPresent();
+        }
+    }
+
+    /**
+     * An empty list means "do not care", which is what lets one condition ask about a district, a
+     * class, or both. Case-insensitive so a datapack can write {@code "highrise"} rather than
+     * shouting the enum constant.
+     */
+    private static boolean matches(List<String> wanted, String actual) {
+        if (wanted.isEmpty()) {
+            return true;
+        }
+        return actual != null && wanted.stream().anyMatch(w -> w.equalsIgnoreCase(actual));
+    }
+
     /** Inverts a condition — "anywhere but the Nether", "not in daylight". */
     public record Not(SpawnCondition condition) implements SpawnCondition {
 

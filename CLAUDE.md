@@ -212,12 +212,28 @@ counter and `% N` sub-rates), `ProximitySystems` (spawn-near-player). Note it do
 Abilities the old mod shipped, as a to-port checklist: `BACKSTAB BORG BREEDER EXPLODE GHOST HEAL
 HEROBRINE HUNTER INFEST INK LAZER LIGHTNING SHOCKWAVE SPIDER STOMP WEB`.
 
+### Testing the CityWorld integration
+
+It is reflective, so "it compiles" proves nothing at all. To exercise it for real:
+
+```bash
+cp ../CityWorld-ReForged/build/libs/cityworld-*.jar run/mods/
+# in run/server.properties:  level-type=cityworld\:city  and a fresh level-name
+./gradlew runServer
+```
+
+A probe walking a grid of `CityWorld.lotAt` should see several districts and all four lot styles;
+one that only ever sees `NATURE` means the preset did not take and the generator is vanilla. Put
+`run/server.properties` back and remove the jar afterwards, or every later dev run pays for it.
+
 ## Integrations
 
 Of the 1.8 plugin's six soft-depends (Vault, Spout, LegendQuest, Factions, CityWorld, CreeperHeal),
 only CityWorld survives — and it's the same author's, being ported next door.
-`../CityWorld-ReForged/.../api/CityWorldAPI.java` deliberately keeps a stringly-typed
-`getFullInfo(ServerLevel, BlockPos)` matching the Bukkit call the old `ProximitySystems` made, so
-context/schematic-driven spawn weighting can be ported near 1:1. Keep it **optional** — the 1.8
+`../CityWorld-ReForged/.../api/CityWorldAPI.java` keeps a stringly-typed
+`getFullInfo(ServerLevel, BlockPos)` matching the Bukkit call the old `ProximitySystems` made, but
+`compat/CityWorld` goes through the typed `lotAt`/`LotInfo` instead: the string map omits
+`naturePercent`, the generator's own dense-city-to-wilderness grading, which is the most useful
+number of the lot. Keep it **optional** — the 1.8
 plugin's real bug was calling Factions' `BoardColl` with no `hasFactions` guard, making a soft
 dependency mandatory in practice.

@@ -28,6 +28,7 @@ Last updated 2026-07-30.
 | **XP** | Per genus |
 | **Bounty** | Per genus, with a pluggable payer and a scoreboard fallback |
 | **Horde events** | Wave director with a boss bar, three shipped hordes, off by default |
+| **CityWorld districts** | 3 conditions on district, lot and wildness, reflective and inert without it. Verified against a generated city: 289 lots, 7 districts, 4 lot styles |
 | **Mutation** | Genus becomes another genus on a trigger. `health_below`, `on_fire` and `where` (dimension) all watched in game |
 | **Horde payoff** | Victory line, sound and XP on the last kill |
 | **Straggler glow** | Both paths: a bell ring lights them up, and a horde that goes a minute without a kill lights them up itself |
@@ -41,6 +42,8 @@ Last updated 2026-07-30.
 - **`NO_SPAWNS` claim mode** — the griefing veto is verified, but only the default `VANILLA_ONLY`
   spawn behaviour has been exercised; nobody has watched `NO_SPAWNS` cancel a spawn.
 - **Non-zombie bases beyond husk/drowned/skeleton** — `giant`, `zombie_villager`, `iron_golem`.
+- **The two city genera** — Commuter and Harvester. The conditions underneath them are verified
+  against a real generated city, but nobody has met either monster in one.
 - **Mutation's two damp triggers** — `touching` (Walker on ice turning Frost) and `in_water` (an
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.

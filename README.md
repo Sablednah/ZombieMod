@@ -651,6 +651,43 @@ A corpse that dies normally settles its own entry. Anything else, and an admin c
 `n` is the index shown by `list`, defaulting to the most recent. All op-only, like every other
 ZombieMod command.
 
+## CityWorld districts
+
+[CityWorld](https://github.com/Sablednah/CityWorld-ReForged) generates cities — highrise districts,
+farmland, roads, whole named buildings — and it knows what it planned for every chunk before that
+chunk is generated. This is the tie the two mods were always meant to have: the difference between
+monsters *distributed across* a world and monsters that *belong to* the parts of it they're found in.
+
+Three conditions, usable anywhere a spawn condition is — genus spawn rules, behaviours, horde
+conditions, and (through `where`) mutation triggers:
+
+| | |
+|---|---|
+| `city_district` | `districts` — `HIGHRISE`, `MIDRISE`, `LOWRISE`, `INDUSTRIAL`, `MUNICIPAL`, `NEIGHBORHOOD`, `CONSTRUCTION`, `FARM`, `PARK`, `NATURE`, `OUTLAND`, `ASTRAL`, `ROUNDABOUT` — and/or `classes` for the context class name |
+| `city_lot` | `styles` — `NATURE`, `STRUCTURE`, `ROAD`, `ROUNDABOUT` — plus `classes` and named `schematics` |
+| `city_nature` | `min`/`max` on the generator's own grading, 0.0 dense city … 1.0 wilderness |
+
+```json
+"spawn": { "conditions": [
+  { "type": "zombiemod:city_district", "districts": ["HIGHRISE", "MIDRISE"] },
+  { "type": "zombiemod:light", "max": 7 }
+] }
+```
+
+Names are matched case-insensitively, so `"highrise"` works as well as shouting the enum constant.
+An omitted list means "don't care", which is how one condition asks about a district, a class, or
+both.
+
+**Without CityWorld these never match.** Failing closed is the only defensible default: a genus that
+says it belongs in a highrise district is opting into CityWorld, and treating an unanswerable
+question as satisfied would scatter city-only monsters across a vanilla world — surprising, and much
+harder to work out than their simply not turning up. The integration is reflective, so ZombieMod
+neither builds nor runs against CityWorld; if it's absent, or its API ever changes, the conditions go
+quiet and everything else carries on.
+
+Two genera ship using it: the **Commuter** in the built-up districts, and the **Harvester** out on
+the farms. Both are inert in an ordinary world.
+
 ## Mutation
 
 Everything else a genus describes is what a monster **is**. Mutation is the one that lets it stop

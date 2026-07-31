@@ -95,8 +95,8 @@ Everything that was on this list as "the one I'd build next" has shipped: `equip
 rather than what it contains, and it shipped — a genus can now become another on health, fire, water,
 lava, a block underfoot, or any spawn condition at all.
 
-What's left is content and reach rather than machinery: more hordes and genera, the CityWorld
-conditions so a city block spawns differently from the wilderness around it, spawn density via
-`neoforge:add_spawns`, and sound-driven aggro. All of it additive.
+What's left is content and reach rather than machinery: more hordes and genera, spawn density via
+`neoforge:add_spawns`, and sound-driven aggro. All of it additive. The CityWorld conditions landed,
+so a city block already spawns differently from the wilderness around it.
 
 Full ordering, and what's already done, is in [STATUS.md](STATUS.md).
