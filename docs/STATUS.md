@@ -28,7 +28,7 @@ Last updated 2026-07-30.
 | **XP** | Per genus |
 | **Bounty** | Per genus, with a pluggable payer and a scoreboard fallback |
 | **Horde events** | Wave director with a boss bar, three shipped hordes, off by default |
-| **Mutation** | Genus becomes another genus on a trigger; 6 trigger types plus every spawn condition via `where` |
+| **Mutation** | Genus becomes another genus on a trigger. `health_below`, `on_fire` and `where` (dimension) all watched in game |
 | **Horde payoff** | Victory line, sound and XP on the last kill |
 | **Straggler glow** | Both paths: a bell ring lights them up, and a horde that goes a minute without a kill lights them up itself |
 | **Conversion** | What a genus kills rises as one of them, with an undead-counterpart mapping and four guards |
@@ -41,6 +41,9 @@ Last updated 2026-07-30.
 - **`NO_SPAWNS` claim mode** — the griefing veto is verified, but only the default `VANILLA_ONLY`
   spawn behaviour has been exercised; nobody has watched `NO_SPAWNS` cancel a spawn.
 - **Non-zombie bases beyond husk/drowned/skeleton** — `giant`, `zombie_villager`, `iron_golem`.
+- **Mutation's two damp triggers** — `touching` (Walker on ice turning Frost) and `in_water` (an
+  Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
+  proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
 - **`summon`'s `max_nearby` cap** under real pressure, i.e. a Breeder left alone in a loaded chunk.
 - **Corpse recovery edge cases** — a corpse lost to lava or a mob grinder, then `give`/`respawn`.
