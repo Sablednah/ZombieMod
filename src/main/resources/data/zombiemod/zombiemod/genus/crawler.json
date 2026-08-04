@@ -8,6 +8,13 @@
   "follow_range": 24.0,
   "scale": 0.55,
   "armor_color": 5917242,
+  "head": {
+    "properties": {
+      "textures": [
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDQ2MWJiZGFiNzNiNmQwM2VmMjc0YWIxMGUyNzM3MzZkNzM1OWNjODc4MzgyYTdhNmE5NzU5Y2Y3OWQ4ZGRmYyJ9fX0="
+      ]
+    }
+  },
   "navigation": "climb",
   "attributes": {
     "minecraft:safe_fall_distance": 10.0

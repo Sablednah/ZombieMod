@@ -8,6 +8,13 @@
   "follow_range": 32.0,
   "scale": 1.2,
   "armor_color": 4086334,
+  "head": {
+    "properties": {
+      "textures": [
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmRmYWQ4YmQ2N2Y1NGQ5MTM5YzFiM2ExMGY5Mzc0OTI5ZTA0ZTFlODNjNjA0OTkzZWYyODRhNjNhZjc3Zjk5NiJ9fX0="
+      ]
+    }
+  },
   "spawn": {
     "conditions": [
       {

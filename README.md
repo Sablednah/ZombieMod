@@ -651,6 +651,43 @@ A corpse that dies normally settles its own entry. Anything else, and an admin c
 `n` is the index shown by `list`, defaulting to the most recent. All op-only, like every other
 ZombieMod command.
 
+## Faces
+
+The 1.8 plugin reskinned its zombies with Spout, which meant a client mod, which meant almost nobody
+ever saw them. A vanilla client in 1.21 will happily render a **player head with an embedded texture**
+— the mechanism behind every decorative head on [minecraft-heads.com](https://minecraft-heads.com/player-heads)
+— so the reskin the original wanted is now free, and it costs the player nothing.
+
+```json
+"armor_color": 3355443,
+"head": { "properties": { "textures": ["eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6..."] } }
+```
+
+The value is base64 of `{"textures":{"SKIN":{"url":"http://textures.minecraft.net/texture/<hash>"}}}`.
+A profile carrying `properties` is *static* — the client renders it from the embedded texture and
+never asks the session server who this is, so it works offline-mode, on servers, and for players who
+have never seen that skin.
+
+`head` also still takes a plain player name (`"head": "Herobrine"`), which resolves through the
+session server and is what the Herobrine genus uses.
+
+**Layering**, broad to specific: `armor_color` dyes all four leather slots, `head` replaces the
+helmet, and `equipment` overrides any slot it names. So the usual arrangement is a dyed body for the
+silhouette and colour, with a face on top — which is why nearly every genus keeps its `armor_color`.
+`ghost` is applied last of all and wins outright, because borrowing a real player's face is that
+genus's whole point.
+
+**44 of the 47 genera now have a face**: the Bloater is bloated, the Ember is on fire, the Frost is
+frozen, the Tank is a brute, the Charger wears a football helmet, the Weeping is an angel, the
+Rioter is in riot gear and the Commuter is a professor. Every texture hash was checked against
+`textures.minecraft.net` before it shipped.
+
+> **Provenance.** The texture hashes came from the [MinecraftHeads
+> database](https://github.com/TheLuca98/MinecraftHeads), a compiled index of community heads from
+> minecraft-heads.com. ZombieMod ships **hashes, not artwork** — the textures stay on Mojang's own
+> servers and are fetched by the client, exactly as any decorative head works. Worth a look before a
+> public release if you care about attribution for individual skins.
+
 ## CityWorld districts
 
 [CityWorld](https://github.com/Sablednah/CityWorld-ReForged) generates cities — highrise districts,

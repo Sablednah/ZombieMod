@@ -7,6 +7,13 @@
   "speed": 0.95,
   "follow_range": 10.0,
   "armor_color": 11577484,
+  "head": {
+    "properties": {
+      "textures": [
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDQ0ZjZjNTMxZDg5MjE4ZTg4YmNkMWY3NTIzNzEzNWIxNDhhMmNlMzQzNWIzNzEzNGRhMTMxZmEyMWU2MTU3MSJ9fX0="
+      ]
+    }
+  },
   "attributes": {
     "minecraft:armor": 4.0
   },

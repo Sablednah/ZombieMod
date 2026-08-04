@@ -8,6 +8,13 @@
   "follow_range": 40.0,
   "scale": 2.2,
   "armor_color": 7031342,
+  "head": {
+    "properties": {
+      "textures": [
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWFjNDI4ZWRlZTljM2NhYjJmZTRhMzEwYWQ0MWZkYmZmMzMzNDVkZmMwMGY2ODc2OGM4ZjkyYjJiMTVjYzkxNCJ9fX0="
+      ]
+    }
+  },
   "attributes": {
     "minecraft:armor": 10.0,
     "minecraft:knockback_resistance": 1.0,

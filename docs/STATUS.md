@@ -18,7 +18,7 @@ Last updated 2026-07-30.
 | **Bosses** | Boss bars, phases, loot tables, summon rituals with block patterns |
 | **Player zombies** | Corpse wearing the player's real skin, carrying their items, with an admin recovery ledger |
 | **Equipment** | Six slots, bare ids or full stacks with components |
-| **Player-head faces** | Including `ghost` borrowing a real player's |
+| **Player-head faces** | Custom embedded textures on 44 of 47 genera, plus name-resolved profiles and `ghost` borrowing a real player's |
 | **Climbing** | Navigation swap *plus* the goal that performs it |
 | **Guardian beam** | By parenting an invisible Guardian to the caster |
 | **Particle rays** | Hitscan with an audible, abortable charge-up |
@@ -42,6 +42,9 @@ Last updated 2026-07-30.
 - **`NO_SPAWNS` claim mode** — the griefing veto is verified, but only the default `VANILLA_ONLY`
   spawn behaviour has been exercised; nobody has watched `NO_SPAWNS` cancel a spawn.
 - **Non-zombie bases beyond husk/drowned/skeleton** — `giant`, `zombie_villager`, `iron_golem`.
+- **The faces themselves.** Every hash resolves at Mojang and every genus wears the head on its head
+  slot, both checked headlessly — but nobody has stood in front of one and looked at it. What is
+  unproven is whether they *read* at a distance, not whether they load.
 - **The two city genera** — Commuter and Harvester. The conditions underneath them are verified
   against a real generated city, but nobody has met either monster in one.
 - **Mutation's two damp triggers** — `touching` (Walker on ice turning Frost) and `in_water` (an

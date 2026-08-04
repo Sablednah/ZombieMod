@@ -1,5 +1,12 @@
 {
   "name": "Outrider",
+  "head": {
+    "properties": {
+      "textures": [
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTZmNmRlMmFkNmNiMTI4OTFlYmRhNjc0MGZjNzM4MjllMWJjNzY3MDQ0YzQ1ODMyMDJmYjIzZDE1NDg1ODI4MyJ9fX0="
+      ]
+    }
+  },
   "base": "minecraft:zombie",
   "weight": 3,
   "health": 24.0,
