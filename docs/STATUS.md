@@ -44,7 +44,10 @@ Last updated 2026-07-30.
 - **Non-zombie bases beyond husk/drowned/skeleton** — `giant`, `zombie_villager`, `iron_golem`.
 - **The faces themselves.** Every hash resolves at Mojang and every genus wears the head on its head
   slot, both checked headlessly — but nobody has stood in front of one and looked at it. What is
-  unproven is whether they *read* at a distance, not whether they load.
+  unproven is whether they *read* at a distance, not whether they load. Already one correction from
+  play: Nightstalker's head was "Masked Zombie", whose mask turns out to be a *surgical* one, which
+  said nothing about hunting in the dark. Picking by catalogue name is how that happened; picks are
+  now screened by rendering the face pixels and looking at them, dimmed as well as lit.
 - **The two city genera** — Commuter and Harvester. The conditions underneath them are verified
   against a real generated city, but nobody has met either monster in one.
 - **Mutation's two damp triggers** — `touching` (Walker on ice turning Frost) and `in_water` (an
