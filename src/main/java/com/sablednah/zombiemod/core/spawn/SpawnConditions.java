@@ -14,8 +14,11 @@ import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.MoonPhase;
 import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 /** The spawn conditions ZombieMod ships. Adding one is a record plus a line in {@link SpawnConditionTypes}. */
 public final class SpawnConditions {
@@ -113,6 +116,70 @@ public final class SpawnConditions {
         public boolean test(Level level, BlockPos pos) {
             int light = level.getMaxLocalRawBrightness(pos);
             return min.map(m -> light >= m).orElse(true) && max.map(m -> light <= m).orElse(true);
+        }
+    }
+
+    /**
+     * Which moon is up.
+     *
+     * <p>Eight phases, one per day, so a phase list is a way of saying "this happens on some nights
+     * and not others" that a player can <em>see coming</em> by looking up. That is the whole appeal
+     * over a low weight: both make a thing rare, but only one of them is legible.
+     *
+     * <p>Reads {@code EnvironmentAttributes.MOON_PHASE} rather than computing the phase from the day
+     * count. It is position-dependent in 1.21.11, so a dimension or a region is free to disagree
+     * about what the moon is doing, and asking the attribute system gets that right for free.
+     */
+    public record Moon(List<MoonPhase> phases) implements SpawnCondition {
+
+        public static final Identifier TYPE = id("moon");
+
+        public static final MapCodec<Moon> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                MoonPhase.CODEC.listOf().fieldOf("phases").forGetter(Moon::phases))
+                .apply(i, Moon::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public boolean test(Level level, BlockPos pos) {
+            return phases.contains(level.environmentAttributes().getValue(EnvironmentAttributes.MOON_PHASE, pos));
+        }
+    }
+
+    /**
+     * How far below the local surface this is.
+     *
+     * <p>Zero standing in a field, two or three under your own roof, hundreds in a deep cave — which
+     * is the distinction {@link SeeSky} cannot draw on its own. {@code see_sky: false} is true of a
+     * bedroom and of the bottom of a ravine alike, and for anything that arrives from outside, those
+     * two are opposites.
+     *
+     * <p>Measured against the heightmap for the column rather than an absolute Y, so it means the
+     * same thing on a mountain as it does at sea level. The chunk must be loaded for the heightmap to
+     * be real; every caller here is at a player or a live spawn attempt, so it always is.
+     */
+    public record Depth(Optional<Integer> min, Optional<Integer> max) implements SpawnCondition {
+
+        public static final Identifier TYPE = id("depth");
+
+        public static final MapCodec<Depth> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Codec.INT.optionalFieldOf("min").forGetter(Depth::min),
+                Codec.INT.optionalFieldOf("max").forGetter(Depth::max))
+                .apply(i, Depth::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public boolean test(Level level, BlockPos pos) {
+            int surface = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos.getX(), pos.getZ());
+            int depth = surface - pos.getY();
+            return min.map(m -> depth >= m).orElse(true) && max.map(m -> depth <= m).orElse(true);
         }
     }
 

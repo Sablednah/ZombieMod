@@ -18,6 +18,10 @@
     {
       "type": "zombiemod:time",
       "phase": "night"
+    },
+    {
+      "type": "zombiemod:depth",
+      "max": 12
     }
   ],
   "waves": [

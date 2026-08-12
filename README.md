@@ -171,7 +171,9 @@ horde of itself.
 | `zombiemod:height` | `min`, `max` — either may be omitted |
 | `zombiemod:light` | `min`, `max` — light at the spawn point, so it follows day/night outdoors |
 | `zombiemod:see_sky` | `value` (default `true`) — open sky above, or deliberately not |
+| `zombiemod:depth` | `min`, `max` — blocks below the local surface. 0 in a field, a few under your own roof, hundreds in a cave |
 | `zombiemod:time` | `phase` (`day`/`night`), or `min`/`max` on the 24000-tick cycle |
+| `zombiemod:moon` | `phases` — any of vanilla's eight, e.g. `["full_moon"]` |
 | `zombiemod:in_claim` | `value` (default `true`) — inside an FTB Chunks claim. Always `false` without FTB. |
 | `zombiemod:any_of` | `conditions` — passes if any nested condition passes |
 | `zombiemod:not` | `condition` — inverts one |
@@ -831,6 +833,39 @@ table as usual, and `conditions` are the same ones that gate spawning.
 Three ship: **The Horde** (a general build), **The Swarm** (many weak things, a different problem to
 solve) and **The Siege** (breakers first, so the way is open when the rest arrive).
 
+### Rare, or rare and legible
+
+The Siege is gated on a **full moon**, and on the player being **under a roof**:
+
+```json
+"conditions": [
+  { "type": "zombiemod:time", "phase": "night" },
+  { "type": "zombiemod:moon", "phases": ["full_moon"] },
+  { "type": "zombiemod:see_sky", "value": false },
+  { "type": "zombiemod:depth", "max": 12 }
+]
+```
+
+A low `weight` and a moon phase both make a thing rare. Only one of them lets a player *see it
+coming* — you look up, and you know tonight is the night to check the walls. So the moon does the
+limiting and the weight is high (30), rather than the other way around.
+
+The other two conditions are what make "The walls held" true rather than a slogan. `see_sky: false`
+means the Siege finds you sheltered — there is something for breakers to break. But sheltered alone
+is also true at the bottom of a ravine, so `depth` bounds how far below the local surface you are.
+
+**`depth` exists because of a bug it exposed.** Hordes place their mobs at surface height in a ring
+around the player, so a horde starting while you were deep in a cave would spawn its whole wave on
+the roof of the world and never reach you — the bar would appear and nothing would arrive. All three
+shipped hordes now carry `depth: {max: 12}`, which is deep enough for a basement and not deep enough
+for that.
+
+`moon` takes any of vanilla's eight phases — `full_moon`, `waning_gibbous`, `third_quarter`,
+`waning_crescent`, `new_moon`, `waxing_crescent`, `first_quarter`, `waxing_gibbous` — and it reads
+1.21.11's `MOON_PHASE` environment attribute rather than deriving the phase from the day count, so a
+dimension that disagrees about the moon is handled for free. `depth` is measured against the column's
+heightmap, not an absolute Y, so it means the same thing on a mountain as at sea level.
+
 The bar counts **what's still alive**, not what's been spawned, because "twelve still out there" is
 the number a player actually wants. A horde ends when its last one falls rather than on a timer —
 which is what makes the quiet afterwards mean anything, and it ends with a line, a sound and the
@@ -872,8 +907,15 @@ fight you're winning isn't the problem, and shouldn't be treated as one.
 /zombiemod horde stop
 ```
 
-One horde runs per player, so two people in different places get their own night rather than sharing
-one.
+**Everything above is per player.** The check, the cooldown, the conditions and the horde itself are
+all keyed on one player's id, and conditions are evaluated where *that* player is standing. So two
+people in different places get their own night rather than sharing one, and a horde asks about the
+moon and the roof over the head of the person it is coming for. It scales with population by
+construction — no server-wide event to schedule, and nobody's siege lands on someone who is
+somewhere else entirely.
+
+The one shared number is `cap`, which bounds horde mobs alive **per horde**, so a busy server is
+still bounded per player rather than in total. Worth watching if a lot of people play at once.
 
 ## Bounties
 

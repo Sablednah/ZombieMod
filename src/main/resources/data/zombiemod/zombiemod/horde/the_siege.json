@@ -1,6 +1,6 @@
 {
   "name": "&4The Siege",
-  "weight": 2,
+  "weight": 30,
   "radius": 44.0,
   "min_radius": 26.0,
   "bar_color": "purple",
@@ -18,6 +18,20 @@
     {
       "type": "zombiemod:time",
       "phase": "night"
+    },
+    {
+      "type": "zombiemod:moon",
+      "phases": [
+        "full_moon"
+      ]
+    },
+    {
+      "type": "zombiemod:see_sky",
+      "value": false
+    },
+    {
+      "type": "zombiemod:depth",
+      "max": 12
     }
   ],
   "waves": [

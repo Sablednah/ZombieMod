@@ -54,6 +54,10 @@ Last updated 2026-07-30.
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
+- **The full-moon Siege.** `moon`, `depth` and `see_sky` were each proven headlessly in both
+  directions, including building a real stone roof and watching "sheltered but not underground" come
+  out true — but the dev world was on a third quarter, so nobody has seen the Siege actually fire.
+  `/zombiemod horde start zombiemod:the_siege` still forces it regardless of the moon.
 - **`summon`'s `max_nearby` cap** under real pressure, i.e. a Breeder left alone in a loaded chunk.
 - **Corpse recovery edge cases** — a corpse lost to lava or a mob grinder, then `give`/`respawn`.
 - **Loot tables** — resolution is proven; nobody has watched Patient Zero drop his netherite scrap.
