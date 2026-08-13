@@ -15,7 +15,7 @@
       ]
     }
   },
-  "xp": 20,
+  "xp": 14,
   "spawn": {
     "conditions": [
       {
@@ -85,5 +85,9 @@
       "duration": 100
     }
   ],
-  "bounty": 7.0
+  "bounty": 5.0,
+  "loot": {
+    "table": "zombiemod:entities/glowing_one",
+    "replace": false
+  }
 }

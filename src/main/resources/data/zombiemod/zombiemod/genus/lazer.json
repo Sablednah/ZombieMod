@@ -15,7 +15,7 @@
       ]
     }
   },
-  "xp": 20,
+  "xp": 16,
   "spawn": {
     "conditions": [
       {
@@ -94,5 +94,5 @@
       "count": 2
     }
   ],
-  "bounty": 8.0
+  "bounty": 5.0
 }

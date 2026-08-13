@@ -1256,9 +1256,21 @@ tick a box for something glimpsed across a valley.
 A companion client mod could draw this far more nicely, and that stays entirely optional: the book
 and the sidebar are the feature, and both work on a vanilla client.
 
+### What they leave behind
+
+Sixteen genera carry a loot table, all with `replace: false`, so rotten flesh drops as normal and
+these are additions. The rule is that a genus should leave behind **what it was**: Harvester drops
+wheat and seeds and occasionally its hoe, Commuter paper and the odd emerald, Blight coal and
+charcoal, Bramble moss and vines, Breaker cobble and iron nuggets, Frost snowballs, Bogman clay and
+lily pads, Sleeper a serious pile of iron and sometimes a golden apple.
+
 ## Bounties
 
-A genus can carry a `bounty` — what killing it is worth. Every shipped genus has one, roughly
+A genus can carry a `bounty` — what killing it is worth.
+
+Mostly it tracks how much trouble the thing is, with one deliberate exception: **the Coward pays 6,
+far above its threat, while giving only 2xp.** It is trivial to kill and very hard to catch, so the
+money is for catching it at all. The reward is the chase, not the fight. Every shipped genus has one, roughly
 proportional to how much trouble it is: a Walker is 1, a Tank 15, Patient Zero 150.
 
 **Who pays it is a separate question.** There's no Vault on NeoForge — no abstraction every economy

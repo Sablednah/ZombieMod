@@ -93,5 +93,9 @@
     }
   ],
   "bounty": 4.0,
-  "xp": 12
+  "xp": 12,
+  "equipment": {
+    "mainhand": "minecraft:iron_axe",
+    "drop_chance": 0.0
+  }
 }

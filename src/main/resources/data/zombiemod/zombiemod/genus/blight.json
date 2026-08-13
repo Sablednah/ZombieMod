@@ -93,5 +93,13 @@
       "effect": "minecraft:nausea",
       "duration": 120
     }
-  ]
+  ],
+  "equipment": {
+    "mainhand": "minecraft:iron_shovel",
+    "drop_chance": 0.0
+  },
+  "loot": {
+    "table": "zombiemod:entities/blight",
+    "replace": false
+  }
 }

@@ -52,6 +52,11 @@ Last updated 2026-07-30.
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
+- **The balance pass.** xp and bounty were re-derived from a threat score across all 54, sixteen loot
+  tables added, tools given to the genera whose identity is a tool. Every one was read back off a
+  built mob and every table was rolled 40 times for real — but whether the numbers *feel* right is a
+  thing only play decides, and the ones most likely to be wrong are the drops, which nobody has
+  farmed yet.
 - **Bramble and Blight.** Both load, Bramble places a real moss carpet through the real ability, and
   the blight tag resolves to 63 blocks including `moss_carpet` — so the mirror closes. Nobody has
   watched the two of them fight over a lawn, which is the whole point of building them as a pair.

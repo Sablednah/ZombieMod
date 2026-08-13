@@ -75,7 +75,7 @@
       "pitch": 0.6
     }
   ],
-  "bounty": 1.0,
+  "bounty": 2.0,
   "mutations": [
     {
       "into": "zombiemod:runner",
@@ -124,5 +124,5 @@
       "particle": "minecraft:soul_fire_flame"
     }
   ],
-  "xp": 3
+  "xp": 6
 }

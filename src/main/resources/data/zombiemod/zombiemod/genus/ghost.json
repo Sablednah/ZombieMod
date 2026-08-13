@@ -7,7 +7,7 @@
   "speed": 1.15,
   "follow_range": 36.0,
   "ghost": true,
-  "xp": 15,
+  "xp": 12,
   "attributes": {
     "minecraft:knockback_resistance": 0.3
   },
@@ -80,7 +80,7 @@
       "vanish_chance": 0.15
     }
   ],
-  "bounty": 6.0,
+  "bounty": 4.0,
   "invisible": true,
   "equipment": {
     "chest": {

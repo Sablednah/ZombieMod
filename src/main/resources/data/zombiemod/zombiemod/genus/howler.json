@@ -15,7 +15,7 @@
       ]
     }
   },
-  "xp": 20,
+  "xp": 14,
   "spawn": {
     "conditions": [
       {
@@ -93,5 +93,5 @@
       "pitch": 1.2
     }
   ],
-  "bounty": 8.0
+  "bounty": 4.0
 }

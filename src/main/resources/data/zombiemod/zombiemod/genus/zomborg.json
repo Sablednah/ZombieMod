@@ -18,7 +18,7 @@
     "minecraft:armor": 6.0,
     "minecraft:knockback_resistance": 0.6
   },
-  "xp": 25,
+  "xp": 16,
   "spawn": {
     "conditions": [
       {
@@ -84,5 +84,5 @@
       "count": 2
     }
   ],
-  "bounty": 8.0
+  "bounty": 5.0
 }

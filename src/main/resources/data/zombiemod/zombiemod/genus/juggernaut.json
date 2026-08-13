@@ -75,7 +75,7 @@
       "amount": 1.0
     }
   ],
-  "bounty": 8.0,
+  "bounty": 6.0,
   "arrows": 8,
   "equipment": {
     "chest": {
@@ -89,5 +89,9 @@
     },
     "drop_chance": 0.0
   },
-  "xp": 40
+  "xp": 28,
+  "loot": {
+    "table": "zombiemod:entities/juggernaut",
+    "replace": false
+  }
 }

@@ -79,9 +79,14 @@
       "pitch": 0.6
     }
   ],
-  "bounty": 1.0,
+  "bounty": 3.0,
   "equipment": {
-    "main_hand": "minecraft:iron_hoe"
+    "mainhand": "minecraft:iron_hoe",
+    "drop_chance": 0.0
   },
-  "xp": 5
+  "xp": 8,
+  "loot": {
+    "table": "zombiemod:entities/harvester",
+    "replace": false
+  }
 }

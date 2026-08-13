@@ -81,6 +81,10 @@
       "count": 4
     }
   ],
-  "bounty": 8.0,
-  "xp": 20
+  "bounty": 5.0,
+  "xp": 16,
+  "equipment": {
+    "mainhand": "minecraft:trident",
+    "drop_chance": 0.0
+  }
 }

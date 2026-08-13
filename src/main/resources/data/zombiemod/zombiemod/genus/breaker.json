@@ -89,5 +89,13 @@
       "pitch": 0.7
     }
   ],
-  "bounty": 4.0
+  "bounty": 4.0,
+  "equipment": {
+    "mainhand": "minecraft:iron_pickaxe",
+    "drop_chance": 0.0
+  },
+  "loot": {
+    "table": "zombiemod:entities/breaker",
+    "replace": false
+  }
 }

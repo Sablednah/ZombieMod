@@ -91,6 +91,10 @@
       "count": 3
     }
   ],
-  "bounty": 3.0,
-  "xp": 6
+  "bounty": 4.0,
+  "xp": 10,
+  "loot": {
+    "table": "zombiemod:entities/bogman",
+    "replace": false
+  }
 }

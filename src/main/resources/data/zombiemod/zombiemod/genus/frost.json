@@ -94,6 +94,10 @@
       "count": 4
     }
   ],
-  "bounty": 3.0,
-  "xp": 8
+  "bounty": 4.0,
+  "xp": 10,
+  "loot": {
+    "table": "zombiemod:entities/frost",
+    "replace": false
+  }
 }

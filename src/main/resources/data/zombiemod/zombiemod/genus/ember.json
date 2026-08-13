@@ -96,7 +96,7 @@
       "duration": 200
     }
   ],
-  "bounty": 3.0,
+  "bounty": 4.0,
   "mutations": [
     {
       "into": "zombiemod:walker",
@@ -109,5 +109,9 @@
     }
   ],
   "burning": true,
-  "xp": 8
+  "xp": 11,
+  "loot": {
+    "table": "zombiemod:entities/ember",
+    "replace": false
+  }
 }

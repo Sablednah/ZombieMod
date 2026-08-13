@@ -41,7 +41,7 @@
     },
     "drop_chance": 0.0
   },
-  "xp": 16,
+  "xp": 10,
   "spawn": {
     "conditions": [
       {
@@ -99,6 +99,6 @@
     }
   ],
   "abilities": [],
-  "bounty": 6.0,
+  "bounty": 3.0,
   "arrows": 2
 }

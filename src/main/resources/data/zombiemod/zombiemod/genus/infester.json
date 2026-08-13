@@ -14,7 +14,7 @@
       ]
     }
   },
-  "xp": 14,
+  "xp": 10,
   "spawn": {
     "conditions": [
       {
@@ -88,5 +88,9 @@
       "count": 3
     }
   ],
-  "bounty": 5.0
+  "bounty": 4.0,
+  "loot": {
+    "table": "zombiemod:entities/infester",
+    "replace": false
+  }
 }

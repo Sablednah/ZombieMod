@@ -101,5 +101,13 @@
     }
   ],
   "bounty": 12.0,
-  "arrows": 3
+  "arrows": 3,
+  "equipment": {
+    "mainhand": "minecraft:diamond_pickaxe",
+    "drop_chance": 0.0
+  },
+  "loot": {
+    "table": "zombiemod:entities/bigbreaker",
+    "replace": false
+  }
 }
