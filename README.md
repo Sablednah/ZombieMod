@@ -1094,6 +1094,26 @@ So: green aggressive squid, yes, but it will bump rather than bite — the aquat
 served by a `drowned` base, which is already a zombie with everything attached. Tall skinny ender
 zombies and zombie illagers, wholeheartedly yes.
 
+### Bramble and Blight
+
+Two genera built as mechanical opposites, tied to opposite districts.
+
+**Bramble** is the only genus in the mod that *builds*. It lays moss carpet in its own footprint as it
+wanders — reclaiming the city rather than wrecking it. Slow, sixty health, and `follow_range: 12`,
+because nature is not hunting you, it is simply taking the ground back. Nature and park districts, and
+forest or jungle biomes, so it exists in worlds with no city at all.
+
+**Blight** is the mirror. It eats flowers, leaves, saplings, crops, grass, ferns and vines — and
+`moss_carpet` is in its tag too, so it destroys exactly what Bramble makes. Trails smoke and gives
+anyone standing close nausea. Industrial and construction districts.
+
+Ground both have crossed visibly flickers between overgrown and blighted, and nothing coordinates
+that — it falls out of two genera wandering the same block.
+
+Bramble's placement goes through `EventHooks.canEntityGrief`, so a land claim vetoes it, and moss
+carpet was chosen over moss block deliberately: it is decorative, it needs no support removed, and it
+comes up with one punch.
+
 ### Districts should feel like districts
 
 Commuter (45) and Harvester (40) are weighted near the top of the table, above Coward and just under

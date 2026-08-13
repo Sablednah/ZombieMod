@@ -54,6 +54,9 @@ Last updated 2026-07-30.
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
+- **Bramble and Blight.** Both load, Bramble places a real moss carpet through the real ability, and
+  the blight tag resolves to 63 blocks including `moss_carpet` — so the mirror closes. Nobody has
+  watched the two of them fight over a lawn, which is the whole point of building them as a pair.
 - **Biter on livestock.** It now has an `animal` target goal, so it will actually bite a sheep; the
   spread itself is proven, but nobody has watched a real field turn.
 - **Herd infection.** A herd of eight went 1 → 2 → 3 → 8 under a probe, all eight carried the spread

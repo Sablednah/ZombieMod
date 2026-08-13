@@ -1,0 +1,105 @@
+{
+  "name": "&2Bramble",
+  "base": "minecraft:zombie",
+  "weight": 8,
+  "health": 60.0,
+  "damage": 6.0,
+  "speed": 0.6,
+  "follow_range": 12.0,
+  "scale": 1.2,
+  "armor_color": 3825450,
+  "head": {
+    "properties": {
+      "textures": [
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGNhMjdmYjJmYWY3NDhjNmMzNTcyODhhYjE0MWE2NDgyNzU5MzUyNmQxOWY0MmE1ZGMwMjE0ZGM5YTM1OWU3MCJ9fX0="
+      ]
+    }
+  },
+  "xp": 25,
+  "attributes": {
+    "minecraft:knockback_resistance": 0.6
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:any_of",
+        "conditions": [
+          {
+            "type": "zombiemod:city_district",
+            "districts": [
+              "NATURE",
+              "PARK"
+            ]
+          },
+          {
+            "type": "zombiemod:biome",
+            "biomes": "#minecraft:is_forest"
+          },
+          {
+            "type": "zombiemod:biome",
+            "biomes": "#minecraft:is_jungle"
+          }
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 0.8
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.5
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "bounty": 8.0,
+  "abilities": [
+    {
+      "type": "zombiemod:place_block",
+      "interval": 40,
+      "chance": 0.6,
+      "block": "minecraft:moss_carpet",
+      "target": "self",
+      "air_only": true
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 25,
+      "particle": "minecraft:spore_blossom_air",
+      "count": 2
+    }
+  ]
+}
