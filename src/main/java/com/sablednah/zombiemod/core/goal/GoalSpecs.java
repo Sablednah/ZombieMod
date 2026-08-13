@@ -9,6 +9,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
@@ -175,7 +176,19 @@ public final class GoalSpecs {
 
         @Override
         public Goal build(Mob mob) {
-            return mob instanceof PathfinderMob pf ? new MeleeAttackGoal(pf, speed, followEvenIfNotSeen) : null;
+            if (!(mob instanceof PathfinderMob pf)) {
+                return null;
+            }
+            // Some mobs have no attack_damage attribute at all - squid, villager, snow golem, ghast,
+            // shulker, the ender dragon. Reading one an entity type never declared does not return a
+            // default, it throws: AttributeSupplier.getAttributeInstance raises
+            // IllegalArgumentException. So a melee goal on a squid is not a squid that hits for
+            // nothing, it is a server crash the first time it reaches a target. Skipping is the same
+            // "cannot apply here" answer this method already gives for a non-PathfinderMob.
+            if (!mob.getAttributes().hasAttribute(Attributes.ATTACK_DAMAGE)) {
+                return null;
+            }
+            return new MeleeAttackGoal(pf, speed, followEvenIfNotSeen);
         }
     }
 

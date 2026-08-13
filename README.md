@@ -71,7 +71,7 @@ Here is the coward, in full:
 | Field | Default | Meaning |
 |-------|---------|---------|
 | `name` | *(none)* | Display name, shown when you look at it. Omit for an anonymous mob. |
-| `base` | `minecraft:zombie` | Which vanilla mob to dress up — `husk`, `drowned`, `zombie_villager`, `giant`, anything. |
+| `base` | `minecraft:zombie` | Which vanilla mob to dress up. Any entity type that is a `Mob` — see [what a base can be](#what-a-base-can-be). |
 | `weight` | `0` | Relative spawn frequency against other genera on the same base mob. `0` = never spawns naturally, command only. |
 | `health` | *vanilla* | Max health. |
 | `damage` | *vanilla* | Attack damage. |
@@ -1042,6 +1042,34 @@ somewhere else entirely.
 
 The one shared number is `cap`, which bounds horde mobs alive **per horde**, so a busy server is
 still bounded per player rather than in total. Worth watching if a lot of people play at once.
+
+### What a base can be
+
+`base` takes **any** entity type, and more of them work than you would guess — measured by building
+one of each and reading back what applied:
+
+| | |
+|---|---|
+| **Full genus** | every humanoid monster: zombies, skeletons, piglins, **illagers** (pillager, vindicator, evoker, illusioner), witch, enderman, creeper, spider, blaze, guardian, ravager, zoglin, breeze, creaking, giant — and **warden** (500hp) and **wither** (300hp) |
+| **Movement and looks, no bite** | squid, glow squid, villager, snow golem, shulker, cow, sheep — all `PathfinderMob`s that take goals, but they have **no `attack_damage` attribute**, so `damage` is silently ignored |
+| **Looks and stats only** | ghast, slime, magma cube, phantom, **ender dragon** — not `PathfinderMob`s, so most goals cannot attach |
+
+Two things to know before you write one.
+
+**Attributes a type never declared are not defaults, they throw.** Vanilla's
+`AttributeSupplier` raises `IllegalArgumentException` rather than returning zero. A `melee_attack`
+goal on a squid was therefore not a squid that hits for nothing — it was a server crash the first
+time it reached a target. ZombieMod now skips that goal on any mob without `attack_damage`, the same
+way it skips goals that need a `PathfinderMob`. Check the log, not the corpse.
+
+**A genus only claims spawns vanilla was already making.** So a wither or an ender dragon genus is
+real, but nothing will ever spawn one — those are summoned, not spawned. Use `/zombiemod spawn` or a
+spawner. Illagers are the interesting case here: they spawn in patrols, outposts and raids, so a
+genus on one turns up on its own.
+
+So: green aggressive squid, yes, but it will bump rather than bite — the aquatic idea is better
+served by a `drowned` base, which is already a zombie with everything attached. Tall skinny ender
+zombies and zombie illagers, wholeheartedly yes.
 
 ### How far it notices you
 
