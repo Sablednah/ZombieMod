@@ -137,5 +137,7 @@
     "table": "zombiemod:entities/butcher",
     "replace": false
   },
-  "bounty": 50.0
+  "bounty": 50.0,
+  "xp": 200,
+  "arrows": 5
 }

@@ -91,5 +91,19 @@
       "pitch": 0.5
     }
   ],
-  "bounty": 15.0
+  "bounty": 15.0,
+  "xp": 60,
+  "arrows": 6,
+  "equipment": {
+    "chest": {
+      "id": "minecraft:diamond_chestplate",
+      "components": {
+        "minecraft:trim": {
+          "pattern": "minecraft:rib",
+          "material": "minecraft:redstone"
+        }
+      }
+    },
+    "drop_chance": 0.0
+  }
 }

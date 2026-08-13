@@ -5,7 +5,7 @@
   "health": 30.0,
   "damage": 2.0,
   "speed": 0.9,
-  "follow_range": 28.0,
+  "follow_range": 36.0,
   "scale": 1.1,
   "armor_color": 1784394,
   "head": {

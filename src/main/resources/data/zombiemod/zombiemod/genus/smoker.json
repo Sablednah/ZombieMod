@@ -5,7 +5,7 @@
   "health": 20.0,
   "damage": 2.0,
   "speed": 0.85,
-  "follow_range": 32.0,
+  "follow_range": 28.0,
   "scale": 1.2,
   "armor_color": 4086334,
   "head": {
@@ -81,5 +81,6 @@
       "pitch": 0.6
     }
   ],
-  "bounty": 3.0
+  "bounty": 3.0,
+  "xp": 10
 }

@@ -56,5 +56,6 @@
       "vanish_chance": 0.25
     }
   ],
-  "bounty": 25.0
+  "bounty": 25.0,
+  "xp": 100
 }

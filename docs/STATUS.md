@@ -61,6 +61,10 @@ Last updated 2026-07-30.
   bleeding its style into the list under it, now rebuilt from styled components rather than legacy
   section codes; unconfirmed that this fixed it.
 - **The Sleeper** — the low-`follow_range` genus. Whether six blocks is menacing or merely broken.
+- **The stock-take.** All 52 genera had `follow_range` set by sensory tier, the xp gaps filled and
+  trims and arrows added where they say something. Every value was read back off a *built* mob
+  rather than out of the JSON — 52 checked, 0 mismatched — but whether the tiers make a crowd read
+  the way they should is a thing only play can answer.
 - **The Ghost face pool** — seed names, login memory, ageing and ban filtering. All four were proven
   headlessly and in both directions, including banning a probe player and watching it vanish from
   200 draws, then un-banning and watching it return. What is unverified is only how it *looks*.

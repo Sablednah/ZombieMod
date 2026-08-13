@@ -25,7 +25,16 @@
   },
   "equipment": {
     "mainhand": "minecraft:netherite_sword",
-    "drop_chance": 0.0
+    "drop_chance": 0.0,
+    "chest": {
+      "id": "minecraft:netherite_chestplate",
+      "components": {
+        "minecraft:trim": {
+          "pattern": "minecraft:silence",
+          "material": "minecraft:amethyst"
+        }
+      }
+    }
   },
   "boss": {
     "color": "red",
@@ -205,5 +214,7 @@
     "table": "zombiemod:entities/patient_zero",
     "replace": false
   },
-  "bounty": 150.0
+  "bounty": 150.0,
+  "xp": 300,
+  "arrows": 9
 }

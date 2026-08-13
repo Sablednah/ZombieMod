@@ -5,7 +5,7 @@
   "health": 70.0,
   "damage": 8.0,
   "speed": 0.8,
-  "follow_range": 40.0,
+  "follow_range": 32.0,
   "scale": 1.7,
   "armor_color": 3816002,
   "head": {
@@ -100,5 +100,6 @@
       "count": 3
     }
   ],
-  "bounty": 12.0
+  "bounty": 12.0,
+  "arrows": 3
 }

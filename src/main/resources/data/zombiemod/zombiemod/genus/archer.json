@@ -5,7 +5,7 @@
   "health": 20.0,
   "damage": 2.0,
   "speed": 1.0,
-  "follow_range": 32.0,
+  "follow_range": 36.0,
   "armor_color": 5917226,
   "head": {
     "properties": {
@@ -17,7 +17,16 @@
   "xp": 8,
   "equipment": {
     "mainhand": "minecraft:bow",
-    "drop_chance": 0.0
+    "drop_chance": 0.0,
+    "chest": {
+      "id": "minecraft:chainmail_chestplate",
+      "components": {
+        "minecraft:trim": {
+          "pattern": "minecraft:shaper",
+          "material": "minecraft:copper"
+        }
+      }
+    }
   },
   "spawn": {
     "conditions": [

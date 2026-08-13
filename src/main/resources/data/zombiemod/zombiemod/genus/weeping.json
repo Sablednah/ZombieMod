@@ -63,5 +63,6 @@
       "only_when_unseen": true
     }
   ],
-  "bounty": 20.0
+  "bounty": 20.0,
+  "xp": 20
 }

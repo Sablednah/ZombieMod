@@ -70,11 +70,25 @@ public final class ZombieModConfig {
                         "How strongly to leave a mob alone, weighed against the genera that could claim it.",
                         "This is an ordinary entry in the same weighted draw as every genus, so if your",
                         "genera total 200 and this is 200, roughly half of all zombies stay vanilla.",
-                        "The genera shipped with the mod total around 190 in a typical dark overworld",
-                        "spot, so the default of 200 leaves you a little over half plain zombies.",
+                        "",
+                        "What the shipped genera actually add up to depends on where you are standing,",
+                        "because most of them have spawn conditions. Measured in a fresh world, with",
+                        "the default of 40:",
+                        "  surface at night   9 genera eligible, weight 114 -> 26% stay vanilla",
+                        "  20 blocks down    31 genera eligible, weight 254 -> 14% stay vanilla",
+                        "  45 blocks down    35 genera eligible, weight 266 -> 13% stay vanilla",
+                        "",
+                        "The default is deliberately low. If this mod is installed you should notice,",
+                        "and a plain zombie is what you get when nothing more interesting turned up -",
+                        "not the house style. It is not zero either: some ordinary dead is what makes",
+                        "the rest read as unusual.",
+                        "",
+                        "Note that the count above understates how ordinary a crowd looks, because",
+                        "Walker is itself a near-vanilla shambler at weight 35. Between the two, about",
+                        "half of what you meet on the surface is still just a zombie.",
                         "Raise it for a mostly-vanilla world; lower it for an infested one; set it to 0",
                         "and a genus claims every eligible spawn.")
-                .defineInRange("vanillaWeight", 200, 0, Integer.MAX_VALUE);
+                .defineInRange("vanillaWeight", 40, 0, Integer.MAX_VALUE);
 
         LOG_SPAWNS = b.comment("Log every genus spawn to the server console. Noisy; for tuning weights.")
                 .define("logSpawns", false);

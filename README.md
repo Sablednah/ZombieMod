@@ -196,9 +196,26 @@ Which genus gets it is a weighted draw — and **"leave it as a plain zombie" is
 draw**, weighted by `vanillaWeight` in the config. Without that, the moment you shipped one genus it
 would claim every zombie in the world and plain zombies would quietly cease to exist.
 
-So with `vanillaWeight = 200` and genera weighted 30 and 10, any eligible zombie spawn comes out
-roughly 83% vanilla, 12.5% the first genus, 4% the second. The 22 shipped genera total around 190 in
-a typical dark overworld spot, which leaves you a little over half plain zombies.
+So with `vanillaWeight = 200` and genera weighted 30 and 10, any eligible zombie spawn is a draw from
+200 + 30 + 10.
+
+**What the shipped genera add up to depends on where you are standing**, because most of them carry
+spawn conditions. Measured in a fresh world rather than added up by hand:
+
+| Where | Genera eligible | Their weight | Stay vanilla |
+|---|---|---|---|
+| Surface, at night | 9 | 114 | 26% |
+| 20 blocks down | 31 | 254 | 14% |
+| 45 blocks down | 35 | 266 | 13% |
+
+**The default of 40 is deliberately low.** If this mod is installed you should notice; a plain zombie
+is what you get when nothing more interesting turned up, not the house style. It isn't zero either —
+some ordinary dead is what makes the rest read as unusual.
+
+That table also *understates* how ordinary a crowd looks, because Walker is itself a near-vanilla
+shambler at weight 35. Between the two, about half of what you meet on the surface is still just a
+zombie. Raise `vanillaWeight` for a mostly-vanilla world, drop it to 0 and a genus claims every
+eligible spawn.
 
 The optional `spawn` block narrows where a genus is eligible. Omit it and the genus can appear
 anywhere its base mob does.
@@ -1003,6 +1020,27 @@ somewhere else entirely.
 The one shared number is `cap`, which bounds horde mobs alive **per horde**, so a busy server is
 still bounded per player rather than in total. Worth watching if a lot of people play at once.
 
+### How far it notices you
+
+`follow_range` turned out to be the most expressive field in the mod, because vanilla's targeting
+goal sizes its search from `Attributes.FOLLOW_RANGE` — so it is not a difficulty dial, it is *what
+kind of creature this is*. The 52 shipped genera sit in five tiers:
+
+| Tier | Range | Who |
+|---|---|---|
+| Oblivious | 6–10 | Sleeper, Clicker |
+| Shambler | 16–20 | Walker, Harvester, Commuter, Crawler, Bloater, Boomer |
+| Ordinary dead | 22–34 | most of them |
+| Hunter | 36–48 | Runner, Hunter, Ender, Volatile, Nightstalker |
+| Watcher | 48–64 | Stalker, Weeping, Screamer, **Coward**, Herobrine |
+
+**The Coward is in the top tier, not the bottom**, which reads wrong for a second and then obviously
+right: it needs to spot you from further away than anything else, because it has to be *running* by
+the time you arrive. A coward that notices at 24 blocks is just a slow zombie with a bad plan.
+
+The tiers are also why a crowd reads as a crowd. Shamblers turn late and hunters commit early, so a
+mixed group arrives in waves without anything coordinating it.
+
 ### Leave him alone and he leaves you alone
 
 `follow_range` is the whole of it, because vanilla's targeting goal sizes its search from
@@ -1202,7 +1240,7 @@ so they travel with the save. **The file doesn't exist until you've loaded the w
 | Option | Default | Purpose |
 |--------|---------|---------|
 | `enabled` | `true` | Master switch. Off means everything spawns exactly as vanilla would. |
-| `vanillaWeight` | `200` | How strongly to leave a mob alone, weighed against the genera that could claim it. `0` means a genus claims every eligible spawn. |
+| `vanillaWeight` | `40` | How strongly to leave a mob alone, weighed against the genera that could claim it. `0` means a genus claims every eligible spawn. |
 | `logSpawns` | `false` | Log every genus spawn to the console. Noisy; for tuning weights. |
 
 ## Commands

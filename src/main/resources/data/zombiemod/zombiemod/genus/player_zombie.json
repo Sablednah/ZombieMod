@@ -5,7 +5,7 @@
   "health": 20.0,
   "damage": 4.0,
   "speed": 1.1,
-  "follow_range": 16.0,
+  "follow_range": 20.0,
   "attributes": {
     "minecraft:knockback_resistance": 0.2,
     "minecraft:burning_time": 0.0

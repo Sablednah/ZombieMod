@@ -5,7 +5,7 @@
   "health": 26.0,
   "damage": 3.0,
   "speed": 0.55,
-  "follow_range": 18.0,
+  "follow_range": 16.0,
   "armor_color": 4870720,
   "head": {
     "properties": {
@@ -123,5 +123,6 @@
       "sound": "minecraft:entity.zombie_villager.converted",
       "particle": "minecraft:soul_fire_flame"
     }
-  ]
+  ],
+  "xp": 3
 }

@@ -12,11 +12,19 @@
   "health": 34.0,
   "damage": 5.0,
   "speed": 0.9,
-  "follow_range": 26.0,
+  "follow_range": 28.0,
   "equipment": {
     "mainhand": "minecraft:iron_sword",
     "offhand": "minecraft:shield",
-    "chest": "minecraft:chainmail_chestplate",
+    "chest": {
+      "id": "minecraft:iron_chestplate",
+      "components": {
+        "minecraft:trim": {
+          "pattern": "minecraft:sentry",
+          "material": "minecraft:iron"
+        }
+      }
+    },
     "legs": "minecraft:chainmail_leggings",
     "feet": "minecraft:iron_boots",
     "drop_chance": 0.0
@@ -82,5 +90,7 @@
       "max_alerted": 6
     }
   ],
-  "bounty": 4.0
+  "bounty": 4.0,
+  "xp": 12,
+  "arrows": 4
 }

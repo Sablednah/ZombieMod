@@ -108,5 +108,6 @@
       "particle": "minecraft:cloud"
     }
   ],
-  "burning": true
+  "burning": true,
+  "xp": 8
 }
