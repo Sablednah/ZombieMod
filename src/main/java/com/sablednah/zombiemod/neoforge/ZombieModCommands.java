@@ -23,7 +23,9 @@ import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -193,7 +195,6 @@ public final class ZombieModCommands {
         var lookup = source.registryAccess().lookupOrThrow(ZombieModRegistries.GENUS);
 
         // Sorted by name, not by id, because the book is read by a person.
-        record Row(String name, boolean met, int kills) {}
         List<Row> rows = new ArrayList<>();
         lookup.listElements().forEach(holder -> {
             var id = holder.key().identifier();
@@ -208,42 +209,72 @@ public final class ZombieModCommands {
         String header = slain + " of " + rows.size() + " slain, " + met + " met";
 
         if (!asBook) {
-            source.sendSuccess(() -> Component.literal("\u00a76ZombieMon \u00a77- " + header), false);
+            source.sendSuccess(() -> Component.literal("ZombieDex").withStyle(ChatFormatting.GOLD)
+                    .append(Component.literal(" - " + header).withStyle(ChatFormatting.GRAY)), false);
             for (Row row : rows) {
-                String mark = row.kills() > 0 ? "\u00a7a\u2714 " : row.met() ? "\u00a7e? " : "\u00a78\u2718 ";
-                String tail = row.kills() > 0 ? " \u00a77x" + row.kills() : "";
-                source.sendSuccess(() -> Component.literal(mark + stripCodes(row.name()) + tail), false);
+                source.sendSuccess(() -> line(row, ChatFormatting.GREEN, ChatFormatting.YELLOW,
+                        ChatFormatting.DARK_GRAY, ChatFormatting.WHITE, ChatFormatting.GRAY), false);
             }
             return (int) slain;
         }
 
+        // Explicit styles rather than legacy section codes. The first page was the only one to
+        // carry a bold heading, and the only one to render wrong - with §-codes the style is a
+        // running mode that the rest of the page inherits, so a heading can bleed into the list
+        // under it. A component tree cannot do that: every span states its own style and siblings
+        // inherit nothing from each other.
         List<Filterable<Component>> pages = new ArrayList<>();
-        StringBuilder page = new StringBuilder("\u00a7lZombieMon\u00a7r\n" + header + "\n\n");
-        int lines = 0;
+        MutableComponent page = Component.literal("ZombieDex\n").withStyle(ChatFormatting.BOLD)
+                .append(Component.literal(header + "\n\n").withStyle(ChatFormatting.DARK_GRAY));
+        // A page holds fourteen lines. The heading costs three, so the first page carries fewer -
+        // the previous version put eleven rows on every page and filled the first one exactly to
+        // the brim, where one wrapped name would have silently dropped a genus off the end.
+        int room = 10;
         for (Row row : rows) {
-            String mark = row.kills() > 0 ? "\u00a72\u2714 " : row.met() ? "\u00a76? " : "\u00a78\u2718 ";
-            String tail = row.kills() > 0 ? " \u00a78x" + row.kills() : "";
-            page.append(mark).append("\u00a70").append(stripCodes(row.name())).append(tail).append('\n');
-            // Eleven rows is what fits a page once the heading is on the first one; the count is
-            // conservative because an overflowing page silently drops its tail.
-            if (++lines >= 11) {
-                pages.add(Filterable.passThrough(Component.literal(page.toString())));
-                page = new StringBuilder();
-                lines = 0;
+            page.append(line(row, ChatFormatting.DARK_GREEN, ChatFormatting.GOLD,
+                    ChatFormatting.GRAY, ChatFormatting.BLACK, ChatFormatting.DARK_GRAY));
+            page.append(Component.literal("\n"));
+            if (--room == 0) {
+                pages.add(Filterable.passThrough(page));
+                page = Component.literal("");
+                room = 13;
             }
         }
-        if (!page.isEmpty()) {
-            pages.add(Filterable.passThrough(Component.literal(page.toString())));
+        if (room < 13) {
+            pages.add(Filterable.passThrough(page));
         }
 
         ItemStack book = new ItemStack(Items.WRITTEN_BOOK);
         book.set(DataComponents.WRITTEN_BOOK_CONTENT, new WrittenBookContent(
-                Filterable.passThrough("ZombieMon"), player.getGameProfile().name(), 0, pages, false));
+                Filterable.passThrough("ZombieDex"), player.getGameProfile().name(), 0, pages, false));
         if (!player.getInventory().add(book)) {
             player.drop(book, false);
         }
-        source.sendSuccess(() -> Component.literal("\u00a76" + header), false);
+        source.sendSuccess(() -> Component.literal(header).withStyle(ChatFormatting.GOLD), false);
         return (int) slain;
+    }
+
+    /** One line of the checklist. */
+    private record Row(String name, boolean met, int kills) {}
+
+    /**
+     * One checklist row, told which palette to use.
+     *
+     * <p>Chat is light text on a dark background and a book is dark text on parchment, so the two
+     * need opposite ends of the same colours - passing them in keeps one definition of what a row
+     * <em>is</em>.
+     */
+    private static MutableComponent line(Row row, ChatFormatting slain, ChatFormatting met,
+            ChatFormatting unmet, ChatFormatting name, ChatFormatting count) {
+        MutableComponent out = row.kills() > 0
+                ? Component.literal("\u2714 ").withStyle(slain)
+                : row.met() ? Component.literal("? ").withStyle(met)
+                        : Component.literal("\u2718 ").withStyle(unmet);
+        out.append(Component.literal(stripCodes(row.name())).withStyle(name));
+        if (row.kills() > 0) {
+            out.append(Component.literal(" x" + row.kills()).withStyle(count));
+        }
+        return out;
     }
 
     /** Genus names carry legacy colour codes; a book page renders those literally. */

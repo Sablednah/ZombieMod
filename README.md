@@ -76,7 +76,7 @@ Here is the coward, in full:
 | `health` | *vanilla* | Max health. |
 | `damage` | *vanilla* | Attack damage. |
 | `speed` | `1.0` | Movement speed **multiplier** on the base mob, as in the old configs — `1.25` is 25% quicker than a zombie. |
-| `follow_range` | *vanilla* | How far away it notices you (the old `agro`). |
+| `follow_range` | *vanilla* | How far away it notices you (the old `agro`). Vanilla is 16; **this is the knob for a monster that ignores you until you are close**. |
 | `scale` | `1.0` | Body size multiplier, `0.0625`–`16`. Giants and tiddlers cost nothing. |
 | `armor_color` | *(none)* | Dyes a full set of leather armour this RGB colour — the cheapest way to tell genera apart. |
 | `clear_goals` | `true` | Throw away the vanilla AI before adding yours. Set `false` to *add* behaviour to a normal zombie. |
@@ -1003,7 +1003,17 @@ somewhere else entirely.
 The one shared number is `cap`, which bounds horde mobs alive **per horde**, so a busy server is
 still bounded per player rather than in total. Worth watching if a lot of people play at once.
 
-## ZombieMon
+### Leave him alone and he leaves you alone
+
+`follow_range` is the whole of it, because vanilla's targeting goal sizes its search from
+`Attributes.FOLLOW_RANGE` — so a low value means the mob genuinely does not know you are there.
+
+The **Sleeper** is built on it: `follow_range: 6.0`, ninety health, fourteen damage, barely moves,
+twelve arrows still stuck in it from people who tried. It keeps `hurt_by_target`, and that pairing is
+the contract — retaliation is *not* range-limited, so leaving it alone works and hitting it once is a
+decision you do not get to take back at any distance.
+
+## ZombieDex
 
 *Gotta slay 'em all.* Who has met what, and who has killed what — a completionist checklist that
 gives you a reason to chase down a Coward.
@@ -1203,7 +1213,7 @@ so they travel with the save. **The file doesn't exist until you've loaded the w
 | `/zombiemod spawn <genus>` | Spawn one where you're **looking**, up to 48 blocks. |
 | `/zombiemod spawn <genus> <x> <y> <z>` | Spawn one at a position. Accepts `~ ~ ~` relative and `^ ^ ^5` local — so `^ ^ ^5` is "five blocks in front of me". Works from the console and command blocks. |
 | `/zombiemod horde list\|start <horde>\|stop` | Wave events. |
-| `/zombiemod bestiary [book]` | Your ZombieMon checklist, in chat or as a written book. |
+| `/zombiemod bestiary [book]` | Your ZombieDex checklist, in chat or as a written book. |
 | `/zombiemod status` | What the mod believes its settings are, whether the corpse genus resolved, and whether FTB Chunks linked. **Start here when something seems not to work.** |
 | `/zombiemod observe [on\|off]` | Take no damage while staying a completely normal target. |
 | `/zombiemod corpse list [player]` | Every recorded player corpse, newest first. |

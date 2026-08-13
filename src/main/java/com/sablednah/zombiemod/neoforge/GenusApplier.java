@@ -126,6 +126,18 @@ public final class GenusApplier {
                     });
         }
 
+        // Applied here as well as in the upkeep goal, and the difference is visible: assign() runs
+        // before the entity is ever added to the level, while the goal is built on the join event -
+        // by which point a client can already have been told about a perfectly visible zombie. The
+        // goal still does it, because this flag is the one appearance field vanilla does not save,
+        // so a reloaded chunk has to set it again.
+        if (genus.invisible()) {
+            mob.setInvisible(true);
+        }
+        if (genus.arrows() > 0) {
+            mob.setArrowCount(genus.arrows());
+        }
+
         // Alight, without being on fire. Display-only, and saved by vanilla as HasVisualFire, so it
         // neither damages the mob nor needs topping up - see the access transformer for why the
         // obvious route (remainingFireTicks) is wrong.
