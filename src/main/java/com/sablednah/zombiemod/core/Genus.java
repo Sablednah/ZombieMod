@@ -288,8 +288,15 @@ public record Genus(
         return encounter.bounty();
     }
 
-    /** Display name as a component, or empty if this genus goes unnamed. */
+    /**
+     * Display name as a component, or empty if this genus goes unnamed.
+     *
+     * <p>Through {@link Announce#format} so {@code &} colour codes work, exactly as they do in a
+     * horde's name and its announcement. They did not, and the failure was invisible until a genus
+     * finally used one: every shipped genus had a plain name, so {@code "&8Sleeper"} was the first
+     * to render its own markup at the player.
+     */
     public Optional<Component> displayName() {
-        return name().map(Component::literal);
+        return name().map(Announce::format);
     }
 }

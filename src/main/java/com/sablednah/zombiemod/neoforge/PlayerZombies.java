@@ -94,7 +94,8 @@ public final class PlayerZombies {
         corpse.snapTo(player.getX(), player.getY(), player.getZ(), player.getYRot(), 0.0F);
         GenusApplier.assign(corpse, holder);
 
-        corpse.setCustomName(Component.literal(
+        // Through the same formatter, so a server owner can colour "Corpse %P" like anything else.
+        corpse.setCustomName(com.sablednah.zombiemod.core.Announce.format(
                 ZombieModConfig.PLAYER_ZOMBIE_NAME.get().replace("%P", player.getName().getString())));
         corpse.setCustomNameVisible(true);
 

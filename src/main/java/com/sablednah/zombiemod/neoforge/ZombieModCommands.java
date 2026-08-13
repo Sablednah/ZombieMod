@@ -351,7 +351,9 @@ public final class ZombieModCommands {
             source.sendFailure(Component.literal("A horde is already running for you."));
             return 0;
         }
-        source.sendSuccess(() -> Component.literal("Started " + spec.value().name() + "."), true);
+        source.sendSuccess(() -> Component.literal("Started ")
+                .append(com.sablednah.zombiemod.core.Announce.format(spec.value().name()))
+                .append(Component.literal(".")), true);
         return 1;
     }
 

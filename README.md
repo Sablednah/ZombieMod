@@ -1142,6 +1142,11 @@ chain stopped at one animal.
     milkCure = true
 ```
 
+**Something has to bite the livestock first.** Biter carries the infection and now targets `animal`
+below `player` and `villager`, so it goes for a herd only when nobody better is about. Carrier hunts
+animals too but uses `convert`, which raises them on the spot — instant, and no chain. If you want a
+field to turn slowly, it is Biter you let in.
+
 **Right-click an infected animal with a milk bucket to cure it.** Milk already cured a *player* for
 free, because the cure is "the marker effect is gone" and drinking milk clears effects — this is the
 same cure aimed at something that cannot drink it itself. Safe to hang on the vanilla interaction,

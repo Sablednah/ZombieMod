@@ -72,7 +72,7 @@ final class BossBars {
 
     private static Component title(Mob mob, BossSpec spec) {
         if (spec.title().isPresent()) {
-            return Component.literal(spec.title().get());
+            return com.sablednah.zombiemod.core.Announce.format(spec.title().get());
         }
         return mob.getCustomName() != null ? mob.getCustomName() : mob.getType().getDescription();
     }

@@ -54,6 +54,8 @@ Last updated 2026-07-30.
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
+- **Biter on livestock.** It now has an `animal` target goal, so it will actually bite a sheep; the
+  spread itself is proven, but nobody has watched a real field turn.
 - **Herd infection.** A herd of eight went 1 → 2 → 3 → 8 under a probe, all eight carried the spread
   goal, the cure cleared both the timer and the effect, and undead were immune — but nobody has let
   a Biter loose near real livestock and watched it happen at real speed.
