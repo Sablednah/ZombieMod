@@ -28,7 +28,7 @@ Last updated 2026-07-30.
 | **XP** | Per genus |
 | **Bounty** | Per genus, with a pluggable payer and a scoreboard fallback |
 | **Horde events** | Wave director with a boss bar, three shipped hordes, off by default |
-| **CityWorld districts** | 3 conditions on district, lot and wildness, reflective and inert without it. Verified against a generated city: 289 lots, 7 districts, 4 lot styles — and **in play**: Commuters spawning in a highrise district at roughly the rate their weight predicts |
+| **CityWorld districts** | 3 conditions on district, lot and wildness, reflective and inert without it. Verified against a generated city: 289 lots, 7 districts, 4 lot styles — and **in play**: Commuters in a highrise district and Harvesters in a farm one, at roughly the rate their weights predict. Weights since raised to 45/40; the new rate is being checked |
 | **Mutation** | Genus becomes another genus on a trigger. `health_below`, `on_fire` and `where` (dimension) all watched in game |
 | **Horde payoff** | Victory line, sound and XP on the last kill |
 | **Straggler glow** | Both paths: a bell ring lights them up, and a horde that goes a minute without a kill lights them up itself |
@@ -48,8 +48,6 @@ Last updated 2026-07-30.
   play: Nightstalker's head was "Masked Zombie", whose mask turns out to be a *surgical* one, which
   said nothing about hunting in the dark. Picking by catalogue name is how that happened; picks are
   now screened by rendering the face pixels and looking at them, dimmed as well as lit.
-- **Harvester** — the `FARM` district genus. Its sibling Commuter is confirmed in play, and they
-  differ only in which district they name, so this is very likely fine; it needs a farm district.
 - **Mutation's two damp triggers** — `touching` (Walker on ice turning Frost) and `in_water` (an
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
