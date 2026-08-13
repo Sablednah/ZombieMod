@@ -110,6 +110,15 @@ Every ability is done. Two things aren't:
 - **Bounty.** Waiting on an economy decision. There is no Vault equivalent on NeoForge; Impactor is
   the nearest thing to a common API and isn't on 1.21.11. `xp` covers most of the intent meanwhile.
 
+## Parked ideas
+
+- **An aquatic genus - a Drowned, but squiddier.** Sable's, 2026-08-13. Worth noting that it looks
+  like pure JSON: `base: minecraft:drowned` (Bogman already uses it), `navigation: swim` or
+  `amphibious`, `glow` for the glow-squid outline, `zombiemod:effect` with blindness plus
+  `zombiemod:particles` with squid ink for an ink cloud, and `zombiemod:pull` to drag someone under.
+  The 1.8 plugin's `INK` ability has no direct port - `effect` + `particles` is the replacement, and
+  is more flexible than the original was.
+
 ## Next, in the order I'd do it
 
 1. **Proximity spawning** — see above.
