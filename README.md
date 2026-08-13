@@ -1067,6 +1067,29 @@ real, but nothing will ever spawn one — those are summoned, not spawned. Use `
 spawner. Illagers are the interesting case here: they spawn in patrols, outposts and raids, so a
 genus on one turns up on its own.
 
+#### What a non-humanoid can actually wear
+
+Nothing, and it is worth knowing why: **armour, held items and the `head` player-head are drawn by
+model *layers*, and only humanoid models have them.** Checked against the renderers rather than
+guessed:
+
+| Layer | Which renderers add it |
+|---|---|
+| `CustomHeadLayer` — the `head` field | HumanoidMob (so every zombie, skeleton, husk, drowned, giant), Illager, Piglin, Villager, Wandering Trader |
+| `HumanoidArmorLayer` — `armor_color`, worn `equipment` | Zombie, Skeleton, Zombified Piglin, Zombie Villager, Giant, Piglin |
+| `ItemInHandLayer` — held `equipment` | HumanoidMob, Illager, Pillager, Vindicator, Evoker, Illusioner, Vex, Giant |
+
+**Guardian has no layers at all.** Neither do Ravager, Blaze or Zoglin. Creaking and Warden have only
+emissive glow layers, Enderman has eyes and a carried block, Spider has eyes, Creeper has the charge
+overlay, and the Wither's one layer is its invulnerability shield. Set `equipment` on any of them and
+the item is genuinely on the mob server-side — it just draws nothing.
+
+**But the whole-entity effects still work on anything**, because they are not layers:
+`scale` is an attribute, `glow` is an outline colour on the render state, `burning` goes through the
+flame feature renderer, and `invisible`, `name`, particles and sounds are all model-agnostic. So a
+Guardian genus is perfectly viable — resized, glowing, alight, renamed, trailing particles. It just
+cannot wear a hat.
+
 So: green aggressive squid, yes, but it will bump rather than bite — the aquatic idea is better
 served by a `drowned` base, which is already a zombie with everything attached. Tall skinny ender
 zombies and zombie illagers, wholeheartedly yes.
