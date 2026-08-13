@@ -54,6 +54,9 @@ Last updated 2026-07-30.
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
+- **The Ghost face pool** — seed names, login memory, ageing and ban filtering. All four were proven
+  headlessly and in both directions, including banning a probe player and watching it vanish from
+  200 draws, then un-banning and watching it return. What is unverified is only how it *looks*.
 - **The six new appearance fields** — `invisible`, `baby`, `burning`, `arrows`, `glow`, `villager`.
   Each was built for real through `GenusApplier.assign` and read back headlessly, so the state is
   right; what nobody has done is stand in front of one. Ghost in particular is unproven: on the dev

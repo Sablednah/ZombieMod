@@ -1,5 +1,7 @@
 package com.sablednah.zombiemod;
 
+import java.util.List;
+
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 /**
@@ -40,6 +42,11 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.DoubleValue HORDE_BELL_RADIUS;
     public static final ModConfigSpec.IntValue HORDE_GLOW_STALL;
     public static final ModConfigSpec.IntValue HORDE_GLOW_DURATION;
+
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> GHOST_NAMES;
+    public static final ModConfigSpec.BooleanValue GHOST_REMEMBER;
+    public static final ModConfigSpec.IntValue GHOST_REMEMBER_DAYS;
+    public static final ModConfigSpec.BooleanValue GHOST_SKIP_BANNED;
 
     /** How spawns inside a land claim are treated. */
     public enum ClaimSpawns {
@@ -228,6 +235,37 @@ public final class ZombieModConfig {
 
         HORDE_GLOW_DURATION = b.comment("How long the glow lasts, in ticks. Refreshed while stalled.")
                 .defineInRange("glowDuration", 200, 20, 6000);
+
+        b.pop();
+
+        b.comment("Ghost: the genus that wears somebody else's face.",
+                "",
+                "It needs names, and there is no way to ask the server for every profile it has ever",
+                "seen - the profile cache answers questions but will not enumerate. So there are two",
+                "sources, and they are added together: this seed list, and everyone who logs in.",
+                "",
+                "A brand new server has nobody in the second list, so without a seed list the Ghost",
+                "is faceless until somebody has played. That is what `names` is for.").push("ghost");
+
+        GHOST_NAMES = b.comment("Always available, whether or not they have ever played here.",
+                        "Resolved by name against Mojang, so these render for real on a vanilla client.",
+                        "Leave empty to use only players who have actually been here.")
+                .defineList("names", List.of("Notch", "jeb_", "Dinnerbone"),
+                        () -> "", o -> o instanceof String s && !s.isBlank());
+
+        GHOST_REMEMBER = b.comment("Remember players as they log in.")
+                .define("rememberLogins", true);
+
+        GHOST_REMEMBER_DAYS = b.comment("Forget a player who has not logged in for this many days.",
+                        "0 never forgets. Measured in real days, not game days, because the thing being",
+                        "remembered is a person rather than anything that happens in the world.")
+                .defineInRange("rememberDays", 90, 0, 3650);
+
+        GHOST_SKIP_BANNED = b.comment("Never wear a banned player's face.",
+                        "Checked against the live ban list every time one is picked rather than when the",
+                        "ban happens: it then covers bans applied from the console or while the server was",
+                        "down, and un-banning somebody quietly puts them back in the pool.")
+                .define("skipBanned", true);
 
         b.pop();
         SPEC = b.build();

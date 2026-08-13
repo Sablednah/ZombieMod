@@ -52,6 +52,13 @@ public final class ZombieModEvents {
      */
     @SubscribeEvent
     public void onServerStarted(ServerStartedEvent event) {
+        // Once a start is often enough: the window is days, and a server that never restarts is
+        // also one where nobody is waiting on a name being forgotten.
+        int forgotten = KnownPlayers.get(event.getServer().overworld()).prune(event.getServer());
+        if (forgotten > 0) {
+            LOG.info("ZombieMod: forgot {} player name(s) - stale or banned.", forgotten);
+        }
+
         HolderLookup.RegistryLookup<Genus> lookup =
                 event.getServer().registryAccess().lookupOrThrow(ZombieModRegistries.GENUS);
 

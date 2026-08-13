@@ -92,7 +92,7 @@ Here is the coward, in full:
 | `bounty` | *(none)* | What killing it is worth — see below. |
 | `xp` | *vanilla* | Experience dropped on death. A Tank worth the same 5xp as a stray zombie is a strange reward for a two-minute fight. |
 | `behaviours` | `[]` | Goal sets that switch on and off with a condition — see below. |
-| `ghost` | `false` | Take the name and face of a random player who has played on this server. |
+| `ghost` | `false` | Take the name and face of a real player — a config seed list plus everyone who has logged in. See below. |
 | `mount` | *(none)* | Something to ride in on — the old `jockey` field. |
 | `navigation` | `default` | `climb` makes it scale walls like a spider, `swim` and `amphibious` the aquatic ones. |
 | `equipment` | `{}` | Held and worn items — see below. Beats `armor_color` and `head` for any slot it names. |
@@ -734,6 +734,36 @@ helmet, and `equipment` overrides any slot it names. So the usual arrangement is
 silhouette and colour, with a face on top — which is why nearly every genus keeps its `armor_color`.
 `ghost` is applied last of all and wins outright, because borrowing a real player's face is that
 genus's whole point.
+
+### Where the Ghost gets its faces
+
+Two pools, added together:
+
+```toml
+[ghost]
+    names = ["Notch", "jeb_", "Dinnerbone"]   # always available, resolved by name
+    rememberLogins = true
+    rememberDays = 90     # forget anyone unseen this long. 0 never forgets
+    skipBanned = true
+```
+
+The seed list exists because the second pool starts empty, and a Ghost with nothing to wear is just
+a zombie — on a fresh server it would be faceless until somebody had played. Seed entries resolve
+**by name**, exactly as `"head": "Herobrine"` does; remembered players resolve by uuid.
+
+The two are pooled rather than one preferred, so a server with three seeds and thirty players mostly
+shows its own players. Add more seed names to weight them up.
+
+**`rememberDays` is real days, not game days** — the thing being remembered is a person, not
+anything that happens in the world. The list is pruned once per server start, and stays capped at
+512 regardless, evicting least-recently-seen.
+
+**Bans are filtered when a face is drawn, not when the ban lands.** There is no ban event in
+NeoForge, but reacting to one would be worse even if there were: it would miss bans applied from the
+console or while the server was down, it would keep its own copy of state the server already has,
+and un-banning somebody would not put them back. Asking the live ban list at the moment of the draw
+is one call and is always right. Pruning *also* drops banned entries, so the saved file does not
+keep names the server has decided against; a later un-ban re-adds them on their next login.
 
 **44 of the 47 genera now have a face**: the Bloater is bloated, the Ember is on fire, the Frost is
 frozen, the Tank is a brute, the Charger wears a football helmet, the Weeping is an angel, the

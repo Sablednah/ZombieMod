@@ -110,15 +110,20 @@ public final class GenusApplier {
         // GHOST: wear a real player's name and face. The 1.8 version could only borrow the name,
         // because skins needed Spout; a head component makes the whole disguise free.
         if (genus.ghost() && mob.level() instanceof ServerLevel serverLevel) {
-            KnownPlayers.get(serverLevel).random(mob.getRandom()).ifPresent(seen -> {
-                mob.setCustomName(net.minecraft.network.chat.Component.literal(seen.name()));
-                mob.setCustomNameVisible(false);
-                ItemStack face = new ItemStack(Items.PLAYER_HEAD);
-                face.set(DataComponents.PROFILE, net.minecraft.world.item.component.ResolvableProfile
-                        .createUnresolved(seen.id()));
-                mob.setItemSlot(EquipmentSlot.HEAD, face);
-                mob.setDropChance(EquipmentSlot.HEAD, 0.0F);
-            });
+            KnownPlayers.get(serverLevel).random(mob.getRandom(), serverLevel.getServer())
+                    .ifPresent(seen -> {
+                        mob.setCustomName(net.minecraft.network.chat.Component.literal(seen.name()));
+                        mob.setCustomNameVisible(false);
+                        ItemStack face = new ItemStack(Items.PLAYER_HEAD);
+                        // By id for someone who has played here, by name for a seed entry - a
+                        // name-only profile is exactly what "head": "Herobrine" already uses.
+                        face.set(DataComponents.PROFILE, seen.id()
+                                .map(net.minecraft.world.item.component.ResolvableProfile::createUnresolved)
+                                .orElseGet(() -> net.minecraft.world.item.component.ResolvableProfile
+                                        .createUnresolved(seen.name())));
+                        mob.setItemSlot(EquipmentSlot.HEAD, face);
+                        mob.setDropChance(EquipmentSlot.HEAD, 0.0F);
+                    });
         }
 
         // Alight, without being on fire. Display-only, and saved by vanilla as HasVisualFire, so it
