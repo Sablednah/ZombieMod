@@ -1094,6 +1094,20 @@ So: green aggressive squid, yes, but it will bump rather than bite — the aquat
 served by a `drowned` base, which is already a zombie with everything attached. Tall skinny ender
 zombies and zombie illagers, wholeheartedly yes.
 
+### Districts should feel like districts
+
+Commuter (45) and Harvester (40) are weighted near the top of the table, above Coward and just under
+Walker. That is deliberate and it is safe, because unlike every other heavy genus **they are gated on
+a district** — they cannot leak into a world that has no city in it. A highrise block should read as
+an office that died, not as a generic dark room that occasionally contains an office worker.
+
+Against roughly 114 of eligible competition plus `vanillaWeight` 40, that puts Commuter at about one
+in four of what spawns in a dark highrise district.
+
+Worth knowing that **`SPAWNER` is one of the default spawn reasons**, so CityWorld's apocalypse mode
+— which seeds spawners through basements, caves and sewers — produces genera rather than plain
+zombies. A sewer under a highrise pumps out Commuters without either mod being told to co-operate.
+
 ### How far it notices you
 
 `follow_range` turned out to be the most expressive field in the mod, because vanilla's targeting

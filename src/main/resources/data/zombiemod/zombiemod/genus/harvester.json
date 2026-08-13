@@ -1,7 +1,7 @@
 {
   "name": "Harvester",
   "base": "minecraft:zombie",
-  "weight": 12,
+  "weight": 40,
   "health": 30.0,
   "damage": 5.0,
   "speed": 0.65,
