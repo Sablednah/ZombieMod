@@ -1125,6 +1125,42 @@ twelve arrows still stuck in it from people who tried. It keeps `hurt_by_target`
 the contract — retaliation is *not* range-limited, so leaving it alone works and hitting it once is a
 decision you do not get to take back at any distance.
 
+### A tainted herd
+
+Infection was always cross-species — `Infect.onAttack` never checked its victim was a player, so a
+Biter could always sicken a cow, and a marked animal always rose when it died whatever killed it.
+What it could not do was **carry on**: an infected cow has no genus, so it has no abilities, so the
+chain stopped at one animal.
+
+```toml
+[infection]
+    spread = true
+    interval = 200      # ticks between one infected mob's attempts
+    chance = 0.25       # roughly one new case every 40s per infected animal
+    radius = 4.0
+    toPlayers = true    # standing too close is a mistake
+    milkCure = true
+```
+
+**Right-click an infected animal with a milk bucket to cure it.** Milk already cured a *player* for
+free, because the cure is "the marker effect is gone" and drinking milk clears effects — this is the
+same cure aimed at something that cannot drink it itself. Safe to hang on the vanilla interaction,
+because using a *milk* bucket on an entity is not a vanilla interaction at all; milking a cow takes
+an empty one.
+
+Three things keep it from running away:
+
+- **One neighbour per attempt.** A herd should turn over minutes — something you can watch happen and
+  still do something about — rather than in a single tick, which is just an event you are told about.
+- **Already-infected animals are skipped**, so one sick cow cannot re-mark its neighbours forever.
+- **The timer is passed on, not refreshed**, so a chain cannot outlive its source indefinitely.
+
+Undead things and anything already carrying a genus are immune, exactly as they are to a bite.
+
+Because the marker is a real potion effect, an infected animal **shows it** — pick `minecraft:poison`
+for unmistakable green, or `minecraft:hunger` (the Biter's default) for something subtler. The horror
+is that the sheep still looks like a sheep.
+
 ## ZombieDex
 
 *Gotta slay 'em all.* Who has met what, and who has killed what — a completionist checklist that

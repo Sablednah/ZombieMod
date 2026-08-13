@@ -364,6 +364,45 @@ public final class ZombieModEvents {
         }
     }
 
+    /**
+     * Milk, aimed at something that cannot drink it.
+     *
+     * <p>Safe to hang on the vanilla interaction because using a <em>milk</em> bucket on an entity
+     * is not a vanilla interaction at all - milking a cow takes an empty one - so nothing is being
+     * overridden here.
+     */
+    @SubscribeEvent
+    public void onMilkCure(net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.EntityInteract event) {
+        if (!ZombieModConfig.INFECT_MILK_CURE.get()
+                || !(event.getLevel() instanceof ServerLevel level)
+                || !(event.getTarget() instanceof net.minecraft.world.entity.LivingEntity target)) {
+            return;
+        }
+        net.minecraft.world.item.ItemStack held = event.getItemStack();
+        if (!held.is(net.minecraft.world.item.Items.MILK_BUCKET)) {
+            return;
+        }
+        if (com.sablednah.zombiemod.core.ability.Infect.remaining(target, level.getGameTime()) < 0L) {
+            return;
+        }
+
+        com.sablednah.zombiemod.core.ability.Infect.cure(target);
+        level.sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER,
+                target.getX(), target.getY() + target.getBbHeight() * 0.6D, target.getZ(),
+                12, 0.3D, 0.4D, 0.3D, 0.02D);
+        level.playSound(null, target.blockPosition(),
+                net.minecraft.sounds.SoundEvents.GENERIC_DRINK.value(),
+                net.minecraft.sounds.SoundSource.NEUTRAL, 0.8F, 1.2F);
+        if (!event.getEntity().hasInfiniteMaterials()) {
+            event.getEntity().setItemInHand(event.getHand(),
+                    new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.BUCKET));
+        }
+        event.getEntity().swing(event.getHand(), true);
+        // Consume it, or the click falls through to whatever the mob does with a right-click.
+        event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
+        event.setCanceled(true);
+    }
+
     private static java.util.Optional<net.minecraft.resources.Identifier> genusIdOf(Mob mob) {
         return mob.getPersistentData().getString(GenusApplier.GENUS_TAG)
                 .map(net.minecraft.resources.Identifier::tryParse);
@@ -404,6 +443,9 @@ public final class ZombieModEvents {
             return;
         }
         GenusApplier.genusOf(mob, level).ifPresent(holder -> GenusApplier.applyAi(mob, holder.value()));
+        // The infection is saved in entity NBT; the goal that spreads it is not. Same
+        // persistent/transient split as the genus AI above, and the same fix.
+        InfectionGoal.attach(mob);
     }
 
     /**

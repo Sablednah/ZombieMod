@@ -118,6 +118,12 @@ Two things it is worth re-deriving if you touch that area, because nothing else 
   chunk returns **15**, so a probe testing a `max_light` condition underground will silently
   conclude "too bright" and prove nothing. `level.getChunkAt(pos)` first. (Not a problem in the real
   game — mobs only spawn in loaded chunks.)
+- **An entity search needs the chunk *force*-loaded, and `getChunkAt` is not enough.** With no player
+  on a dev server nothing is entity-ticking, so mobs added with `addFreshEntity` are absent from the
+  index that `getEntitiesOfClass` reads — it returns 0 and a working feature looks broken. Use
+  `level.setChunkForced(x >> 4, z >> 4, true)`. Two further traps in the same family: a freshly added
+  entity is queued and does not appear until the **next tick**, so spawn on one tick and search on a
+  later one; and `ServerStartedEvent` is too early for either, so defer to `ServerTickEvent.Post`.
 - **A probe must call the real code, not re-derive it.** A ritual probe recomputed pattern offsets
   itself instead of calling `RitualHandler.matchPattern`, reported 5/5 blocks matched, and sailed
   past the actual bug — the rotation helper was dropping the Y component, so every vertical offset

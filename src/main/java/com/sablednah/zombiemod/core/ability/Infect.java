@@ -74,13 +74,27 @@ public record Infect(int interval, float chance, Holder<MobEffect> effect, int d
         if (mob.getRandom().nextFloat() >= chance) {
             return;
         }
+        mark(level, victim, effect, duration, genus, announce);
+    }
+
+    /**
+     * Make something infected. The single definition of what that means.
+     *
+     * <p>Shared with the mob-to-mob spread, which has to produce exactly the same state a bite does -
+     * an infection that is subtly different depending on how it was caught would be a bug nobody
+     * could reproduce.
+     *
+     * @return true if it took
+     */
+    public static boolean mark(ServerLevel level, LivingEntity victim, Holder<MobEffect> effect,
+            int duration, Optional<Identifier> genus, boolean announce) {
         // Already dead once, or already one of ours - neither can catch it.
         if (victim.getType().is(EntityTypeTags.UNDEAD)) {
-            return;
+            return false;
         }
         if (victim instanceof Mob m
                 && m.getPersistentData().getString("zombiemod:genus").isPresent()) {
-            return;
+            return false;
         }
         // Re-biting refreshes rather than stacks, so a long fight is not a death sentence measured in
         // hits.
@@ -94,8 +108,44 @@ public record Infect(int interval, float chance, Holder<MobEffect> effect, int d
 
         if (announce && victim instanceof Player player) {
             player.displayClientMessage(
-                    Component.literal("§cYou have been bitten. §7Milk will still help you."), false);
+                    Component.literal("\u00a7cYou have been bitten. \u00a77Milk will still help you."), false);
         }
+        // Attached here as well as on level join, or the first animal bitten would sit there
+        // contagious-in-name-only until something happened to unload its chunk.
+        if (victim instanceof Mob spreader) {
+            com.sablednah.zombiemod.neoforge.InfectionGoal.attach(spreader);
+        }
+        return true;
+    }
+
+    /** The marker effect this thing was infected with, if it is infected at all. */
+    public static Optional<Holder<MobEffect>> markerOf(LivingEntity victim) {
+        return victim.getPersistentData().getString(EFFECT_TAG)
+                .map(Identifier::tryParse)
+                .map(id -> id == null ? null : BuiltInRegistries.MOB_EFFECT.getValue(id))
+                .map(BuiltInRegistries.MOB_EFFECT::wrapAsHolder);
+    }
+
+    /** Ticks of infection left, or -1. */
+    public static long remaining(LivingEntity victim, long now) {
+        long until = victim.getPersistentData().getLongOr(UNTIL_TAG, -1L);
+        return until < 0L ? -1L : until - now;
+    }
+
+    /** Which genus it will rise as, if the infection named one. */
+    public static Optional<Identifier> risesAs(LivingEntity victim) {
+        return victim.getPersistentData().getString(GENUS_TAG).map(Identifier::tryParse);
+    }
+
+    /**
+     * Cure it: drop the timer and take the marker effect off.
+     *
+     * <p>{@link #clear} alone is not a cure - it leaves the effect running, so the victim would keep
+     * the particles and the icon while no longer being infected, which reads as the cure not working.
+     */
+    public static void cure(LivingEntity victim) {
+        markerOf(victim).ifPresent(victim::removeEffect);
+        clear(victim);
     }
 
     /**

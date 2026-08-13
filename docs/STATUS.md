@@ -54,6 +54,9 @@ Last updated 2026-07-30.
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
+- **Herd infection.** A herd of eight went 1 → 2 → 3 → 8 under a probe, all eight carried the spread
+  goal, the cure cleared both the timer and the effect, and undead were immune — but nobody has let
+  a Biter loose near real livestock and watched it happen at real speed.
 - **ZombieDex.** Recording, totals, both objectives, the per-genus switch in both positions and the
   master switch were all proven headlessly — including that turning `perGenus` on shows kills
   recorded while it was off. What nobody has done is read the book in game, or check that eleven

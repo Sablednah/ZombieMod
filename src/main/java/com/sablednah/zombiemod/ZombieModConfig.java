@@ -43,6 +43,13 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.IntValue HORDE_GLOW_STALL;
     public static final ModConfigSpec.IntValue HORDE_GLOW_DURATION;
 
+    public static final ModConfigSpec.BooleanValue INFECT_SPREAD;
+    public static final ModConfigSpec.IntValue INFECT_INTERVAL;
+    public static final ModConfigSpec.DoubleValue INFECT_CHANCE;
+    public static final ModConfigSpec.DoubleValue INFECT_RADIUS;
+    public static final ModConfigSpec.BooleanValue INFECT_PLAYERS;
+    public static final ModConfigSpec.BooleanValue INFECT_MILK_CURE;
+
     public static final ModConfigSpec.BooleanValue BESTIARY;
     public static final ModConfigSpec.BooleanValue BESTIARY_PER_GENUS;
 
@@ -252,6 +259,43 @@ public final class ZombieModConfig {
 
         HORDE_GLOW_DURATION = b.comment("How long the glow lasts, in ticks. Refreshed while stalled.")
                 .defineInRange("glowDuration", 200, 20, 6000);
+
+        b.pop();
+
+        b.comment("Infection spreading between mobs.",
+                "",
+                "A bite from a genus with the infect ability already marked whatever it hit, animals",
+                "included, and a marked thing already rises when it dies whatever killed it. What it",
+                "could not do was carry on: an infected cow has no genus, so it has no abilities, so",
+                "the chain stopped at one animal. These settings are that missing link.",
+                "",
+                "The intent is that letting one infected animal near a herd is a mistake you get to",
+                "watch unfold and still do something about - not an event you are simply told about.",
+                "Milk is the something.").push("infection");
+
+        INFECT_SPREAD = b.comment("Let infected mobs infect their neighbours.")
+                .define("spread", true);
+
+        INFECT_INTERVAL = b.comment("Ticks between one infected mob's attempts to pass it on.")
+                .defineInRange("interval", 200, 20, 24000);
+
+        INFECT_CHANCE = b.comment("Chance an attempt succeeds. With the defaults, roughly one new",
+                        "case every 40 seconds per infected animal.")
+                .defineInRange("chance", 0.25D, 0.0D, 1.0D);
+
+        INFECT_RADIUS = b.comment("How close is too close, in blocks.")
+                .defineInRange("radius", 4.0D, 1.0D, 32.0D);
+
+        INFECT_PLAYERS = b.comment("Whether standing too near an infected animal can infect you.",
+                        "This is what makes a tainted herd genuinely dangerous rather than merely a",
+                        "loss of livestock. Milk cures you exactly as it does after a bite.")
+                .define("toPlayers", true);
+
+        INFECT_MILK_CURE = b.comment("Right-click an infected animal with a milk bucket to cure it.",
+                        "Milk already cures a player, because the cure is 'the marker effect is gone'",
+                        "and drinking milk clears effects. This is the same cure, aimed at something",
+                        "that cannot drink it itself.")
+                .define("milkCure", true);
 
         b.pop();
 
