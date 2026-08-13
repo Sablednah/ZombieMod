@@ -31,7 +31,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.server.network.Filterable;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -156,6 +160,12 @@ public final class ZombieModCommands {
                                         ResourceKeyArgument.getRegistryKey(ctx, "horde",
                                                 ZombieModRegistries.HORDE, ERROR_NO_HORDE))))));
 
+        // Readable on a vanilla client, which is the point: the checklist is the feature, and a
+        // companion client mod should only ever be a nicer window onto it.
+        root.then(Commands.literal("bestiary")
+                .executes(ctx -> bestiary(ctx.getSource(), false))
+                .then(Commands.literal("book").executes(ctx -> bestiary(ctx.getSource(), true))));
+
         root.then(Commands.literal("status").executes(ctx -> status(ctx.getSource())));
 
         root.then(Commands.literal("observe")
@@ -164,6 +174,81 @@ public final class ZombieModCommands {
                 .then(Commands.literal("off").executes(ctx -> setObserve(ctx.getSource(), false))));
 
         dispatcher.register(root);
+    }
+
+
+    /**
+     * The checklist, as chat or as something you can carry.
+     *
+     * <p>A book because it is the one rich, paged, scrollable display a vanilla client already has,
+     * and it survives being handed to somebody else.
+     */
+    private static int bestiary(CommandSourceStack source, boolean asBook) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        if (!ZombieModConfig.BESTIARY.get()) {
+            source.sendFailure(Component.literal("The bestiary is switched off in the server config."));
+            return 0;
+        }
+        Bestiary bestiary = Bestiary.get(source.getLevel());
+        var lookup = source.registryAccess().lookupOrThrow(ZombieModRegistries.GENUS);
+
+        // Sorted by name, not by id, because the book is read by a person.
+        record Row(String name, boolean met, int kills) {}
+        List<Row> rows = new ArrayList<>();
+        lookup.listElements().forEach(holder -> {
+            var id = holder.key().identifier();
+            rows.add(new Row(holder.value().name().orElse(id.getPath()),
+                    bestiary.hasMet(player.getUUID(), id),
+                    bestiary.killsOf(player.getUUID(), id)));
+        });
+        rows.sort(java.util.Comparator.comparing(Row::name, String.CASE_INSENSITIVE_ORDER));
+
+        long slain = rows.stream().filter(r -> r.kills() > 0).count();
+        long met = rows.stream().filter(Row::met).count();
+        String header = slain + " of " + rows.size() + " slain, " + met + " met";
+
+        if (!asBook) {
+            source.sendSuccess(() -> Component.literal("\u00a76ZombieMon \u00a77- " + header), false);
+            for (Row row : rows) {
+                String mark = row.kills() > 0 ? "\u00a7a\u2714 " : row.met() ? "\u00a7e? " : "\u00a78\u2718 ";
+                String tail = row.kills() > 0 ? " \u00a77x" + row.kills() : "";
+                source.sendSuccess(() -> Component.literal(mark + stripCodes(row.name()) + tail), false);
+            }
+            return (int) slain;
+        }
+
+        List<Filterable<Component>> pages = new ArrayList<>();
+        StringBuilder page = new StringBuilder("\u00a7lZombieMon\u00a7r\n" + header + "\n\n");
+        int lines = 0;
+        for (Row row : rows) {
+            String mark = row.kills() > 0 ? "\u00a72\u2714 " : row.met() ? "\u00a76? " : "\u00a78\u2718 ";
+            String tail = row.kills() > 0 ? " \u00a78x" + row.kills() : "";
+            page.append(mark).append("\u00a70").append(stripCodes(row.name())).append(tail).append('\n');
+            // Eleven rows is what fits a page once the heading is on the first one; the count is
+            // conservative because an overflowing page silently drops its tail.
+            if (++lines >= 11) {
+                pages.add(Filterable.passThrough(Component.literal(page.toString())));
+                page = new StringBuilder();
+                lines = 0;
+            }
+        }
+        if (!page.isEmpty()) {
+            pages.add(Filterable.passThrough(Component.literal(page.toString())));
+        }
+
+        ItemStack book = new ItemStack(Items.WRITTEN_BOOK);
+        book.set(DataComponents.WRITTEN_BOOK_CONTENT, new WrittenBookContent(
+                Filterable.passThrough("ZombieMon"), player.getGameProfile().name(), 0, pages, false));
+        if (!player.getInventory().add(book)) {
+            player.drop(book, false);
+        }
+        source.sendSuccess(() -> Component.literal("\u00a76" + header), false);
+        return (int) slain;
+    }
+
+    /** Genus names carry legacy colour codes; a book page renders those literally. */
+    private static String stripCodes(String name) {
+        return name.replaceAll("(?i)&[0-9a-fk-or]", "");
     }
 
     private static int startHorde(CommandSourceStack source,

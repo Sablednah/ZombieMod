@@ -1003,6 +1003,62 @@ somewhere else entirely.
 The one shared number is `cap`, which bounds horde mobs alive **per horde**, so a busy server is
 still bounded per player rather than in total. Worth watching if a lot of people play at once.
 
+## ZombieMon
+
+*Gotta slay 'em all.* Who has met what, and who has killed what — a completionist checklist that
+gives you a reason to chase down a Coward.
+
+```
+/zombiemod bestiary        # the list, in chat
+/zombiemod bestiary book   # the same list as a written book you can carry
+```
+
+**The record lives in the world's saved data and is always complete.** The scoreboard is a *view* of
+it. That ordering is the whole design: turning the per-genus view on later shows a history that was
+being kept all along rather than starting from zero.
+
+Two objectives are always kept, both created on demand:
+
+| Objective | Holds |
+|---|---|
+| `zombiemod.slain` | total kills |
+| `zombiemod.genera` | how many **distinct** genera you have killed |
+
+```
+/scoreboard objectives setdisplay sidebar zombiemod.genera
+```
+
+### Per-genus tracking
+
+```toml
+[bestiary]
+    enabled = true
+    perGenus = false
+```
+
+`perGenus` adds one objective per genus, `zombiemod.<genus>`, holding your kill count for it — which
+is what makes the checklist queryable by anything that speaks scoreboard:
+
+```
+execute if score @s zombiemod.coward matches 1.. run ...
+```
+
+Off by default because it costs a scoreboard row per genus **per player**, and every row syncs to
+every client — fifty genera on a busy server is a lot of packets for a checklist. On a small server
+it is nothing, which is exactly who the switch is for. Since the saved record is kept either way,
+switching it on is never too late.
+
+**Why a scoreboard rather than a private format.** It is already a public read-write API that every
+admin tool, command block and datapack speaks, so a leaderboard, an advancement gate and a
+below-name counter are all things a server owner can build without this mod knowing about them.
+
+**"Met" is weaker than seen** — it means damage passed between you, in either direction. A real
+did-you-lay-eyes-on-it test would be a visibility check per mob per tick, which is a lot of work to
+tick a box for something glimpsed across a valley.
+
+A companion client mod could draw this far more nicely, and that stays entirely optional: the book
+and the sidebar are the feature, and both work on a vanilla client.
+
 ## Bounties
 
 A genus can carry a `bounty` — what killing it is worth. Every shipped genus has one, roughly
@@ -1147,6 +1203,7 @@ so they travel with the save. **The file doesn't exist until you've loaded the w
 | `/zombiemod spawn <genus>` | Spawn one where you're **looking**, up to 48 blocks. |
 | `/zombiemod spawn <genus> <x> <y> <z>` | Spawn one at a position. Accepts `~ ~ ~` relative and `^ ^ ^5` local — so `^ ^ ^5` is "five blocks in front of me". Works from the console and command blocks. |
 | `/zombiemod horde list\|start <horde>\|stop` | Wave events. |
+| `/zombiemod bestiary [book]` | Your ZombieMon checklist, in chat or as a written book. |
 | `/zombiemod status` | What the mod believes its settings are, whether the corpse genus resolved, and whether FTB Chunks linked. **Start here when something seems not to work.** |
 | `/zombiemod observe [on\|off]` | Take no damage while staying a completely normal target. |
 | `/zombiemod corpse list [player]` | Every recorded player corpse, newest first. |

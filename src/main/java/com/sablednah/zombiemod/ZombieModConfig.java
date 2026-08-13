@@ -43,6 +43,9 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.IntValue HORDE_GLOW_STALL;
     public static final ModConfigSpec.IntValue HORDE_GLOW_DURATION;
 
+    public static final ModConfigSpec.BooleanValue BESTIARY;
+    public static final ModConfigSpec.BooleanValue BESTIARY_PER_GENUS;
+
     public static final ModConfigSpec.ConfigValue<List<? extends String>> GHOST_NAMES;
     public static final ModConfigSpec.BooleanValue GHOST_REMEMBER;
     public static final ModConfigSpec.IntValue GHOST_REMEMBER_DAYS;
@@ -235,6 +238,35 @@ public final class ZombieModConfig {
 
         HORDE_GLOW_DURATION = b.comment("How long the glow lasts, in ticks. Refreshed while stalled.")
                 .defineInRange("glowDuration", 200, 20, 6000);
+
+        b.pop();
+
+        b.comment("Bestiary: who has met what, and who has killed what.",
+                "",
+                "The record itself is kept in the world's saved data and is complete whether or not",
+                "any of it is mirrored to a scoreboard. Turning the per-genus view on later therefore",
+                "shows a history that was being kept all along, rather than starting from zero.",
+                "",
+                "Two objectives are always kept, and both are created on demand:",
+                "  zombiemod.slain  - total kills",
+                "  zombiemod.genera - how many DISTINCT genera you have killed",
+                "",
+                "Display one with, e.g.:",
+                "  /scoreboard objectives setdisplay sidebar zombiemod.genera").push("bestiary");
+
+        BESTIARY = b.comment("Record kills and encounters at all.").define("enabled", true);
+
+        BESTIARY_PER_GENUS = b.comment(
+                        "Also keep one objective per genus, named zombiemod.<genus>, holding your kill",
+                        "count for it. This is what makes a completionist checklist queryable from a",
+                        "datapack or a command block:",
+                        "  execute if score @s zombiemod.coward matches 1..",
+                        "",
+                        "Off by default because it costs a scoreboard row per genus per player, and",
+                        "every row syncs to every client - fifty genera on a busy server is a lot of",
+                        "packets for a checklist. On a small server it is nothing, which is who this is",
+                        "for. The saved record is kept either way, so turning this on is not too late.")
+                .define("perGenus", false);
 
         b.pop();
 

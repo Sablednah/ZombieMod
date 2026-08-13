@@ -330,6 +330,45 @@ public final class ZombieModEvents {
                         holder.value().displayName().orElse(mob.getName()))));
     }
 
+    /**
+     * The bestiary. Rides the same death event as the bounty, but kept separate because the two
+     * answer to different switches and one is a ledger while the other is a payment.
+     */
+    @SubscribeEvent
+    public void onBestiaryDeath(net.neoforged.neoforge.event.entity.living.LivingDeathEvent event) {
+        if (!ZombieModConfig.BESTIARY.get()
+                || !(event.getEntity() instanceof Mob mob)
+                || !(mob.level() instanceof ServerLevel level)
+                || !(event.getSource().getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) {
+            return;
+        }
+        genusIdOf(mob).ifPresent(id -> Bestiary.get(level).kill(player, id));
+    }
+
+    /**
+     * "Met" - damage in either direction. A real did-you-lay-eyes-on-it test would be a visibility
+     * check per mob per tick, which is a great deal of work to tick a box for something glimpsed
+     * across a valley.
+     */
+    @SubscribeEvent
+    public void onBestiaryEncounter(LivingIncomingDamageEvent event) {
+        if (!ZombieModConfig.BESTIARY.get() || !(event.getEntity().level() instanceof ServerLevel level)) {
+            return;
+        }
+        if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer hurt
+                && event.getSource().getEntity() instanceof Mob attacker) {
+            genusIdOf(attacker).ifPresent(id -> Bestiary.get(level).meet(hurt, id));
+        } else if (event.getEntity() instanceof Mob hurtMob
+                && event.getSource().getEntity() instanceof net.minecraft.server.level.ServerPlayer hitter) {
+            genusIdOf(hurtMob).ifPresent(id -> Bestiary.get(level).meet(hitter, id));
+        }
+    }
+
+    private static java.util.Optional<net.minecraft.resources.Identifier> genusIdOf(Mob mob) {
+        return mob.getPersistentData().getString(GenusApplier.GENUS_TAG)
+                .map(net.minecraft.resources.Identifier::tryParse);
+    }
+
     @SubscribeEvent
     public void onLeaveLevel(EntityLeaveLevelEvent event) {
         if (event.getLevel().isClientSide()) {
