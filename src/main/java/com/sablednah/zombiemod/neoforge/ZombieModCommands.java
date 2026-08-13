@@ -168,6 +168,19 @@ public final class ZombieModCommands {
                 .executes(ctx -> bestiary(ctx.getSource(), false))
                 .then(Commands.literal("book").executes(ctx -> bestiary(ctx.getSource(), true))));
 
+        // Admin-only, unlike the rest of the tree: these change what the server does for everyone,
+        // not just what happens in front of the person typing.
+        var config = Commands.literal("config")
+                .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
+                .executes(ctx -> listToggles(ctx.getSource()));
+        for (var entry : TOGGLES.entrySet()) {
+            config.then(Commands.literal(entry.getKey())
+                    .executes(ctx -> setToggle(ctx.getSource(), entry.getKey(), !entry.getValue().get()))
+                    .then(Commands.literal("on").executes(ctx -> setToggle(ctx.getSource(), entry.getKey(), true)))
+                    .then(Commands.literal("off").executes(ctx -> setToggle(ctx.getSource(), entry.getKey(), false))));
+        }
+        root.then(config);
+
         root.then(Commands.literal("status").executes(ctx -> status(ctx.getSource())));
 
         root.then(Commands.literal("observe")
@@ -252,6 +265,53 @@ public final class ZombieModCommands {
         }
         source.sendSuccess(() -> Component.literal(header).withStyle(ChatFormatting.GOLD), false);
         return (int) slain;
+    }
+
+
+    /**
+     * The switches worth flipping without restarting the server.
+     *
+     * <p>Deliberately not every config key. A command that can set anything is a second, worse
+     * config editor; these are the handful whose answer is yes or no and whose effect is immediate,
+     * which is exactly the set you want to change while standing in the world it affects.
+     */
+    private static final java.util.Map<String, net.neoforged.neoforge.common.ModConfigSpec.BooleanValue> TOGGLES =
+            new java.util.LinkedHashMap<>();
+
+    static {
+        TOGGLES.put("enabled", ZombieModConfig.ENABLED);
+        TOGGLES.put("hordes", ZombieModConfig.HORDES);
+        TOGGLES.put("playerZombies", ZombieModConfig.PLAYER_ZOMBIES);
+        TOGGLES.put("proximity", ZombieModConfig.PROXIMITY);
+        TOGGLES.put("bestiary", ZombieModConfig.BESTIARY);
+        TOGGLES.put("perGenus", ZombieModConfig.BESTIARY_PER_GENUS);
+        TOGGLES.put("logSpawns", ZombieModConfig.LOG_SPAWNS);
+    }
+
+    private static int listToggles(CommandSourceStack source) {
+        source.sendSuccess(() -> Component.literal("ZombieMod toggles").withStyle(ChatFormatting.GOLD), false);
+        TOGGLES.forEach((name, value) -> source.sendSuccess(() -> Component.literal(" " + name + " ")
+                .withStyle(ChatFormatting.GRAY)
+                .append(Component.literal(value.get() ? "on" : "off")
+                        .withStyle(value.get() ? ChatFormatting.GREEN : ChatFormatting.RED)), false));
+        return TOGGLES.size();
+    }
+
+    private static int setToggle(CommandSourceStack source, String name, boolean on) {
+        var value = TOGGLES.get(name);
+        if (value.get() == on) {
+            source.sendSuccess(() -> Component.literal(name + " is already " + (on ? "on" : "off"))
+                    .withStyle(ChatFormatting.GRAY), false);
+            return 0;
+        }
+        value.set(on);
+        // set() is explicitly documented as not writing to disk. Without this the change works
+        // perfectly until the next restart, which is the worst way for a setting to fail.
+        value.save();
+        source.sendSuccess(() -> Component.literal(name + " -> ")
+                .append(Component.literal(on ? "on" : "off")
+                        .withStyle(on ? ChatFormatting.GREEN : ChatFormatting.RED)), true);
+        return 1;
     }
 
     /** One line of the checklist. */

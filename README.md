@@ -1004,6 +1004,29 @@ fight you're winning isn't the problem, and shouldn't be treated as one.
     glowDuration = 200
 ```
 
+### Flipping switches without a restart
+
+```
+/zombiemod config                    # what is on
+/zombiemod config hordes on
+/zombiemod config proximity          # no argument toggles it
+```
+
+`enabled`, `hordes`, `playerZombies`, `proximity`, `bestiary`, `perGenus` and `logSpawns`. **Admin
+only** — permission level 3, a step above the rest of the tree, because these change what the server
+does for everyone rather than what happens in front of whoever typed it.
+
+Deliberately not every config key: a command that can set anything is a second, worse config editor.
+These are the ones whose answer is yes or no and whose effect is immediate — the set you want to
+change while standing in the world it affects.
+
+Changes are written to disk, not just held in memory. NeoForge's `set()` explicitly does not save,
+which would have given a setting that worked perfectly until the next restart.
+
+It also saves you the trap that `/zombiemod status` exists for: `config/zombiemod-server.toml` is
+only the **template** for new worlds, and the live copy is `saves/<world>/serverconfig/`. The command
+always edits the one that is actually in force.
+
 ```
 /zombiemod horde list
 /zombiemod horde start zombiemod:the_siege
@@ -1252,6 +1275,8 @@ so they travel with the save. **The file doesn't exist until you've loaded the w
 | `/zombiemod spawn <genus> <x> <y> <z>` | Spawn one at a position. Accepts `~ ~ ~` relative and `^ ^ ^5` local — so `^ ^ ^5` is "five blocks in front of me". Works from the console and command blocks. |
 | `/zombiemod horde list\|start <horde>\|stop` | Wave events. |
 | `/zombiemod bestiary [book]` | Your ZombieDex checklist, in chat or as a written book. |
+| `/zombiemod config` | List the live toggles. **Admin only** (permission level 3). |
+| `/zombiemod config <name> [on\|off]` | Flip one, and write it to disk. Omit `on`/`off` to toggle. |
 | `/zombiemod status` | What the mod believes its settings are, whether the corpse genus resolved, and whether FTB Chunks linked. **Start here when something seems not to work.** |
 | `/zombiemod observe [on\|off]` | Take no damage while staying a completely normal target. |
 | `/zombiemod corpse list [player]` | Every recorded player corpse, newest first. |
