@@ -27,6 +27,11 @@ import net.minecraft.world.entity.ai.navigation.WaterBoundPathNavigation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.entity.monster.zombie.Zombie;
+import net.minecraft.world.entity.npc.villager.VillagerData;
+import net.minecraft.world.entity.npc.villager.VillagerDataHolder;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 
 /**
  * Turns a {@link Genus} into changes on a live vanilla mob.
@@ -49,6 +54,9 @@ public final class GenusApplier {
 
     /** Key inside {@code entity.getPersistentData()} holding the genus id. */
     public static final String GENUS_TAG = "zombiemod:genus";
+
+    /** Teams we create for glow colours, one per colour, shared by every genus that asks. */
+    private static final String TEAM_PREFIX = "zombiemod_";
 
     /**
      * Marks the entity as belonging to a genus and applies everything that persists. Call once, at
@@ -113,6 +121,55 @@ public final class GenusApplier {
             });
         }
 
+        // Alight, without being on fire. Display-only, and saved by vanilla as HasVisualFire, so it
+        // neither damages the mob nor needs topping up - see the access transformer for why the
+        // obvious route (remainingFireTicks) is wrong.
+        if (genus.burning()) {
+            mob.hasVisualFire = true;
+            mob.setSharedFlagOnFire(true);
+        }
+
+        // The vanilla baby variant: half size, quicker, visibly a child. Saved as IsBaby, so this
+        // belongs here rather than in the transient pass.
+        if (genus.baby() && mob instanceof Zombie zombie) {
+            zombie.setBaby(true);
+        }
+
+        // Which villager it used to be. Ninety-odd vanilla textures for one field, and it says
+        // something the mod otherwise cannot: this was a person, and that was their job.
+        genus.villager().ifPresent(look -> {
+            if (!(mob instanceof VillagerDataHolder villager) || !(mob.level() instanceof ServerLevel server)) {
+                return;
+            }
+            VillagerData data = villager.getVillagerData();
+            if (look.type().isPresent()) {
+                data = data.withType(server.registryAccess(), look.type().get());
+            }
+            if (look.profession().isPresent()) {
+                data = data.withProfession(server.registryAccess(), look.profession().get());
+            }
+            villager.setVillagerData(data);
+        });
+
+        // The outline colour rides a scoreboard team, because that is the only thing vanilla
+        // consults for it. The Glowing tag itself is saved in entity NBT, so it survives a restart
+        // without help - the team membership is what needs the scoreboard to remember.
+        genus.glow().ifPresent(colour -> {
+            mob.setGlowingTag(true);
+            if (mob.level() instanceof ServerLevel server) {
+                Scoreboard scoreboard = server.getScoreboard();
+                String name = TEAM_PREFIX + colour.getName();
+                PlayerTeam team = scoreboard.getPlayerTeam(name);
+                if (team == null) {
+                    team = scoreboard.addPlayerTeam(name);
+                    team.setColor(colour);
+                    // Or a dozen glowing zombies read as one blob with no edges between them.
+                    team.setSeeFriendlyInvisibles(false);
+                }
+                scoreboard.addPlayerToTeam(mob.getScoreboardName(), team);
+            }
+        });
+
         // Anything the named fields don't cover, including other mods' attributes.
         genus.attributes().forEach((attribute, value) -> {
             AttributeInstance instance = mob.getAttribute(attribute);
@@ -146,6 +203,24 @@ public final class GenusApplier {
     }
 
     /**
+     * Drops a mob from its glow team, if it is on one of ours.
+     *
+     * <p>Vanilla already does this when a mob dies — {@code Scoreboard.entityRemoved} — but only for
+     * one that is actually dead. A mob discarded while still alive, which is exactly what mutation
+     * does, would otherwise leave its id in the team forever, and scoreboard data is saved. Only our
+     * own teams are touched, so a team the server owner put a mob in is left alone.
+     */
+    static void clearGlowTeam(Mob mob) {
+        if (!(mob.level() instanceof ServerLevel server)) {
+            return;
+        }
+        PlayerTeam team = server.getScoreboard().getPlayersTeam(mob.getScoreboardName());
+        if (team != null && team.getName().startsWith(TEAM_PREFIX)) {
+            server.getScoreboard().removePlayerFromTeam(mob.getScoreboardName(), team);
+        }
+    }
+
+    /**
      * Rebuilds the AI. Safe to call on every level join — it clears first when the genus says so.
      */
     public static void applyAi(Mob mob, Genus genus) {
@@ -170,6 +245,13 @@ public final class GenusApplier {
         // Abilities ride the goal selector too - see AbilityGoal for why. Priority is irrelevant
         // because they carry no control flags, but a high number keeps them visually last in any
         // debug dump of the goal list.
+        // Looks that vanilla erodes - fire, arrows, the unsaved invisibility flag. Rebuilt on every
+        // join like the goals themselves, because that is exactly what they are: transient state.
+        UpkeepGoal upkeep = UpkeepGoal.forGenus(mob, genus);
+        if (upkeep != null) {
+            mob.goalSelector.addGoal(99, upkeep);
+        }
+
         for (com.sablednah.zombiemod.core.ability.Ability ability : genus.abilities()) {
             mob.goalSelector.addGoal(99, new AbilityGoal(mob, ability));
         }

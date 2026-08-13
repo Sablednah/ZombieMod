@@ -89,6 +89,8 @@ public final class Mutations {
                 sound.value(), SoundSource.HOSTILE, 1.2F, 0.8F));
 
         UpdateHorde(mob, replacement);
+        // Discarded alive, so vanilla's own scoreboard cleanup will not fire for it.
+        GenusApplier.clearGlowTeam(mob);
         mob.discard();
         level.addFreshEntity(replacement);
         return Optional.of(replacement);

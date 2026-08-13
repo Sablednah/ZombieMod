@@ -1,25 +1,21 @@
 {
-  "name": "Juggernaut",
+  "name": "&aGlowing One",
   "base": "minecraft:zombie",
-  "weight": 4,
-  "health": 60.0,
-  "damage": 6.0,
-  "speed": 0.65,
-  "follow_range": 24.0,
-  "scale": 1.25,
-  "armor_color": 5000277,
+  "weight": 3,
+  "health": 30.0,
+  "damage": 5.0,
+  "speed": 0.95,
+  "follow_range": 36.0,
+  "armor_color": 5012014,
+  "glow": "green",
   "head": {
     "properties": {
       "textures": [
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDMzMzkxYWM1MWE3ZTk1MjUxMjdiYzM4OTdjMmYzYmI1Yzc5M2ZkMjkzN2IyMDEyMjI5NzUzNzAxMTdiMzViMCJ9fX0="
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODUyMzgzMmJmNjAyMjM2NjJiMGY3NzlhNjk4NjMwYzFhOWYxODRmNzkwMGM5OTI3MjlhMTMzZjRmMDJkYmY2NCJ9fX0="
       ]
     }
   },
-  "attributes": {
-    "minecraft:armor": 16.0,
-    "minecraft:armor_toughness": 6.0,
-    "minecraft:knockback_resistance": 0.9
-  },
+  "xp": 20,
   "spawn": {
     "conditions": [
       {
@@ -27,6 +23,10 @@
         "dimensions": [
           "minecraft:overworld"
         ]
+      },
+      {
+        "type": "zombiemod:height",
+        "max": 40
       }
     ]
   },
@@ -39,18 +39,18 @@
     {
       "type": "zombiemod:melee_attack",
       "priority": 3,
-      "speed": 1.0
+      "speed": 0.95
     },
     {
       "type": "zombiemod:random_stroll",
       "priority": 7,
-      "speed": 0.5
+      "speed": 0.8
     },
     {
       "type": "zombiemod:look_at",
       "priority": 8,
       "target": "player",
-      "distance": 12.0
+      "distance": 16.0
     },
     {
       "type": "zombiemod:random_look",
@@ -70,23 +70,20 @@
   ],
   "abilities": [
     {
-      "type": "zombiemod:heal",
-      "interval": 80,
-      "amount": 1.0
+      "type": "zombiemod:particles",
+      "interval": 10,
+      "particle": "minecraft:happy_villager",
+      "count": 2
+    },
+    {
+      "type": "zombiemod:effect",
+      "interval": 60,
+      "chance": 0.5,
+      "target": "nearby_players",
+      "radius": 4.0,
+      "effect": "minecraft:poison",
+      "duration": 100
     }
   ],
-  "bounty": 8.0,
-  "arrows": 8,
-  "equipment": {
-    "chest": {
-      "id": "minecraft:diamond_chestplate",
-      "components": {
-        "minecraft:trim": {
-          "pattern": "minecraft:sentry",
-          "material": "minecraft:netherite"
-        }
-      }
-    },
-    "drop_chance": 0.0
-  }
+  "bounty": 7.0
 }

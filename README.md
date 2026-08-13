@@ -96,6 +96,12 @@ Here is the coward, in full:
 | `mount` | *(none)* | Something to ride in on — the old `jockey` field. |
 | `navigation` | `default` | `climb` makes it scale walls like a spider, `swim` and `amphibious` the aquatic ones. |
 | `equipment` | `{}` | Held and worn items — see below. Beats `armor_color` and `head` for any slot it names. |
+| `invisible` | `false` | Render nothing but the equipment — armour walking around on its own. |
+| `baby` | `false` | The vanilla baby variant: half size, quicker, and its own proportions rather than a shrunken adult. |
+| `burning` | `false` | Permanently alight, harmlessly. |
+| `arrows` | `0` | Arrows left sticking out of it. |
+| `glow` | *(none)* | An outline colour — any of the 16 — visible through walls. |
+| `villager` | *(none)* | `{ "profession": ..., "type": ... }` for a `zombie_villager` base. |
 
 ### Equipment
 
@@ -132,6 +138,56 @@ the helmet, `equipment` overrides whichever slots it names.
 
 Note that a mob wearing *any* helmet doesn't burn in daylight — vanilla behaviour, and it applies to
 the dyed leather set too, so most genera survive the morning without asking.
+
+**Trims are the largest untapped space here** and cost nothing but JSON — 18 patterns × 16 materials
+on any trimmable piece, layering over the dye:
+
+```json
+"chest": { "id": "minecraft:iron_chestplate",
+           "components": { "minecraft:trim": { "pattern": "minecraft:rib", "material": "minecraft:copper" } } }
+```
+
+Outrider wears rib-on-copper, so a skeleton seems to show through the plate; Juggernaut has
+sentry-on-netherite. `"minecraft:enchantment_glint_override": true` shimmers a weapon with no
+enchantment behind it, which is a warning a player reads instantly.
+
+### Two traps worth knowing about
+
+Both of these look like the obvious way to do the thing, and both kill the mob wearing them.
+
+**Burning does not use `remainingFireTicks`.** That sets the mob genuinely on fire, and a zombie is
+not fire-immune, so a permanently-burning genus built that way dies of its own costume. `burning`
+sets `hasVisualFire` instead — display-only, and saved by vanilla, so it needs no upkeep either.
+That field is private, hence the access-transformer line.
+
+**There is no `frozen`, and that is deliberate.** `setTicksFrozen` past the threshold buys a shiver
+animation and a speed penalty — *not* the ice-blue skin it sounds like; the only blue tint vanilla
+draws is the player's own frost vignette. It also charges a point of freeze damage every forty ticks.
+An effect nobody would notice, for a damage-cancelling hook and a slow death.
+
+### Which villager it used to be
+
+The best variety-per-line in the mod. A `zombie_villager` base plus one field picks from seven biome
+styles and a dozen-odd professions — roughly ninety looks, every one a texture a vanilla client
+already ships:
+
+```json
+"base": "minecraft:zombie_villager",
+"villager": { "profession": "minecraft:cleric", "type": "minecraft:swamp" }
+```
+
+Townsfolk, Apothecary and Field Hand use it. None of them sets `head` — the helmet slot would cover
+the very face being chosen. They ride vanilla's own 5% zombie-villager spawn chance, so they stay
+uncommon without needing a low weight.
+
+### Glow
+
+`glow` puts the mob on a scoreboard team and turns on its `Glowing` tag, because a team colour is
+the only thing vanilla consults for an outline. Glowing One is `green` — a radioactive thing that
+announces itself from across a cave.
+
+Use it sparingly: an outline is visible **through walls**, so every one of these is a monster the
+player can never be surprised by. One genus out of fifty is about right.
 
 ### Spawning
 

@@ -10,11 +10,16 @@ import com.sablednah.zombiemod.core.ability.Ability;
 import com.sablednah.zombiemod.core.goal.GoalSpec;
 import com.sablednah.zombiemod.core.spawn.SpawnRules;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.npc.villager.VillagerProfession;
+import net.minecraft.world.entity.npc.villager.VillagerType;
 import net.minecraft.world.item.component.ResolvableProfile;
 
 /**
@@ -101,6 +106,25 @@ public record Genus(
     }
 
     /**
+     * Which villager a {@code zombie_villager} used to be.
+     *
+     * <p>Cheapest variety in the mod by a wide margin: seven biome styles times a dozen-odd
+     * professions is roughly ninety distinct looks, all of them textures a vanilla client already
+     * ships. Ignored by any base that is not a villager.
+     */
+    public record VillagerLook(Optional<ResourceKey<VillagerProfession>> profession,
+            Optional<ResourceKey<VillagerType>> type) {
+
+        public static final com.mojang.serialization.MapCodec<VillagerLook> MAP_CODEC =
+                RecordCodecBuilder.mapCodec(i -> i.group(
+                        ResourceKey.codec(Registries.VILLAGER_PROFESSION).optionalFieldOf("profession")
+                                .forGetter(VillagerLook::profession),
+                        ResourceKey.codec(Registries.VILLAGER_TYPE).optionalFieldOf("type")
+                                .forGetter(VillagerLook::type))
+                        .apply(i, VillagerLook::new));
+    }
+
+    /**
      * How it looks. Grouped only because {@code RecordCodecBuilder.group} tops out at 16 fields -
      * a {@code MapCodec} reads sibling keys, so these stay flat in the JSON.
      *
@@ -111,13 +135,21 @@ public record Genus(
      * @param equipment  held and worn items; beats both of the above for any slot it names
      * @param ghost      take the name and face of a random player who has played here
      * @param mount      something to ride in on - the old `jockey` field
+     * @param invisible  render nothing but the equipment - armour walking on its own
+     * @param baby       the vanilla baby variant: half size, different proportions
+     * @param burning    permanently alight
+     * @param arrows     arrows left sticking out of it
+     * @param glow       an outline colour, via a scoreboard team. Visible through walls - use sparingly
+     * @param villager   which villager it used to be, for a {@code zombie_villager} base
      */
     public record Appearance(Optional<String> name, double scale, Optional<Integer> armorColor,
             Optional<ResolvableProfile> head, Equipment equipment, boolean ghost,
-            Optional<EntityType<?>> mount) {
+            Optional<EntityType<?>> mount, boolean invisible, boolean baby, boolean burning,
+            int arrows, Optional<ChatFormatting> glow, Optional<VillagerLook> villager) {
 
         public static final Appearance PLAIN = new Appearance(Optional.empty(), 1.0D,
-                Optional.empty(), Optional.empty(), Equipment.NONE, false, Optional.empty());
+                Optional.empty(), Optional.empty(), Equipment.NONE, false, Optional.empty(),
+                false, false, false, 0, Optional.empty(), Optional.empty());
 
         public static final com.mojang.serialization.MapCodec<Appearance> MAP_CODEC =
                 RecordCodecBuilder.mapCodec(i -> i.group(
@@ -129,7 +161,14 @@ public record Genus(
                                 .forGetter(Appearance::equipment),
                         Codec.BOOL.optionalFieldOf("ghost", false).forGetter(Appearance::ghost),
                         BuiltInRegistries.ENTITY_TYPE.byNameCodec().optionalFieldOf("mount")
-                                .forGetter(Appearance::mount))
+                                .forGetter(Appearance::mount),
+                        Codec.BOOL.optionalFieldOf("invisible", false).forGetter(Appearance::invisible),
+                        Codec.BOOL.optionalFieldOf("baby", false).forGetter(Appearance::baby),
+                        Codec.BOOL.optionalFieldOf("burning", false).forGetter(Appearance::burning),
+                        Codec.INT.optionalFieldOf("arrows", 0).forGetter(Appearance::arrows),
+                        ChatFormatting.COLOR_CODEC.optionalFieldOf("glow").forGetter(Appearance::glow),
+                        VillagerLook.MAP_CODEC.codec().optionalFieldOf("villager")
+                                .forGetter(Appearance::villager))
                         .apply(i, Appearance::new));
     }
 
@@ -197,6 +236,30 @@ public record Genus(
 
     public Optional<EntityType<?>> mount() {
         return appearance.mount();
+    }
+
+    public boolean invisible() {
+        return appearance.invisible();
+    }
+
+    public boolean baby() {
+        return appearance.baby();
+    }
+
+    public boolean burning() {
+        return appearance.burning();
+    }
+
+    public int arrows() {
+        return appearance.arrows();
+    }
+
+    public Optional<ChatFormatting> glow() {
+        return appearance.glow();
+    }
+
+    public Optional<VillagerLook> villager() {
+        return appearance.villager();
     }
 
     public Optional<BossSpec> boss() {

@@ -107,5 +107,6 @@
       "sound": "minecraft:block.fire.extinguish",
       "particle": "minecraft:cloud"
     }
-  ]
+  ],
+  "burning": true
 }

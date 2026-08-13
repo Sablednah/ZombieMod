@@ -80,5 +80,15 @@
       "vanish_chance": 0.15
     }
   ],
-  "bounty": 6.0
+  "bounty": 6.0,
+  "invisible": true,
+  "equipment": {
+    "chest": {
+      "id": "minecraft:leather_chestplate",
+      "components": {
+        "minecraft:dyed_color": 15790320
+      }
+    },
+    "drop_chance": 0.0
+  }
 }
