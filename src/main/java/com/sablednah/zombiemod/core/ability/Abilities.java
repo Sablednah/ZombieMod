@@ -720,11 +720,20 @@ public final class Abilities {
                         mob.getX() + toward.x, mob.getY() + mob.getBbHeight() * 0.5D, mob.getZ() + toward.z);
                 candidates = new net.minecraft.core.BlockPos[]{at, at.above(), at.below()};
             } else {
-                // Wherever it happens to be. Its own square first, so a Blight standing in moss
-                // clears it, then the ring around its feet so it scours a path rather than a dot.
+                // Wherever it happens to be: its own square, the ring around its feet, and the same
+                // ring one step DOWN.
+                //
+                // That last row is not tidiness. seek_blocks stops walking once it is within its
+                // accepted distance of the target, and on any stepped ground - a terraced roof, a
+                // riverbank, a staircase - the block it came for is a level below the one it is
+                // standing on. Without reaching down it arrives, declares itself there, and stands
+                // over moss it cannot touch forever.
                 net.minecraft.core.BlockPos feet = mob.blockPosition();
+                net.minecraft.core.BlockPos under = feet.below();
                 candidates = new net.minecraft.core.BlockPos[]{
-                        feet, feet.above(), feet.north(), feet.south(), feet.east(), feet.west()};
+                        feet, feet.above(),
+                        feet.north(), feet.south(), feet.east(), feet.west(),
+                        under, under.north(), under.south(), under.east(), under.west()};
             }
 
             for (net.minecraft.core.BlockPos candidate : candidates) {

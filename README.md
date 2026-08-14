@@ -1137,6 +1137,12 @@ forest looked like it disliked leaf litter when in fact it could not see it — 
 now names the lot: leaf litter, pale moss, wildflowers, bushes, dry grass, dripleaf, glow lichen and
 the sweet berry bush.
 
+**`break_blocks` reaches a level down when untargeted**, and that row matters more than it sounds.
+`seek_blocks` stops walking once it is within its accepted distance of the target, and on any stepped
+ground — a terraced roof, a riverbank, a staircase — the block it came for is a level *below* the one
+it ends up standing on. Without reaching down, it arrives, declares itself there, and stands over
+moss it cannot touch indefinitely.
+
 It also gives up on a block it cannot reach after eight seconds rather than vanilla's sixty, and
 remembers it for a minute. Without that, the next search finds the same unreachable block and starts
 the whole minute again — which does not look like a stuck mob, it looks like one patrolling. It stands down while the mob has a target — hunting something beats hunting moss — and it

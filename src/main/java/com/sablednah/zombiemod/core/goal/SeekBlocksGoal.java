@@ -51,13 +51,14 @@ public final class SeekBlocksGoal extends MoveToBlockGoal {
         if (!wanted.contains(level.getBlockState(pos).getBlockHolder())) {
             return false;
         }
-        // Something to stand on. Leaves are in the Blight's tag and most leaves are in a canopy,
-        // with nothing under them a walking mob could use - so it would lock onto a block it could
-        // never reach, spend a minute failing, then pick the same one again. That is what "they
-        // dislike leaf clutter" looks like from the inside.
-        if (!level.getBlockState(pos.below()).isSolidRender()) {
-            return false;
-        }
+        // No "must have solid ground under it" rule here, deliberately, and it was a mistake to add
+        // one: vines, hanging moss and glow lichen grow on the SIDES of blocks with air beneath
+        // them, so the rule filtered out most of the greenery on a wall - which is precisely what a
+        // Blight standing on a mossy building can see and was then told to ignore.
+        //
+        // Reachability is settled by trying and giving up instead, which is the honest way round:
+        // the goal cannot know what the pathfinder can manage, and the pathfinder already answers
+        // that question by failing.
         Integer forgiven = unreachable.get(pos);
         return forgiven == null || age >= forgiven;
     }
@@ -98,6 +99,11 @@ public final class SeekBlocksGoal extends MoveToBlockGoal {
     @Override
     protected int nextStartTick(PathfinderMob mob) {
         return reducedTickDelay(50 + mob.getRandom().nextInt(50));
+    }
+
+    /** Which block it is currently walking towards, for diagnostics. */
+    public BlockPos seeking() {
+        return blockPos;
     }
 
     /** Close enough to act on. break_blocks reaches its own square and the ring around its feet. */
