@@ -1,5 +1,6 @@
 {
   "name": "Spitter",
+  "description": "Won't melee. Poisons from range.",
   "base": "minecraft:zombie",
   "weight": 7,
   "health": 14.0,

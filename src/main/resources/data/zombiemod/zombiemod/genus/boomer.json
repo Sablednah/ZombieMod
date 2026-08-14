@@ -1,5 +1,6 @@
 {
   "name": "Boomer",
+  "description": "Bloated, slow, swells and bursts, blinds everything nearby.",
   "base": "minecraft:zombie",
   "weight": 8,
   "health": 16.0,

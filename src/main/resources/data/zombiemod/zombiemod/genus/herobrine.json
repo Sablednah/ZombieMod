@@ -1,5 +1,6 @@
 {
   "name": "Herobrine",
+  "description": "You have heard the stories. It watches, it does not chase, and it is never there when you turn round.",
   "base": "minecraft:zombie",
   "weight": 1,
   "health": 40.0,

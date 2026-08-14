@@ -1,5 +1,6 @@
 {
   "name": "Carrier",
+  "description": "Hunts villagers and livestock as well as players, and **what it kills gets up as one of them**. A villager rises as a zombie villager, keeping its name and armour. Patient Zero does this too, which is how a boss fight becomes a horde.",
   "base": "minecraft:zombie",
   "weight": 5,
   "health": 26.0,

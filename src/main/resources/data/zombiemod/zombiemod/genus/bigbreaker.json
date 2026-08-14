@@ -1,5 +1,6 @@
 {
   "name": "Big Breaker",
+  "description": "Rare, 70 HP, 1.7\u00d7 scale, slow and armoured. Eats everything the Breaker does *plus deepslate and cobbled deepslate* \u2014 so hiding in the deep dark is no longer hiding.",
   "base": "minecraft:zombie",
   "weight": 2,
   "health": 70.0,

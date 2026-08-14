@@ -171,7 +171,14 @@ public final class ZombieModCommands {
         // companion client mod should only ever be a nicer window onto it.
         root.then(Commands.literal("bestiary")
                 .executes(ctx -> bestiary(ctx.getSource(), false))
-                .then(Commands.literal("book").executes(ctx -> bestiary(ctx.getSource(), true))));
+                .then(Commands.literal("book").executes(ctx -> bestiary(ctx.getSource(), true)))
+                .then(Commands.literal("info")
+                        .then(Commands.argument("genus", ResourceKeyArgument.key(ZombieModRegistries.GENUS))
+                                .suggests((c, sb) -> SharedSuggestionProvider.suggestResource(
+                                        lookup(c.getSource()).listElementIds().map(ResourceKey::identifier), sb))
+                                .executes(ctx -> info(ctx.getSource(),
+                                        ResourceKeyArgument.getRegistryKey(ctx, "genus",
+                                                ZombieModRegistries.GENUS, ERROR_UNKNOWN_GENUS))))));
 
         // Admin-only, unlike the rest of the tree: these change what the server does for everyone,
         // not just what happens in front of the person typing.
@@ -331,6 +338,50 @@ public final class ZombieModCommands {
                 .append(Component.literal(on ? "on" : "off")
                         .withStyle(on ? ChatFormatting.GREEN : ChatFormatting.RED)), true);
         return 1;
+    }
+
+
+    /**
+     * A genus's write-up, in chat, for a player with no mod installed.
+     *
+     * <p>Gated on having met the thing, because an entry you can read before the encounter is a
+     * manual rather than a bestiary. Same gate the client screen applies, enforced here too — the
+     * screen's copy is a courtesy, this one is the rule.
+     */
+    private static int info(CommandSourceStack source, ResourceKey<Genus> key)
+            throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        if (!ZombieModConfig.BESTIARY.get()) {
+            source.sendFailure(Component.literal("The bestiary is switched off in the server config."));
+            return 0;
+        }
+        var holder = lookup(source).get(key).orElseThrow(() -> ERROR_UNKNOWN_GENUS.create(key.identifier()));
+        Genus genus = holder.value();
+        Identifier id = key.identifier();
+
+        Bestiary bestiary = Bestiary.get(source.getLevel());
+        if (!unlocked(bestiary, player, id)) {
+            source.sendFailure(Component.literal(switch (ZombieModConfig.BESTIARY_INFO.get()) {
+                case KILLED -> "You have not killed one of those yet.";
+                default -> "You have not met one of those yet.";
+            }));
+            return 0;
+        }
+
+        String name = stripCodes(genus.name().orElse(id.getPath()));
+        for (Component line : com.sablednah.zombiemod.core.DexEntry.chat(genus, name)) {
+            source.sendSuccess(() -> line, false);
+        }
+        return 1;
+    }
+
+    /** The one place that decides whether a player has earned an entry. */
+    static boolean unlocked(Bestiary bestiary, ServerPlayer player, Identifier genus) {
+        return switch (ZombieModConfig.BESTIARY_INFO.get()) {
+            case ALWAYS -> true;
+            case KILLED -> bestiary.killsOf(player.getUUID(), genus) > 0;
+            case MET -> bestiary.hasMet(player.getUUID(), genus);
+        };
     }
 
     /** One line of the checklist. */

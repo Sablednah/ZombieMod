@@ -1,5 +1,6 @@
 {
   "name": "Archer",
+  "description": "A *skeleton*, so it visibly draws the bow \u2014 the pose only exists on the skeleton renderer. Uses vanilla's own bow goal.",
   "base": "minecraft:skeleton",
   "weight": 7,
   "health": 20.0,

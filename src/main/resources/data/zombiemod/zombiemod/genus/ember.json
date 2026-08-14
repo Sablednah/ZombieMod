@@ -1,5 +1,6 @@
 {
   "name": "Ember",
+  "description": "Nether or deep underground. Immune to burning, trails flame.",
   "base": "minecraft:zombie",
   "weight": 5,
   "health": 22.0,

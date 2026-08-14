@@ -1,5 +1,6 @@
 {
   "name": "Spitfire",
+  "description": "Fires small fireballs. The old `LAZER`, finally doing something an archer doesn't.",
   "base": "minecraft:zombie",
   "weight": 5,
   "health": 18.0,

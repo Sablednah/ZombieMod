@@ -1,5 +1,6 @@
 {
   "name": "Juggernaut",
+  "description": "16 armour, 6 toughness, self-heals. | `BORG`",
   "base": "minecraft:zombie",
   "weight": 4,
   "health": 60.0,

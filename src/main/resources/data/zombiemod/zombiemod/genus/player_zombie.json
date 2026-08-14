@@ -1,5 +1,6 @@
 {
   "name": "Corpse",
+  "description": "A player who died here, wearing their own face and carrying their own things. Kill it to get them back.",
   "base": "minecraft:zombie",
   "weight": 0,
   "health": 20.0,

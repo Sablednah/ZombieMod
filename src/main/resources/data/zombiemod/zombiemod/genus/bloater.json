@@ -1,5 +1,6 @@
 {
   "name": "Bloater",
+  "description": "Huge, poisonous, regenerates, detonates on approach.",
   "base": "minecraft:zombie",
   "weight": 8,
   "health": 40.0,

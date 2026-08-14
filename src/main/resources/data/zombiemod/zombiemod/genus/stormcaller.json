@@ -1,5 +1,6 @@
 {
   "name": "Stormcaller",
+  "description": "Calls lightning on its victim from 20 blocks. Open sky only. | `LIGHTNING`",
   "base": "minecraft:zombie",
   "weight": 2,
   "health": 28.0,

@@ -1,5 +1,6 @@
 {
   "name": "Weaver",
+  "description": "Climbs, and cobwebs the ground you're standing on. The old `WEB`.",
   "base": "minecraft:zombie",
   "weight": 6,
   "health": 22.0,

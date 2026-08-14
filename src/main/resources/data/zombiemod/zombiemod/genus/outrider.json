@@ -1,5 +1,6 @@
 {
   "name": "Outrider",
+  "description": "Rides in on a zombie horse with an iron sword. The old `jockey` field.",
   "head": {
     "properties": {
       "textures": [

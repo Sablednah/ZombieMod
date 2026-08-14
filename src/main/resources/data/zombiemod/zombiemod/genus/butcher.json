@@ -1,5 +1,6 @@
 {
   "name": "The Butcher",
+  "description": "It kept the apron and the cleaver. That is all that is left of the trade.",
   "head": {
     "properties": {
       "textures": [

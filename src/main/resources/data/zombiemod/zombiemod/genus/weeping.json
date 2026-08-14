@@ -1,5 +1,6 @@
 {
   "name": "Weeping Zombie",
+  "description": "It only moves when nobody is looking. Blink and it is closer.",
   "base": "minecraft:zombie",
   "weight": 0,
   "health": 40.0,

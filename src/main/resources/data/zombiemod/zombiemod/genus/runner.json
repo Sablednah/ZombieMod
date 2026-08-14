@@ -1,5 +1,6 @@
 {
   "name": "Runner",
+  "description": "Fast, fragile, dark only. Occasional Speed bursts. The one that made zombies scary again.",
   "base": "minecraft:zombie",
   "weight": 25,
   "health": 12.0,

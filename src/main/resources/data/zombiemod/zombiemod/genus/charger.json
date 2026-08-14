@@ -1,5 +1,6 @@
 {
   "name": "Charger",
+  "description": "Low, heavy, launches itself with big knockback.",
   "base": "minecraft:zombie",
   "weight": 6,
   "health": 45.0,

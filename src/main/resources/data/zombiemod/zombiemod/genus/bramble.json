@@ -1,5 +1,6 @@
 {
   "name": "&2Bramble",
+  "description": "The city taking itself back. Slow, tough, and lays moss as it goes. It is not hunting you; you are simply in the way.",
   "base": "minecraft:zombie",
   "weight": 8,
   "health": 60.0,

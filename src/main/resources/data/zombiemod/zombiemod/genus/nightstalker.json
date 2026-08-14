@@ -1,5 +1,6 @@
 {
   "name": "Nightstalker",
+  "description": "Runs from you in daylight and hunts you after dark. Same mob, two personalities, switched on the clock.",
   "base": "minecraft:zombie",
   "weight": 12,
   "health": 26.0,

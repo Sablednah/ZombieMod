@@ -1324,6 +1324,35 @@ gives you a reason to chase down a Coward.
 /zm bestiary book   # the same list as a written book you can carry
 ```
 
+### Reading an entry
+
+```
+/zm bestiary info zombiemod:walker
+```
+
+The write-up: description, base mob, health, damage, speed, size, how far it notices you, what it is
+worth, and what it does — each ability with a line of plain English rather than just its id. On a
+modded client the same thing is a page: click any name you have met, with a back button, and the
+abilities expand when you click them. There is a live model of the genus on the page, dressed in its
+own colours and equipment, following your cursor the way the inventory doll does.
+
+**Both come from one definition.** `core/DexEntry` returns the write-up as rows of facts; chat draws
+them as lines and the screen draws them as a page. Two presentations, one source — the only way the
+two keep saying the same thing as the roster grows.
+
+```toml
+[bestiary]
+    info = "MET"   # MET | KILLED | ALWAYS
+```
+
+`MET` by default: the entry is the reward for the encounter, and a checklist you can read cover to
+cover before meeting anything is not much of a checklist. `KILLED` is stricter, `ALWAYS` opens the
+lot. The client honours it as a courtesy; the server enforces it.
+
+**The model needs no networking.** Genera are a datapack registry *with a network codec*, so a client
+already holds the whole roster — the page is built from the client's own copy, and the only thing
+ever sent is which entries that player has earned.
+
 **Open to every player, not just operators.** It has to be: it is the feature players use. That
 meant the command root could carry no permission bar at all, because Brigadier ANDs a child's
 `requires()` with its parent's — a restrictive root can never be relaxed by a permissive child. Each

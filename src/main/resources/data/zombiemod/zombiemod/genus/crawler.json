@@ -1,5 +1,6 @@
 {
   "name": "Crawler",
+  "description": "Tiny, climbs walls, survives falls. | `SPIDER`",
   "base": "minecraft:zombie",
   "weight": 10,
   "health": 10.0,

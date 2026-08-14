@@ -1,5 +1,6 @@
 {
   "name": "Walker",
+  "description": "Slow, tough, knockback-resistant, groans at low pitch. The shambling default.",
   "base": "minecraft:zombie",
   "weight": 35,
   "health": 26.0,

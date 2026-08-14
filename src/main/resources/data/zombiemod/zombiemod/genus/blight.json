@@ -1,5 +1,6 @@
 {
   "name": "&6Blight",
+  "description": "Industrial rot on legs. Eats flowers, leaves, grass and moss wherever it walks, and leaves nausea behind it.",
   "base": "minecraft:zombie",
   "weight": 10,
   "health": 40.0,

@@ -1,5 +1,6 @@
 {
   "name": "Commuter",
+  "description": "Office worker, still holding the shovel someone gave them at the end. Haunts the high streets it used to walk to work.",
   "base": "minecraft:zombie",
   "weight": 45,
   "health": 24.0,

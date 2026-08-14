@@ -1,5 +1,6 @@
 {
   "name": "Howler",
+  "description": "Deep underground. Fires the Warden's `sonic_boom` down a line.",
   "base": "minecraft:zombie",
   "weight": 2,
   "health": 30.0,

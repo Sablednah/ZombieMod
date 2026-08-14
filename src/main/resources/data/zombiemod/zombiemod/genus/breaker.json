@@ -1,5 +1,6 @@
 {
   "name": "Breaker",
+  "description": "Chews through dirt, glass, doors and planks when it can't reach you. The 1.8 `Break`/`BreakRunner`, and the reason bases needed defending.",
   "base": "minecraft:zombie",
   "weight": 8,
   "health": 28.0,

@@ -1,5 +1,6 @@
 {
   "name": "Patient Zero",
+  "description": "The first one. Everything since has been a copy of a copy of this.",
   "base": "minecraft:zombie",
   "weight": 0,
   "health": 250.0,

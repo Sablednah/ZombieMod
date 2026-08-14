@@ -1,5 +1,6 @@
 {
   "name": "&8Sleeper",
+  "description": "Enormous, ancient, and entirely uninterested in you until you are close enough to touch. Arrows still in it from people who tried.",
   "base": "minecraft:zombie",
   "weight": 2,
   "health": 90.0,

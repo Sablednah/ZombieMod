@@ -53,11 +53,22 @@ public final class ZombieModConfig {
 
     public static final ModConfigSpec.BooleanValue BESTIARY;
     public static final ModConfigSpec.BooleanValue BESTIARY_PER_GENUS;
+    public static final ModConfigSpec.EnumValue<DexInfo> BESTIARY_INFO;
 
     public static final ModConfigSpec.ConfigValue<List<? extends String>> GHOST_NAMES;
     public static final ModConfigSpec.BooleanValue GHOST_REMEMBER;
     public static final ModConfigSpec.IntValue GHOST_REMEMBER_DAYS;
     public static final ModConfigSpec.BooleanValue GHOST_SKIP_BANNED;
+
+    /** How much of a genus's write-up a player has earned. */
+    public enum DexInfo {
+        /** Anything you have traded damage with. */
+        MET,
+        /** Only what you have actually put down. */
+        KILLED,
+        /** Everything, from the first login. */
+        ALWAYS
+    }
 
     /** How spawns inside a land claim are treated. */
     public enum ClaimSpawns {
@@ -344,6 +355,15 @@ public final class ZombieModConfig {
                         "packets for a checklist. On a small server it is nothing, which is who this is",
                         "for. The saved record is kept either way, so turning this on is not too late.")
                 .define("perGenus", false);
+
+        BESTIARY_INFO = b.comment("How much you have to have done to read a genus's write-up.",
+                        "  MET     - anything you have traded damage with",
+                        "  KILLED  - only what you have actually put down",
+                        "  ALWAYS  - everything, from the first login",
+                        "",
+                        "MET by default: the entry is a reward for the encounter, and a checklist you",
+                        "can read cover to cover before meeting anything is not much of a checklist.")
+                .defineEnum("info", DexInfo.MET);
 
         b.pop();
 

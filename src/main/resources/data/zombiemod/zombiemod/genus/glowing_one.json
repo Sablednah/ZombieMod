@@ -1,5 +1,6 @@
 {
   "name": "&aGlowing One",
+  "description": "Something went very wrong underground. Green from the inside out, and it poisons the air around it.",
   "base": "minecraft:zombie",
   "weight": 3,
   "health": 30.0,

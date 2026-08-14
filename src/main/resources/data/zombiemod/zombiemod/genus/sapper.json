@@ -1,5 +1,6 @@
 {
   "name": "Sapper",
+  "description": "A husk with a Sharpness II iron axe named *Pry Bar*. Demonstrates the full item-stack form with components.",
   "head": {
     "properties": {
       "textures": [

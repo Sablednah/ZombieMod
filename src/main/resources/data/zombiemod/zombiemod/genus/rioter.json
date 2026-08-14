@@ -1,5 +1,6 @@
 {
   "name": "Rioter",
+  "description": "Iron helmet, chainmail, shield, sword. Knockback-resistant, and alerts its mates at short range.",
   "head": {
     "properties": {
       "textures": [

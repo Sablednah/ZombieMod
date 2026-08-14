@@ -1,5 +1,6 @@
 {
   "name": "Townsfolk",
+  "description": "Somebody's neighbour. No skills, no weapon, no idea what happened.",
   "base": "minecraft:zombie_villager",
   "weight": 14,
   "health": 20.0,

@@ -1,5 +1,6 @@
 {
   "name": "Hunter",
+  "description": "Climbs walls, pounces, and hunts pets as well as players.",
   "base": "minecraft:zombie",
   "weight": 7,
   "health": 22.0,

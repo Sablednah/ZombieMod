@@ -1,5 +1,6 @@
 {
   "name": "Breeder",
+  "description": "Summons more zombies, capped at 6 nearby. | `BREEDER`",
   "base": "minecraft:zombie",
   "weight": 3,
   "health": 36.0,

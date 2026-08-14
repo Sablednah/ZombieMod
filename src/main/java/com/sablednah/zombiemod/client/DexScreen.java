@@ -27,6 +27,9 @@ public final class DexScreen extends Screen {
     private static final int COLUMNS = 3;
 
     private int scroll;
+    /** Where each row was drawn last frame, so a click can find it. Rebuilt every render. */
+    private final java.util.List<int[]> hitboxes = new java.util.ArrayList<>();
+    private final java.util.List<DexPayload.Entry> visible = new java.util.ArrayList<>();
 
     public DexScreen() {
         super(Component.literal("ZombieDex"));
@@ -60,6 +63,8 @@ public final class DexScreen extends Screen {
         int rows = Math.max(1, (height - top - 20) / ROW);
         int perPage = rows * COLUMNS;
         int start = Math.min(scroll, Math.max(0, entries.size() - perPage));
+        hitboxes.clear();
+        visible.clear();
 
         for (int i = 0; i < perPage && start + i < entries.size(); i++) {
             DexPayload.Entry e = entries.get(start + i);
@@ -78,13 +83,51 @@ public final class DexScreen extends Screen {
             if (e.kills() > 1) {
                 line.append(Component.literal(" x" + e.kills()).withStyle(ChatFormatting.DARK_GRAY));
             }
+            boolean readable = e.met() || e.kills() > 0;
+            boolean hovered = readable && mouseX >= x && mouseX <= x + columnWidth - 6
+                    && mouseY >= y && mouseY < y + ROW;
+            if (hovered) {
+                // A faint plate rather than a colour change: the tick and the name already carry
+                // meaning, and a third colour on the same row would be one signal too many.
+                gfx.fill(x - 2, y - 1, x + columnWidth - 6, y + ROW - 2, 0x33FFFFFF);
+            }
             gfx.drawString(font, line, x, y, WHITE, false);
+            hitboxes.add(new int[] {x - 2, y - 1, x + columnWidth - 6, y + ROW - 2});
+            visible.add(e);
         }
+
+        gfx.drawCenteredString(font, Component.literal(
+                        "click a name you have met to read its entry")
+                .withStyle(ChatFormatting.DARK_GRAY), width / 2, height - 26, WHITE);
 
         if (entries.size() > perPage) {
             gfx.drawCenteredString(font, Component.literal("scroll for more")
                     .withStyle(ChatFormatting.DARK_GRAY), width / 2, height - 14, WHITE);
         }
+    }
+
+    @Override
+    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
+        if (super.mouseClicked(event, doubled)) {
+            return true;
+        }
+        for (int i = 0; i < hitboxes.size(); i++) {
+            int[] box = hitboxes.get(i);
+            if (event.x() >= box[0] && event.x() <= box[2]
+                    && event.y() >= box[1] && event.y() <= box[3]) {
+                DexPayload.Entry e = visible.get(i);
+                // The gate is the server's, and this is a courtesy copy of it: an entry you could
+                // read before meeting the thing would be a manual rather than a bestiary. The
+                // server enforces the same rule for /zm bestiary info.
+                if (!e.met() && e.kills() == 0) {
+                    return false;
+                }
+                net.minecraft.client.Minecraft.getInstance()
+                        .setScreen(new DexInfoScreen(this, e.genus(), e.name()));
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

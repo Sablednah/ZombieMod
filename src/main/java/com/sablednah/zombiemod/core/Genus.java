@@ -129,6 +129,9 @@ public record Genus(
      * a {@code MapCodec} reads sibling keys, so these stay flat in the JSON.
      *
      * @param name       display name, shown when you look at it
+     * @param description a line of flavour for the bestiary. Harvested from docs/ROSTER.md, which had
+     *                    been carrying exactly this prose for the reader of a document rather than
+     *                    the player of the game
      * @param scale      body size multiplier, a synced attribute since 1.20.5
      * @param armorColor dyes a full leather set this RGB colour
      * @param head       a player head to wear; beats armorColor for the head slot
@@ -142,18 +145,19 @@ public record Genus(
      * @param glow       an outline colour, via a scoreboard team. Visible through walls - use sparingly
      * @param villager   which villager it used to be, for a {@code zombie_villager} base
      */
-    public record Appearance(Optional<String> name, double scale, Optional<Integer> armorColor,
+    public record Appearance(Optional<String> name, Optional<String> description, double scale, Optional<Integer> armorColor,
             Optional<ResolvableProfile> head, Equipment equipment, boolean ghost,
             Optional<EntityType<?>> mount, boolean invisible, boolean baby, boolean burning,
             int arrows, Optional<ChatFormatting> glow, Optional<VillagerLook> villager) {
 
-        public static final Appearance PLAIN = new Appearance(Optional.empty(), 1.0D,
+        public static final Appearance PLAIN = new Appearance(Optional.empty(), Optional.empty(), 1.0D,
                 Optional.empty(), Optional.empty(), Equipment.NONE, false, Optional.empty(),
                 false, false, false, 0, Optional.empty(), Optional.empty());
 
         public static final com.mojang.serialization.MapCodec<Appearance> MAP_CODEC =
                 RecordCodecBuilder.mapCodec(i -> i.group(
                         Codec.STRING.optionalFieldOf("name").forGetter(Appearance::name),
+                        Codec.STRING.optionalFieldOf("description").forGetter(Appearance::description),
                         Codec.DOUBLE.optionalFieldOf("scale", 1.0D).forGetter(Appearance::scale),
                         Codec.INT.optionalFieldOf("armor_color").forGetter(Appearance::armorColor),
                         ResolvableProfile.CODEC.optionalFieldOf("head").forGetter(Appearance::head),
@@ -212,6 +216,10 @@ public record Genus(
     // Convenience delegates so callers don't care that appearance is grouped.
     public Optional<String> name() {
         return appearance.name();
+    }
+
+    public Optional<String> description() {
+        return appearance.description();
     }
 
     public double scale() {

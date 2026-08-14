@@ -1,5 +1,6 @@
 {
   "name": "Tank",
+  "description": "2.2\u00d7 scale, 120 HP, immovable, shockwaves that launch you. Deep underground only.",
   "base": "minecraft:zombie",
   "weight": 2,
   "health": 120.0,

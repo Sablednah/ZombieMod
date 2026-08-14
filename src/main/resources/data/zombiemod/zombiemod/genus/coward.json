@@ -1,5 +1,6 @@
 {
   "name": "Coward",
+  "description": "Runs away from players. | *(the original oddity)*",
   "base": "minecraft:zombie",
   "weight": 30,
   "health": 14.0,

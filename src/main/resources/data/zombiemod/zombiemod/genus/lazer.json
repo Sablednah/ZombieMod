@@ -1,5 +1,6 @@
 {
   "name": "Lazer",
+  "description": "Keeps its distance and burns you with a **red hitscan beam** drawn in `dust` particles. No melee at all.",
   "base": "minecraft:zombie",
   "weight": 2,
   "health": 26.0,

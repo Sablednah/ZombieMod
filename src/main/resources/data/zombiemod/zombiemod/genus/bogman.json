@@ -1,5 +1,6 @@
 {
   "name": "Bogman",
+  "description": "A *drowned*, amphibious, swamp only. Inflicts Hunger.",
   "base": "minecraft:drowned",
   "weight": 10,
   "health": 28.0,

@@ -1,5 +1,6 @@
 {
   "name": "Clicker",
+  "description": "Nearly blind (10-block follow range) but hits like a truck. Clicks. Underground.",
   "base": "minecraft:zombie",
   "weight": 9,
   "health": 30.0,

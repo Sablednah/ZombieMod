@@ -1,5 +1,6 @@
 {
   "name": "Field Hand",
+  "description": "Farm labour that never went home. Slow, patient, and used to long days.",
   "base": "minecraft:zombie_villager",
   "weight": 10,
   "health": 22.0,

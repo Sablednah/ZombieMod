@@ -1,5 +1,6 @@
 {
   "name": "Apothecary",
+  "description": "A village healer, still carrying whatever they were mixing. Turned with the rest of them.",
   "base": "minecraft:zombie_villager",
   "weight": 6,
   "health": 24.0,

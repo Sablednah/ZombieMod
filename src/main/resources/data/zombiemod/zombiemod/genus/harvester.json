@@ -1,5 +1,6 @@
 {
   "name": "Harvester",
+  "description": "Still working the fields, still holding the hoe. It does not know the harvest is over.",
   "base": "minecraft:zombie",
   "weight": 40,
   "health": 30.0,
