@@ -188,7 +188,14 @@ public final class ZombieModCommands {
                 .then(Commands.literal("on").executes(ctx -> setObserve(ctx.getSource(), true)))
                 .then(Commands.literal("off").executes(ctx -> setObserve(ctx.getSource(), false))));
 
-        dispatcher.register(root);
+        var registered = dispatcher.register(root);
+
+        // /zm, redirected rather than re-registered: a redirect shares the one node tree, so every
+        // subcommand, argument type and suggestion provider is the same object. Building the tree
+        // twice would mean two trees to keep in step, and the second would eventually drift.
+        dispatcher.register(Commands.literal("zm")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .redirect(registered));
     }
 
 
@@ -237,8 +244,13 @@ public final class ZombieModCommands {
         // under it. A component tree cannot do that: every span states its own style and siblings
         // inherit nothing from each other.
         List<Filterable<Component>> pages = new ArrayList<>();
-        MutableComponent page = Component.literal("ZombieDex\n").withStyle(ChatFormatting.BOLD)
-                .append(Component.literal(header + "\n\n").withStyle(ChatFormatting.DARK_GRAY));
+        // An EMPTY, unstyled root, with the heading appended as a child rather than being the root.
+        // Siblings inherit nothing from each other, but children absolutely inherit from their
+        // parent - so making the bold heading the root made every row on page one bold, and only
+        // page one, which is exactly what it looked like.
+        MutableComponent page = Component.empty();
+        page.append(Component.literal("ZombieDex\n").withStyle(ChatFormatting.BOLD));
+        page.append(Component.literal(header + "\n\n").withStyle(ChatFormatting.DARK_GRAY));
         // A page holds fourteen lines. The heading costs three, so the first page carries fewer -
         // the previous version put eleven rows on every page and filled the first one exactly to
         // the brim, where one wrapped name would have silently dropped a genus off the end.
@@ -249,7 +261,7 @@ public final class ZombieModCommands {
             page.append(Component.literal("\n"));
             if (--room == 0) {
                 pages.add(Filterable.passThrough(page));
-                page = Component.literal("");
+                page = Component.empty();
                 room = 13;
             }
         }
@@ -604,8 +616,11 @@ public final class ZombieModCommands {
         GenusApplier.assign(mob, holder);
         level.addFreshEntity(mob);
 
-        source.sendSuccess(() -> Component.literal(String.format("Spawned %s at %.1f %.1f %.1f.",
-                genus.name().orElse(id.getPath()), at.x, at.y, at.z)), true);
+        // The name goes through the formatter, not into String.format: a genus name is authored
+        // text with & colour codes in it, and printing it raw shows the player the markup.
+        source.sendSuccess(() -> Component.literal("Spawned ")
+                .append(genus.displayName().orElseGet(() -> Component.literal(id.getPath())))
+                .append(Component.literal(String.format(" at %.1f %.1f %.1f.", at.x, at.y, at.z))), true);
         return 1;
     }
 

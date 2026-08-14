@@ -671,8 +671,15 @@ public final class Abilities {
      * anything of yours gets damaged. It also honours the {@code mobGriefing} gamerule, so the
      * server-wide off switch everyone already knows about works.
      */
+    /**
+     * @param needsTarget true is the Breaker's behaviour: only dig when there is something to reach
+     *                    and only when actually stuck, so a mob still making progress does not
+     *                    demolish the countryside it walks past. False is the Blight's: no target,
+     *                    no stuck check, and it clears whatever it is standing in as it goes. The
+     *                    difference is whether breaking is a means to reach you or the point.
+     */
     public record BreakBlocks(int interval, float chance, HolderSet<net.minecraft.world.level.block.Block> allowed,
-            double reach, boolean infest) implements Ability {
+            double reach, boolean infest, boolean needsTarget) implements Ability {
 
         public static final Identifier TYPE = id("break_blocks");
 
@@ -682,7 +689,8 @@ public final class Abilities {
                 net.minecraft.core.RegistryCodecs.homogeneousList(net.minecraft.core.registries.Registries.BLOCK)
                         .fieldOf("allowed").forGetter(BreakBlocks::allowed),
                 Codec.DOUBLE.optionalFieldOf("reach", 2.0D).forGetter(BreakBlocks::reach),
-                Codec.BOOL.optionalFieldOf("infest", false).forGetter(BreakBlocks::infest))
+                Codec.BOOL.optionalFieldOf("infest", false).forGetter(BreakBlocks::infest),
+                Codec.BOOL.optionalFieldOf("needs_target", true).forGetter(BreakBlocks::needsTarget))
                 .apply(i, BreakBlocks::new));
 
         @Override
@@ -695,22 +703,31 @@ public final class Abilities {
             if (!canGrief(level, mob)) {
                 return;
             }
-            LivingEntity victim = mob.getTarget();
-            if (victim == null || !victim.isAlive()) {
-                return;
-            }
-            // Stuck, not merely walking. A mob still making progress has no business demolishing
-            // the countryside it is walking past.
-            if (mob.getDeltaMovement().horizontalDistanceSqr() > 0.0016D) {
-                return;
+            net.minecraft.core.BlockPos[] candidates;
+            if (needsTarget) {
+                LivingEntity victim = mob.getTarget();
+                if (victim == null || !victim.isAlive()) {
+                    return;
+                }
+                // Stuck, not merely walking. A mob still making progress has no business demolishing
+                // the countryside it is walking past.
+                if (mob.getDeltaMovement().horizontalDistanceSqr() > 0.0016D) {
+                    return;
+                }
+                net.minecraft.world.phys.Vec3 toward =
+                        victim.position().subtract(mob.position()).normalize().scale(reach);
+                net.minecraft.core.BlockPos at = net.minecraft.core.BlockPos.containing(
+                        mob.getX() + toward.x, mob.getY() + mob.getBbHeight() * 0.5D, mob.getZ() + toward.z);
+                candidates = new net.minecraft.core.BlockPos[]{at, at.above(), at.below()};
+            } else {
+                // Wherever it happens to be. Its own square first, so a Blight standing in moss
+                // clears it, then the ring around its feet so it scours a path rather than a dot.
+                net.minecraft.core.BlockPos feet = mob.blockPosition();
+                candidates = new net.minecraft.core.BlockPos[]{
+                        feet, feet.above(), feet.north(), feet.south(), feet.east(), feet.west()};
             }
 
-            net.minecraft.world.phys.Vec3 toward =
-                    victim.position().subtract(mob.position()).normalize().scale(reach);
-            net.minecraft.core.BlockPos at = net.minecraft.core.BlockPos.containing(
-                    mob.getX() + toward.x, mob.getY() + mob.getBbHeight() * 0.5D, mob.getZ() + toward.z);
-
-            for (net.minecraft.core.BlockPos candidate : new net.minecraft.core.BlockPos[]{at, at.above(), at.below()}) {
+            for (net.minecraft.core.BlockPos candidate : candidates) {
                 if (!allowed.contains(level.getBlockState(candidate).getBlockHolder())) {
                     continue;
                 }

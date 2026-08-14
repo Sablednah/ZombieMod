@@ -73,10 +73,11 @@
   "abilities": [
     {
       "type": "zombiemod:break_blocks",
-      "interval": 30,
+      "interval": 20,
       "chance": 0.7,
       "allowed": "#zombiemod:breakable/blight",
-      "reach": 2.5
+      "reach": 2.5,
+      "needs_target": false
     },
     {
       "type": "zombiemod:particles",

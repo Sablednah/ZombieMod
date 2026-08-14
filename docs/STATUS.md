@@ -52,6 +52,9 @@ Last updated 2026-07-30.
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
+- **`skip_infected` in play.** Proven both directions headlessly — flag off, the goal picked only
+  infected targets; flag on, only clean ones, never once an infected one. What nobody has watched is
+  a Biter actually crossing a field and leaving it sick rather than dead.
 - **The balance pass.** xp and bounty were re-derived from a threat score across all 54, sixteen loot
   tables added, tools given to the genera whose identity is a tool. Every one was read back off a
   built mob and every table was rolled 40 times for real — but whether the numbers *feel* right is a

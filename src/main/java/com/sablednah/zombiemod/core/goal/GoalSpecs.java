@@ -236,8 +236,18 @@ public final class GoalSpecs {
     // ---------------------------------------------------------------- targeting (targetSelector)
 
     /** Pick a victim. Goes in the genus's {@code target_goals}, not {@code goals}. */
+    /**
+     * @param skipInfected ignore anything already carrying an infection. For an infectious genus
+     *                     this is the difference between a wood-chipper and a vector: a zombie that
+     *                     has already bitten something has no reason to keep chewing it, so it moves
+     *                     on and leaves a field of sick, curable animals rather than a field of
+     *                     corpses that got straight back up.
+     *                     <p>Deliberately per-goal rather than per-genus, because it must not be put
+     *                     on a goal that targets players: "be bitten once and zombies ignore you" is
+     *                     an exploit, not a mechanic.
+     */
     public record NearestTarget(int priority, Class<? extends LivingEntity> target, boolean mustSee,
-            int unseenMemory) implements GoalSpec {
+            int unseenMemory, boolean skipInfected) implements GoalSpec {
 
         public static final Identifier TYPE = id("nearest_target");
 
@@ -246,7 +256,9 @@ public final class GoalSpecs {
                 TargetClass.CODEC.fieldOf("target").forGetter(NearestTarget::target),
                 com.mojang.serialization.Codec.BOOL.optionalFieldOf("must_see", true).forGetter(NearestTarget::mustSee),
                 com.mojang.serialization.Codec.INT.optionalFieldOf("unseen_memory", 60)
-                        .forGetter(NearestTarget::unseenMemory))
+                        .forGetter(NearestTarget::unseenMemory),
+                com.mojang.serialization.Codec.BOOL.optionalFieldOf("skip_infected", false)
+                        .forGetter(NearestTarget::skipInfected))
                 .apply(i, NearestTarget::new));
 
         @Override
@@ -256,7 +268,11 @@ public final class GoalSpecs {
 
         @Override
         public Goal build(Mob mob) {
-            NearestAttackableTargetGoal<?> goal = new NearestAttackableTargetGoal<>(mob, target, mustSee);
+            NearestAttackableTargetGoal<?> goal = skipInfected
+                    ? new NearestAttackableTargetGoal<>(mob, target, 10, mustSee, false,
+                            (candidate, level) -> com.sablednah.zombiemod.core.ability.Infect
+                                    .remaining(candidate, level.getGameTime()) < 0L)
+                    : new NearestAttackableTargetGoal<>(mob, target, mustSee);
             // How long it holds a target it cannot see. Vanilla's 60 ticks is three seconds, which
             // is fine for a mob that walks round obstacles and exactly wrong for one that digs
             // through them: the moment the wall blocked line of sight it forgot why it was digging.

@@ -1094,6 +1094,15 @@ So: green aggressive squid, yes, but it will bump rather than bite — the aquat
 served by a `drowned` base, which is already a zombie with everything attached. Tall skinny ender
 zombies and zombie illagers, wholeheartedly yes.
 
+### Breaking as a means, or as the point
+
+`break_blocks` defaults to the Breaker's behaviour: only when there is something to reach, and only
+when actually stuck, so a mob still making progress does not demolish the countryside it walks past.
+
+`needs_target: false` inverts that. No target, no stuck check, and it clears its own square and the
+ring around its feet as it goes. That is the difference between breaking to reach you and breaking
+being the point — Blight uses it, the Breakers do not.
+
 ### Bramble and Blight
 
 Two genera built as mechanical opposites, tied to opposite districts.
@@ -1181,6 +1190,15 @@ chain stopped at one animal.
 sheep dying in a wheat field cannot get up as a Commuter. It had to: without it, any genus with a
 district or a depth behind it could appear anywhere something happened to die, and the gap only
 became visible once a district genus was weighted heavily enough to win most of the draws.
+
+**The Biter walks past what it has already bitten.** Its animal target goal carries
+`skip_infected: true`, which is the difference between a wood-chipper and a vector — without it a
+Biter simply kills each sheep in three hits and they get straight back up, and the infection never
+gets to be the mechanic. With it, it moves on to fresh livestock and leaves a field of sick, curable
+animals behind it.
+
+Deliberately per-goal and **not** on the goal that targets players: "be bitten once and zombies
+ignore you" is an exploit, not a mechanic.
 
 **Something has to bite the livestock first.** Biter carries the infection and now targets `animal`
 below `player` and `villager`, so it goes for a herd only when nobody better is about. Carrier hunts
@@ -1418,6 +1436,7 @@ so they travel with the save. **The file doesn't exist until you've loaded the w
 | `/zombiemod spawn <genus>` | Spawn one where you're **looking**, up to 48 blocks. |
 | `/zombiemod spawn <genus> <x> <y> <z>` | Spawn one at a position. Accepts `~ ~ ~` relative and `^ ^ ^5` local — so `^ ^ ^5` is "five blocks in front of me". Works from the console and command blocks. |
 | `/zombiemod horde list\|start <horde>\|stop` | Wave events. |
+| `/zm …` | Alias for everything below — a redirect onto the same node tree, so subcommands and suggestions are identical. |
 | `/zombiemod bestiary [book]` | Your ZombieDex checklist, in chat or as a written book. |
 | `/zombiemod config` | List the live toggles. **Admin only** (permission level 3). |
 | `/zombiemod config <name> [on\|off]` | Flip one, and write it to disk. Omit `on`/`off` to toggle. |
