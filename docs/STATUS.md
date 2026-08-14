@@ -60,9 +60,6 @@ Last updated 2026-07-30.
   built mob and every table was rolled 40 times for real — but whether the numbers *feel* right is a
   thing only play decides, and the ones most likely to be wrong are the drops, which nobody has
   farmed yet.
-- **Bramble and Blight.** Both load, Bramble places a real moss carpet through the real ability, and
-  the blight tag resolves to 63 blocks including `moss_carpet` — so the mirror closes. Nobody has
-  watched the two of them fight over a lawn, which is the whole point of building them as a pair.
 - **ZombieDex.** Recording, totals, both objectives, the per-genus switch in both positions and the
   master switch were all proven headlessly — including that turning `perGenus` on shows kills
   recorded while it was off. What nobody has done is read the book in game, or check that eleven
@@ -70,9 +67,9 @@ Last updated 2026-07-30.
   bleeding its style into the list under it, now rebuilt from styled components rather than legacy
   section codes; unconfirmed that this fixed it.
 - **The Sleeper** — the low-`follow_range` genus. Whether six blocks is menacing or merely broken.
-- **The stock-take.** All 52 genera had `follow_range` set by sensory tier, the xp gaps filled and
+- **The stock-take.** All 54 genera had `follow_range` set by sensory tier, the xp gaps filled and
   trims and arrows added where they say something. Every value was read back off a *built* mob
-  rather than out of the JSON — 52 checked, 0 mismatched — but whether the tiers make a crowd read
+  rather than out of the JSON — 54 checked, 0 mismatched — but whether the tiers make a crowd read
   the way they should is a thing only play can answer.
 - **The Ghost face pool** — seed names, login memory, ageing and ban filtering. All four were proven
   headlessly and in both directions, including banning a probe player and watching it vanish from
@@ -110,12 +107,9 @@ Last updated 2026-07-30.
 
 ## Left from the 1.8 plugin
 
-Every ability is done. Two things aren't:
+Every ability is done, and so is proximity spawning — it is built, configurable and off by default,
+waiting only for somebody to turn it on and judge it. One thing is genuinely outstanding:
 
-- **Proximity spawning.** `ProximitySystems` put zombies just out of sight around each player,
-  ignoring vanilla's rules and scaling with distance from world spawn. Genera currently only claim
-  spawns vanilla was already making, so a world has vanilla's zombie *count* with more variety.
-  This is the last real gap in feel.
 - **Bounty.** Waiting on an economy decision. There is no Vault equivalent on NeoForge; Impactor is
   the nearest thing to a common API and isn't on 1.21.11. `xp` covers most of the intent meanwhile.
 
@@ -130,13 +124,16 @@ Every ability is done. Two things aren't:
 
 ## Next, in the order I'd do it
 
-1. **Proximity spawning** — see above.
+1. **Turn proximity spawning on and judge it.** Built and never played with. `outOfSightOnly` and
+   `nearbyCap = 8` are the two numbers most likely to be wrong, and `/zombiemod status` reports the
+   counters that say so.
+2. **Sound-driven aggro** — a Clicker that is genuinely blind but hears you sprint. The one 1.8 trope
+   with no equivalent here.
 3. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
-4. **CityWorld conditions** — `CityWorldAPI.lotAt` gives lot/context/schematic, so "more in the
-   wilderness, different genera per district" is a condition type in the slot FTB Chunks now occupies.
-5. **Sound-driven aggro** — a Clicker that is genuinely blind but hears you sprint.
+4. **A ZombieDex client mod.** The server half is done and vanilla-visible; this is only a nicer
+   window onto it. See the note in the README on why it belongs in this jar rather than beside it.
 
 ## Before release
 

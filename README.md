@@ -1370,6 +1370,22 @@ tick a box for something glimpsed across a valley.
 A companion client mod could draw this far more nicely, and that stays entirely optional: the book
 and the sidebar are the feature, and both work on a vanilla client.
 
+**If that client half is ever built, it belongs in this jar rather than beside it.** The instinct is
+to ship a separate companion mod, and the reason not to is version skew: two jars must be kept in
+step by whoever installs them, forever, and the failure is a confusing one — a screen that renders
+stale nonsense rather than an error. One jar makes the mismatch structurally impossible.
+
+Nothing is given up by doing that. NeoForge's `Dist` gating means client classes never load on a
+server, so a headless server carries a few dead kilobytes and no risk. And the promise that matters
+survives, because it was never "this jar has no client code" — it is **"a player does not need this
+mod to join"**, which is kept by registering the payloads through `PayloadRegistrar.optional()`: its
+own documentation says only *non*-optional payloads fail a connection. A vanilla client still
+connects, and a modded one gets a nicer window onto the same data.
+
+The honest cost is that "server-side only" then needs a footnote — *server-side only; installing it
+client-side as well adds the ZombieDex screen* — and that a rendering bug becomes this mod's problem
+rather than a separate project's.
+
 ### What they leave behind
 
 Sixteen genera carry a loot table, all with `replace: false`, so rotten flesh drops as normal and
