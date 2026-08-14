@@ -1207,6 +1207,17 @@ Biter simply kills each sheep in three hits and they get straight back up, and t
 gets to be the mechanic. With it, it moves on to fresh livestock and leaves a field of sick, curable
 animals behind it.
 
+**Tuning a bite for a sheep is not tuning it for a player.** The Biter's original 35%-per-hit was
+set with a 20hp armoured player in mind, where it reads as dread across a long fight. Against an 8hp
+animal that killed better than one in four outright before the infection ever landed. It bites for 2
+now, at 75% — four hits to kill a sheep, and almost always infected by the first or second. Measured
+over 500 sheep: 490 left sick and alive, 10 killed, 1.3 hits on average.
+
+`duration` had the same problem. At 1200 ticks an infected animal expected barely **1.5**
+transmissions before it cleared, so a herd fizzled rather than turned. At 3600 it expects about 4.5,
+which is a contagion. A bitten *player* now carries it for three minutes rather than one, which is
+long enough that waiting it out is no longer the obvious play — milk is.
+
 That flag alone was not enough, and the reason is worth knowing: **a target already held is never
 re-tested.** `TargetGoal.canContinueToUse` checks reach, line of sight and team, and never consults
 the targeting conditions again — so the bite landed, the sheep became infected, and the Biter

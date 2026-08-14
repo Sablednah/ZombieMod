@@ -3,7 +3,7 @@
   "base": "minecraft:zombie",
   "weight": 6,
   "health": 22.0,
-  "damage": 3.0,
+  "damage": 2.0,
   "speed": 1.1,
   "follow_range": 30.0,
   "armor_color": 8014410,
@@ -81,8 +81,8 @@
   "abilities": [
     {
       "type": "zombiemod:infect",
-      "chance": 0.35,
-      "duration": 1200,
+      "chance": 0.75,
+      "duration": 3600,
       "effect": "minecraft:hunger",
       "announce": true
     },
