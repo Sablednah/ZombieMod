@@ -35,7 +35,10 @@ Last updated 2026-07-30.
 | **Conversion** | What a genus kills rises as one of them, with an undead-counterpart mapping and four guards |
 | **Infection** | Bite now, turn later, whatever kills you — and milk cures it. Bite, timer and the infected-player double-raise verified. Confirmed emergent in play: an infected flock wandered into a sweet berry bush and rose from it. |
 | **Proximity spawning** | Zombies out of sight around each player, off by default |
-| **Commands** | `list`, `spawn`, `status`, `observe`, `corpse …` |
+| **Commands** | `list`, `spawn`, `status`, `observe`, `corpse …`, `bestiary`, `config`, and `/zm` |
+| **Herd infection** | A Biter bites, loses interest, and moves on; the flock sickens and spreads it; milk cures an animal. Confirmed in play, including an infected flock dying to a sweet berry bush and rising from it |
+| **Bramble & Blight** | The mirror pair, in play: one lays moss as it walks, the other seeks moss out and eats it, and they hunt each other. Blight usually wins |
+| **`seek_blocks`** | A genus walking to blocks it has an opinion about |
 
 ## Built, not yet verified in game
 
@@ -52,14 +55,6 @@ Last updated 2026-07-30.
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
-- **`seek_blocks`.** A Blight crossed 11.5 blocks to a moss patch and ate a block of it under a
-  probe, but on a built platform — the first attempt had it stuck on real terrain with
-  `onGround=false`, so how well it copes with awkward ground is untested.
-- **The Bramble/Blight feud.** Each targets only the other under a probe, with a Walker present as a
-  control and never picked — but nobody has watched them actually meet.
-- **`skip_infected` in play.** Proven both directions headlessly — flag off, the goal picked only
-  infected targets; flag on, only clean ones, never once an infected one. What nobody has watched is
-  a Biter actually crossing a field and leaving it sick rather than dead.
 - **The balance pass.** xp and bounty were re-derived from a threat score across all 54, sixteen loot
   tables added, tools given to the genera whose identity is a tool. Every one was read back off a
   built mob and every table was rolled 40 times for real — but whether the numbers *feel* right is a
@@ -68,11 +63,6 @@ Last updated 2026-07-30.
 - **Bramble and Blight.** Both load, Bramble places a real moss carpet through the real ability, and
   the blight tag resolves to 63 blocks including `moss_carpet` — so the mirror closes. Nobody has
   watched the two of them fight over a lawn, which is the whole point of building them as a pair.
-- **Biter on livestock.** It now has an `animal` target goal, so it will actually bite a sheep; the
-  spread itself is proven, but nobody has watched a real field turn.
-- **Herd infection.** A herd of eight went 1 → 2 → 3 → 8 under a probe, all eight carried the spread
-  goal, the cure cleared both the timer and the effect, and undead were immune — but nobody has let
-  a Biter loose near real livestock and watched it happen at real speed.
 - **ZombieDex.** Recording, totals, both objectives, the per-genus switch in both positions and the
   master switch were all proven headlessly — including that turning `perGenus` on shows kills
   recorded while it was off. What nobody has done is read the book in game, or check that eleven
