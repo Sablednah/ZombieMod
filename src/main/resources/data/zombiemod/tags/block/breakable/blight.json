@@ -10,6 +10,21 @@
     "minecraft:large_fern",
     "minecraft:vine",
     "minecraft:moss_carpet",
-    "minecraft:moss_block"
+    "minecraft:moss_block",
+    "minecraft:leaf_litter",
+    "minecraft:pale_moss_carpet",
+    "minecraft:pale_hanging_moss",
+    "minecraft:wildflowers",
+    "minecraft:bush",
+    "minecraft:firefly_bush",
+    "minecraft:short_dry_grass",
+    "minecraft:tall_dry_grass",
+    "minecraft:dead_bush",
+    "minecraft:sweet_berry_bush",
+    "minecraft:cactus_flower",
+    "minecraft:hanging_roots",
+    "minecraft:small_dripleaf",
+    "minecraft:big_dripleaf",
+    "minecraft:glow_lichen"
   ]
 }

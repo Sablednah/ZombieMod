@@ -1129,7 +1129,17 @@ than standing on a bare block surrounded by the moss it hates:
 ```
 
 `seek_blocks` takes the same tag-or-list shape as `break_blocks`, so a genus can seek exactly what it
-destroys. It stands down while the mob has a target — hunting something beats hunting moss — and it
+destroys.
+
+**`#minecraft:leaves` is only tree leaves.** Ground cover has its own ids, and a Blight standing in a
+forest looked like it disliked leaf litter when in fact it could not see it — the block is
+`noCollision()` and `replaceable()`, walkable and no obstacle at all, just not on the menu. The tag
+now names the lot: leaf litter, pale moss, wildflowers, bushes, dry grass, dripleaf, glow lichen and
+the sweet berry bush.
+
+It also gives up on a block it cannot reach after eight seconds rather than vanilla's sixty, and
+remembers it for a minute. Without that, the next search finds the same unreachable block and starts
+the whole minute again — which does not look like a stuck mob, it looks like one patrolling. It stands down while the mob has a target — hunting something beats hunting moss — and it
 looks about four times as often as vanilla's `MoveToBlockGoal` normally would, because for this genus
 searching *is* the job rather than an errand.
 
