@@ -32,6 +32,7 @@ public final class GoalSpecTypes {
         register(GoalSpecs.RandomLook.TYPE, GoalSpecs.RandomLook.CODEC);
         register(GoalSpecs.MeleeAttack.TYPE, GoalSpecs.MeleeAttack.CODEC);
         register(GoalSpecs.BowAttack.TYPE, GoalSpecs.BowAttack.CODEC);
+        register(GoalSpecs.SeekBlocks.TYPE, GoalSpecs.SeekBlocks.CODEC);
         register(GoalSpecs.NearestTarget.TYPE, GoalSpecs.NearestTarget.CODEC);
         register(GoalSpecs.HurtByTarget.TYPE, GoalSpecs.HurtByTarget.CODEC);
     }

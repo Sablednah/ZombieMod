@@ -299,6 +299,7 @@ Each goal takes a `priority` (**lower runs first**, as in vanilla) plus its own 
 | `zombiemod:bow_attack` | `speed`, `interval`, `range` | Draws and looses a bow, using vanilla's own goal. See the note below. |
 | `zombiemod:look_at` | `target` (player), `distance` (8.0), `probability` (0.02) | Watches. At high range and probability, **this is Herobrine**. |
 | `zombiemod:random_stroll` | `speed` (1.0) | Wanders. Without it, an idle mob stands perfectly still. |
+| `zombiemod:seek_blocks` | `blocks`, `speed`, `range`, `vertical_range`, `only_when_idle` — walk to blocks it has an opinion about |
 | `zombiemod:random_look` | — | Idle head movement. Cheap, but its absence reads as "broken". |
 | `zombiemod:float` | — | Swims instead of sinking. |
 | `zombiemod:nearest_target` † | `target`, `must_see` (true), `unseen_memory` (60) | Picks a victim. `unseen_memory` is how many ticks it holds a target it can't see. |
@@ -1118,6 +1119,19 @@ anyone standing close nausea. Industrial and construction districts.
 
 Ground both have crossed visibly flickers between overgrown and blighted, and nothing coordinates
 that — it falls out of two genera wandering the same block.
+
+**Blight goes looking.** With nothing to fight it walks to the nearest greenery and eats it, rather
+than standing on a bare block surrounded by the moss it hates:
+
+```json
+{ "type": "zombiemod:seek_blocks", "priority": 6,
+  "blocks": "#zombiemod:breakable/blight", "range": 16, "vertical_range": 4 }
+```
+
+`seek_blocks` takes the same tag-or-list shape as `break_blocks`, so a genus can seek exactly what it
+destroys. It stands down while the mob has a target — hunting something beats hunting moss — and it
+looks about four times as often as vanilla's `MoveToBlockGoal` normally would, because for this genus
+searching *is* the job rather than an errand.
 
 **And they hunt each other.** `nearest_target` takes a `genera` list, which narrows a target class
 down to particular genera — `TargetClass` can say "any zombie" and could never say "*that* zombie",

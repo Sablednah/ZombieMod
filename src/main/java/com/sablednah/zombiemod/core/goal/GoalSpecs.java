@@ -5,6 +5,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.core.HolderSet;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
@@ -246,6 +247,46 @@ public final class GoalSpecs {
      *                     on a goal that targets players: "be bitten once and zombies ignore you" is
      *                     an exploit, not a mechanic.
      */
+    /**
+     * Walk towards blocks it cares about. See {@link SeekBlocksGoal} for why the Blight needed it.
+     *
+     * @param blocks        a tag or list - the same shape {@code break_blocks} takes, so a genus can
+     *                      seek exactly what it destroys
+     * @param onlyWhenIdle  stand down while it has something to fight
+     */
+    public record SeekBlocks(int priority, HolderSet<net.minecraft.world.level.block.Block> blocks,
+            double speed, int range, int verticalRange, boolean onlyWhenIdle) implements GoalSpec {
+
+        public static final Identifier TYPE = id("seek_blocks");
+
+        public static final MapCodec<SeekBlocks> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                priorityField(6).forGetter(SeekBlocks::priority),
+                net.minecraft.core.RegistryCodecs.homogeneousList(
+                        net.minecraft.core.registries.Registries.BLOCK)
+                        .fieldOf("blocks").forGetter(SeekBlocks::blocks),
+                com.mojang.serialization.Codec.DOUBLE.optionalFieldOf("speed", 1.0D)
+                        .forGetter(SeekBlocks::speed),
+                com.mojang.serialization.Codec.INT.optionalFieldOf("range", 12)
+                        .forGetter(SeekBlocks::range),
+                com.mojang.serialization.Codec.INT.optionalFieldOf("vertical_range", 3)
+                        .forGetter(SeekBlocks::verticalRange),
+                com.mojang.serialization.Codec.BOOL.optionalFieldOf("only_when_idle", true)
+                        .forGetter(SeekBlocks::onlyWhenIdle))
+                .apply(i, SeekBlocks::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public Goal build(Mob mob) {
+            return mob instanceof PathfinderMob pf
+                    ? new SeekBlocksGoal(pf, blocks, speed, range, verticalRange, onlyWhenIdle)
+                    : null;
+        }
+    }
+
     public record NearestTarget(int priority, Class<? extends LivingEntity> target, boolean mustSee,
             int unseenMemory, boolean skipInfected, java.util.List<Identifier> genera) implements GoalSpec {
 

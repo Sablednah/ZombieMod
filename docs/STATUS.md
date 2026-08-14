@@ -52,6 +52,9 @@ Last updated 2026-07-30.
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
+- **`seek_blocks`.** A Blight crossed 11.5 blocks to a moss patch and ate a block of it under a
+  probe, but on a built platform — the first attempt had it stuck on real terrain with
+  `onGround=false`, so how well it copes with awkward ground is untested.
 - **The Bramble/Blight feud.** Each targets only the other under a probe, with a Walker present as a
   control and never picked — but nobody has watched them actually meet.
 - **`skip_infected` in play.** Proven both directions headlessly — flag off, the goal picked only

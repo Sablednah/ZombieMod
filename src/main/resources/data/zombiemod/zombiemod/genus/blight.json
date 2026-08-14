@@ -48,6 +48,14 @@
       "speed": 0.7
     },
     {
+      "type": "zombiemod:seek_blocks",
+      "priority": 6,
+      "blocks": "#zombiemod:breakable/blight",
+      "speed": 1.0,
+      "range": 16,
+      "vertical_range": 4
+    },
+    {
       "type": "zombiemod:look_at",
       "priority": 8,
       "target": "player",
