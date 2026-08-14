@@ -38,7 +38,7 @@ Last updated 2026-07-30.
 | **Commands** | `list`, `spawn`, `status`, `observe`, `corpse …`, `bestiary`, `config`, and `/zm` |
 | **Herd infection** | A Biter bites, loses interest, and moves on; the flock sickens and spreads it; milk cures an animal. Confirmed in play, including an infected flock dying to a sweet berry bush and rising from it |
 | **Bramble & Blight** | The mirror pair, in play: one lays moss as it walks, the other seeks moss out and eats it, and they hunt each other. Blight usually wins |
-| **`seek_blocks`** | A genus walking to blocks it has an opinion about, including down a stepped roof |
+| **`seek_blocks`** | A genus walking to blocks it has an opinion about. Confirmed in play: three Blights stripped a terraced CityWorld roof of moss and vines |
 
 ## Built, not yet verified in game
 
