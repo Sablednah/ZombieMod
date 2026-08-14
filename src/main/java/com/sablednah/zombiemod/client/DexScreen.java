@@ -16,6 +16,13 @@ import net.minecraft.network.chat.Component;
  */
 public final class DexScreen extends Screen {
 
+    /**
+     * Opaque white. The colour argument is <b>ARGB</b>, so the tempting {@code 0xFFFFFF} carries an
+     * alpha of zero and draws nothing at all — a screen that dims correctly and is then empty.
+     * Vanilla writes this as {@code -1} everywhere for the same reason.
+     */
+    private static final int WHITE = 0xFFFFFFFF;
+
     private static final int ROW = 12;
     private static final int COLUMNS = 3;
 
@@ -36,14 +43,14 @@ public final class DexScreen extends Screen {
         var entries = DexState.entries();
 
         gfx.drawCenteredString(font, Component.literal("ZombieDex").withStyle(ChatFormatting.GOLD),
-                width / 2, 14, 0xFFFFFF);
+                width / 2, 14, WHITE);
         gfx.drawCenteredString(font, Component.literal(
                         DexState.slain() + " of " + entries.size() + " slain, " + DexState.met() + " met")
-                .withStyle(ChatFormatting.GRAY), width / 2, 26, 0xFFFFFF);
+                .withStyle(ChatFormatting.GRAY), width / 2, 26, WHITE);
 
         if (entries.isEmpty()) {
             gfx.drawCenteredString(font, Component.literal("Nothing yet - the server has not sent one.")
-                    .withStyle(ChatFormatting.DARK_GRAY), width / 2, height / 2, 0xFFFFFF);
+                    .withStyle(ChatFormatting.DARK_GRAY), width / 2, height / 2, WHITE);
             return;
         }
 
@@ -71,12 +78,12 @@ public final class DexScreen extends Screen {
             if (e.kills() > 1) {
                 line.append(Component.literal(" x" + e.kills()).withStyle(ChatFormatting.DARK_GRAY));
             }
-            gfx.drawString(font, line, x, y, 0xFFFFFF, false);
+            gfx.drawString(font, line, x, y, WHITE, false);
         }
 
         if (entries.size() > perPage) {
             gfx.drawCenteredString(font, Component.literal("scroll for more")
-                    .withStyle(ChatFormatting.DARK_GRAY), width / 2, height - 14, 0xFFFFFF);
+                    .withStyle(ChatFormatting.DARK_GRAY), width / 2, height - 14, WHITE);
         }
     }
 

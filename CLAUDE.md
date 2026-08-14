@@ -141,6 +141,14 @@ Nothing was needed in `neoforge.mods.toml` for the connection itself: no `displa
 change. (Untested: how the server renders in the multiplayer *list* ping, since that test used Direct
 Connect.)
 
+### Client screens: the colour is ARGB
+
+`GuiGraphics.drawString` and friends take **ARGB**, so the obvious `0xFFFFFF` carries an alpha of
+**zero** and draws nothing whatever. The symptom is a screen that opens and dims the world correctly
+and is then completely empty, which reads like a layout or a data bug and is neither. Vanilla writes
+`-1` everywhere; `LegendQuest`'s handbook, which works in this version, writes `0xFFFFFFFF`. Either
+is fine, `0xFFFFFF` is not.
+
 ### Verifying changes headlessly
 
 `ServerStartedEvent` logs a genera summary permanently (`ZombieMod: 2 genera loaded - coward (5+0
