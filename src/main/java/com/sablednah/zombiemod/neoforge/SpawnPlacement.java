@@ -60,7 +60,7 @@ final class SpawnPlacement {
         int total = 0;
         for (Holder.Reference<Genus> holder : lookup.listElements().toList()) {
             Genus genus = holder.value();
-            if (genus.weight() <= 0 || !genus.spawn().allows(level, at, EntitySpawnReason.NATURAL)) {
+            if (!Genus.drawable(holder) || !genus.spawn().allows(level, at, EntitySpawnReason.NATURAL)) {
                 continue;
             }
             eligible.add(holder);

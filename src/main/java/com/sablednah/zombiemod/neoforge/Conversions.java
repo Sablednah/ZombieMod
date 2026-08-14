@@ -173,7 +173,7 @@ public final class Conversions {
         int total = 0;
         for (Holder.Reference<Genus> holder : lookup.listElements().toList()) {
             Genus genus = holder.value();
-            if (genus.base() != base || genus.weight() <= 0 || !genus.spawn().suitsPlace(level, where)) {
+            if (genus.base() != base || !Genus.drawable(holder) || !genus.spawn().suitsPlace(level, where)) {
                 continue;
             }
             eligible.add(holder);

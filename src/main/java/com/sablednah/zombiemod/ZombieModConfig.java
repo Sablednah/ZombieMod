@@ -15,6 +15,7 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.BooleanValue ENABLED;
     public static final ModConfigSpec.IntValue VANILLA_WEIGHT;
     public static final ModConfigSpec.BooleanValue LOG_SPAWNS;
+    public static final ModConfigSpec.BooleanValue BUILTIN_GENERA;
     public static final ModConfigSpec.BooleanValue PLAYER_ZOMBIES;
     public static final ModConfigSpec.BooleanValue PLAYER_ZOMBIE_TAKES_ITEMS;
     public static final ModConfigSpec.ConfigValue<String> PLAYER_ZOMBIE_GENUS;
@@ -99,6 +100,24 @@ public final class ZombieModConfig {
 
         LOG_SPAWNS = b.comment("Log every genus spawn to the server console. Noisy; for tuning weights.")
                 .define("logSpawns", false);
+
+        BUILTIN_GENERA = b.comment(
+                        "Let the genera shipped with the mod claim spawns.",
+                        "",
+                        "Turn this off to run a pack of your own and nothing else. It affects the three",
+                        "weighted draws - natural spawns, horde waves that do not name their genera, and",
+                        "what a conversion raises - and nothing else, so the shipped genera stay whole and",
+                        "usable by /zombiemod spawn, spawners, rituals and anything that names one",
+                        "explicitly. Your own datapack's genera are unaffected either way.",
+                        "",
+                        "This is deliberately a switch rather than a 'reset' datapack that sets every",
+                        "shipped genus to weight 0. Such a pack has to list every genus by name, so it",
+                        "goes quietly out of date the moment a new one ships and starts letting through",
+                        "exactly the thing it was installed to stop.",
+                        "",
+                        "To silence a single genus instead, override that one file from a",
+                        "higher-priority datapack with weight 0.")
+                .define("builtinGenera", true);
 
         b.pop();
 

@@ -563,6 +563,24 @@ out of parts instead of waiting for that exact ability to exist.
 **54 genera ship with the mod.** See [`docs/ROSTER.md`](docs/ROSTER.md) for the full list, what each
 one is, and which feature it demonstrates.
 
+### Running your own roster instead
+
+```toml
+[spawning]
+    builtinGenera = false
+```
+
+One switch, and none of the 54 shipped genera can win a spawn. It affects the **three weighted
+draws** — natural spawns, horde waves that do not name their genera, and what a conversion raises —
+and nothing else, so the shipped genera stay whole and remain usable by `/zombiemod spawn`, spawners,
+rituals, mutation targets and anything naming one explicitly. Your own datapack's genera are
+untouched either way.
+
+**Deliberately a switch rather than a "reset" datapack** that sets every shipped genus to `weight: 0`.
+Such a pack is the obvious answer and it has a trap in it: it must list every genus by name, so it
+goes quietly out of date the moment a new one ships, and then starts letting through exactly the
+thing it was installed to stop. A namespace rule cannot drift.
+
 ### Turning one off
 
 They are ordinary datapack files, so a higher-priority datapack overrides or removes any of them.

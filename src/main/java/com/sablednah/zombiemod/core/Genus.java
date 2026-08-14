@@ -238,6 +238,22 @@ public record Genus(
         return appearance.mount();
     }
 
+    /**
+     * May this genus win a weighted draw?
+     *
+     * <p>False for a shipped genus when {@code builtinGenera} is off. Asked by all three draws -
+     * natural spawns, unnamed horde waves and conversions - because a server running its own roster
+     * wants its own roster everywhere, not only where mobs happen to spawn.
+     *
+     * <p>Only the draws. Anything that names a genus outright still gets it, so commands, rituals,
+     * mutation targets and named horde waves keep working.
+     */
+    public static boolean drawable(Holder.Reference<Genus> holder) {
+        return holder.value().weight() > 0
+                && (com.sablednah.zombiemod.ZombieModConfig.BUILTIN_GENERA.get()
+                        || !holder.key().identifier().getNamespace().equals("zombiemod"));
+    }
+
     public boolean invisible() {
         return appearance.invisible();
     }

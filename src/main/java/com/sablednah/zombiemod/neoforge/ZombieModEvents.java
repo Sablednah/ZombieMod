@@ -470,7 +470,7 @@ public final class ZombieModEvents {
 
         for (Holder.Reference<Genus> holder : lookup.listElements().toList()) {
             Genus genus = holder.value();
-            if (genus.weight() <= 0 || genus.base() != mob.getType()) {
+            if (!Genus.drawable(holder) || genus.base() != mob.getType()) {
                 continue;
             }
             if (!genus.spawn().allows(level, pos, reason)) {
