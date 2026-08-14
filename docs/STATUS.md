@@ -35,6 +35,8 @@ Last updated 2026-07-30.
 | **Conversion** | What a genus kills rises as one of them, with an undead-counterpart mapping and four guards |
 | **Infection** | Bite now, turn later, whatever kills you — and milk cures it. Bite, timer and the infected-player double-raise verified. Confirmed emergent in play: an infected flock wandered into a sweet berry bush and rose from it. |
 | **Proximity spawning** | Zombies out of sight around each player, off by default |
+| **ZombieDex** | Seen/killed per player, in chat, in a written book and on scoreboards. Confirmed in play by an ordinary non-op player: the book spawns and tracks met and kills |
+| **Vanilla clients** | Verified with a genuinely unmodded client against a dedicated server carrying the client half: joined, stayed, no `may not be sent to the client`, no exceptions. See CLAUDE.md for the procedure |
 | **Commands** | `list`, `spawn`, `status`, `observe`, `corpse …`, `bestiary`, `config`, and `/zm` |
 | **Herd infection** | A Biter bites, loses interest, and moves on; the flock sickens and spreads it; milk cures an animal. Confirmed in play, including an infected flock dying to a sweet berry bush and rising from it |
 | **Bramble & Blight** | The mirror pair, in play: one lays moss as it walks, the other seeks moss out and eats it, and they hunt each other. Blight usually wins |
@@ -60,12 +62,6 @@ Last updated 2026-07-30.
   built mob and every table was rolled 40 times for real — but whether the numbers *feel* right is a
   thing only play decides, and the ones most likely to be wrong are the drops, which nobody has
   farmed yet.
-- **ZombieDex.** Recording, totals, both objectives, the per-genus switch in both positions and the
-  master switch were all proven headlessly — including that turning `perGenus` on shows kills
-  recorded while it was off. What nobody has done is read the book in game, or check that eleven
-  rows a page is right rather than one row too many. First look in game found the page-one heading
-  bleeding its style into the list under it, now rebuilt from styled components rather than legacy
-  section codes; unconfirmed that this fixed it.
 - **The Sleeper** — the low-`follow_range` genus. Whether six blocks is menacing or merely broken.
 - **The stock-take.** All 54 genera had `follow_range` set by sensory tier, the xp gaps filled and
   trims and arrows added where they say something. Every value was read back off a *built* mob

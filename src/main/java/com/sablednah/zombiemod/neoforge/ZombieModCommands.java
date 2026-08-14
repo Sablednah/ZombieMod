@@ -75,8 +75,10 @@ public final class ZombieModCommands {
             matches -> Component.literal("Ambiguous genus name - matches " + matches + ". Use the full id."));
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("zombiemod")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS));
+        // No bar on the root. Brigadier ANDs a child's requires() with its parent's, so a
+        // restrictive root cannot be relaxed by a permissive child - the bestiary is a player
+        // feature and would have been unreachable behind a gamemaster root forever.
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("zombiemod");
 
         root.then(Commands.literal("list").executes(ctx -> {
             HolderLookup.RegistryLookup<Genus> lookup = lookup(ctx.getSource());
@@ -94,6 +96,7 @@ public final class ZombieModCommands {
         // colon, so `zombiemod:coward` parsed as `zombiemod` plus trailing junk. This is the
         // argument type vanilla uses for datapack ids, and its suggestions come from the registry.
         root.then(Commands.literal("spawn")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(Commands.argument("genus", ResourceKeyArgument.key(ZombieModRegistries.GENUS))
                         // Replaces the argument type's own suggestions so the bare name is offered
                         // alongside the full id.
@@ -116,6 +119,7 @@ public final class ZombieModCommands {
         // working perfectly: "my corpse went missing" was the single most common complaint about
         // the 1.8 version, and an admin with no way to check had to guess.
         root.then(Commands.literal("corpse")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(Commands.literal("list")
                         .executes(ctx -> listCorpses(ctx.getSource(), Optional.empty()))
                         .then(Commands.argument("player", StringArgumentType.word())
@@ -142,6 +146,7 @@ public final class ZombieModCommands {
         // singleplayer, so editing the global config/ copy silently does nothing - and "I turned it
         // on and nothing happened" is indistinguishable from a bug without a way to look.
         root.then(Commands.literal("horde")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(Commands.literal("list").executes(ctx -> {
                     var lookup = ctx.getSource().registryAccess()
                             .lookupOrThrow(ZombieModRegistries.HORDE);
@@ -181,9 +186,11 @@ public final class ZombieModCommands {
         }
         root.then(config);
 
-        root.then(Commands.literal("status").executes(ctx -> status(ctx.getSource())));
+        root.then(Commands.literal("status")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)).executes(ctx -> status(ctx.getSource())));
 
         root.then(Commands.literal("observe")
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .executes(ctx -> setObserve(ctx.getSource(), !ObserverMode.isOn(ctx.getSource().getPlayerOrException())))
                 .then(Commands.literal("on").executes(ctx -> setObserve(ctx.getSource(), true)))
                 .then(Commands.literal("off").executes(ctx -> setObserve(ctx.getSource(), false))));

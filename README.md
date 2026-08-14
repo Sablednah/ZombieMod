@@ -1320,9 +1320,14 @@ is that the sheep still looks like a sheep.
 gives you a reason to chase down a Coward.
 
 ```
-/zombiemod bestiary        # the list, in chat
-/zombiemod bestiary book   # the same list as a written book you can carry
+/zm bestiary        # the list, in chat
+/zm bestiary book   # the same list as a written book you can carry
 ```
+
+**Open to every player, not just operators.** It has to be: it is the feature players use. That
+meant the command root could carry no permission bar at all, because Brigadier ANDs a child's
+`requires()` with its parent's — a restrictive root can never be relaxed by a permissive child. Each
+subcommand states its own bar instead.
 
 **The record lives in the world's saved data and is always complete.** The scoreboard is a *view* of
 it. That ordering is the whole design: turning the per-genus view on later shows a history that was
@@ -1555,6 +1560,7 @@ so they travel with the save. **The file doesn't exist until you've loaded the w
 | `/zombiemod spawn <genus> <x> <y> <z>` | Spawn one at a position. Accepts `~ ~ ~` relative and `^ ^ ^5` local — so `^ ^ ^5` is "five blocks in front of me". Works from the console and command blocks. |
 | `/zombiemod horde list\|start <horde>\|stop` | Wave events. |
 | `/zm …` | Alias for everything below — a redirect onto the same node tree, so subcommands and suggestions are identical. |
+| | **`bestiary` and `list` are open to everyone.** Everything else needs permission level 2, and `config` needs 3. |
 | `/zombiemod bestiary [book]` | Your ZombieDex checklist, in chat or as a written book. |
 | `/zombiemod config` | List the live toggles. **Admin only** (permission level 3). |
 | `/zombiemod config <name> [on\|off]` | Flip one, and write it to disk. Omit `on`/`off` to toggle. |
