@@ -40,6 +40,7 @@ public class ZombieMod {
 
     public ZombieMod(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(ZombieModRegistries::register);
+        modEventBus.addListener(com.sablednah.zombiemod.net.Net::register);
         modContainer.registerConfig(ModConfig.Type.SERVER, ZombieModConfig.SPEC);
 
         com.sablednah.zombiemod.core.ability.Convert.setRaiser(

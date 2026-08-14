@@ -248,6 +248,9 @@ public final class ZombieModEvents {
         if (event.getEntity().level() instanceof ServerLevel level
                 && event.getEntity() instanceof net.minecraft.server.level.ServerPlayer joined) {
             KnownPlayers.get(level).remember(joined.getGameProfile());
+            if (ZombieModConfig.BESTIARY.get()) {
+                Bestiary.get(level).push(joined);
+            }
         }
         if (ObserverMode.isOn(event.getEntity())) {
             event.getEntity().displayClientMessage(

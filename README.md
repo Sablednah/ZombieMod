@@ -1370,7 +1370,19 @@ tick a box for something glimpsed across a valley.
 A companion client mod could draw this far more nicely, and that stays entirely optional: the book
 and the sidebar are the feature, and both work on a vanilla client.
 
-**If that client half is ever built, it belongs in this jar rather than beside it.** The instinct is
+### The client half
+
+Built, in this jar, behind a `dist = Dist.CLIENT` entrypoint. Press **J** for a screen showing the
+same checklist the book does — a nicer window onto the same record, never a better one, so a modded
+player and a vanilla one are playing the same game.
+
+A vanilla client is unaffected and does not need to know it exists. The payload is registered
+`optional()` so the handshake tolerates its absence, and — the part that is *not* obvious — every
+send is guarded by `hasChannel`, because an optional payload sent to a client that never negotiated
+it **throws** rather than being dropped. From a login handler that takes the player's whole join with
+it. See CLAUDE.md for the full note and the vanilla-client test procedure.
+
+**It belongs in this jar rather than beside it.** The instinct is
 to ship a separate companion mod, and the reason not to is version skew: two jars must be kept in
 step by whoever installs them, forever, and the failure is a confusing one — a screen that renders
 stale nonsense rather than an error. One jar makes the mismatch structurally impossible.

@@ -100,7 +100,38 @@ public final class Bestiary extends SavedData {
         }
         if (met.computeIfAbsent(player.getUUID(), k -> new LinkedHashSet<>()).add(genus)) {
             setDirty();
+            push(player);
         }
+    }
+
+    /**
+     * Tell a listening client, if there is one.
+     *
+     * <p>Guarded and lazy: assembling a dex walks the whole genus registry, and on a server where
+     * most players are vanilla that work would be done and thrown away on every kill. The payload is
+     * only built for someone who can actually receive it.
+     */
+    public void push(ServerPlayer player) {
+        com.sablednah.zombiemod.net.Net.sendIfAble(player,
+                com.sablednah.zombiemod.net.DexPayload.TYPE, () -> snapshot(player));
+    }
+
+    /** The whole roster with this player's progress against it. */
+    public com.sablednah.zombiemod.net.DexPayload snapshot(ServerPlayer player) {
+        var lookup = player.level().registryAccess()
+                .lookupOrThrow(com.sablednah.zombiemod.ZombieModRegistries.GENUS);
+        List<com.sablednah.zombiemod.net.DexPayload.Entry> rows = new ArrayList<>();
+        lookup.listElements().forEach(holder -> {
+            Identifier id = holder.key().identifier();
+            // Names are resolved here because the client has no genus registry to look them up in.
+            rows.add(new com.sablednah.zombiemod.net.DexPayload.Entry(id,
+                    holder.value().displayName().map(net.minecraft.network.chat.Component::getString)
+                            .orElse(id.getPath()),
+                    hasMet(player.getUUID(), id), killsOf(player.getUUID(), id)));
+        });
+        rows.sort(java.util.Comparator.comparing(
+                com.sablednah.zombiemod.net.DexPayload.Entry::name, String.CASE_INSENSITIVE_ORDER));
+        return new com.sablednah.zombiemod.net.DexPayload(rows);
     }
 
     /** Counts the kill, and marks it met - you cannot kill something you never met. */
@@ -114,6 +145,7 @@ public final class Bestiary extends SavedData {
         mine.merge(genus, 1, Integer::sum);
         setDirty();
         publish(player, genus, mine, firstOfThisGenus);
+        push(player);
     }
 
     // ------------------------------------------------------------------ reading

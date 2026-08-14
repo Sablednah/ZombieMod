@@ -101,6 +101,46 @@ neoforge/ZombieModEvents                    FinalizeSpawnEvent + EntityJoinLevel
   `FinalizeSpawnEvent`, roll among genera whose `base` matches the mob that vanilla was about to
   spawn. `weight: 0` opts a genus out of natural spawning entirely.
 
+### Testing with a genuinely vanilla client
+
+**Run this before shipping anything that touches networking.** The mod's promise is that a player
+does not need it installed, and exactly one class of bug breaks that promise silently on your machine
+and loudly on everyone else's.
+
+`PayloadRegistrar.optional()` makes the *handshake* tolerant so a vanilla client can connect. It does
+**not** make sends safe. `PacketDistributor.sendToPlayer` throws — synchronously, on the server
+thread — for a payload the receiver never negotiated:
+
+```
+Payload zombiemod:dex may not be sent to the client!
+```
+
+That propagates out of whatever handler you were in. From a login handler it takes vanilla's own
+login flow with it and the player is kicked with "Invalid player data": a cosmetic feature destroying
+the ability to join. **Optional ≠ droppable.** Every clientbound send goes through
+`Net.sendIfAble`, which checks `connection.hasChannel` first; expensive payloads are built inside the
+guard, not before it.
+
+It is not a negotiation race, either — channels are agreed during the configuration phase, before
+`PlayerLoggedInEvent`. A vanilla client simply never has the channel, at any point. Guard
+permanently; there is no later event that helps.
+
+The procedure (from the LegendQuest session, which found this the hard way on this NeoForge version):
+
+1. Dedicated dev server, `online-mode=false`, only this mod plus known-safe friends.
+2. Join from a genuinely unmodded launcher profile, **Direct Connect to `127.0.0.1`** — not
+   `localhost`, which Windows resolves IPv6-first while WSL2's relay only forwards IPv4.
+3. The kill window is the first second, because login-time sends fire immediately. Then exercise
+   *every* server→client path: login syncs, periodic syncs, and event-driven sends.
+4. Grep the server log for `may not be sent to the client` and `Couldn't place player in world`.
+   Silence plus a player who stays connected is a pass.
+5. Play the feature through its vanilla fallbacks — for ZombieDex that is `/zm bestiary`, the book
+   and the scoreboard — to confirm nothing else quietly assumed a modded client.
+
+Nothing was needed in `neoforge.mods.toml` for the connection itself: no `displayTest`, no `side`
+change. (Untested: how the server renders in the multiplayer *list* ping, since that test used Direct
+Connect.)
+
 ### Verifying changes headlessly
 
 `ServerStartedEvent` logs a genera summary permanently (`ZombieMod: 2 genera loaded - coward (5+0
