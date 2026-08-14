@@ -74,7 +74,22 @@ public record Infect(int interval, float chance, Holder<MobEffect> effect, int d
         if (mob.getRandom().nextFloat() >= chance) {
             return;
         }
-        mark(level, victim, effect, duration, genus, announce);
+        if (!mark(level, victim, effect, duration, genus, announce)) {
+            return;
+        }
+        // Having infected it, lose interest in it.
+        //
+        // skip_infected keeps an infected thing from being *chosen*, but a target already held is
+        // never re-tested: TargetGoal.canContinueToUse checks reach, line of sight and team and
+        // never consults the targeting conditions again. So the bite lands, the sheep is infected,
+        // and the biter finishes it off anyway - which is exactly the "it just kills them all" the
+        // flag was supposed to stop.
+        //
+        // Not for players. A zombie that wandered off mid-fight because it had bitten you once
+        // would be an exploit rather than a mechanic, and would read as broken besides.
+        if (!(victim instanceof Player) && mob.getTarget() == victim) {
+            mob.setTarget(null);
+        }
     }
 
     /**

@@ -67,6 +67,14 @@
       "type": "zombiemod:nearest_target",
       "priority": 2,
       "target": "player"
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 3,
+      "target": "zombie",
+      "genera": [
+        "zombiemod:bramble"
+      ]
     }
   ],
   "bounty": 6.0,

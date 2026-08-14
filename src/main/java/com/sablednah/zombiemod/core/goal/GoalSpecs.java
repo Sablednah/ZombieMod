@@ -247,7 +247,7 @@ public final class GoalSpecs {
      *                     an exploit, not a mechanic.
      */
     public record NearestTarget(int priority, Class<? extends LivingEntity> target, boolean mustSee,
-            int unseenMemory, boolean skipInfected) implements GoalSpec {
+            int unseenMemory, boolean skipInfected, java.util.List<Identifier> genera) implements GoalSpec {
 
         public static final Identifier TYPE = id("nearest_target");
 
@@ -258,7 +258,12 @@ public final class GoalSpecs {
                 com.mojang.serialization.Codec.INT.optionalFieldOf("unseen_memory", 60)
                         .forGetter(NearestTarget::unseenMemory),
                 com.mojang.serialization.Codec.BOOL.optionalFieldOf("skip_infected", false)
-                        .forGetter(NearestTarget::skipInfected))
+                        .forGetter(NearestTarget::skipInfected),
+                // Narrow a class down to particular genera. TargetClass can say "any zombie" and
+                // could never say "that zombie", so a grudge between two genera was not expressible
+                // at all - Bramble and Blight are the same base mob.
+                Identifier.CODEC.listOf().optionalFieldOf("genera", java.util.List.of())
+                        .forGetter(NearestTarget::genera))
                 .apply(i, NearestTarget::new));
 
         @Override
@@ -268,11 +273,26 @@ public final class GoalSpecs {
 
         @Override
         public Goal build(Mob mob) {
-            NearestAttackableTargetGoal<?> goal = skipInfected
-                    ? new NearestAttackableTargetGoal<>(mob, target, 10, mustSee, false,
-                            (candidate, level) -> com.sablednah.zombiemod.core.ability.Infect
-                                    .remaining(candidate, level.getGameTime()) < 0L)
-                    : new NearestAttackableTargetGoal<>(mob, target, mustSee);
+            // The same key GenusApplier writes; spelled out rather than imported because core does
+            // not depend on the loader half, exactly as Infect does it.
+            final String genusTag = "zombiemod:genus";
+            net.minecraft.world.entity.ai.targeting.TargetingConditions.Selector selector = null;
+            if (skipInfected || !genera.isEmpty()) {
+                selector = (candidate, level) -> {
+                    if (skipInfected && com.sablednah.zombiemod.core.ability.Infect
+                            .remaining(candidate, level.getGameTime()) >= 0L) {
+                        return false;
+                    }
+                    if (!genera.isEmpty()) {
+                        String has = candidate.getPersistentData().getString(genusTag).orElse(null);
+                        return has != null && genera.stream().anyMatch(g -> g.toString().equals(has));
+                    }
+                    return true;
+                };
+            }
+            NearestAttackableTargetGoal<?> goal = selector == null
+                    ? new NearestAttackableTargetGoal<>(mob, target, mustSee)
+                    : new NearestAttackableTargetGoal<>(mob, target, 10, mustSee, false, selector);
             // How long it holds a target it cannot see. Vanilla's 60 ticks is three seconds, which
             // is fine for a mob that walks round obstacles and exactly wrong for one that digs
             // through them: the moment the wall blocked line of sight it forgot why it was digging.

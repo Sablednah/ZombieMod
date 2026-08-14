@@ -1119,6 +1119,16 @@ anyone standing close nausea. Industrial and construction districts.
 Ground both have crossed visibly flickers between overgrown and blighted, and nothing coordinates
 that — it falls out of two genera wandering the same block.
 
+**And they hunt each other.** `nearest_target` takes a `genera` list, which narrows a target class
+down to particular genera — `TargetClass` can say "any zombie" and could never say "*that* zombie",
+so a grudge between two genera was not expressible at all, since Bramble and Blight are the same
+base mob:
+
+```json
+{ "type": "zombiemod:nearest_target", "priority": 3,
+  "target": "zombie", "genera": ["zombiemod:blight"] }
+```
+
 Bramble's placement goes through `EventHooks.canEntityGrief`, so a land claim vetoes it, and moss
 carpet was chosen over moss block deliberately: it is decorative, it needs no support removed, and it
 comes up with one punch.
@@ -1196,6 +1206,12 @@ became visible once a district genus was weighted heavily enough to win most of 
 Biter simply kills each sheep in three hits and they get straight back up, and the infection never
 gets to be the mechanic. With it, it moves on to fresh livestock and leaves a field of sick, curable
 animals behind it.
+
+That flag alone was not enough, and the reason is worth knowing: **a target already held is never
+re-tested.** `TargetGoal.canContinueToUse` checks reach, line of sight and team, and never consults
+the targeting conditions again — so the bite landed, the sheep became infected, and the Biter
+finished it off regardless. `infect` now clears the attacker's target the moment a bite takes, for
+any victim that is not a player. Having infected it, it moves on.
 
 Deliberately per-goal and **not** on the goal that targets players: "be bitten once and zombies
 ignore you" is an exploit, not a mechanic.

@@ -52,6 +52,8 @@ Last updated 2026-07-30.
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
+- **The Bramble/Blight feud.** Each targets only the other under a probe, with a Walker present as a
+  control and never picked — but nobody has watched them actually meet.
 - **`skip_infected` in play.** Proven both directions headlessly — flag off, the goal picked only
   infected targets; flag on, only clean ones, never once an infected one. What nobody has watched is
   a Biter actually crossing a field and leaving it sick rather than dead.
