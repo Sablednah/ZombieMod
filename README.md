@@ -1176,6 +1176,12 @@ chain stopped at one animal.
     milkCure = true
 ```
 
+**What rises is filtered by where it died.** The conversion draw applies the dying genus's spawn
+*conditions* — not its reasons, since the default reason set excludes `CONVERSION` on purpose — so a
+sheep dying in a wheat field cannot get up as a Commuter. It had to: without it, any genus with a
+district or a depth behind it could appear anywhere something happened to die, and the gap only
+became visible once a district genus was weighted heavily enough to win most of the draws.
+
 **Something has to bite the livestock first.** Biter carries the infection and now targets `animal`
 below `player` and `villager`, so it goes for a herd only when nobody better is about. Carrier hunts
 animals too but uses `convert`, which raises them on the spot — instant, and no chain. If you want a

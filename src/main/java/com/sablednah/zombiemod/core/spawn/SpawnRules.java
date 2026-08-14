@@ -49,6 +49,23 @@ public record SpawnRules(List<EntitySpawnReason> reasons, List<SpawnCondition> c
             SpawnCondition.CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(SpawnRules::conditions))
             .apply(i, SpawnRules::new));
 
+    /**
+     * Do this genus's positional conditions hold here, ignoring spawn reason?
+     *
+     * <p>For deciding what something <em>rises as</em> rather than what spawns. Reason cannot be
+     * consulted there: the default reason set deliberately excludes {@code CONVERSION}, so asking
+     * {@link #allows} would reject every genus and conversion would stop working entirely. What is
+     * wanted is only "could this thing plausibly be found here", which is exactly the conditions.
+     */
+    public boolean suitsPlace(Level level, BlockPos pos) {
+        for (SpawnCondition condition : conditions) {
+            if (!condition.test(level, pos)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public boolean allows(Level level, BlockPos pos, EntitySpawnReason reason) {
         if (!reasons.contains(reason)) {
             return false;

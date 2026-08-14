@@ -1,5 +1,7 @@
 package com.sablednah.zombiemod.neoforge;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import com.mojang.logging.LogUtils;
@@ -9,6 +11,7 @@ import com.sablednah.zombiemod.core.ability.Convert;
 
 import org.slf4j.Logger;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.resources.Identifier;
@@ -57,7 +60,7 @@ public final class Conversions {
 
         Optional<Holder.Reference<Genus>> chosen = convert.genus()
                 .flatMap(id -> lookup.get(ResourceKey.create(ZombieModRegistries.GENUS, id)))
-                .or(() -> weighted(lookup, risenType, level.getRandom()));
+                .or(() -> weighted(lookup, risenType, level.getRandom(), level, victim.blockPosition()));
 
         if (chosen.isEmpty()) {
             // No genus wants this shape. Better to leave a plain corpse than to raise something
@@ -118,7 +121,7 @@ public final class Conversions {
 
         Optional<Holder.Reference<Genus>> chosen = genusId
                 .flatMap(id -> lookup.get(ResourceKey.create(ZombieModRegistries.GENUS, id)))
-                .or(() -> weighted(lookup, risenType, level.getRandom()));
+                .or(() -> weighted(lookup, risenType, level.getRandom(), level, victim.blockPosition()));
         if (chosen.isEmpty()) {
             return;
         }
@@ -150,25 +153,40 @@ public final class Conversions {
         level.addFreshEntity(risen);
     }
 
-    /** Genera whose base matches the risen shape, drawn by weight. Weight 0 stays opt-in only. */
+    /**
+     * Genera whose base matches the risen shape, drawn by weight. Weight 0 stays opt-in only.
+     *
+     * <p><b>Filtered by where this is happening.</b> Without that, a sheep dying in a wheat field
+     * could get up as a Commuter — an office worker with a shovel, in a district it is not allowed
+     * to spawn in — and a genus with a district or a depth or a biome behind it would appear
+     * anywhere something happened to die. The natural spawner has always applied conditions; this
+     * path had not, and the gap only became obvious once a district genus was weighted heavily
+     * enough to win most of the draws.
+     *
+     * <p>Conditions only, not {@code allows}: the default reason set excludes {@code CONVERSION} on
+     * purpose, so asking the full question would reject everything.
+     */
     private static Optional<Holder.Reference<Genus>> weighted(
-            HolderLookup.RegistryLookup<Genus> lookup, EntityType<?> base, RandomSource random) {
+            HolderLookup.RegistryLookup<Genus> lookup, EntityType<?> base, RandomSource random,
+            ServerLevel level, BlockPos where) {
+        List<Holder.Reference<Genus>> eligible = new ArrayList<>();
         int total = 0;
         for (Holder.Reference<Genus> holder : lookup.listElements().toList()) {
-            if (holder.value().base() == base && holder.value().weight() > 0) {
-                total += holder.value().weight();
+            Genus genus = holder.value();
+            if (genus.base() != base || genus.weight() <= 0 || !genus.spawn().suitsPlace(level, where)) {
+                continue;
             }
+            eligible.add(holder);
+            total += genus.weight();
         }
         if (total <= 0) {
             return Optional.empty();
         }
         int roll = random.nextInt(total);
-        for (Holder.Reference<Genus> holder : lookup.listElements().toList()) {
-            if (holder.value().base() == base && holder.value().weight() > 0) {
-                roll -= holder.value().weight();
-                if (roll < 0) {
-                    return Optional.of(holder);
-                }
+        for (Holder.Reference<Genus> holder : eligible) {
+            roll -= holder.value().weight();
+            if (roll < 0) {
+                return Optional.of(holder);
             }
         }
         return Optional.empty();
