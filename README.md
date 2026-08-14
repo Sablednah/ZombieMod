@@ -560,13 +560,28 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**45 genera ship with the mod** — Runner, Walker, Tank, Clicker, Bloater, Stalker, Boomer, Smoker,
-Hunter, Charger, Spitter, Volatile, Crawler, Stormcaller, Breeder, Juggernaut, Coward, Swarmling,
-Ember, Frost, Bogman, Dust Stalker, Screamer, Rioter, Sapper, Ender Zombie, Weeping Zombie, Herobrine, Nightstalker, Patient Zero, The Butcher, Corpse, Breaker, Infester, Spitfire, Archer, Weaver, Zomborg, Ghost, Outrider, Big Breaker, Lazer, Howler, Carrier, Biter. They're ordinary datapack files, so override or delete any of
-them from a higher-priority datapack.
+**54 genera ship with the mod.** See [`docs/ROSTER.md`](docs/ROSTER.md) for the full list, what each
+one is, and which feature it demonstrates.
 
-See [`docs/ROSTER.md`](docs/ROSTER.md) for what each one is and which feature it demonstrates, and
-[`docs/TROPES.md`](docs/TROPES.md) for what's still missing from the genre.
+### Turning one off
+
+They are ordinary datapack files, so a higher-priority datapack overrides or removes any of them.
+The usual want is not deletion but *quiet*:
+
+```json
+{ "name": "Blight", "base": "minecraft:zombie", "weight": 0 }
+```
+
+`weight: 0` keeps a genus available to `/zombiemod spawn`, spawners and rituals while stopping it
+ever claiming a natural spawn. Deleting the file removes it outright, which also breaks anything
+naming it — a mutation target, a horde wave, a conversion.
+
+Worth knowing for the one most likely to surprise someone: **Blight eats greenery, including vines,
+moss, glow lichen and leaf litter on player builds.** That is the genus working, and it goes through
+`EventHooks.canEntityGrief`, so a land claim stops it and `noGriefingInClaims` is on by default. On
+unprotected ground it will strip your ivy.
+
+[`docs/TROPES.md`](docs/TROPES.md) covers what's still missing from the genre.
 
 ## Bosses
 
