@@ -41,6 +41,31 @@ public interface Ability {
     void run(ServerLevel level, Mob mob);
 
     /**
+     * A sentence for the bestiary, written from this ability's own fields.
+     *
+     * <p>An ability knows things a lookup table never can — which effect, which particle, how far,
+     * at whom — so "applies a potion effect to itself or whoever is near" becomes "applies Nausea to
+     * anyone within 4 blocks". The record is the only place that information lives, so it is the
+     * only place that can say it.
+     *
+     * <p>Empty falls back to a generic line in {@code DexEntry}, so an ability that has not bothered
+     * still reads as something rather than as a gap.
+     */
+    default String describe() {
+        return "";
+    }
+
+    /**
+     * The name to show above {@link #describe}, if the plain id is not specific enough.
+     *
+     * <p>Two effect abilities on one genus both listed as "effect" tells a reader nothing; "Effect
+     * (Nausea)" and "Effect (Regeneration)" tell them everything.
+     */
+    default String label() {
+        return "";
+    }
+
+    /**
      * Per-mob state, for abilities that build up over several ticks rather than firing and
      * finishing — a fuse burning down, a wind-up before a leap.
      *

@@ -52,42 +52,38 @@ public final class DexEntry {
         return rows;
     }
 
-    /** What it does, by ability id. The id is the honest name — a genus is data, not prose. */
-    public static List<String> abilities(Genus genus) {
-        List<String> out = new ArrayList<>();
+    /**
+     * What it does, in its own words.
+     *
+     * <p>Each ability writes its own sentence from its own fields, so "applies a potion effect" can
+     * be "Applies Nausea to players nearby within 4 blocks for 6s". The fallback table below only
+     * covers abilities that have not written one yet — it can say what the ability <em>is</em> and
+     * never what this genus's copy of it does.
+     */
+    public static List<Row> abilities(Genus genus) {
+        List<Row> rows = new ArrayList<>();
         for (var ability : genus.abilities()) {
-            String path = ability.type().getPath();
-            if (!out.contains(path)) {
-                out.add(path);
+            String id = ability.type().getPath();
+            String label = ability.label().isEmpty() ? pretty(id) : ability.label();
+            String detail = ability.describe().isEmpty() ? generic(id) : ability.describe();
+            if (rows.stream().noneMatch(r -> r.label().equals(label))) {
+                rows.add(new Row(label, detail));
             }
         }
-        return out;
+        return rows;
     }
 
-    /** One line of human explanation per ability, so the list is not just jargon. */
-    public static String explain(String ability) {
+    private static String pretty(String id) {
+        String t = id.replace('_', ' ');
+        return t.isEmpty() ? t : Character.toUpperCase(t.charAt(0)) + t.substring(1);
+    }
+
+    /** Last resort, for an ability with no {@code describe()} of its own. */
+    private static String generic(String ability) {
         return switch (ability) {
-            case "adapt" -> "Learns what hurt it and stops taking as much from that.";
-            case "alert" -> "Calls the others to whatever it has found.";
-            case "beam" -> "Fires a guardian's beam.";
-            case "break_blocks" -> "Breaks its way through, or simply breaks what it walks past.";
-            case "effect" -> "Applies a potion effect, to itself or to whoever is near.";
-            case "explode" -> "Detonates.";
-            case "fuse" -> "Counts down, then detonates.";
-            case "heal" -> "Closes its own wounds.";
             case "infect" -> "A bite that takes hold later, whatever finally kills you. Milk cures it.";
-            case "leap" -> "Jumps at you.";
-            case "lightning" -> "Calls down a bolt.";
-            case "particles" -> "Trails something visible.";
-            case "place_block" -> "Leaves blocks behind it.";
-            case "projectile" -> "Throws or fires something.";
-            case "pull" -> "Drags you towards it.";
-            case "ray" -> "A hitscan line, with an audible wind-up you can break.";
-            case "shockwave" -> "Knocks everything nearby away from it.";
-            case "sound" -> "Makes noise.";
-            case "summon" -> "Brings more.";
-            case "teleport" -> "Moves without crossing the ground between.";
             case "convert" -> "What it kills gets back up as one of them.";
+            case "break_blocks" -> "Breaks its way through.";
             default -> "";
         };
     }
@@ -102,14 +98,13 @@ public final class DexEntry {
             out.add(Component.literal(" " + r.label() + ": ").withStyle(ChatFormatting.DARK_GRAY)
                     .append(Component.literal(r.detail()).withStyle(ChatFormatting.WHITE)));
         }
-        List<String> abilities = abilities(genus);
+        List<Row> abilities = abilities(genus);
         if (!abilities.isEmpty()) {
             out.add(Component.literal(" Abilities").withStyle(ChatFormatting.DARK_GRAY));
-            for (String a : abilities) {
-                MutableComponent line = Component.literal("  " + a).withStyle(ChatFormatting.YELLOW);
-                String why = explain(a);
-                if (!why.isEmpty()) {
-                    line.append(Component.literal(" - " + why).withStyle(ChatFormatting.GRAY));
+            for (Row a : abilities) {
+                MutableComponent line = Component.literal("  " + a.label()).withStyle(ChatFormatting.YELLOW);
+                if (!a.detail().isEmpty()) {
+                    line.append(Component.literal(" - " + a.detail()).withStyle(ChatFormatting.GRAY));
                 }
                 out.add(line);
             }

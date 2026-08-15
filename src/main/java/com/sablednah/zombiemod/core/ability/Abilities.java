@@ -102,6 +102,20 @@ public final class Abilities {
         }
 
         @Override
+        public String label() {
+            return "Effect (" + pretty(BuiltInRegistries.MOB_EFFECT.getKey(effect.value())) + ")";
+        }
+
+        @Override
+        public String describe() {
+            String name = pretty(BuiltInRegistries.MOB_EFFECT.getKey(effect.value()));
+            String reach = target == Target.NEARBY_PLAYERS ? " within " + trim(radius) + " blocks" : "";
+            return "Applies " + name + (amplifier > 0 ? " " + (amplifier + 1) : "")
+                    + " to " + who(target) + reach + " for " + seconds(duration) + ".";
+        }
+
+
+        @Override
         public void run(ServerLevel level, Mob mob) {
             for (LivingEntity victim : Targets.of(target, level, mob, radius)) {
                 victim.addEffect(new MobEffectInstance(effect, duration, amplifier));
@@ -124,6 +138,12 @@ public final class Abilities {
         public Identifier type() {
             return TYPE;
         }
+
+        @Override
+        public String describe() {
+            return "Closes its own wounds, " + trim(amount) + " health at a time.";
+        }
+
 
         @Override
         public void run(ServerLevel level, Mob mob) {
@@ -153,6 +173,14 @@ public final class Abilities {
         public Identifier type() {
             return TYPE;
         }
+
+        @Override
+        public String describe() {
+            return visualOnly
+                    ? "Calls down lightning that flashes but does not burn."
+                    : "Calls down real lightning on " + who(target) + ".";
+        }
+
 
         @Override
         public void run(ServerLevel level, Mob mob) {
@@ -194,6 +222,14 @@ public final class Abilities {
         public Identifier type() {
             return TYPE;
         }
+
+        @Override
+        public String describe() {
+            return "Detonates with power " + trim(power)
+                    + (destroyBlocks ? ", breaking blocks" : ", leaving the ground intact")
+                    + (killsSelf ? ". It does not survive it." : ". It survives.");
+        }
+
 
         @Override
         public void run(ServerLevel level, Mob mob) {
@@ -248,6 +284,13 @@ public final class Abilities {
         public Identifier type() {
             return TYPE;
         }
+
+        @Override
+        public String describe() {
+            return "Swells and counts down " + seconds(fuseTicks) + " once you are within "
+                    + trim(triggerRadius) + " blocks.";
+        }
+
 
         /** Never called — this ability is stateful. */
         @Override
@@ -340,6 +383,13 @@ public final class Abilities {
         }
 
         @Override
+        public String describe() {
+            return "Slams the ground, throwing back everything within " + trim(radius) + " blocks"
+                    + (damage > 0 ? " for " + trim(damage) + " damage." : ".");
+        }
+
+
+        @Override
         public void run(ServerLevel level, Mob mob) {
             List<LivingEntity> victims = Targets.nearbyPlayers(level, mob, radius);
             if (victims.isEmpty()) {
@@ -379,6 +429,12 @@ public final class Abilities {
         public Identifier type() {
             return TYPE;
         }
+
+        @Override
+        public String describe() {
+            return "Jumps at you from up to " + trim(range) + " blocks away.";
+        }
+
 
         @Override
         public void run(ServerLevel level, Mob mob) {
@@ -421,6 +477,14 @@ public final class Abilities {
         public Identifier type() {
             return TYPE;
         }
+
+        @Override
+        public String describe() {
+            return "Calls up " + count + " "
+                    + pretty(BuiltInRegistries.ENTITY_TYPE.getKey(entity)).toLowerCase()
+                    + (count == 1 ? "" : "s") + ", up to " + maxNearby + " at once.";
+        }
+
 
         @Override
         public void run(ServerLevel level, Mob mob) {
@@ -475,6 +539,12 @@ public final class Abilities {
         }
 
         @Override
+        public String describe() {
+            return "Screams, and everything within " + trim(radius) + " blocks comes to look.";
+        }
+
+
+        @Override
         public void run(ServerLevel level, Mob mob) {
             LivingEntity victim = mob.getTarget();
             if (victim == null || !victim.isAlive()) {
@@ -515,6 +585,12 @@ public final class Abilities {
         public Identifier type() {
             return TYPE;
         }
+
+        @Override
+        public String describe() {
+            return "Drags you towards it from up to " + trim(range) + " blocks away.";
+        }
+
 
         @Override
         public void run(ServerLevel level, Mob mob) {
@@ -573,6 +649,16 @@ public final class Abilities {
         public Identifier type() {
             return TYPE;
         }
+
+        @Override
+        public String describe() {
+            return switch (mode) {
+                case BEHIND -> "Vanishes and reappears behind you.";
+                case TOWARD -> "Closes the distance without crossing it.";
+                case AWAY -> "Blinks away, up to " + trim(range) + " blocks.";
+            };
+        }
+
 
         @Override
         public void run(ServerLevel level, Mob mob) {
@@ -699,6 +785,14 @@ public final class Abilities {
         }
 
         @Override
+        public String describe() {
+            return needsTarget
+                    ? "Digs through whatever is between it and you."
+                    : "Destroys what it walks over, whether or not anything has provoked it.";
+        }
+
+
+        @Override
         public void run(ServerLevel level, Mob mob) {
             if (!canGrief(level, mob)) {
                 return;
@@ -778,6 +872,18 @@ public final class Abilities {
         }
 
         @Override
+        public String label() {
+            return "Projectile (" + pretty(BuiltInRegistries.ENTITY_TYPE.getKey(projectile)) + ")";
+        }
+
+        @Override
+        public String describe() {
+            return "Throws " + pretty(BuiltInRegistries.ENTITY_TYPE.getKey(projectile)).toLowerCase()
+                    + " at you from up to " + trim(range) + " blocks.";
+        }
+
+
+        @Override
         public void run(ServerLevel level, Mob mob) {
             LivingEntity victim = mob.getTarget();
             if (victim == null || !victim.isAlive() || victim.distanceToSqr(mob) > range * range
@@ -825,6 +931,18 @@ public final class Abilities {
         }
 
         @Override
+        public String label() {
+            return "Place block (" + pretty(BuiltInRegistries.BLOCK.getKey(block)) + ")";
+        }
+
+        @Override
+        public String describe() {
+            return "Leaves " + pretty(BuiltInRegistries.BLOCK.getKey(block)).toLowerCase()
+                    + " behind it.";
+        }
+
+
+        @Override
         public void run(ServerLevel level, Mob mob) {
             if (!canGrief(level, mob)) {
                 return;
@@ -863,6 +981,13 @@ public final class Abilities {
         public Identifier type() {
             return TYPE;
         }
+
+        @Override
+        public String describe() {
+            return "Learns what hurt it and takes " + Math.round(resistance * 100) + "% less of it,"
+                    + " up to " + maxAdaptations + " kinds of damage.";
+        }
+
 
         /** Nothing on a timer; this ability is entirely reactive. */
         @Override
@@ -925,6 +1050,12 @@ public final class Abilities {
         public Identifier type() {
             return TYPE;
         }
+
+        @Override
+        public String describe() {
+            return "Fixes a guardian's beam on you at up to " + trim(range) + " blocks.";
+        }
+
 
         /** Never called - stateful. */
         @Override
@@ -1067,6 +1198,13 @@ public final class Abilities {
         public Identifier type() {
             return TYPE;
         }
+
+        @Override
+        public String describe() {
+            return "Fires a line of particles up to " + trim(range) + " blocks for " + trim(damage)
+                    + " damage, after an audible wind-up you can interrupt.";
+        }
+
 
         /** Never called - stateful, because a charge is several ticks long. */
         @Override
@@ -1220,6 +1358,18 @@ public final class Abilities {
         }
 
         @Override
+        public String label() {
+            return "Particles (" + pretty(BuiltInRegistries.PARTICLE_TYPE.getKey(particle.getType())) + ")";
+        }
+
+        @Override
+        public String describe() {
+            return "Trails " + pretty(BuiltInRegistries.PARTICLE_TYPE.getKey(particle.getType())).toLowerCase()
+                    + " as it goes.";
+        }
+
+
+        @Override
         public void run(ServerLevel level, Mob mob) {
             level.sendParticles(particle, mob.getX(), mob.getY() + mob.getBbHeight() * 0.6D, mob.getZ(),
                     count, spread, spread, spread, 0.02D);
@@ -1246,10 +1396,39 @@ public final class Abilities {
         }
 
         @Override
+        public String describe() {
+            return "Makes noise.";
+        }
+
+
+        @Override
         public void run(ServerLevel level, Mob mob) {
             level.playSound(null, mob.getX(), mob.getY(), mob.getZ(), sound.value(),
                     SoundSource.HOSTILE, volume, pitch);
         }
+    }
+
+    /** "minecraft:nausea" -> "Nausea". Ids are honest and unreadable; a bestiary wants the name. */
+    static String pretty(Identifier id) {
+        String path = id.getPath().replace('_', ' ');
+        return path.isEmpty() ? path : Character.toUpperCase(path.charAt(0)) + path.substring(1);
+    }
+
+    static String who(Target target) {
+        return switch (target) {
+            case SELF -> "itself";
+            case VICTIM -> "whoever it hits";
+            case NEARBY_PLAYERS -> "players nearby";
+        };
+    }
+
+    static String seconds(int ticks) {
+        double s = ticks / 20.0D;
+        return (s == Math.floor(s) ? String.valueOf((long) s) : String.valueOf(s)) + "s";
+    }
+
+    static String trim(double v) {
+        return v == Math.floor(v) ? String.valueOf((long) v) : String.valueOf(v);
     }
 
     private Abilities() {}

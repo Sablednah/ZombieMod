@@ -31,6 +31,23 @@ public final class DexScreen extends Screen {
     private final java.util.List<int[]> hitboxes = new java.util.ArrayList<>();
     private final java.util.List<DexPayload.Entry> visible = new java.util.ArrayList<>();
 
+    /**
+     * The page itself: a dark plate with a lighter edge, translucent enough to keep the world
+     * behind it. Shared with {@link DexInfoScreen} so the two read as one book rather than two
+     * screens that happen to follow each other.
+     */
+    static void panel(GuiGraphics gfx, int width, int height) {
+        int x0 = Math.max(8, width / 2 - 210);
+        int x1 = Math.min(width - 8, width / 2 + 210);
+        int y0 = 8;
+        int y1 = height - 8;
+        gfx.fill(x0, y0, x1, y1, 0xC0080808);
+        gfx.fill(x0, y0, x1, y0 + 1, 0x40FFFFFF);
+        gfx.fill(x0, y1 - 1, x1, y1, 0x40FFFFFF);
+        gfx.fill(x0, y0, x0 + 1, y1, 0x40FFFFFF);
+        gfx.fill(x1 - 1, y0, x1, y1, 0x40FFFFFF);
+    }
+
     public DexScreen() {
         super(Component.literal("ZombieDex"));
     }
@@ -43,6 +60,7 @@ public final class DexScreen extends Screen {
     @Override
     public void render(GuiGraphics gfx, int mouseX, int mouseY, float partial) {
         super.render(gfx, mouseX, mouseY, partial);
+        panel(gfx, width, height);
         var entries = DexState.entries();
 
         gfx.drawCenteredString(font, Component.literal("ZombieDex").withStyle(ChatFormatting.GOLD),

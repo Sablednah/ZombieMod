@@ -1340,6 +1340,19 @@ modded client the same thing is a page: click any name you have met, with a back
 abilities expand when you click them. There is a live model of the genus on the page, dressed in its
 own colours and equipment, following your cursor the way the inventory doll does.
 
+**Abilities describe themselves.** Each one writes its own sentence from its own fields, because the
+record is the only place that knows which effect, which particle, how far and at whom:
+
+```
+Effect (Nausea)            Applies Nausea to players nearby within 4 blocks for 6s.
+Fuse                       Swells and counts down 1.75s once you are within 3 blocks.
+Place block (Moss carpet)  Leaves moss carpet behind it.
+```
+
+A lookup table keyed on the ability id could only ever say what the ability *is*, never what this
+genus's copy of it does. There is a generic fallback for anything that has not written one, so a new
+ability reads as something rather than as a gap — currently unused across all 89 rows on the roster.
+
 **Both come from one definition.** `core/DexEntry` returns the write-up as rows of facts; chat draws
 them as lines and the screen draws them as a page. Two presentations, one source — the only way the
 two keep saying the same thing as the roster grows.

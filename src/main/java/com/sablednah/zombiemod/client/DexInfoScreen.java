@@ -2,6 +2,8 @@ package com.sablednah.zombiemod.client;
 
 import java.util.List;
 
+import com.sablednah.zombiemod.core.DexEntry.Row;
+
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.core.DexEntry;
 import com.sablednah.zombiemod.core.Genus;
@@ -68,6 +70,7 @@ public final class DexInfoScreen extends Screen {
     public void render(GuiGraphics gfx, int mouseX, int mouseY, float partial) {
         super.render(gfx, mouseX, mouseY, partial);
 
+        DexScreen.panel(gfx, width, height);
         gfx.drawCenteredString(font, Component.literal(displayName).withStyle(ChatFormatting.GOLD),
                 width / 2, 14, WHITE);
 
@@ -99,7 +102,7 @@ public final class DexInfoScreen extends Screen {
             y += 10;
         }
 
-        List<String> abilities = DexEntry.abilities(genus);
+        List<Row> abilities = DexEntry.abilities(genus);
         if (!abilities.isEmpty()) {
             y += 4;
             gfx.drawString(font, Component.literal("Abilities").withStyle(ChatFormatting.DARK_GRAY),
@@ -109,13 +112,14 @@ public final class DexInfoScreen extends Screen {
             for (int i = 0; i < abilities.size(); i++) {
                 boolean hovered = mouseX >= left && mouseX <= left + 120
                         && mouseY >= y && mouseY < y + 10;
-                gfx.drawString(font, Component.literal((selectedAbility == i ? "- " : "+ ") + abilities.get(i))
+                gfx.drawString(font, Component.literal(
+                                (selectedAbility == i ? "- " : "+ ") + abilities.get(i).label())
                         .withStyle(hovered || selectedAbility == i
                                 ? ChatFormatting.YELLOW : ChatFormatting.GOLD),
                         left, y, WHITE, false);
                 y += 10;
                 if (selectedAbility == i) {
-                    String why = DexEntry.explain(abilities.get(i));
+                    String why = abilities.get(i).detail();
                     if (!why.isEmpty()) {
                         for (var seq : font.split(Component.literal(why)
                                 .withStyle(ChatFormatting.GRAY), 190)) {
@@ -129,11 +133,14 @@ public final class DexInfoScreen extends Screen {
 
         // The mannequin, on the right, watching the cursor exactly as the inventory doll does.
         if (preview != null) {
-            int px = width - 90;
-            int py = height / 2 + 40;
-            InventoryScreen.renderEntityInInventoryFollowsMouse(gfx, px - 40, py - 110, px + 40, py,
-                    Math.max(14, (int) (40 / Math.max(1.0, genus.scale()))),
-                    0.0625F, mouseX, mouseY, preview);
+            // Half again as large as the inventory doll, and scaled down only for genera that are
+            // themselves oversized, so a Tank still fits the frame it shares with a Swarmling.
+            int px = width - 110;
+            int py = height / 2 + 70;
+            int size = Math.max(20, (int) (62 / Math.max(1.0, genus.scale())));
+            gfx.fill(px - 62, py - 168, px + 62, py + 8, 0x30000000);
+            InventoryScreen.renderEntityInInventoryFollowsMouse(gfx, px - 60, py - 166, px + 60, py + 6,
+                    size, 0.0625F, mouseX, mouseY, preview);
         }
     }
 
@@ -151,7 +158,7 @@ public final class DexInfoScreen extends Screen {
         if (holder == null || abilityTop < 0) {
             return false;
         }
-        List<String> abilities = DexEntry.abilities(holder.value());
+        List<Row> abilities = DexEntry.abilities(holder.value());
         int left = Math.max(12, width / 2 - 170);
         if (mouseX < left || mouseX > left + 120) {
             return false;
@@ -166,7 +173,7 @@ public final class DexInfoScreen extends Screen {
             }
             y += 10;
             if (selectedAbility == i) {
-                String why = DexEntry.explain(abilities.get(i));
+                String why = abilities.get(i).detail();
                 if (!why.isEmpty()) {
                     y += font.split(Component.literal(why), 190).size() * 10;
                 }

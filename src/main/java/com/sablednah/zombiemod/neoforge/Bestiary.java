@@ -87,6 +87,10 @@ public final class Bestiary extends SavedData {
         return out;
     }
 
+    private static String stripCodes(String name) {
+        return name.replaceAll("(?i)[&\u00a7][0-9a-fk-or]", "");
+    }
+
     public static Bestiary get(ServerLevel level) {
         return level.getServer().overworld().getDataStorage().computeIfAbsent(TYPE);
     }
@@ -125,8 +129,10 @@ public final class Bestiary extends SavedData {
             Identifier id = holder.key().identifier();
             // Names are resolved here because the client has no genus registry to look them up in.
             rows.add(new com.sablednah.zombiemod.net.DexPayload.Entry(id,
-                    holder.value().displayName().map(net.minecraft.network.chat.Component::getString)
-                            .orElse(id.getPath()),
+                    // Plain text. displayName() renders the genus's own colour codes, and in the
+                    // dex those would override the grey/green that says whether you have met it -
+                    // decoration beating information.
+                    stripCodes(holder.value().name().orElse(id.getPath())),
                     hasMet(player.getUUID(), id), killsOf(player.getUUID(), id)));
         });
         rows.sort(java.util.Comparator.comparing(
