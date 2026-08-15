@@ -57,9 +57,10 @@ Last updated 2026-08-15.
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
-- **`sound_target` in play.** The policy is proven (all four poses at their exact radii, through the
-  real goal), and the probe caught `isCrouching` lagging `isShiftKeyDown` before it shipped. What
-  nobody has done is sneak past a real Clicker in the dark, which is the entire point of it.
+- **`sound_target` in play.** Both halves proven headlessly: all four movement poses at their exact
+  radii, and real game events through the real dispatch path — mining heard at 30 blocks, a door not
+  heard at 30 but heard at 8, and a remote noise betraying nobody. What nobody has done is sneak
+  past a real Clicker in the dark and then mine a block next to it, which is the entire point.
 - **The dex batch.** Drops enumeration is proven for all 16 tables; the mirror-Ghost, true-scale
   dolls, play chips and drop icons are client rendering, provable only by eye.
 - **The dex info page.** All 54 descriptions load, the write-up renders, and the gate was proven in

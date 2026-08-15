@@ -38,9 +38,10 @@ public final class DexPreview {
     /** Null when the genus's base is not something that can be drawn as a living thing. */
     public static LivingEntity of(Identifier id, Holder.Reference<Genus> holder) {
         LivingEntity cached = CACHE.get(id);
-        // The Ghost's page is a mirror: your face, your gear, refreshed every look because your
-        // gear changes. The face is set once at build; the kit is cheap to re-copy.
-        if (cached != null && holder.value().ghost()) {
+        // The Corpse's page is the mirror - you, dead: your face, your current gear, refreshed
+        // every look because your gear changes. The Ghost keeps only your face; the rest of it is
+        // its own pale chestplate over an invisible body, exactly as it walks the world.
+        if (cached != null && isCorpse(id)) {
             copyViewerGear(cached);
         }
         // A cached doll belongs to the level it was built in. After a rejoin or a dimension change
@@ -50,7 +51,7 @@ public final class DexPreview {
             return cached;
         }
         CACHE.remove(id);
-        LivingEntity fresh = build(holder.value());
+        LivingEntity fresh = build(id, holder.value());
         if (fresh != null) {
             CACHE.put(id, fresh);
         }
@@ -62,7 +63,13 @@ public final class DexPreview {
         CACHE.clear();
     }
 
-    private static LivingEntity build(Genus genus) {
+    /** The player-corpse genus wears the viewer; identified by id since the client cannot read
+     * the server config that names it. A renamed corpse genus loses the mirror, nothing more. */
+    private static boolean isCorpse(Identifier id) {
+        return id.getNamespace().equals("zombiemod") && id.getPath().equals("player_zombie");
+    }
+
+    private static LivingEntity build(Identifier id, Genus genus) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) {
             return null;
@@ -96,13 +103,21 @@ public final class DexPreview {
         });
         genus.equipment().forEach((slot, stack) -> living.setItemSlot(slot, stack.copy()));
 
-        if (genus.ghost() && Minecraft.getInstance().player != null) {
+        if ((genus.ghost() || isCorpse(id)) && Minecraft.getInstance().player != null) {
             ItemStack face = new ItemStack(Items.PLAYER_HEAD);
             face.set(DataComponents.PROFILE,
                     net.minecraft.world.item.component.ResolvableProfile.createResolved(
                             Minecraft.getInstance().player.getGameProfile()));
             living.setItemSlot(EquipmentSlot.HEAD, face);
+        }
+        if (isCorpse(id)) {
             copyViewerGear(living);
+        }
+        if (genus.ghost()) {
+            // The one doll that IS shown invisible: a floating face over a pale chestplate is what
+            // a Ghost actually looks like, and the plate should tell the truth. Safe on a doll -
+            // it never ticks, so vanilla's effects pass never stomps the flag.
+            living.setInvisible(true);
         }
 
         if (living instanceof Mob mob) {

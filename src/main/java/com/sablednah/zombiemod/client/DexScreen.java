@@ -40,7 +40,7 @@ public final class DexScreen extends Screen {
 
     private static final int LIST_W = 112;
     private static final int HEADER_H = 26;
-    private static final int DOLL_W = 84;
+    private static final int DOLL_W = 108;
 
     // The tome palette, shared with the LegendQuest handbook by copying, not by dependency.
     private static final int PARCHMENT_TOP = 0xF81E1610;
@@ -70,7 +70,7 @@ public final class DexScreen extends Screen {
     // --- layout ---
 
     private int bookW() {
-        return Math.min(420, width - 16);
+        return Math.min(440, width - 16);
     }
 
     private int bookH() {
@@ -135,9 +135,8 @@ public final class DexScreen extends Screen {
         g.fillGradient(x, y, x + w, y + h, PARCHMENT_TOP, PARCHMENT_BOTTOM);
         frame(g, x - 2, y - 2, x + w + 2, y + h + 2, BRONZE, 2);
         frame(g, x + 2, y + 2, x + w - 2, y + h - 2, GOLD_DIM, 1);
-        // Top stars sit inboard of the chips, which own the actual corners on this row.
-        g.drawString(font, "§6✦", x + 26, y + 8, 0xFFFFFFFF);
-        g.drawString(font, "§6✦", x + w - 34, y + 8, 0xFFFFFFFF);
+        g.drawString(font, "§6✦", x + 4, y + 8, 0xFFFFFFFF);
+        g.drawString(font, "§6✦", x + w - 12, y + 8, 0xFFFFFFFF);
         g.drawString(font, "§6✦", x + 4, y + h - 13, 0xFFFFFFFF);
         g.drawString(font, "§6✦", x + w - 12, y + h - 13, 0xFFFFFFFF);
 
@@ -148,8 +147,8 @@ public final class DexScreen extends Screen {
         g.drawString(font, "§8── ✦ ──", titleX - 42, y + 7, 0xFFFFFFFF);
         g.drawString(font, title, titleX, y + 6, 0xFFFFFFFF);
         g.drawString(font, "§8── ✦ ──", titleX + titleW + 2, y + 7, 0xFFFFFFFF);
-        chip(g, x + 8, y + 5, 14, "«", selectedId != null, mouseX, mouseY, () -> select(null));
-        chip(g, x + w - 22, y + 5, 14, "✕", true, mouseX, mouseY, this::onClose);
+        chip(g, x + 15, y + 5, 14, "«", selectedId != null, mouseX, mouseY, () -> select(null));
+        chip(g, x + w - 29, y + 5, 14, "✕", true, mouseX, mouseY, this::onClose);
 
         // Divider with the centre ornament.
         int divY = y + HEADER_H - 6;
@@ -388,19 +387,20 @@ public final class DexScreen extends Screen {
         // cannot be half-clipped, fixed while the text scrolls - a manuscript's margin figure.
         int dx1 = paneX() + paneW() - 2;
         int dx0 = dx1 - DOLL_W + 6;
-        int dh = Math.min(190, ph - 4);
+        int dh = Math.min(140, ph - 4);
         int dy0 = py + (ph - dh) / 2;
         int dy1 = dy0 + dh;
         g.fill(dx0, dy0, dx1, dy1, 0x40000000);
         frame(g, dx0, dy0, dx1, dy1, GOLD_DIM, 1);
         LivingEntity doll = DexPreview.of(current.genus(), holder);
         if (doll != null) {
-            // A constant, NOT divided by the genus's scale: the SCALE attribute reaches the
-            // renderer, so one fixed pixels-per-block figure shows every genus at its true relative
-            // size - the point of the plate. 30px/block keeps a 2.2x Tank (~4.3 blocks) inside a
-            // 190px frame with headroom.
+            // MULTIPLIED by the genus's scale, on purpose: renderEntityInInventoryFollowsAngle
+            // explicitly normalises the render state's scale back to 1 (so a Scale-effect player
+            // doesn't overflow the inventory doll) - which silently erased every genus's size.
+            // Reinstating it in the size parameter is the only lever the helper leaves us.
+            int size = Math.max(16, (int) (30 * genus.scale()));
             InventoryScreen.renderEntityInInventoryFollowsMouse(g, dx0 + 2, dy0 + 2, dx1 - 2, dy1 - 2,
-                    30, 0.0625F, mouseX, mouseY, doll);
+                    size, 0.0625F, mouseX, mouseY, doll);
         }
     }
 

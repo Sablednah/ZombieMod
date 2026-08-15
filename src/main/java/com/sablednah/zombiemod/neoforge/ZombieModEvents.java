@@ -406,6 +406,80 @@ public final class ZombieModEvents {
         event.setCanceled(true);
     }
 
+    /** Noises the ears care about, split by how far they carry. Built from the GameEvent registry
+     * keys once, so a typo is a startup crash rather than a silent deaf spot. */
+    private static final java.util.Set<net.minecraft.resources.Identifier> LOUD_NOISES =
+            noiseIds(net.minecraft.world.level.gameevent.GameEvent.BLOCK_DESTROY,
+                    net.minecraft.world.level.gameevent.GameEvent.BLOCK_PLACE,
+                    net.minecraft.world.level.gameevent.GameEvent.EXPLODE,
+                    net.minecraft.world.level.gameevent.GameEvent.PRIME_FUSE,
+                    net.minecraft.world.level.gameevent.GameEvent.HIT_GROUND,
+                    net.minecraft.world.level.gameevent.GameEvent.INSTRUMENT_PLAY);
+    private static final java.util.Set<net.minecraft.resources.Identifier> QUIET_NOISES =
+            noiseIds(net.minecraft.world.level.gameevent.GameEvent.BLOCK_OPEN,
+                    net.minecraft.world.level.gameevent.GameEvent.BLOCK_CLOSE,
+                    net.minecraft.world.level.gameevent.GameEvent.BLOCK_ACTIVATE,
+                    net.minecraft.world.level.gameevent.GameEvent.PROJECTILE_SHOOT,
+                    net.minecraft.world.level.gameevent.GameEvent.SPLASH,
+                    net.minecraft.world.level.gameevent.GameEvent.EAT,
+                    net.minecraft.world.level.gameevent.GameEvent.DRINK,
+                    net.minecraft.world.level.gameevent.GameEvent.EQUIP,
+                    net.minecraft.world.level.gameevent.GameEvent.ITEM_INTERACT_FINISH);
+
+    @SafeVarargs
+    private static java.util.Set<net.minecraft.resources.Identifier> noiseIds(
+            net.minecraft.core.Holder<net.minecraft.world.level.gameevent.GameEvent>... events) {
+        java.util.Set<net.minecraft.resources.Identifier> out = new java.util.HashSet<>();
+        for (var event : events) {
+            out.add(event.unwrapKey().orElseThrow().identifier());
+        }
+        return out;
+    }
+
+    /**
+     * Real noises for anything with ears.
+     *
+     * <p>The movement model in {@code SoundTargetGoal} hears how loudly you are walking; this hook
+     * hears what you <em>do</em> - mine a block, open a door, land from a fall - via the same
+     * vibration events sculk listens to. One global subscriber rather than a Warden-style listener
+     * per mob, because a vanilla zombie cannot override the listener registration hooks and vanilla
+     * mobs are the whole mod.
+     *
+     * <p>The noise only betrays the player if the player is <em>at</em> it: an arrow landing across
+     * the valley says where the arrow is, not where you are. (Walking to investigate a remote noise
+     * would be the honest response, and is future work, not a lie worth telling meanwhile.)
+     */
+    @SubscribeEvent
+    public void onNoise(net.neoforged.neoforge.event.VanillaGameEvent event) {
+        if (!(event.getLevel() instanceof ServerLevel level)
+                || !(event.getCause() instanceof net.minecraft.server.level.ServerPlayer player)
+                || player.isSpectator() || player.isCreative()) {
+            return;
+        }
+        var id = event.getVanillaEvent().unwrapKey()
+                .map(net.minecraft.resources.ResourceKey::identifier).orElse(null);
+        boolean loud = LOUD_NOISES.contains(id);
+        if (!loud && !QUIET_NOISES.contains(id)) {
+            return;
+        }
+        var at = event.getEventPosition();
+        if (player.position().distanceToSqr(at) > 16.0D) {
+            return;
+        }
+        var reach = new net.minecraft.world.phys.AABB(at, at).inflate(48.0D);
+        for (Mob mob : level.getEntitiesOfClass(Mob.class, reach,
+                m -> m.getPersistentData().getString(GenusApplier.GENUS_TAG).isPresent())) {
+            for (var wrapped : mob.targetSelector.getAvailableGoals()) {
+                if (wrapped.getGoal() instanceof com.sablednah.zombiemod.core.goal.SoundTargetGoal ears) {
+                    double range = loud ? ears.sprintRadius() : ears.walkRadius();
+                    if (mob.position().distanceToSqr(at) <= range * range) {
+                        ears.notice(player);
+                    }
+                }
+            }
+        }
+    }
+
     private static java.util.Optional<net.minecraft.resources.Identifier> genusIdOf(Mob mob) {
         return mob.getPersistentData().getString(GenusApplier.GENUS_TAG)
                 .map(net.minecraft.resources.Identifier::tryParse);

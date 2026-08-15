@@ -36,6 +36,7 @@ public final class SoundTargetGoal extends Goal {
     private final double sneakRadius;
 
     private Player heard;
+    private Player pendingNoise;
     private int sinceHeard;
     private int cooldown;
 
@@ -79,8 +80,39 @@ public final class SoundTargetGoal extends Goal {
         return best;
     }
 
+    /**
+     * A discrete noise happened - a block broke, an arrow landed - and this player made it.
+     *
+     * <p>Fed by the {@code VanillaGameEvent} hook rather than a per-mob game-event listener,
+     * because a vanilla mob cannot override {@code updateDynamicGameEventListener}: no custom
+     * entity types is the whole mod. Noises bypass the listen cooldown - they are moments, and a
+     * mob that missed one because it was between polls is deaf in the way that reads as a bug.
+     */
+    public void notice(Player who) {
+        pendingNoise = who;
+        if (mob.getTarget() == who) {
+            sinceHeard = 0;
+        }
+    }
+
+    /** The continuous-noise policy, shared with the event hook so loudness has one definition. */
+    public double sprintRadius() {
+        return sprintRadius;
+    }
+
+    public double walkRadius() {
+        return walkRadius;
+    }
+
     @Override
     public boolean canUse() {
+        if (pendingNoise != null) {
+            heard = pendingNoise.isAlive() && !pendingNoise.isSpectator() ? pendingNoise : null;
+            pendingNoise = null;
+            if (heard != null) {
+                return true;
+            }
+        }
         if (--cooldown > 0) {
             return false;
         }

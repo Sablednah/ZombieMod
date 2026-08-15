@@ -1234,10 +1234,24 @@ mixed group arrives in waves without anything coordinating it.
 
 ### It hears you
 
-`sound_target` targets by ear rather than by eye. How far away it notices you depends on how much
-noise you make — sprinting carries a long way, walking a middling one, sneaking or standing still
-almost nothing — and line of sight is never consulted, so walls do not shelter you and invisibility
-buys nothing against something that never used its eyes. Go quiet for a few seconds and it loses you.
+`sound_target` targets by ear rather than by eye, and the ear hears two kinds of thing.
+
+**How you move.** Sprinting is heard from `sprint_radius` (40), walking from `walk_radius` (12),
+sneaking or standing still from `sneak_radius` (2.5). Line of sight is never consulted — walls do not
+shelter you — and invisibility buys nothing against something that never used its eyes. Go quiet for
+a few seconds and it loses you.
+
+**What you do.** Discrete acts ring out through the same vibration events sculk listens to: mining or
+placing a block, an explosion, landing from a fall and playing a noteblock are **loud** (heard at
+sprint radius); doors, chests, levers, bow shots, splashing, eating, drinking and armour-swapping are
+**quiet** (walk radius). Sneaking does not muffle these — breaking a block is loud however you crouch
+over it. One honest limit: a noise only betrays *you* if you are at it. An arrow landing across the
+valley says where the arrow is, not where you are — so distraction shots neither lure it (yet) nor
+falsely reveal the shooter.
+
+Implementation note for the curious: this is one global `VanillaGameEvent` hook, not a Warden-style
+listener per mob — a vanilla zombie cannot override the listener-registration hooks, and vanilla mobs
+are the whole mod.
 
 The **Clicker** is the showcase: no sight-based targeting at all any more, just ears
 (sprint 40 / walk 12 / sneak 2.5) and a grudge if you hit it. Its old low-follow-range imitation was
@@ -1359,8 +1373,9 @@ down, and "Kill one to learn what it leaves behind" until then. The server enume
 itself (walking its JSON, not sampling rolls, so rare entries appear too) and ships item ids only to
 players who have earned them.
 
-**The Ghost's page is a mirror.** Its doll wears *your* face and a copy of your current gear — the
-corpse it is promising to make of you.
+**The Corpse's page is a mirror** — you, dead: your face, your current gear, refreshed every look.
+**The Ghost's page tells its own truth**: your face floating over its pale chestplate on an invisible
+body, exactly as it walks the world.
 
 **Sounds play.** A genus's call has a ▶ chip in its expanded ability row; particles are named in
 their label but not previewed — particle rendering lives in the world renderer, not the GUI, and
