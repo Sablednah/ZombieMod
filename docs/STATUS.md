@@ -57,15 +57,11 @@ Last updated 2026-08-15.
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
-- **The Borg Hive.** The Queen breeding dressed Zomborgs, the shared immunity landing in drone
-  saved-data at full strength, and all six concealment cases were proven headlessly. Unseen: the
-  horde itself arriving, the boss bar, and whether weight 1 is rare enough to feel like an event.
+- ~~The Borg Hive~~ — **confirmed in play** ("borg works"). Still untuned by feel: whether horde
+  weight 1 is rare enough, and the queen's numbers.
 - **The Vault Dweller** — blue suit, gold trim, Vault Boy grin, underground only. Built, never met.
-- **The dex concealment configs in play**, and the Clicker's new eyeless face.
-- **`sound_target` in play.** Both halves proven headlessly: all four movement poses at their exact
-  radii, and real game events through the real dispatch path — mining heard at 30 blocks, a door not
-  heard at 30 but heard at 8, and a remote noise betraying nobody. What nobody has done is sneak
-  past a real Clicker in the dark and then mine a block next to it, which is the entire point.
+- **The dex concealment configs in play.**
+- ~~`sound_target`~~ — **confirmed in play** ("clicker works well"), eyeless face and all.
 - **The dex batch.** Drops enumeration is proven for all 16 tables; the mirror-Ghost, true-scale
   dolls, play chips and drop icons are client rendering, provable only by eye.
 - **The dex info page.** All 54 descriptions load, the write-up renders, and the gate was proven in
