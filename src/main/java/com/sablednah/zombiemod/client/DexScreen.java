@@ -40,7 +40,7 @@ public final class DexScreen extends Screen {
 
     private static final int LIST_W = 112;
     private static final int HEADER_H = 26;
-    private static final int DOLL_W = 108;
+    private static final int DOLL_W = 116;
 
     // The tome palette, shared with the LegendQuest handbook by copying, not by dependency.
     private static final int PARCHMENT_TOP = 0xF81E1610;
@@ -387,7 +387,7 @@ public final class DexScreen extends Screen {
         // cannot be half-clipped, fixed while the text scrolls - a manuscript's margin figure.
         int dx1 = paneX() + paneW() - 2;
         int dx0 = dx1 - DOLL_W + 6;
-        int dh = Math.min(140, ph - 4);
+        int dh = Math.min(180, ph - 4);
         int dy0 = py + (ph - dh) / 2;
         int dy1 = dy0 + dh;
         g.fill(dx0, dy0, dx1, dy1, 0x40000000);
@@ -398,7 +398,11 @@ public final class DexScreen extends Screen {
             // explicitly normalises the render state's scale back to 1 (so a Scale-effect player
             // doesn't overflow the inventory doll) - which silently erased every genus's size.
             // Reinstating it in the size parameter is the only lever the helper leaves us.
-            int size = Math.max(16, (int) (30 * genus.scale()));
+            //
+            // And CAPPED against the plate itself, because the first Tank rendered with its head
+            // and boots amputated by the frame. ~3px of drawn height per size unit, measured, with
+            // a margin - honesty about relative size ends where the frame does.
+            int size = Math.max(16, Math.min((int) (30 * genus.scale()), (dh - 12) / 3));
             InventoryScreen.renderEntityInInventoryFollowsMouse(g, dx0 + 2, dy0 + 2, dx1 - 2, dy1 - 2,
                     size, 0.0625F, mouseX, mouseY, doll);
         }
@@ -448,7 +452,55 @@ public final class DexScreen extends Screen {
         return out + "…";
     }
 
+    /** Step the selection to the next readable entry in the given direction, and keep it on screen. */
+    private void step(int direction) {
+        var entries = DexState.entries();
+        List<Integer> readable = new ArrayList<>();
+        int currentAt = -1;
+        for (int i = 0; i < entries.size(); i++) {
+            DexPayload.Entry e = entries.get(i);
+            if (e.met() || e.kills() > 0) {
+                if (e.genus().equals(selectedId)) {
+                    currentAt = readable.size();
+                }
+                readable.add(i);
+            }
+        }
+        if (readable.isEmpty()) {
+            return;
+        }
+        int next = currentAt < 0 ? (direction > 0 ? 0 : readable.size() - 1)
+                : Math.max(0, Math.min(readable.size() - 1, currentAt + direction));
+        int row = readable.get(next);
+        select(entries.get(row).genus());
+        // Bring the row into the scissored window rather than leaving the keyboard blind.
+        int listH = (bookY() + bookH() - 20) - (paneY() - 1);
+        double top = row * 12;
+        if (top < listScroll) {
+            listScroll = top;
+        } else if (top + 12 > listScroll + listH) {
+            listScroll = top + 12 - listH;
+        }
+    }
+
     // --- input ---
+
+    @Override
+    public boolean keyPressed(net.minecraft.client.input.KeyEvent event) {
+        if (super.keyPressed(event)) {
+            return true;
+        }
+        if (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_DOWN) {
+            step(1);
+            return true;
+        }
+        if (event.key() == com.mojang.blaze3d.platform.InputConstants.KEY_UP) {
+            step(-1);
+            return true;
+        }
+        return false;
+    }
+
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
