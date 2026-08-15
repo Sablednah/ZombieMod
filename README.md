@@ -96,7 +96,7 @@ Here is the coward, in full:
 | `mount` | *(none)* | Something to ride in on — the old `jockey` field. |
 | `navigation` | `default` | `climb` makes it scale walls like a spider, `swim` and `amphibious` the aquatic ones. |
 | `equipment` | `{}` | Held and worn items — see below. Beats `armor_color` and `head` for any slot it names. |
-| `invisible` | `false` | Render nothing but the equipment — armour walking around on its own. |
+| `invisible` | `false` | Render nothing but the equipment — armour walking around on its own. Rides an infinite invisibility effect, because the raw flag is stomped by vanilla's first effects pass. |
 | `baby` | `false` | The vanilla baby variant: half size, quicker, and its own proportions rather than a shrunken adult. |
 | `burning` | `false` | Permanently alight, harmlessly. |
 | `arrows` | `0` | Arrows left sticking out of it. |

@@ -10,11 +10,13 @@ import net.minecraft.world.entity.ai.goal.Goal;
 /**
  * Holds the looks that vanilla keeps taking back.
  *
- * <p>Two of the appearance fields describe a <em>state</em> rather than a property, and vanilla
- * spends every tick undoing them: stuck arrows work themselves loose one at a time, and the
- * invisibility flag is not written to entity NBT at all, so it is gone the moment the chunk unloads.
- * Setting them once at spawn would give a monster that looks right for half a minute and then
- * quietly stops.
+ * <p>Stuck arrows are a <em>state</em> vanilla spends every tick undoing - they work themselves
+ * loose one at a time - so a count set once at spawn is a monster that looks right for half a
+ * minute and then quietly stops. This tops them back up.
+ *
+ * <p>Invisibility used to be upheld here too, and is not any more: it rides an infinite potion
+ * effect now, which vanilla saves and re-asserts itself. The 40-tick top-up was in fact the
+ * visible flicker - the mob stood exposed from the first effects pass until this goal next fired.
  *
  * <p>Flagless, like {@link AbilityGoal} and {@link MutationGoal}, and for the same reasons: no
  * registry of live mobs, nothing to leak, no cost in chunks that are not ticking.
@@ -31,31 +33,26 @@ final class UpkeepGoal extends Goal {
     private static final int PERIOD = 40;
 
     private final Mob mob;
-    private final boolean invisible;
     private final int arrows;
     private int ticks;
 
-    private UpkeepGoal(Mob mob, boolean invisible, int arrows) {
+    private UpkeepGoal(Mob mob, int arrows) {
         this.mob = mob;
-        this.invisible = invisible;
         this.arrows = arrows;
         this.setFlags(EnumSet.noneOf(Goal.Flag.class));
     }
 
     /** Null when a genus asks for none of this, so the common case adds no goal at all. */
     static UpkeepGoal forGenus(Mob mob, Genus genus) {
-        if (!genus.invisible() && genus.arrows() <= 0) {
+        if (genus.arrows() <= 0) {
             return null;
         }
-        UpkeepGoal goal = new UpkeepGoal(mob, genus.invisible(), genus.arrows());
+        UpkeepGoal goal = new UpkeepGoal(mob, genus.arrows());
         goal.apply();
         return goal;
     }
 
     private void apply() {
-        if (invisible) {
-            mob.setInvisible(true);
-        }
         if (arrows > 0 && mob.getArrowCount() < arrows) {
             mob.setArrowCount(arrows);
         }

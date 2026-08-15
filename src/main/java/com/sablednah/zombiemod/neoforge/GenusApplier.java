@@ -126,13 +126,18 @@ public final class GenusApplier {
                     });
         }
 
-        // Applied here as well as in the upkeep goal, and the difference is visible: assign() runs
-        // before the entity is ever added to the level, while the goal is built on the join event -
-        // by which point a client can already have been told about a perfectly visible zombie. The
-        // goal still does it, because this flag is the one appearance field vanilla does not save,
-        // so a reloaded chunk has to set it again.
+        // The flag for the spawn packet, the EFFECT for every tick after it. Vanilla's
+        // updateInvisibilityStatus fires on the first effects pass and, for a mob with no active
+        // effects, calls setInvisible(false) - so a raw flag is stomped one tick in and the mob is
+        // briefly, visibly there. An infinite invisibility effect flips that machinery from enemy
+        // to caretaker: the same code path now RE-asserts invisibility every time effects change.
+        // (The July lesson, learnt on the beam ability and forgotten here until a Ghost blinked.)
         if (genus.invisible()) {
             mob.setInvisible(true);
+            mob.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.INVISIBILITY,
+                    net.minecraft.world.effect.MobEffectInstance.INFINITE_DURATION,
+                    0, false, false, false));
         }
         if (genus.arrows() > 0) {
             mob.setArrowCount(genus.arrows());
@@ -262,8 +267,18 @@ public final class GenusApplier {
         // Abilities ride the goal selector too - see AbilityGoal for why. Priority is irrelevant
         // because they carry no control flags, but a high number keeps them visually last in any
         // debug dump of the goal list.
-        // Looks that vanilla erodes - fire, arrows, the unsaved invisibility flag. Rebuilt on every
-        // join like the goals themselves, because that is exactly what they are: transient state.
+        // A ghost spawned by an older build carries the raw flag but not the effect - top it up on
+        // join so existing worlds heal themselves.
+        if (genus.invisible() && !mob.hasEffect(net.minecraft.world.effect.MobEffects.INVISIBILITY)) {
+            mob.setInvisible(true);
+            mob.addEffect(new net.minecraft.world.effect.MobEffectInstance(
+                    net.minecraft.world.effect.MobEffects.INVISIBILITY,
+                    net.minecraft.world.effect.MobEffectInstance.INFINITE_DURATION,
+                    0, false, false, false));
+        }
+
+        // Looks that vanilla erodes - stuck arrows work themselves loose one at a time. Rebuilt on
+        // every join like the goals themselves, because that is exactly what they are: transient.
         UpkeepGoal upkeep = UpkeepGoal.forGenus(mob, genus);
         if (upkeep != null) {
             mob.goalSelector.addGoal(99, upkeep);
