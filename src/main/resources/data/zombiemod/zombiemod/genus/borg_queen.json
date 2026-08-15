@@ -1,0 +1,108 @@
+{
+  "name": "&5The Borg Queen",
+  "description": "The hive's one mind. What wounds a drone means nothing; what wounds the queen, every drone soon shrugs off. Kill her before she finishes learning you.",
+  "base": "minecraft:zombie",
+  "weight": 0,
+  "health": 160.0,
+  "damage": 8.0,
+  "speed": 0.8,
+  "follow_range": 40.0,
+  "scale": 1.5,
+  "armor_color": 3877458,
+  "head": {
+    "properties": {
+      "textures": [
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjJlNzJmMTdmODc3ZWJiMjZiYjU2ODEyZTVjNjA0MTc2ZTRkMDU4ZjE1YThhMzFhNDUxYWQ2NGZjYjQ4MmQ5MiJ9fX0="
+      ]
+    }
+  },
+  "attributes": {
+    "minecraft:knockback_resistance": 0.8,
+    "minecraft:armor": 10.0
+  },
+  "boss": {
+    "color": "purple",
+    "overlay": "notched_10",
+    "range": 64.0,
+    "darken_sky": false,
+    "boss_music": true,
+    "title": "The Borg Queen"
+  },
+  "xp": 250,
+  "loot": {
+    "table": "zombiemod:entities/borg_queen",
+    "replace": false
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.6
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 16.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:summon",
+      "interval": 160,
+      "chance": 0.7,
+      "entity": "minecraft:zombie",
+      "genus": "zombiemod:zomborg",
+      "count": 2,
+      "max_nearby": 8,
+      "radius": 14.0
+    },
+    {
+      "type": "zombiemod:adapt",
+      "resistance": 0.9,
+      "max_adaptations": 6,
+      "share_radius": 16.0,
+      "share_with": [
+        "zombiemod:zomborg"
+      ]
+    },
+    {
+      "type": "zombiemod:heal",
+      "interval": 80,
+      "chance": 0.6,
+      "amount": 2.0
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 12,
+      "particle": "minecraft:electric_spark",
+      "count": 2
+    }
+  ],
+  "bounty": 60.0
+}

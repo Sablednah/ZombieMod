@@ -54,6 +54,10 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.BooleanValue BESTIARY;
     public static final ModConfigSpec.BooleanValue BESTIARY_PER_GENUS;
     public static final ModConfigSpec.EnumValue<DexInfo> BESTIARY_INFO;
+    public static final ModConfigSpec.BooleanValue BESTIARY_HIDE_UNSPAWNABLE;
+    public static final ModConfigSpec.BooleanValue BESTIARY_UNSPAWNABLE_MET;
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> BESTIARY_HIDDEN;
+    public static final ModConfigSpec.ConfigValue<List<? extends String>> BESTIARY_HIDDEN_MET;
 
     public static final ModConfigSpec.ConfigValue<List<? extends String>> GHOST_NAMES;
     public static final ModConfigSpec.BooleanValue GHOST_REMEMBER;
@@ -364,6 +368,29 @@ public final class ZombieModConfig {
                         "MET by default: the entry is a reward for the encounter, and a checklist you",
                         "can read cover to cover before meeting anything is not much of a checklist.")
                 .defineEnum("info", DexInfo.MET);
+
+        BESTIARY_HIDE_UNSPAWNABLE = b.comment(
+                        "Leave weight-0 genera out of the roster entirely - the list, the book, the",
+                        "screen and the totals. Bosses and summon-only genera stop being spoilers in",
+                        "a checklist and become discoveries instead.")
+                .define("hideUnspawnable", false);
+
+        BESTIARY_UNSPAWNABLE_MET = b.comment(
+                        "...but let a hidden weight-0 genus appear once a player has met it. This is",
+                        "what makes hiding them a surprise rather than a hole: the dex grows when the",
+                        "boss does.")
+                .define("unspawnableRevealedWhenMet", true);
+
+        BESTIARY_HIDDEN = b.comment(
+                        "Genus ids left out of the roster regardless of weight, e.g.",
+                        "[\"zombiemod:herobrine\"]. For the ones a server wants to stay rumours.")
+                .defineList("hidden", List.of(), () -> "", o -> o instanceof String);
+
+        BESTIARY_HIDDEN_MET = b.comment(
+                        "The subset of `hidden` that appears once met. Anything hidden and NOT",
+                        "listed here never shows in the dex at all, met or not - a true secret,",
+                        "which is a strong choice: a player can kill it and find no record.")
+                .defineList("hiddenRevealedWhenMet", List.of(), () -> "", o -> o instanceof String);
 
         b.pop();
 

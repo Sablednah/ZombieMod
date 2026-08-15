@@ -968,8 +968,9 @@ Hordes are a datapack registry too, at `data/<pack>/zombiemod/horde/<name>.json`
 story with a middle. A wave can name specific `genera` or leave it out and draw from the weighted
 table as usual, and `conditions` are the same ones that gate spawning.
 
-Three ship: **The Horde** (a general build), **The Swarm** (many weak things, a different problem to
-solve) and **The Siege** (breakers first, so the way is open when the rest arrive).
+Four ship: **The Horde** (a general build), **The Swarm** (many weak things, a different problem to
+solve), **The Siege** (breakers first, so the way is open when the rest arrive) and **The Borg Hive**
+(rare, weight 1: two waves of Zomborgs and then their Queen — see below).
 
 ### Rare, or rare and legible
 
@@ -1232,6 +1233,24 @@ the time you arrive. A coward that notices at 24 blocks is just a slow zombie wi
 The tiers are also why a crowd reads as a crowd. Shamblers turn late and hunters commit early, so a
 mixed group arrives in waves without anything coordinating it.
 
+### The Borg Hive
+
+A boss built out of two ability upgrades rather than special cases, both open to any genus:
+
+**`summon` takes a `genus`.** The Queen's summon names `zombiemod:zomborg`, so she breeds her own
+kind — dressed, armed and AI'd — and her `max_nearby` cap counts *that genus*, not raw zombies, so a
+crowd of ordinary dead cannot starve the hive.
+
+**`adapt` takes `share_radius` and `share_with`.** When the Queen learns a damage type, every
+Zomborg within 16 blocks learns it in the same instant — written into their saved data, so the
+lesson survives a restart exactly as a first-hand one does. Sharing deliberately bypasses the
+recipients' own caps: this is the queen teaching, not the drone learning, and the cap prices
+first-hand lessons. The fight this produces: switch weapons faster than she can catalogue them,
+and kill her before the whole hive is immune to everything you own.
+
+She is weight 0 — command, ritual or her horde only — and with `hideUnspawnable` on she is a dex
+entry that does not exist until the night The Borg Hive finds you.
+
 ### It hears you
 
 `sound_target` targets by ear rather than by eye, and the ear hears two kinds of thing.
@@ -1430,6 +1449,23 @@ Two objectives are always kept, both created on demand:
 ```
 /scoreboard objectives setdisplay sidebar zombiemod.genera
 ```
+
+### Hiding entries
+
+```toml
+[bestiary]
+    hideUnspawnable = false            # leave weight-0 genera out of the roster...
+    unspawnableRevealedWhenMet = true  # ...until a player has actually met one
+    hidden = []                        # ids hidden regardless of weight
+    hiddenRevealedWhenMet = []         # the subset of `hidden` that appears once met
+```
+
+With `hideUnspawnable` on, bosses stop being spoilers in a checklist and become discoveries — the dex
+*grows* when the boss does, which is the surprise working. The `hidden` list is the stronger tool:
+anything on it and **not** in the reveal list never shows at all, met or killed or not — a true
+secret, and deliberately so. Concealment covers the list, the book, the screen, the totals and
+`bestiary info` alike, and a concealed genus answers "you have not met one of those" rather than
+"no such genus", because the second confirms the id exists.
 
 ### Per-genus tracking
 

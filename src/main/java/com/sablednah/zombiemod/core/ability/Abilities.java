@@ -1,6 +1,7 @@
 package com.sablednah.zombiemod.core.ability;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
@@ -459,9 +460,21 @@ public final class Abilities {
      * exponential, and the one thing a datapack author will forget.
      */
     public record Summon(int interval, float chance, EntityType<?> entity, int count, int maxNearby,
-            double radius) implements Ability {
+            double radius, Optional<Identifier> genus) implements Ability {
 
         public static final Identifier TYPE = id("summon");
+
+        /**
+         * Dresses a summoned mob in a genus. Injected by the loader half at startup, exactly as
+         * {@link Convert} takes its raiser: core cannot reach {@code GenusApplier} without a
+         * dependency pointing the wrong way, and a hive that breeds plain zombies instead of its
+         * own kind would be a quiet lie.
+         */
+        private static java.util.function.BiConsumer<Mob, Identifier> dresser = (mob, id) -> {};
+
+        public static void setDresser(java.util.function.BiConsumer<Mob, Identifier> dress) {
+            dresser = dress;
+        }
 
         public static final MapCodec<Summon> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
                 Abilities.<Summon>intervalField(200),
@@ -470,7 +483,8 @@ public final class Abilities {
                         .optionalFieldOf("entity", (EntityType<?>) EntityType.ZOMBIE).forGetter(Summon::entity),
                 Codec.INT.optionalFieldOf("count", 1).forGetter(Summon::count),
                 Codec.INT.optionalFieldOf("max_nearby", 6).forGetter(Summon::maxNearby),
-                Codec.DOUBLE.optionalFieldOf("radius", 8.0D).forGetter(Summon::radius))
+                Codec.DOUBLE.optionalFieldOf("radius", 8.0D).forGetter(Summon::radius),
+                Identifier.CODEC.optionalFieldOf("genus").forGetter(Summon::genus))
                 .apply(i, Summon::new));
 
         @Override
@@ -480,16 +494,24 @@ public final class Abilities {
 
         @Override
         public String describe() {
-            return "Calls up " + count + " "
-                    + pretty(BuiltInRegistries.ENTITY_TYPE.getKey(entity)).toLowerCase()
+            String what = genus.map(g -> g.getPath().replace('_', ' '))
+                    .orElse(pretty(BuiltInRegistries.ENTITY_TYPE.getKey(entity)).toLowerCase());
+            return "Calls up " + count + " " + what
                     + (count == 1 ? "" : "s") + ", up to " + maxNearby + " at once.";
         }
 
 
         @Override
         public void run(ServerLevel level, Mob mob) {
+            // With a genus set the cap counts that genus, not the raw entity type - a hive capped
+            // on "zombies nearby" would starve itself in any crowd of ordinary dead.
+            java.util.function.Predicate<net.minecraft.world.entity.LivingEntity> kin =
+                    genus.<java.util.function.Predicate<net.minecraft.world.entity.LivingEntity>>map(
+                            id -> e -> e instanceof Mob m && m.getPersistentData()
+                                    .getString("zombiemod:genus").map(id.toString()::equals).orElse(false))
+                            .orElse(e -> e.getType() == entity);
             int nearby = level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,
-                    mob.getBoundingBox().inflate(radius), e -> e.getType() == entity).size();
+                    mob.getBoundingBox().inflate(radius), kin).size();
             if (nearby >= maxNearby) {
                 return;
             }
@@ -502,6 +524,9 @@ public final class Abilities {
                         mob.getZ() + (mob.getRandom().nextDouble() - 0.5D) * 3.0D,
                         mob.getRandom().nextFloat() * 360.0F, 0.0F);
                 level.addFreshEntity(spawned);
+                if (genus.isPresent() && spawned instanceof Mob spawnedMob) {
+                    dresser.accept(spawnedMob, genus.get());
+                }
             }
         }
     }
@@ -971,8 +996,8 @@ public final class Abilities {
      * <p>Memory lives in the mob's persistent data, so a Borg that has learned your sword still
      * knows it after a restart — which is the whole joke.
      */
-    public record Adapt(int interval, float chance, float resistance, int maxAdaptations)
-            implements Ability {
+    public record Adapt(int interval, float chance, float resistance, int maxAdaptations,
+            double shareRadius, List<Identifier> shareWith) implements Ability {
 
         public static final Identifier TYPE = id("adapt");
         private static final String TAG = "zombiemod:adapted";
@@ -981,7 +1006,10 @@ public final class Abilities {
                 Abilities.<Adapt>intervalField(100),
                 Abilities.<Adapt>chanceField(1.0F),
                 Codec.FLOAT.optionalFieldOf("resistance", 0.8F).forGetter(Adapt::resistance),
-                Codec.INT.optionalFieldOf("max_adaptations", 4).forGetter(Adapt::maxAdaptations))
+                Codec.INT.optionalFieldOf("max_adaptations", 4).forGetter(Adapt::maxAdaptations),
+                Codec.DOUBLE.optionalFieldOf("share_radius", 0.0D).forGetter(Adapt::shareRadius),
+                Identifier.CODEC.listOf().optionalFieldOf("share_with", List.of())
+                        .forGetter(Adapt::shareWith))
                 .apply(i, Adapt::new));
 
         @Override
@@ -991,8 +1019,11 @@ public final class Abilities {
 
         @Override
         public String describe() {
-            return "Learns what hurt it and takes " + Math.round(resistance * 100) + "% less of it,"
-                    + " up to " + maxAdaptations + " kinds of damage.";
+            String base = "Learns what hurt it and takes " + Math.round(resistance * 100)
+                    + "% less of it, up to " + maxAdaptations + " kinds of damage.";
+            return shareRadius > 0
+                    ? base + " What it learns, its kin within " + trim(shareRadius) + " blocks learn with it."
+                    : base;
         }
 
 
@@ -1019,10 +1050,51 @@ public final class Abilities {
                         mob.getY() + mob.getBbHeight() * 0.6D, mob.getZ(), 12, 0.3D, 0.4D, 0.3D, 0.05D);
                 level.playSound(null, mob.getX(), mob.getY(), mob.getZ(),
                         net.minecraft.sounds.SoundEvents.CONDUIT_ACTIVATE, SoundSource.HOSTILE, 0.7F, 1.8F);
+                if (shareRadius > 0.0D) {
+                    share(level, mob, key);
+                }
             }
             // The blow that teaches it still lands in full. Learning should cost you a hit, not
             // be free the first time.
             return amount;
+        }
+
+        /**
+         * The hive learns as one. A freshly learnt damage type is written straight into the
+         * persistent data of every kin in range — bypassing their own caps deliberately, because
+         * this is the queen teaching, not the drone learning; the cap prices first-hand lessons.
+         *
+         * <p>Kin means: the genera named in {@code share_with}, or — when the list is empty — the
+         * sharer's own genus. Written to persistent data, so a taught immunity survives a restart
+         * exactly as a learnt one does.
+         */
+        private void share(ServerLevel level, Mob teacher, String key) {
+            String own = teacher.getPersistentData().getString("zombiemod:genus").orElse(null);
+            for (Mob kin : level.getEntitiesOfClass(Mob.class,
+                    teacher.getBoundingBox().inflate(shareRadius), other -> other != teacher)) {
+                String theirs = kin.getPersistentData().getString("zombiemod:genus").orElse(null);
+                if (theirs == null) {
+                    continue;
+                }
+                boolean matches = shareWith.isEmpty()
+                        ? theirs.equals(own)
+                        : shareWith.stream().anyMatch(id -> id.toString().equals(theirs));
+                if (!matches) {
+                    continue;
+                }
+                net.minecraft.nbt.ListTag taught =
+                        kin.getPersistentData().getList(TAG).orElseGet(net.minecraft.nbt.ListTag::new);
+                boolean known = false;
+                for (int i = 0; i < taught.size() && !known; i++) {
+                    known = taught.getString(i).map(key::equals).orElse(false);
+                }
+                if (!known) {
+                    taught.add(net.minecraft.nbt.StringTag.valueOf(key));
+                    kin.getPersistentData().put(TAG, taught);
+                    level.sendParticles(ParticleTypes.ELECTRIC_SPARK, kin.getX(),
+                            kin.getY() + kin.getBbHeight() * 0.6D, kin.getZ(), 8, 0.3D, 0.4D, 0.3D, 0.05D);
+                }
+            }
         }
     }
 

@@ -232,6 +232,9 @@ public final class ZombieModCommands {
         List<Row> rows = new ArrayList<>();
         lookup.listElements().forEach(holder -> {
             var id = holder.key().identifier();
+            if (bestiary.concealed(player.getUUID(), id, holder.value())) {
+                return;
+            }
             rows.add(new Row(holder.value().name().orElse(id.getPath()),
                     bestiary.hasMet(player.getUUID(), id),
                     bestiary.killsOf(player.getUUID(), id)));
@@ -311,6 +314,8 @@ public final class ZombieModCommands {
         TOGGLES.put("proximity", ZombieModConfig.PROXIMITY);
         TOGGLES.put("bestiary", ZombieModConfig.BESTIARY);
         TOGGLES.put("perGenus", ZombieModConfig.BESTIARY_PER_GENUS);
+        TOGGLES.put("hideUnspawnable", ZombieModConfig.BESTIARY_HIDE_UNSPAWNABLE);
+        TOGGLES.put("unspawnableRevealedWhenMet", ZombieModConfig.BESTIARY_UNSPAWNABLE_MET);
         TOGGLES.put("logSpawns", ZombieModConfig.LOG_SPAWNS);
     }
 
@@ -362,7 +367,8 @@ public final class ZombieModCommands {
         Identifier id = holder.key().identifier();
 
         Bestiary bestiary = Bestiary.get(source.getLevel());
-        if (!unlocked(bestiary, player, id)) {
+        // Concealed reads as unmet on purpose: "no such genus" would confirm the id exists.
+        if (bestiary.concealed(player.getUUID(), id, genus) || !unlocked(bestiary, player, id)) {
             source.sendFailure(Component.literal(switch (ZombieModConfig.BESTIARY_INFO.get()) {
                 case KILLED -> "You have not killed one of those yet.";
                 default -> "You have not met one of those yet.";

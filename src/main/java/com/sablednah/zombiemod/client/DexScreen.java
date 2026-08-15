@@ -399,12 +399,16 @@ public final class DexScreen extends Screen {
             // doesn't overflow the inventory doll) - which silently erased every genus's size.
             // Reinstating it in the size parameter is the only lever the helper leaves us.
             //
-            // And CAPPED against the plate itself, because the first Tank rendered with its head
-            // and boots amputated by the frame. ~3px of drawn height per size unit, measured, with
-            // a margin - honesty about relative size ends where the frame does.
-            int size = Math.max(16, Math.min((int) (30 * genus.scale()), (dh - 12) / 3));
-            InventoryScreen.renderEntityInInventoryFollowsMouse(g, dx0 + 2, dy0 + 2, dx1 - 2, dy1 - 2,
-                    size, 0.0625F, mouseX, mouseY, doll);
+            // CAPPED against the plate (a Tank once rendered decapitated by its own frame), and
+            // anchored by the FEET: the helper centres the entity in the box it is given, so the
+            // box is built around where the feet should stand - a museum plate has a floor line,
+            // and a Swarmling floating mid-frame reads as a bug where one standing on the ground
+            // reads as small. ~3px of drawn height per size unit, measured.
+            int size = Math.max(16, Math.min((int) (30 * genus.scale()), (dh - 20) / 3));
+            int drawnH = size * 3;
+            int footY = dy1 - 8;
+            InventoryScreen.renderEntityInInventoryFollowsMouse(g, dx0 + 2, footY - drawnH - 10,
+                    dx1 - 2, footY + 10, size, 0.0625F, mouseX, mouseY, doll);
         }
     }
 

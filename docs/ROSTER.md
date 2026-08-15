@@ -1,6 +1,6 @@
 # The shipped roster
 
-54 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+56 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -175,3 +175,5 @@ this table cannot drift from the game the way the ones above once did).
 | **Corpse** | 0 | A player who died here, wearing their own face and carrying their own things. Kill it to get them back. |
 | **Sleeper** | 2 | Enormous, ancient, and entirely uninterested in you until you are close enough to touch. Arrows still in it from people who tried. |
 | **Townsfolk** | 14 | Somebody's neighbour. No skills, no weapon, no idea what happened. |
+| **Vault Dweller** | 6 | The sirens sounded, the door rolled shut, and the vault kept its promise about survival - after a fashion. The suit still fits. The smile never left. |
+| **The Borg Queen** | 0 | The hive's one mind. What wounds the queen, every drone soon shrugs off. Summons her own kind and teaches them her immunities. |

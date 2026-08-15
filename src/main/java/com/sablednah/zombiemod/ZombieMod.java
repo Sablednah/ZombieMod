@@ -45,6 +45,13 @@ public class ZombieMod {
 
         com.sablednah.zombiemod.core.ability.Convert.setRaiser(
                 com.sablednah.zombiemod.neoforge.Conversions::raise);
+        com.sablednah.zombiemod.core.ability.Abilities.Summon.setDresser((mob, genusId) ->
+                mob.level().registryAccess().lookupOrThrow(ZombieModRegistries.GENUS)
+                        .get(net.minecraft.resources.ResourceKey.create(ZombieModRegistries.GENUS, genusId))
+                        .ifPresent(holder -> {
+                            com.sablednah.zombiemod.neoforge.GenusApplier.assign(mob, holder);
+                            com.sablednah.zombiemod.neoforge.GenusApplier.applyAi(mob, holder.value());
+                        }));
 
         NeoForge.EVENT_BUS.register(new ZombieModEvents());
         NeoForge.EVENT_BUS.register(new RitualHandler());

@@ -127,6 +127,9 @@ public final class Bestiary extends SavedData {
         List<com.sablednah.zombiemod.net.DexPayload.Entry> rows = new ArrayList<>();
         lookup.listElements().forEach(holder -> {
             Identifier id = holder.key().identifier();
+            if (concealed(player.getUUID(), id, holder.value())) {
+                return;
+            }
             // Names are resolved here because the client has no genus registry to look them up in.
             int slain = killsOf(player.getUUID(), id);
             rows.add(new com.sablednah.zombiemod.net.DexPayload.Entry(id,
@@ -155,6 +158,27 @@ public final class Bestiary extends SavedData {
         setDirty();
         publish(player, genus, mine, firstOfThisGenus);
         push(player);
+    }
+
+    /**
+     * Should this genus be absent from this player's roster - list, book, screen and totals alike?
+     *
+     * <p>Two ladders. Weight-0 genera can be hidden wholesale ({@code hideUnspawnable}), becoming
+     * discoveries rather than spoilers, and by default reappear once met. The {@code hidden} list
+     * conceals by name regardless of weight, and only its {@code hiddenRevealedWhenMet} subset ever
+     * comes back — anything else stays a rumour even after you have killed it, which is the server
+     * owner's strong choice to make, not ours to soften.
+     */
+    public boolean concealed(UUID player, Identifier id, com.sablednah.zombiemod.core.Genus genus) {
+        boolean earned = hasMet(player, id) || killsOf(player, id) > 0;
+        String sid = id.toString();
+        if (ZombieModConfig.BESTIARY_HIDDEN.get().contains(sid)) {
+            return !(earned && ZombieModConfig.BESTIARY_HIDDEN_MET.get().contains(sid));
+        }
+        if (ZombieModConfig.BESTIARY_HIDE_UNSPAWNABLE.get() && genus.weight() <= 0) {
+            return !(earned && ZombieModConfig.BESTIARY_UNSPAWNABLE_MET.get());
+        }
+        return false;
     }
 
     // ------------------------------------------------------------------ reading
