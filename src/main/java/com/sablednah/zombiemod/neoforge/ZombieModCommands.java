@@ -355,9 +355,11 @@ public final class ZombieModCommands {
             source.sendFailure(Component.literal("The bestiary is switched off in the server config."));
             return 0;
         }
-        var holder = lookup(source).get(key).orElseThrow(() -> ERROR_UNKNOWN_GENUS.create(key.identifier()));
+        // Through resolve(), same as spawn: a bare "walker" is parsed by Brigadier as
+        // "minecraft:walker" and would otherwise fail here while working two subcommands away.
+        var holder = resolve(source, key);
         Genus genus = holder.value();
-        Identifier id = key.identifier();
+        Identifier id = holder.key().identifier();
 
         Bestiary bestiary = Bestiary.get(source.getLevel());
         if (!unlocked(bestiary, player, id)) {

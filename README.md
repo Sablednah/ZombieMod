@@ -1328,7 +1328,11 @@ gives you a reason to chase down a Coward.
 
 ```
 /zm bestiary info zombiemod:walker
+/zm bestiary info walker            # short form works too
 ```
+
+The short form matches by path across namespaces, with an exact id winning first — and two datapacks
+shipping the same short name is reported rather than guessed at.
 
 The write-up: description, base mob, health, damage, speed, size, how far it notices you, what it is
 worth, and what it does — each ability with a line of plain English rather than just its id. On a
