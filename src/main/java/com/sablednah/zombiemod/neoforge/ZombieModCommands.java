@@ -488,6 +488,15 @@ public final class ZombieModCommands {
         boolean prox = ZombieModConfig.PROXIMITY.get();
         src.sendSuccess(() -> Component.literal((prox ? "§a" : "§7") + "  proximity: " + prox
                 + "§r   " + ProximitySpawner.COUNTERS), false);
+        // The question this line answers cost a real debugging session: proximity skips creative
+        // and spectator players entirely, and a tester flying about in creative sees "enabled" and
+        // zero effect. Status should say so to their face.
+        if (prox && src.getEntity() instanceof ServerPlayer self
+                && (self.isCreative() || self.isSpectator())) {
+            src.sendSuccess(() -> Component.literal(
+                    "§e  note: you are in " + (self.isCreative() ? "creative" : "spectator")
+                    + " - proximity ignores you until you are in survival"), false);
+        }
 
         src.sendSuccess(() -> Component.literal("  genera loaded: "
                 + lookup(source).listElementIds().count()), false);
