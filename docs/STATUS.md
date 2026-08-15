@@ -128,6 +128,20 @@ waiting only for somebody to turn it on and judge it. One thing is genuinely out
   The 1.8 plugin's `INK` ability has no direct port - `effect` + `particles` is the replacement, and
   is more flexible than the original was.
 
+## Parked: translatable / server-editable strings
+
+LegendQuest shipped a full string-externalisation layer (2026-08-15): a ~280-key `messages.yml`
+catalogue with `{term}` cross-refs and placeholders, `&` colours, live on `/reload`, and a small
+vocab payload syncing resolved terms to modded clients with English fallbacks. If ZombieDex text
+ever needs to be translatable or server-editable, the pattern is `Lang.java` +
+`VocabPayload`/`ClientVocab` in `Sablednah/LegendQuest-ReForged` — with one non-obvious trap their
+session flagged: GUI screens built from `§` literals bypass the `&`→`§` conversion at the send
+layer, so screen-facing lookups need their own converting wrapper.
+
+Not adopted yet, deliberately: ZombieMod's player-facing text is small (dex prose lives in genus
+JSON, which datapacks already override per-server), and a second string system is only worth its
+upkeep once someone actually asks for a translation.
+
 ## Next, in the order I'd do it
 
 1. **Turn proximity spawning on and judge it.** Built and never played with. `outOfSightOnly` and
