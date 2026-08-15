@@ -399,16 +399,20 @@ public final class DexScreen extends Screen {
             // doesn't overflow the inventory doll) - which silently erased every genus's size.
             // Reinstating it in the size parameter is the only lever the helper leaves us.
             //
-            // CAPPED against the plate (a Tank once rendered decapitated by its own frame), and
-            // anchored by the FEET: the helper centres the entity in the box it is given, so the
-            // box is built around where the feet should stand - a museum plate has a floor line,
-            // and a Swarmling floating mid-frame reads as a bug where one standing on the ground
-            // reads as small. ~3px of drawn height per size unit, measured.
-            int size = Math.max(16, Math.min((int) (30 * genus.scale()), (dh - 20) / 3));
-            int drawnH = size * 3;
-            int footY = dy1 - 8;
-            InventoryScreen.renderEntityInInventoryFollowsMouse(g, dx0 + 2, footY - drawnH - 10,
-                    dx1 - 2, footY + 10, size, 0.0625F, mouseX, mouseY, doll);
+            // Anchored by the FEET, exactly. The helper translates the entity up by half its
+            // normalised bounding box plus the yOffset and parks that point at the box centre - so
+            // feet sit at centre + (h/2 + yOffset) x size, in pixels. The first pass estimated the
+            // drawn height at 3px per size unit, and the estimate's error differed per genus (baby
+            // boxes, other bases, other scales), which is why the floor line wandered between
+            // entries. This computes it from the doll's own bounding box instead, so every genus
+            // stands on the same line by construction rather than by luck.
+            float hs = (float) (doll.getBbHeight() / Math.max(0.0625D, genus.scale()));
+            int size = Math.max(12, (int) Math.min(30 * genus.scale(), (dh - 14) / (hs + 0.13F)));
+            int footPx = (int) ((hs / 2.0F + 0.0625F) * size);
+            int centerY = dy1 - 8 - footPx;
+            int half = Math.min(centerY - (dy0 + 2), (dy1 - 2) - centerY);
+            InventoryScreen.renderEntityInInventoryFollowsMouse(g, dx0 + 2, centerY - half,
+                    dx1 - 2, centerY + half, size, 0.0625F, mouseX, mouseY, doll);
         }
     }
 
