@@ -1,6 +1,6 @@
 {
   "name": "Stalker",
-  "description": "Stands dead still and watches from up to 48 blocks. Never approaches.",
+  "description": "It stands dead still and watches from further than you would credit. It never approaches. That is somehow worse.",
   "base": "minecraft:zombie",
   "weight": 10,
   "health": 20.0,

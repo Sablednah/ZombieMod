@@ -1,6 +1,6 @@
 {
   "name": "Coward",
-  "description": "Runs away from players. | *(the original oddity)*",
+  "description": "It remembers enough to be afraid of you. Catching one is the hard part, and worth somebody's money.",
   "base": "minecraft:zombie",
   "weight": 30,
   "health": 14.0,

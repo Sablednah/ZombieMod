@@ -1,6 +1,6 @@
 {
   "name": "Spitfire",
-  "description": "Fires small fireballs. The old `LAZER`, finally doing something an archer doesn't.",
+  "description": "It coughs fire in small, accurate mouthfuls. The burns are never large, and never singular.",
   "base": "minecraft:zombie",
   "weight": 5,
   "health": 18.0,

@@ -1,6 +1,6 @@
 {
   "name": "Weaver",
-  "description": "Climbs, and cobwebs the ground you're standing on. The old `WEB`.",
+  "description": "It webs the ground you stand on and climbs where you cannot. The fight happens where it chooses.",
   "base": "minecraft:zombie",
   "weight": 6,
   "health": 22.0,

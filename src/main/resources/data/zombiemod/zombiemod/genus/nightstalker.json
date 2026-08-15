@@ -1,6 +1,6 @@
 {
   "name": "Nightstalker",
-  "description": "Runs from you in daylight and hunts you after dark. Same mob, two personalities, switched on the clock.",
+  "description": "By daylight it keeps its distance and will not be cornered. After dark it stops running. Same creature \u2014 the sun decides which one you get.",
   "base": "minecraft:zombie",
   "weight": 12,
   "health": 26.0,

@@ -34,7 +34,7 @@ public record DexPayload(List<Entry> entries) implements CustomPacketPayload {
      * @param name  the display name, already formatted server-side - the client has no genus registry
      *              of its own to look names up in
      */
-    public record Entry(Identifier genus, String name, boolean met, int kills) {
+    public record Entry(Identifier genus, String name, boolean met, int kills, List<String> drops) {
 
         public static final StreamCodec<RegistryFriendlyByteBuf, Entry> STREAM_CODEC =
                 StreamCodec.composite(
@@ -42,6 +42,9 @@ public record DexPayload(List<Entry> entries) implements CustomPacketPayload {
                         ByteBufCodecs.STRING_UTF8, Entry::name,
                         ByteBufCodecs.BOOL, Entry::met,
                         ByteBufCodecs.VAR_INT, Entry::kills,
+                        // Item ids from the genus's loot table - sent only once this player has
+                        // killed one, because the reward before the first kill is a spoiler.
+                        ByteBufCodecs.STRING_UTF8.apply(ByteBufCodecs.list()), Entry::drops,
                         Entry::new);
     }
 

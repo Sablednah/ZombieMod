@@ -1,6 +1,6 @@
 {
   "name": "Biter",
-  "description": "Hits softly and **infects**. Die within the minute \u2014 to anything, including a fall \u2014 and you get up as one of them. Milk cures it. The bite is the threat, not the damage.",
+  "description": "Its bite hardly bleeds, and that is not what the bite is for. Find milk before the hour does its work.",
   "base": "minecraft:zombie",
   "weight": 6,
   "health": 22.0,

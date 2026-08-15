@@ -1,6 +1,6 @@
 {
   "name": "Crawler",
-  "description": "Tiny, climbs walls, survives falls. | `SPIDER`",
+  "description": "Small, quick, and wrong. It takes the wall rather than the stair, and drops from places nothing should hold onto.",
   "base": "minecraft:zombie",
   "weight": 10,
   "health": 10.0,

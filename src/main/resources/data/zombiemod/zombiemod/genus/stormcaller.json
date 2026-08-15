@@ -1,6 +1,6 @@
 {
   "name": "Stormcaller",
-  "description": "Calls lightning on its victim from 20 blocks. Open sky only. | `LIGHTNING`",
+  "description": "The sky answers it. Under a roof you are safe; under open air you are a lightning rod that can run.",
   "base": "minecraft:zombie",
   "weight": 2,
   "health": 28.0,

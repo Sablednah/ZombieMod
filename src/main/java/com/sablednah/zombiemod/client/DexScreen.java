@@ -70,11 +70,11 @@ public final class DexScreen extends Screen {
     // --- layout ---
 
     private int bookW() {
-        return Math.min(400, width - 16);
+        return Math.min(420, width - 16);
     }
 
     private int bookH() {
-        return Math.min(280, height - 16);
+        return Math.min(300, height - 16);
     }
 
     private int bookX() {
@@ -135,8 +135,9 @@ public final class DexScreen extends Screen {
         g.fillGradient(x, y, x + w, y + h, PARCHMENT_TOP, PARCHMENT_BOTTOM);
         frame(g, x - 2, y - 2, x + w + 2, y + h + 2, BRONZE, 2);
         frame(g, x + 2, y + 2, x + w - 2, y + h - 2, GOLD_DIM, 1);
-        g.drawString(font, "§6✦", x + 4, y + 4, 0xFFFFFFFF);
-        g.drawString(font, "§6✦", x + w - 12, y + 4, 0xFFFFFFFF);
+        // Top stars sit inboard of the chips, which own the actual corners on this row.
+        g.drawString(font, "§6✦", x + 26, y + 8, 0xFFFFFFFF);
+        g.drawString(font, "§6✦", x + w - 34, y + 8, 0xFFFFFFFF);
         g.drawString(font, "§6✦", x + 4, y + h - 13, 0xFFFFFFFF);
         g.drawString(font, "§6✦", x + w - 12, y + h - 13, 0xFFFFFFFF);
 
@@ -271,12 +272,11 @@ public final class DexScreen extends Screen {
         int cy = py + 2 - (int) scroll;
 
         g.drawString(font, "§6§l" + current.name(), px, cy, 0xFFFFFFFF);
-        cy += 11;
         if (current.kills() > 0) {
-            g.drawString(font, "§8Slain §7" + current.kills(), px, cy, 0xFFFFFFFF);
-            cy += 11;
+            String tally = "§8Slain §7" + current.kills();
+            g.drawString(font, tally, px + pw - font.width(tally) - 6, cy, 0xFFFFFFFF);
         }
-        cy += 2;
+        cy += 13;
 
         if (genus.description().isPresent()) {
             for (FormattedCharSequence line : font.split(FormattedText.of(
@@ -320,7 +320,47 @@ public final class DexScreen extends Screen {
                         g.drawString(font, line, px + 10, cy, 0xFFFFFFFF);
                         cy += 10;
                     }
+                    // A sound you can read about is a sound you should be able to hear.
+                    var sound = soundFor(genus, a.label());
+                    if (sound != null) {
+                        boolean pHover = mouseX >= px + 10 && mouseX < px + 60
+                                && mouseY >= cy - 1 && mouseY < cy + 10
+                                && mouseY >= py && mouseY < py + ph;
+                        g.drawString(font, (pHover ? "§e" : "§6") + "▶ play", px + 10, cy, 0xFFFFFFFF);
+                        var play = sound;
+                        hotspots.add(new Hot(px + 10, Math.max(cy - 1, py), px + 60,
+                                Math.min(cy + 10, py + ph),
+                                () -> Minecraft.getInstance().getSoundManager().play(
+                                        net.minecraft.client.resources.sounds.SimpleSoundInstance
+                                                .forUI(play.sound().value(), play.pitch(), play.volume()))));
+                        cy += 11;
+                    }
                     cy += 2;
+                }
+            }
+        }
+
+        if (genus.loot().isPresent()) {
+            cy += 4;
+            g.fill(px, cy + 3, px + pw - 8, cy + 4, INK_DIVIDER);
+            g.drawString(font, "§8 Leaves behind ", px + 8, cy, 0xFFFFFFFF);
+            cy += 12;
+            if (current.drops().isEmpty()) {
+                g.drawString(font, "§8Kill one to learn what it leaves behind.", px, cy, 0xFFFFFFFF);
+                cy += 11;
+            } else {
+                for (String dropId : current.drops()) {
+                    Identifier itemId = Identifier.tryParse(dropId);
+                    var item = itemId == null ? null
+                            : net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(itemId);
+                    if (item != null) {
+                        var stack = new net.minecraft.world.item.ItemStack(item);
+                        g.renderItem(stack, px + 2, cy - 3);
+                        g.drawString(font, "§7" + stack.getHoverName().getString(), px + 22, cy, 0xFFFFFFFF);
+                    } else {
+                        g.drawString(font, "§7" + dropId, px + 2, cy, 0xFFFFFFFF);
+                    }
+                    cy += 14;
                 }
             }
         }
@@ -348,17 +388,31 @@ public final class DexScreen extends Screen {
         // cannot be half-clipped, fixed while the text scrolls - a manuscript's margin figure.
         int dx1 = paneX() + paneW() - 2;
         int dx0 = dx1 - DOLL_W + 6;
-        int dh = Math.min(150, ph - 4);
+        int dh = Math.min(190, ph - 4);
         int dy0 = py + (ph - dh) / 2;
         int dy1 = dy0 + dh;
         g.fill(dx0, dy0, dx1, dy1, 0x40000000);
         frame(g, dx0, dy0, dx1, dy1, GOLD_DIM, 1);
         LivingEntity doll = DexPreview.of(current.genus(), holder);
         if (doll != null) {
-            int size = Math.max(18, (int) ((dh * 0.34) / Math.max(1.0, genus.scale())));
+            // A constant, NOT divided by the genus's scale: the SCALE attribute reaches the
+            // renderer, so one fixed pixels-per-block figure shows every genus at its true relative
+            // size - the point of the plate. 30px/block keeps a 2.2x Tank (~4.3 blocks) inside a
+            // 190px frame with headroom.
             InventoryScreen.renderEntityInInventoryFollowsMouse(g, dx0 + 2, dy0 + 2, dx1 - 2, dy1 - 2,
-                    size, 0.0625F, mouseX, mouseY, doll);
+                    30, 0.0625F, mouseX, mouseY, doll);
         }
+    }
+
+    /** The Sound ability behind an ability row's label, if that is what it is. */
+    private static com.sablednah.zombiemod.core.ability.Abilities.Sound soundFor(Genus genus, String label) {
+        for (var ability : genus.abilities()) {
+            if (ability instanceof com.sablednah.zombiemod.core.ability.Abilities.Sound sound
+                    && (sound.label().equals(label) || label.equals("Sound"))) {
+                return sound;
+            }
+        }
+        return null;
     }
 
     /** A chip in the handbook's language: dark plate, bronze-or-gold frame, warm on hover. */

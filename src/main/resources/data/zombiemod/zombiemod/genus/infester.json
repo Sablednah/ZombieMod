@@ -1,6 +1,6 @@
 {
   "name": "Infester",
-  "description": "The same, except what it breaks becomes infested stone. The old `INFEST`.",
+  "description": "What it breaks, it fills. The stone it leaves behind is not empty.",
   "base": "minecraft:zombie",
   "weight": 4,
   "health": 20.0,

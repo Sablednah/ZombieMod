@@ -300,6 +300,7 @@ Each goal takes a `priority` (**lower runs first**, as in vanilla) plus its own 
 | `zombiemod:look_at` | `target` (player), `distance` (8.0), `probability` (0.02) | Watches. At high range and probability, **this is Herobrine**. |
 | `zombiemod:random_stroll` | `speed` (1.0) | Wanders. Without it, an idle mob stands perfectly still. |
 | `zombiemod:seek_blocks` | `blocks`, `speed`, `range`, `vertical_range`, `only_when_idle` — walk to blocks it has an opinion about |
+| `zombiemod:sound_target` | `sprint_radius`, `walk_radius`, `sneak_radius` — target by ear: sprinting carries far, sneaking almost nothing, and walls and invisibility count for nought |
 | `zombiemod:random_look` | — | Idle head movement. Cheap, but its absence reads as "broken". |
 | `zombiemod:float` | — | Swims instead of sinking. |
 | `zombiemod:nearest_target` † | `target`, `must_see` (true), `unseen_memory` (60) | Picks a victim. `unseen_memory` is how many ticks it holds a target it can't see. |
@@ -1231,6 +1232,18 @@ the time you arrive. A coward that notices at 24 blocks is just a slow zombie wi
 The tiers are also why a crowd reads as a crowd. Shamblers turn late and hunters commit early, so a
 mixed group arrives in waves without anything coordinating it.
 
+### It hears you
+
+`sound_target` targets by ear rather than by eye. How far away it notices you depends on how much
+noise you make — sprinting carries a long way, walking a middling one, sneaking or standing still
+almost nothing — and line of sight is never consulted, so walls do not shelter you and invisibility
+buys nothing against something that never used its eyes. Go quiet for a few seconds and it loses you.
+
+The **Clicker** is the showcase: no sight-based targeting at all any more, just ears
+(sprint 40 / walk 12 / sneak 2.5) and a grudge if you hit it. Its old low-follow-range imitation was
+deaf *and* blind, which missed the whole game the trope asks you to play — creep past, or run and be
+found.
+
 ### Leave him alone and he leaves you alone
 
 `follow_range` is the whole of it, because vanilla's targeting goal sizes its search from
@@ -1339,6 +1352,19 @@ worth, and what it does — each ability with a line of plain English rather tha
 modded client the same thing is a page: click any name you have met, with a back button, and the
 abilities expand when you click them. There is a live model of the genus on the page, dressed in its
 own colours and equipment, following your cursor the way the inventory doll does.
+
+**Entries earn their detail.** The write-up unlocks per the `info` gate; **drops unlock on a kill
+specifically**, whatever the gate — the entry shows what a genus leaves behind once you have put one
+down, and "Kill one to learn what it leaves behind" until then. The server enumerates the loot table
+itself (walking its JSON, not sampling rolls, so rare entries appear too) and ships item ids only to
+players who have earned them.
+
+**The Ghost's page is a mirror.** Its doll wears *your* face and a copy of your current gear — the
+corpse it is promising to make of you.
+
+**Sounds play.** A genus's call has a ▶ chip in its expanded ability row; particles are named in
+their label but not previewed — particle rendering lives in the world renderer, not the GUI, and
+faking one there costs more than the glimpse is worth.
 
 **Abilities describe themselves.** Each one writes its own sentence from its own fields, because the
 record is the only place that knows which effect, which particle, how far and at whom:

@@ -38,6 +38,11 @@ public final class DexPreview {
     /** Null when the genus's base is not something that can be drawn as a living thing. */
     public static LivingEntity of(Identifier id, Holder.Reference<Genus> holder) {
         LivingEntity cached = CACHE.get(id);
+        // The Ghost's page is a mirror: your face, your gear, refreshed every look because your
+        // gear changes. The face is set once at build; the kit is cheap to re-copy.
+        if (cached != null && holder.value().ghost()) {
+            copyViewerGear(cached);
+        }
         // A cached doll belongs to the level it was built in. After a rejoin or a dimension change
         // it would be an entity holding a dead ClientLevel, which the renderer may follow into
         // anything - so a stale one is rebuilt rather than trusted.
@@ -91,6 +96,15 @@ public final class DexPreview {
         });
         genus.equipment().forEach((slot, stack) -> living.setItemSlot(slot, stack.copy()));
 
+        if (genus.ghost() && Minecraft.getInstance().player != null) {
+            ItemStack face = new ItemStack(Items.PLAYER_HEAD);
+            face.set(DataComponents.PROFILE,
+                    net.minecraft.world.item.component.ResolvableProfile.createResolved(
+                            Minecraft.getInstance().player.getGameProfile()));
+            living.setItemSlot(EquipmentSlot.HEAD, face);
+            copyViewerGear(living);
+        }
+
         if (living instanceof Mob mob) {
             // Stops the mannequin looking asleep - the renderer reads these for head and body yaw.
             mob.setNoAi(true);
@@ -99,6 +113,19 @@ public final class DexPreview {
         living.yBodyRot = 0.0F;
         living.yHeadRot = 0.0F;
         return living;
+    }
+
+    /** Everything but the head, which stays the corpse-face. */
+    private static void copyViewerGear(LivingEntity doll) {
+        var player = Minecraft.getInstance().player;
+        if (player == null) {
+            return;
+        }
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            if (slot != EquipmentSlot.HEAD) {
+                doll.setItemSlot(slot, player.getItemBySlot(slot).copy());
+            }
+        }
     }
 
     private static void dye(LivingEntity living, EquipmentSlot slot,

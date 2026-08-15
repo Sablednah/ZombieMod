@@ -1,6 +1,6 @@
 {
   "name": "Zomborg",
-  "description": "Learns what hurt it. Take four swings with a sword and the fifth barely registers \u2014 switch weapons. The old `BORG`, and the memory survives a restart.",
+  "description": "Something in it takes notes. Every wound teaches it, and the lesson holds \u2014 change your approach, or stop mattering to it.",
   "base": "minecraft:zombie",
   "weight": 3,
   "health": 34.0,

@@ -1,6 +1,6 @@
 {
   "name": "Volatile",
-  "description": "Night-time surface only. Very fast, leaps, roars, trails soul particles. Dying Light's night terror.",
+  "description": "A night terror off the rooftops \u2014 fast, loud, and gone by morning. Do not be out when it is not.",
   "base": "minecraft:zombie",
   "weight": 4,
   "health": 34.0,

@@ -1,6 +1,6 @@
 {
   "name": "Breaker",
-  "description": "Chews through dirt, glass, doors and planks when it can't reach you. The 1.8 `Break`/`BreakRunner`, and the reason bases needed defending.",
+  "description": "The sound is the warning: knuckles on planks, then on glass, then on whatever you built between you and it.",
   "base": "minecraft:zombie",
   "weight": 8,
   "health": 28.0,

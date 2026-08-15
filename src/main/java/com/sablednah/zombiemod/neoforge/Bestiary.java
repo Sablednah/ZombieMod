@@ -128,12 +128,15 @@ public final class Bestiary extends SavedData {
         lookup.listElements().forEach(holder -> {
             Identifier id = holder.key().identifier();
             // Names are resolved here because the client has no genus registry to look them up in.
+            int slain = killsOf(player.getUUID(), id);
             rows.add(new com.sablednah.zombiemod.net.DexPayload.Entry(id,
                     // Plain text. displayName() renders the genus's own colour codes, and in the
                     // dex those would override the grey/green that says whether you have met it -
                     // decoration beating information.
                     stripCodes(holder.value().name().orElse(id.getPath())),
-                    hasMet(player.getUUID(), id), killsOf(player.getUUID(), id)));
+                    hasMet(player.getUUID(), id), slain,
+                    slain > 0 ? DexDrops.itemIds(player.level().getServer(), holder.value())
+                            : java.util.List.of()));
         });
         rows.sort(java.util.Comparator.comparing(
                 com.sablednah.zombiemod.net.DexPayload.Entry::name, String.CASE_INSENSITIVE_ORDER));

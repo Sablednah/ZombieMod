@@ -1,6 +1,6 @@
 {
   "name": "Outrider",
-  "description": "Rides in on a zombie horse with an iron sword. The old `jockey` field.",
+  "description": "It rode in. That should not be possible, and it does not care: the sword is old, the horse is dead, and both still work.",
   "head": {
     "properties": {
       "textures": [

@@ -1,6 +1,6 @@
 {
   "name": "Ender Zombie",
-  "description": "Teleports **behind you, already facing you**, every few seconds. The tell isn't seeing it move \u2014 it's the sound at your back. A 1.8 favourite, rebuilt.",
+  "description": "You will not see it move. You will hear where it now is: behind you, already facing you.",
   "base": "minecraft:zombie",
   "weight": 4,
   "health": 30.0,

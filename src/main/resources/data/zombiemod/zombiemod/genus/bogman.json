@@ -1,6 +1,6 @@
 {
   "name": "Bogman",
-  "description": "A *drowned*, amphibious, swamp only. Inflicts Hunger.",
+  "description": "It waded in a long time ago and never quite came out. The swamp kept it; the hunger kept it moving.",
   "base": "minecraft:drowned",
   "weight": 10,
   "health": 28.0,

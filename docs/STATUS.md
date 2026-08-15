@@ -57,6 +57,11 @@ Last updated 2026-08-15.
   Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
   proven headlessly in both directions, but nobody has watched either happen.
 - **`alert`** — Screamer handing its target to a horde.
+- **`sound_target` in play.** The policy is proven (all four poses at their exact radii, through the
+  real goal), and the probe caught `isCrouching` lagging `isShiftKeyDown` before it shipped. What
+  nobody has done is sneak past a real Clicker in the dark, which is the entire point of it.
+- **The dex batch.** Drops enumeration is proven for all 16 tables; the mirror-Ghost, true-scale
+  dolls, play chips and drop icons are client rendering, provable only by eye.
 - **The dex info page.** All 54 descriptions load, the write-up renders, and the gate was proven in
   all three modes against a player who had met one thing and killed nothing. Untested in game: the
   clicking, the back button, the ability expansion, and above all the entity preview — that is the
@@ -127,8 +132,6 @@ waiting only for somebody to turn it on and judge it. One thing is genuinely out
 1. **Turn proximity spawning on and judge it.** Built and never played with. `outOfSightOnly` and
    `nearbyCap = 8` are the two numbers most likely to be wrong, and `/zombiemod status` reports the
    counters that say so.
-2. **Sound-driven aggro** — a Clicker that is genuinely blind but hears you sprint. The one 1.8 trope
-   with no equivalent here.
 3. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.

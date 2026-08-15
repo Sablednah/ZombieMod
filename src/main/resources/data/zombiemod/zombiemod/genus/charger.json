@@ -1,6 +1,6 @@
 {
   "name": "Charger",
-  "description": "Low, heavy, launches itself with big knockback.",
+  "description": "Head down, all shoulder. It crosses the last stretch faster than you expect and arrives like a door coming off its hinges.",
   "base": "minecraft:zombie",
   "weight": 6,
   "health": 45.0,

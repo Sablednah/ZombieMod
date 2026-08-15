@@ -374,6 +374,30 @@ public final class ZombieModCommands {
         for (Component line : com.sablednah.zombiemod.core.DexEntry.chat(genus, name)) {
             source.sendSuccess(() -> line, false);
         }
+        // Drops unlock on a kill specifically, whatever the info gate is set to - the reward
+        // before the first kill is a spoiler rather than a record.
+        if (genus.loot().isPresent()) {
+            if (bestiary.killsOf(player.getUUID(), id) > 0) {
+                var drops = DexDrops.itemIds(source.getServer(), genus);
+                if (!drops.isEmpty()) {
+                    var line = Component.literal(" Leaves behind: ").withStyle(ChatFormatting.DARK_GRAY);
+                    for (int i = 0; i < drops.size(); i++) {
+                        var itemId = net.minecraft.resources.Identifier.tryParse(drops.get(i));
+                        var item = itemId == null ? null
+                                : net.minecraft.core.registries.BuiltInRegistries.ITEM.getValue(itemId);
+                        line.append(Component.literal(i > 0 ? ", " : "").withStyle(ChatFormatting.DARK_GRAY))
+                                .append((item == null ? Component.literal(drops.get(i))
+                                        : new net.minecraft.world.item.ItemStack(item).getHoverName().copy())
+                                        .withStyle(ChatFormatting.WHITE));
+                    }
+                    var built = line;
+                    source.sendSuccess(() -> built, false);
+                }
+            } else {
+                source.sendSuccess(() -> Component.literal(" Kill one to learn what it leaves behind.")
+                        .withStyle(ChatFormatting.DARK_GRAY), false);
+            }
+        }
         return 1;
     }
 

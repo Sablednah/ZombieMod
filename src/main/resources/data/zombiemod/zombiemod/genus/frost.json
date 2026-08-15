@@ -1,6 +1,6 @@
 {
   "name": "Frost",
-  "description": "Snowy biomes. Chills you with Slowness.",
+  "description": "It carries the cold with it. Every touch takes some of your speed and gives none of it back.",
   "base": "minecraft:zombie",
   "weight": 8,
   "health": 24.0,

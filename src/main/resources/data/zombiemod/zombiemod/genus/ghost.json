@@ -1,6 +1,6 @@
 {
   "name": "Ghost",
-  "description": "Wears the name *and face* of a real player who has played on your server, trails soul particles, occasionally blinks behind you and sometimes just leaves. The old `GHOST` \u2014 which could only borrow the name.",
+  "description": "It wears the name and face of somebody who walked this world. It watches, it follows, and sometimes it simply is not there any more.",
   "base": "minecraft:zombie",
   "weight": 3,
   "health": 24.0,

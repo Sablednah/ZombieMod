@@ -1,6 +1,6 @@
 {
   "name": "Juggernaut",
-  "description": "16 armour, 6 toughness, self-heals. | `BORG`",
+  "description": "Built like a bank vault and about as reasonable. Whatever you did to it last is already healing.",
   "base": "minecraft:zombie",
   "weight": 4,
   "health": 60.0,

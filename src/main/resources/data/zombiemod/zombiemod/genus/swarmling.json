@@ -1,6 +1,6 @@
 {
   "name": "Swarmling",
-  "description": "Half-size, fast, weak, no abilities. Individually trivial, unpleasant in numbers.",
+  "description": "One is nothing. That has never once been the situation.",
   "base": "minecraft:zombie",
   "weight": 12,
   "health": 8.0,

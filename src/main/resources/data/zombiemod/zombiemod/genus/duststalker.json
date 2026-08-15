@@ -1,6 +1,6 @@
 {
   "name": "Dust Stalker",
-  "description": "A *husk*, desert/badlands/savanna. Kicks up blinding dust.",
+  "description": "Dried out and patient. It arrives inside its own storm, and the grit finds your eyes before it finds your throat.",
   "base": "minecraft:husk",
   "weight": 10,
   "health": 24.0,

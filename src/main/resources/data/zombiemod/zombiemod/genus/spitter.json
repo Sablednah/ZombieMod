@@ -1,6 +1,6 @@
 {
   "name": "Spitter",
-  "description": "Won't melee. Poisons from range.",
+  "description": "It keeps well back and shares what is rotting inside it, a mouthful at a time.",
   "base": "minecraft:zombie",
   "weight": 7,
   "health": 14.0,

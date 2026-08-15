@@ -1,6 +1,6 @@
 {
   "name": "Lazer",
-  "description": "Keeps its distance and burns you with a **red hitscan beam** drawn in `dust` particles. No melee at all.",
+  "description": "It will not close with you. A thin red line, a smell of burning, and suddenly range is your problem.",
   "base": "minecraft:zombie",
   "weight": 2,
   "health": 26.0,

@@ -1,6 +1,6 @@
 {
   "name": "Smoker",
-  "description": "Keeps its distance and drags you in. Heavy smoke, wheezing.",
+  "description": "A shape in its own haze, breathing badly. By the time you smell the smoke, something has you by the ankle.",
   "base": "minecraft:zombie",
   "weight": 6,
   "health": 20.0,

@@ -1,6 +1,6 @@
 {
   "name": "Screamer",
-  "description": "Won't fight you. Acquires you as a target, keeps its distance, and screams \u2014 handing you to every monster within 24 blocks. The horde does the work.",
+  "description": "It has no intention of fighting you. It just wants everything else to know exactly where you are.",
   "base": "minecraft:zombie",
   "weight": 5,
   "health": 16.0,

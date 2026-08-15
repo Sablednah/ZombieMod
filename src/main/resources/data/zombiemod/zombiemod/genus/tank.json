@@ -1,6 +1,6 @@
 {
   "name": "Tank",
-  "description": "2.2\u00d7 scale, 120 HP, immovable, shockwaves that launch you. Deep underground only.",
+  "description": "A wall that walks. The ground objects when it moves, and so will you.",
   "base": "minecraft:zombie",
   "weight": 2,
   "health": 120.0,

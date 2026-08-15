@@ -786,9 +786,16 @@ public final class Abilities {
 
         @Override
         public String describe() {
+            // Name what it actually eats - a sample plus the count, since "an explicit allowed
+            // list" can be three doors or seventy-six kinds of greenery.
+            List<String> names = allowed.stream()
+                    .map(h -> pretty(BuiltInRegistries.BLOCK.getKey(h.value())).toLowerCase())
+                    .limit(4).toList();
+            int more = allowed.size() - names.size();
+            String what = String.join(", ", names) + (more > 0 ? " and " + more + " more kinds" : "");
             return needsTarget
-                    ? "Digs through whatever is between it and you."
-                    : "Destroys what it walks over, whether or not anything has provoked it.";
+                    ? "Digs through " + what + " to reach you."
+                    : "Destroys " + what + " as it goes, provoked or not.";
         }
 
 
@@ -1396,8 +1403,20 @@ public final class Abilities {
         }
 
         @Override
+        public String label() {
+            return "Sound (" + soundName() + ")";
+        }
+
+        @Override
         public String describe() {
-            return "Makes noise.";
+            return "You will hear it before you see it: " + soundName().toLowerCase() + ".";
+        }
+
+        /** "entity.zombie.ambient" -> "Zombie ambient". Sound ids are dotted, not underscored. */
+        private String soundName() {
+            String path = sound.value().location().getPath();
+            path = path.replaceFirst("^(entity|block|item)\\.", "").replace('.', ' ').replace('_', ' ');
+            return path.isEmpty() ? path : Character.toUpperCase(path.charAt(0)) + path.substring(1);
         }
 
 

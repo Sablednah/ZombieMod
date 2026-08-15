@@ -287,6 +287,37 @@ public final class GoalSpecs {
         }
     }
 
+    /**
+     * Target by ear. See {@link SoundTargetGoal} — sprinting carries far, walking a middling
+     * distance, sneaking or standing still almost nothing, and walls and invisibility count for
+     * nought. The Clicker's goal, offered to any genus that wants to be blind and dangerous.
+     */
+    public record SoundTarget(int priority, double sprintRadius, double walkRadius,
+            double sneakRadius) implements GoalSpec {
+
+        public static final Identifier TYPE = id("sound_target");
+
+        public static final MapCodec<SoundTarget> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                priorityField(2).forGetter(SoundTarget::priority),
+                com.mojang.serialization.Codec.DOUBLE.optionalFieldOf("sprint_radius", 40.0D)
+                        .forGetter(SoundTarget::sprintRadius),
+                com.mojang.serialization.Codec.DOUBLE.optionalFieldOf("walk_radius", 12.0D)
+                        .forGetter(SoundTarget::walkRadius),
+                com.mojang.serialization.Codec.DOUBLE.optionalFieldOf("sneak_radius", 2.5D)
+                        .forGetter(SoundTarget::sneakRadius))
+                .apply(i, SoundTarget::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public Goal build(Mob mob) {
+            return new SoundTargetGoal(mob, sprintRadius, walkRadius, sneakRadius);
+        }
+    }
+
     public record NearestTarget(int priority, Class<? extends LivingEntity> target, boolean mustSee,
             int unseenMemory, boolean skipInfected, java.util.List<Identifier> genera) implements GoalSpec {
 

@@ -1,12 +1,12 @@
 {
   "name": "Clicker",
-  "description": "Nearly blind (10-block follow range) but hits like a truck. Clicks. Underground.",
+  "description": "Its eyes went first. It stands in the dark and listens \u2014 run and it will find you; hold your breath and creep past, and it may never know you were there.",
   "base": "minecraft:zombie",
   "weight": 9,
   "health": 30.0,
   "damage": 8.0,
   "speed": 0.95,
-  "follow_range": 10.0,
+  "follow_range": 40.0,
   "armor_color": 11577484,
   "head": {
     "properties": {
@@ -69,9 +69,11 @@
       "priority": 1
     },
     {
-      "type": "zombiemod:nearest_target",
+      "type": "zombiemod:sound_target",
       "priority": 2,
-      "target": "player"
+      "sprint_radius": 40.0,
+      "walk_radius": 12.0,
+      "sneak_radius": 2.5
     }
   ],
   "abilities": [

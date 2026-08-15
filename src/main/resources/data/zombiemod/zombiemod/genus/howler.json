@@ -1,6 +1,6 @@
 {
   "name": "Howler",
-  "description": "Deep underground. Fires the Warden's `sonic_boom` down a line.",
+  "description": "You feel it before you hear it \u2014 a note through the stone that arrives in your chest. By then it knows exactly where you are.",
   "base": "minecraft:zombie",
   "weight": 2,
   "health": 30.0,

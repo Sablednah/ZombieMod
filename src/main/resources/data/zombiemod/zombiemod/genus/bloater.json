@@ -1,6 +1,6 @@
 {
   "name": "Bloater",
-  "description": "Huge, poisonous, regenerates, detonates on approach.",
+  "description": "Swollen with something that wants out. It mends as it comes, and it does not intend to arrive intact.",
   "base": "minecraft:zombie",
   "weight": 8,
   "health": 40.0,

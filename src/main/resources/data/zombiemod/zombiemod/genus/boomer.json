@@ -1,6 +1,6 @@
 {
   "name": "Boomer",
-  "description": "Bloated, slow, swells and bursts, blinds everything nearby.",
+  "description": "Too full to hurry. When it finally reaches you it has one thing left to give, and it gives it all at once.",
   "base": "minecraft:zombie",
   "weight": 8,
   "health": 16.0,
