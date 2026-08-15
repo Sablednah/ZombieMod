@@ -145,9 +145,9 @@ upkeep once someone actually asks for a translation.
 
 ## Next, in the order I'd do it
 
-1. **Turn proximity spawning on and judge it.** Built and never played with. `outOfSightOnly` and
-   `nearbyCap = 8` are the two numbers most likely to be wrong, and `/zombiemod status` reports the
-   counters that say so.
+1. **Proximity in survival.** Enabled in Sable's instance; the cap semantics are settled ("quiet
+   place top up is perfect" — 2026-08-15). What remains is simply a survival session on quiet ground
+   watching it fire, and whether `nearbyCap = 8` feels like atmosphere.
 3. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.

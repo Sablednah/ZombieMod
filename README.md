@@ -1612,6 +1612,16 @@ what it's been doing:
 proximity: true   240 attempts, 12 spawned (no spot 31, in view 190, at cap 7, claimed 0, no genus 0)
 ```
 
+**The cap is the design, and it is settled.** `nearbyCap` counts *every* ZombieMod mob within reach,
+not just proximity's own — so on a busy night, proximity correctly does nothing at all, and its whole
+contribution is to *quiet* places: daytime, lit ground, the cave you just cleared. It is a top-up to
+"you are never truly alone", never a density multiplier — `vanillaWeight` owns density. (Considered
+and deliberately rejected: counting only proximity's own spawns, which would stack its cap on top of
+busy nights.)
+
+Also worth knowing before you test it: **proximity ignores creative and spectator players
+entirely**, and `/zm status` says so to your face when you are the reason nothing is happening.
+
 The breakdown matters more than the total. 240 attempts producing 12 tells you little; 190 of them
 rejected *for being in view* tells you exactly which knob to turn — lower `outOfSightOnly`, or push
 `minDistance` out so there's more cover between you and the spot. `logSpawns = true` logs each one
