@@ -1,147 +1,413 @@
 package com.sablednah.zombiemod.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sablednah.zombiemod.ZombieModRegistries;
+import com.sablednah.zombiemod.core.DexEntry;
+import com.sablednah.zombiemod.core.Genus;
 import com.sablednah.zombiemod.net.DexPayload;
 
-import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.FormattedCharSequence;
+import net.minecraft.world.entity.LivingEntity;
 
 /**
- * The ZombieDex.
+ * The ZombieDex, dressed as a field guide in the same binding as LegendQuest's Players Handbook —
+ * deliberately: Sable runs both mods, and two books on one shelf should match. Same parchment
+ * gradient, bronze-and-gold frame, corner stars, scissored columns and gold scrollbars; a size up
+ * from the handbook, because a bestiary carries a mob doll where the handbook carries text.
  *
- * <p>Deliberately shows nothing a vanilla player cannot already read from {@code /zm bestiary} or
- * the book — it is a nicer window onto the same record, not a better one. A modded client that could
- * see more would be playing a different game from the friend standing next to it.
+ * <p>Two panes, one screen. The left column lists every genus, coloured by progress; the right pane
+ * opens on an introduction and becomes the entry when a name is clicked. Everything it shows a
+ * vanilla player can already read from {@code /zm bestiary} and {@code /zm bestiary info} — this is
+ * a nicer window onto the same record, never a better one.
+ *
+ * <p>All text colour parameters are opaque white ({@code 0xFFFFFFFF}) with §-codes carrying the
+ * colour, the handbook's convention — and the safe one, since the parameter is ARGB and
+ * {@code 0xFFFFFF} is fully transparent.
  */
 public final class DexScreen extends Screen {
 
-    /**
-     * Opaque white. The colour argument is <b>ARGB</b>, so the tempting {@code 0xFFFFFF} carries an
-     * alpha of zero and draws nothing at all — a screen that dims correctly and is then empty.
-     * Vanilla writes this as {@code -1} everywhere for the same reason.
-     */
-    private static final int WHITE = 0xFFFFFFFF;
+    private static final int LIST_W = 112;
+    private static final int HEADER_H = 26;
+    private static final int DOLL_W = 84;
 
-    private static final int ROW = 12;
-    private static final int COLUMNS = 3;
+    // The tome palette, shared with the LegendQuest handbook by copying, not by dependency.
+    private static final int PARCHMENT_TOP = 0xF81E1610;
+    private static final int PARCHMENT_BOTTOM = 0xF8120C08;
+    private static final int BRONZE = 0xFF6B4A1B;
+    private static final int GOLD = 0xFFDAA520;
+    private static final int GOLD_DIM = 0x80DAA520;
+    private static final int INK_DIVIDER = 0xFF44382A;
 
-    private int scroll;
-    /** Where each row was drawn last frame, so a click can find it. Rebuilt every render. */
-    private final java.util.List<int[]> hitboxes = new java.util.ArrayList<>();
-    private final java.util.List<DexPayload.Entry> visible = new java.util.ArrayList<>();
+    /** Clickable regions, rebuilt every frame (immediate-mode style, as the handbook does it). */
+    private record Hot(int x0, int y0, int x1, int y1, Runnable action) {}
 
-    /**
-     * The page itself: a dark plate with a lighter edge, translucent enough to keep the world
-     * behind it. Shared with {@link DexInfoScreen} so the two read as one book rather than two
-     * screens that happen to follow each other.
-     */
-    static void panel(GuiGraphics gfx, int width, int height) {
-        int x0 = Math.max(8, width / 2 - 210);
-        int x1 = Math.min(width - 8, width / 2 + 210);
-        int y0 = 8;
-        int y1 = height - 8;
-        gfx.fill(x0, y0, x1, y1, 0xC0080808);
-        gfx.fill(x0, y0, x1, y0 + 1, 0x40FFFFFF);
-        gfx.fill(x0, y1 - 1, x1, y1, 0x40FFFFFF);
-        gfx.fill(x0, y0, x0 + 1, y1, 0x40FFFFFF);
-        gfx.fill(x1 - 1, y0, x1, y1, 0x40FFFFFF);
-    }
+    private final List<Hot> hotspots = new ArrayList<>();
+
+    /** Null means the intro page. */
+    private Identifier selectedId;
+    private int expandedAbility = -1;
+    private double scroll;
+    private double maxScroll;
+    private double listScroll;
+    private double maxListScroll;
 
     public DexScreen() {
         super(Component.literal("ZombieDex"));
     }
 
-    @Override
-    public boolean isPauseScreen() {
-        return false;
+    // --- layout ---
+
+    private int bookW() {
+        return Math.min(400, width - 16);
     }
 
-    @Override
-    public void render(GuiGraphics gfx, int mouseX, int mouseY, float partial) {
-        super.render(gfx, mouseX, mouseY, partial);
-        panel(gfx, width, height);
-        var entries = DexState.entries();
+    private int bookH() {
+        return Math.min(280, height - 16);
+    }
 
-        gfx.drawCenteredString(font, Component.literal("ZombieDex").withStyle(ChatFormatting.GOLD),
-                width / 2, 14, WHITE);
-        gfx.drawCenteredString(font, Component.literal(
-                        DexState.slain() + " of " + entries.size() + " slain, " + DexState.met() + " met")
-                .withStyle(ChatFormatting.GRAY), width / 2, 26, WHITE);
+    private int bookX() {
+        return (width - bookW()) / 2;
+    }
+
+    private int bookY() {
+        return (height - bookH()) / 2;
+    }
+
+    private int paneX() {
+        return bookX() + LIST_W + 14;
+    }
+
+    private int paneW() {
+        return bookX() + bookW() - 10 - paneX();
+    }
+
+    private int paneY() {
+        return bookY() + HEADER_H;
+    }
+
+    private int paneH() {
+        return bookY() + bookH() - 22 - paneY();
+    }
+
+    private DexPayload.Entry selected() {
+        if (selectedId == null) {
+            return null;
+        }
+        for (DexPayload.Entry e : DexState.entries()) {
+            if (e.genus().equals(selectedId)) {
+                return e;
+            }
+        }
+        return null;
+    }
+
+    private void select(Identifier id) {
+        selectedId = id;
+        expandedAbility = -1;
+        scroll = 0;
+    }
+
+    // --- rendering ---
+
+    @Override
+    public void render(GuiGraphics g, int mouseX, int mouseY, float partial) {
+        super.render(g, mouseX, mouseY, partial); // dimmed world
+        hotspots.clear();
+
+        int x = bookX();
+        int y = bookY();
+        int w = bookW();
+        int h = bookH();
+
+        // The binding: aged leather in a bronze frame with gold inlay, stars in the corners.
+        g.fillGradient(x, y, x + w, y + h, PARCHMENT_TOP, PARCHMENT_BOTTOM);
+        frame(g, x - 2, y - 2, x + w + 2, y + h + 2, BRONZE, 2);
+        frame(g, x + 2, y + 2, x + w - 2, y + h - 2, GOLD_DIM, 1);
+        g.drawString(font, "§6✦", x + 4, y + 4, 0xFFFFFFFF);
+        g.drawString(font, "§6✦", x + w - 12, y + 4, 0xFFFFFFFF);
+        g.drawString(font, "§6✦", x + 4, y + h - 13, 0xFFFFFFFF);
+        g.drawString(font, "§6✦", x + w - 12, y + h - 13, 0xFFFFFFFF);
+
+        // Title row: back chip, flourished title, close chip.
+        String title = "§6§l ZombieDex ";
+        int titleW = font.width(title);
+        int titleX = x + (w - titleW) / 2;
+        g.drawString(font, "§8── ✦ ──", titleX - 42, y + 7, 0xFFFFFFFF);
+        g.drawString(font, title, titleX, y + 6, 0xFFFFFFFF);
+        g.drawString(font, "§8── ✦ ──", titleX + titleW + 2, y + 7, 0xFFFFFFFF);
+        chip(g, x + 8, y + 5, 14, "«", selectedId != null, mouseX, mouseY, () -> select(null));
+        chip(g, x + w - 22, y + 5, 14, "✕", true, mouseX, mouseY, this::onClose);
+
+        // Divider with the centre ornament.
+        int divY = y + HEADER_H - 6;
+        g.fill(x + 8, divY, x + w - 8, divY + 1, INK_DIVIDER);
+        g.drawString(font, "§6❖", x + w / 2 - 3, divY - 4, 0xFFFFFFFF);
+
+        // Footer tally, centred in the binding.
+        var entries = DexState.entries();
+        g.drawCenteredString(font, "§8✦ §7" + DexState.slain() + "§8/§7" + entries.size()
+                        + " slain §8· §7" + DexState.met() + " met §8✦",
+                x + w / 2, y + h - 13, 0xFFFFFFFF);
+
+        drawList(g, mouseX, mouseY, entries);
+
+        DexPayload.Entry current = selected();
+        if (current == null) {
+            drawIntro(g, entries);
+        } else {
+            drawEntry(g, mouseX, mouseY, current);
+        }
+    }
+
+    /** The left column: every genus, coloured by progress, scissored and scrollable. */
+    private void drawList(GuiGraphics g, int mouseX, int mouseY, List<DexPayload.Entry> entries) {
+        int listX = bookX() + 6;
+        int listTop = paneY() - 1;
+        int listBottom = bookY() + bookH() - 20;
+        int listH = listBottom - listTop;
+
+        maxListScroll = Math.max(0, entries.size() * 12 + 2 - listH);
+        listScroll = Math.max(0, Math.min(listScroll, maxListScroll));
+
+        g.fill(listX, listTop - 1, listX + LIST_W - 4, listBottom, 0x30000000);
+        g.enableScissor(listX, listTop, listX + LIST_W - 4, listBottom);
+        int ly = listTop + 2 - (int) listScroll;
+        for (DexPayload.Entry e : entries) {
+            boolean rowVisible = ly + 10 > listTop && ly - 1 < listBottom;
+            boolean readable = e.met() || e.kills() > 0;
+            boolean isSelected = e.genus().equals(selectedId);
+            boolean hover = rowVisible && readable
+                    && mouseX >= listX && mouseX < listX + LIST_W - 4
+                    && mouseY >= Math.max(ly - 1, listTop) && mouseY < Math.min(ly + 10, listBottom);
+            if (isSelected) {
+                g.fill(listX, ly - 1, listX + LIST_W - 4, ly + 10, 0x40DAA520);
+            } else if (hover) {
+                g.fill(listX, ly - 1, listX + LIST_W - 4, ly + 10, 0x28FFFFFF);
+            }
+            // The mark is the progress, the colour is the affordance: gold when open, warm when
+            // clickable, receding into the page when not yet earned.
+            String mark = e.kills() > 0 ? "§a✔ " : e.met() ? "§e? " : "§8✘ ";
+            String colour = isSelected ? "§6§l" : hover ? "§e" : readable ? "§7" : "§8";
+            g.drawString(font, mark + colour + trim(e.name(), LIST_W - 22), listX + 3, ly, 0xFFFFFFFF);
+            if (readable && !isSelected && rowVisible) {
+                Identifier id = e.genus();
+                hotspots.add(new Hot(listX, Math.max(ly - 1, listTop),
+                        listX + LIST_W - 4, Math.min(ly + 10, listBottom), () -> select(id)));
+            }
+            ly += 12;
+        }
+        g.disableScissor();
+
+        if (maxListScroll > 0) {
+            int barX = listX + LIST_W - 6;
+            g.fill(barX, listTop, barX + 2, listBottom, 0x50000000);
+            int contentH = entries.size() * 12 + 2;
+            int thumbH = Math.max(10, listH * listH / contentH);
+            int thumbY = listTop + (int) ((listH - thumbH) * (listScroll / maxListScroll));
+            g.fill(barX, thumbY, barX + 2, thumbY + thumbH, 0xC0DAA520);
+        }
+    }
+
+    /** The right pane before anything is chosen: what this book is, and how it fills in. */
+    private void drawIntro(GuiGraphics g, List<DexPayload.Entry> entries) {
+        int px = paneX();
+        int py = paneY() + 6;
+        int pw = paneW() - 4;
 
         if (entries.isEmpty()) {
-            gfx.drawCenteredString(font, Component.literal("Nothing yet - the server has not sent one.")
-                    .withStyle(ChatFormatting.DARK_GRAY), width / 2, height / 2, WHITE);
+            g.drawString(font, "§8Nothing yet — the server has not sent one.", px, py, 0xFFFFFFFF);
             return;
         }
-
-        int columnWidth = Math.min(160, (width - 40) / COLUMNS);
-        int left = (width - columnWidth * COLUMNS) / 2;
-        int top = 46;
-        int rows = Math.max(1, (height - top - 20) / ROW);
-        int perPage = rows * COLUMNS;
-        int start = Math.min(scroll, Math.max(0, entries.size() - perPage));
-        hitboxes.clear();
-        visible.clear();
-
-        for (int i = 0; i < perPage && start + i < entries.size(); i++) {
-            DexPayload.Entry e = entries.get(start + i);
-            int x = left + (i / rows) * columnWidth;
-            int y = top + (i % rows) * ROW;
-
-            String mark = e.kills() > 0 ? "✔ " : e.met() ? "? " : "✘ ";
-            ChatFormatting colour = e.kills() > 0 ? ChatFormatting.GREEN
-                    : e.met() ? ChatFormatting.YELLOW : ChatFormatting.DARK_GRAY;
-            // Unmet entries stay legible but plainly unfinished - a checklist has to show its gaps.
-            ChatFormatting nameColour = e.kills() > 0 ? ChatFormatting.WHITE
-                    : e.met() ? ChatFormatting.GRAY : ChatFormatting.DARK_GRAY;
-
-            var line = Component.literal(mark).withStyle(colour)
-                    .append(Component.literal(e.name()).withStyle(nameColour));
-            if (e.kills() > 1) {
-                line.append(Component.literal(" x" + e.kills()).withStyle(ChatFormatting.DARK_GRAY));
-            }
-            boolean readable = e.met() || e.kills() > 0;
-            boolean hovered = readable && mouseX >= x && mouseX <= x + columnWidth - 6
-                    && mouseY >= y && mouseY < y + ROW;
-            if (hovered) {
-                // A faint plate rather than a colour change: the tick and the name already carry
-                // meaning, and a third colour on the same row would be one signal too many.
-                gfx.fill(x - 2, y - 1, x + columnWidth - 6, y + ROW - 2, 0x33FFFFFF);
-            }
-            gfx.drawString(font, line, x, y, WHITE, false);
-            hitboxes.add(new int[] {x - 2, y - 1, x + columnWidth - 6, y + ROW - 2});
-            visible.add(e);
+        g.drawString(font, "§6§lA Field Guide to the Dead", px, py, 0xFFFFFFFF);
+        py += 14;
+        for (FormattedCharSequence line : font.split(FormattedText.of(
+                "§7A record of everything you have met, and everything you have put down."), pw)) {
+            g.drawString(font, line, px, py, 0xFFFFFFFF);
+            py += 10;
         }
-
-        gfx.drawCenteredString(font, Component.literal(
-                        "click a name you have met to read its entry")
-                .withStyle(ChatFormatting.DARK_GRAY), width / 2, height - 26, WHITE);
-
-        if (entries.size() > perPage) {
-            gfx.drawCenteredString(font, Component.literal("scroll for more")
-                    .withStyle(ChatFormatting.DARK_GRAY), width / 2, height - 14, WHITE);
+        py += 6;
+        g.drawString(font, "§a✔ §7slain   §e? §7met   §8✘ not yet found", px, py, 0xFFFFFFFF);
+        py += 14;
+        for (FormattedCharSequence line : font.split(FormattedText.of(
+                "§8Click a name you have met to read its entry. The rest stay closed until you find them."),
+                pw)) {
+            g.drawString(font, line, px, py, 0xFFFFFFFF);
+            py += 10;
         }
     }
 
+    /** The entry: description, the stat block, expandable abilities, and the doll. */
+    private void drawEntry(GuiGraphics g, int mouseX, int mouseY, DexPayload.Entry current) {
+        int px = paneX();
+        int py = paneY();
+        int pw = paneW() - DOLL_W - 8; // the doll keeps its column; text wraps beside it
+        int ph = paneH();
+
+        Holder.Reference<Genus> holder = null;
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level != null) {
+            holder = mc.level.registryAccess().lookupOrThrow(ZombieModRegistries.GENUS)
+                    .get(ResourceKey.create(ZombieModRegistries.GENUS, current.genus())).orElse(null);
+        }
+        if (holder == null) {
+            g.drawString(font, "§8This entry is missing from the loaded datapacks.", px, py + 6, 0xFFFFFFFF);
+            return;
+        }
+        Genus genus = holder.value();
+
+        g.enableScissor(px, py, px + pw, py + ph);
+        int cy = py + 2 - (int) scroll;
+
+        g.drawString(font, "§6§l" + current.name(), px, cy, 0xFFFFFFFF);
+        cy += 11;
+        if (current.kills() > 0) {
+            g.drawString(font, "§8Slain §7" + current.kills(), px, cy, 0xFFFFFFFF);
+            cy += 11;
+        }
+        cy += 2;
+
+        if (genus.description().isPresent()) {
+            for (FormattedCharSequence line : font.split(FormattedText.of(
+                    "§7§o" + genus.description().get()), pw)) {
+                g.drawString(font, line, px, cy, 0xFFFFFFFF);
+                cy += 10;
+            }
+            cy += 4;
+        }
+
+        for (DexEntry.Row row : DexEntry.stats(genus)) {
+            g.drawString(font, "§8" + row.label() + ": §f" + row.detail(), px, cy, 0xFFFFFFFF);
+            cy += 10;
+        }
+
+        List<DexEntry.Row> abilities = DexEntry.abilities(genus);
+        if (!abilities.isEmpty()) {
+            cy += 4;
+            g.fill(px, cy + 3, px + pw - 8, cy + 4, INK_DIVIDER);
+            g.drawString(font, "§8 Abilities ", px + 8, cy, 0xFFFFFFFF);
+            cy += 11;
+            for (int i = 0; i < abilities.size(); i++) {
+                DexEntry.Row a = abilities.get(i);
+                boolean open = expandedAbility == i;
+                boolean hover = mouseX >= px && mouseX < px + pw
+                        && mouseY >= cy - 1 && mouseY < cy + 10
+                        && mouseY >= py && mouseY < py + ph;
+                if (hover) {
+                    g.fill(px - 1, cy - 1, px + pw - 2, cy + 10, 0x28FFFFFF);
+                }
+                String colour = open ? "§6" : hover ? "§e" : "§7";
+                g.drawString(font, colour + (open ? "▼ " : "▶ ") + a.label(), px, cy, 0xFFFFFFFF);
+                final int index = i;
+                hotspots.add(new Hot(px, Math.max(cy - 1, py), px + pw - 2,
+                        Math.min(cy + 10, py + ph),
+                        () -> expandedAbility = expandedAbility == index ? -1 : index));
+                cy += 11;
+                if (open && !a.detail().isEmpty()) {
+                    for (FormattedCharSequence line : font.split(
+                            FormattedText.of("§7" + a.detail()), pw - 10)) {
+                        g.drawString(font, line, px + 10, cy, 0xFFFFFFFF);
+                        cy += 10;
+                    }
+                    cy += 2;
+                }
+            }
+        }
+        g.disableScissor();
+
+        // Scroll affordances, the handbook's: edge shadows plus an honest little bar.
+        int contentH = (cy + (int) scroll) - py;
+        maxScroll = Math.max(0, contentH - ph);
+        scroll = Math.max(0, Math.min(scroll, maxScroll));
+        if (scroll > 0) {
+            g.fillGradient(px, py, px + pw, py + 8, 0xA0000000, 0x00000000);
+        }
+        if (maxScroll - scroll > 0) {
+            g.fillGradient(px, py + ph - 8, px + pw, py + ph, 0x00000000, 0xA0000000);
+        }
+        if (maxScroll > 0) {
+            int barX = px + pw - 4;
+            g.fill(barX, py, barX + 2, py + ph, 0x50000000);
+            int thumbH = Math.max(12, (int) ((long) ph * ph / contentH));
+            int thumbY = py + (int) ((ph - thumbH) * (scroll / maxScroll));
+            g.fill(barX, thumbY, barX + 2, thumbY + thumbH, 0xC0DAA520);
+        }
+
+        // The plate: the doll in its own gold-dim frame, outside the scissor so the entity renderer
+        // cannot be half-clipped, fixed while the text scrolls - a manuscript's margin figure.
+        int dx1 = paneX() + paneW() - 2;
+        int dx0 = dx1 - DOLL_W + 6;
+        int dh = Math.min(150, ph - 4);
+        int dy0 = py + (ph - dh) / 2;
+        int dy1 = dy0 + dh;
+        g.fill(dx0, dy0, dx1, dy1, 0x40000000);
+        frame(g, dx0, dy0, dx1, dy1, GOLD_DIM, 1);
+        LivingEntity doll = DexPreview.of(current.genus(), holder);
+        if (doll != null) {
+            int size = Math.max(18, (int) ((dh * 0.34) / Math.max(1.0, genus.scale())));
+            InventoryScreen.renderEntityInInventoryFollowsMouse(g, dx0 + 2, dy0 + 2, dx1 - 2, dy1 - 2,
+                    size, 0.0625F, mouseX, mouseY, doll);
+        }
+    }
+
+    /** A chip in the handbook's language: dark plate, bronze-or-gold frame, warm on hover. */
+    private void chip(GuiGraphics g, int x, int y, int w, String label, boolean enabled,
+            int mouseX, int mouseY, Runnable action) {
+        int h = 14;
+        boolean hover = enabled && mouseX >= x && mouseX < x + w && mouseY >= y && mouseY < y + h;
+        g.fill(x, y, x + w, y + h, hover ? 0xFF33291E : 0xFF221A12);
+        frame(g, x, y, x + w, y + h, hover ? GOLD : enabled ? GOLD_DIM : BRONZE, 1);
+        String colour = !enabled ? "§8" : hover ? "§e" : "§7";
+        g.drawString(font, colour + label, x + (w - font.width(label)) / 2, y + 3, 0xFFFFFFFF);
+        if (enabled) {
+            hotspots.add(new Hot(x, y, x + w, y + h, action));
+        }
+    }
+
+    /** A hollow rectangle of the given line thickness. */
+    private static void frame(GuiGraphics g, int x0, int y0, int x1, int y1, int colour, int t) {
+        g.fill(x0, y0, x1, y0 + t, colour);
+        g.fill(x0, y1 - t, x1, y1, colour);
+        g.fill(x0, y0, x0 + t, y1, colour);
+        g.fill(x1 - t, y0, x1, y1, colour);
+    }
+
+    private String trim(String text, int width) {
+        if (font.width(text) <= width) {
+            return text;
+        }
+        String out = text;
+        while (!out.isEmpty() && font.width(out + "…") > width) {
+            out = out.substring(0, out.length() - 1);
+        }
+        return out + "…";
+    }
+
+    // --- input ---
+
     @Override
-    public boolean mouseClicked(net.minecraft.client.input.MouseButtonEvent event, boolean doubled) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubled) {
         if (super.mouseClicked(event, doubled)) {
             return true;
         }
-        for (int i = 0; i < hitboxes.size(); i++) {
-            int[] box = hitboxes.get(i);
-            if (event.x() >= box[0] && event.x() <= box[2]
-                    && event.y() >= box[1] && event.y() <= box[3]) {
-                DexPayload.Entry e = visible.get(i);
-                // The gate is the server's, and this is a courtesy copy of it: an entry you could
-                // read before meeting the thing would be a manual rather than a bestiary. The
-                // server enforces the same rule for /zm bestiary info.
-                if (!e.met() && e.kills() == 0) {
-                    return false;
-                }
-                net.minecraft.client.Minecraft.getInstance()
-                        .setScreen(new DexInfoScreen(this, e.genus(), e.name()));
+        if (event.button() != 0) {
+            return false;
+        }
+        for (Hot hot : hotspots) {
+            if (event.x() >= hot.x0() && event.x() < hot.x1()
+                    && event.y() >= hot.y0() && event.y() < hot.y1()) {
+                hot.action().run();
                 return true;
             }
         }
@@ -150,7 +416,20 @@ public final class DexScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double dx, double dy) {
-        scroll = Math.max(0, scroll - (int) Math.signum(dy) * COLUMNS);
+        if (super.mouseScrolled(mouseX, mouseY, dx, dy)) {
+            return true;
+        }
+        // The wheel scrolls whichever column it hovers over, exactly as the handbook does.
+        if (mouseX < paneX() - 2) {
+            listScroll = Math.max(0, Math.min(maxListScroll, listScroll - dy * 12));
+        } else {
+            scroll = Math.max(0, Math.min(maxScroll, scroll - dy * 12));
+        }
         return true;
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 }

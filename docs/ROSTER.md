@@ -1,17 +1,18 @@
 # The shipped roster
 
-45 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+54 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
-Weights are relative, drawn against `vanillaWeight` in the config (default 200) — and crucially the
-draw is **per base mob**, so a husk genus only competes with other husk genera. Archer at weight 7
+Weights are relative, drawn against `vanillaWeight` in the config (default **40**) — and crucially
+the draw is **per base mob**, so a husk genus only competes with other husk genera. Archer at weight 7
 gets essentially every eligible skeleton spawn, because nothing else wants skeletons.
 
-**The balance has drifted as the roster grew.** `vanillaWeight = 200` was set when the genera totalled
-about 190; they now total 265 on zombies alone, so roughly half of all eligible zombie spawns become a
-genus at night and slightly more underground. That may well be right for a mod called ZombieMod, but
-it's worth a deliberate decision rather than an accident — raising `vanillaWeight` is the one dial.
+**The balance was settled deliberately in August.** The default is low on purpose — if the mod is
+installed you should notice — and the vanilla share is *depth-dependent*, because most genera carry
+spawn conditions: measured at roughly 26% plain zombies on the surface and 13% deep underground. The
+measured table and the reasoning live in the README's spawning section; `builtinGenera = false`
+switches the whole shipped roster off for servers running their own.
 
 ## Speed horror — *28 Days Later*, *Dying Light*
 
@@ -156,3 +157,21 @@ Worth reading the files rather than just the table — between them they exercis
 - **A reactive ability** — Herobrine's teleport fires on being shot, outside the tick schedule.
 - **A mob with no attack at all** — Herobrine does 0 damage and has no melee goal.
 - **Conditional behaviour** — Nightstalker's `avoid_entity` and `melee_attack` are gated on the clock.
+
+## Since this survey — August additions
+
+Descriptions as they appear in the ZombieDex (each genus now carries its own `description` field, so
+this table cannot drift from the game the way the ones above once did).
+
+| Genus | Weight | Idea |
+|-------|-------:|------|
+| **Apothecary** | 6 | A village healer, still carrying whatever they were mixing. Turned with the rest of them. |
+| **Blight** | 10 | Industrial rot on legs. Eats flowers, leaves, grass and moss wherever it walks, and leaves nausea behind it. |
+| **Bramble** | 8 | The city taking itself back. Slow, tough, and lays moss as it goes. It is not hunting you; you are simply in the way. |
+| **Commuter** | 45 | Office worker, still holding the shovel someone gave them at the end. Haunts the high streets it used to walk to work. |
+| **Field Hand** | 10 | Farm labour that never went home. Slow, patient, and used to long days. |
+| **Glowing One** | 3 | Something went very wrong underground. Green from the inside out, and it poisons the air around it. |
+| **Harvester** | 40 | Still working the fields, still holding the hoe. It does not know the harvest is over. |
+| **Corpse** | 0 | A player who died here, wearing their own face and carrying their own things. Kill it to get them back. |
+| **Sleeper** | 2 | Enormous, ancient, and entirely uninterested in you until you are close enough to touch. Arrows still in it from people who tried. |
+| **Townsfolk** | 14 | Somebody's neighbour. No skills, no weapon, no idea what happened. |

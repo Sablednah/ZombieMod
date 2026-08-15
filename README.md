@@ -1631,7 +1631,7 @@ already does the job.
 
 ## Status
 
-**Alpha, but broadly working.** 43 genera, every ability from the 1.8 plugin rebuilt, and most of it
+**Alpha, but broadly working.** 54 genera, every ability from the 1.8 plugin rebuilt, and most of it
 confirmed in play. See [`docs/STATUS.md`](docs/STATUS.md) for what's verified, what's built but
 untested, and what's left — including the two things still missing from the original (proximity
 spawning, and bounty pending an economy decision).

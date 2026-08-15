@@ -37,7 +37,19 @@ public final class DexPreview {
 
     /** Null when the genus's base is not something that can be drawn as a living thing. */
     public static LivingEntity of(Identifier id, Holder.Reference<Genus> holder) {
-        return CACHE.computeIfAbsent(id, k -> build(holder.value()));
+        LivingEntity cached = CACHE.get(id);
+        // A cached doll belongs to the level it was built in. After a rejoin or a dimension change
+        // it would be an entity holding a dead ClientLevel, which the renderer may follow into
+        // anything - so a stale one is rebuilt rather than trusted.
+        if (cached != null && cached.level() == Minecraft.getInstance().level) {
+            return cached;
+        }
+        CACHE.remove(id);
+        LivingEntity fresh = build(holder.value());
+        if (fresh != null) {
+            CACHE.put(id, fresh);
+        }
+        return fresh;
     }
 
     /** Dropped whenever the world changes, since the entities belong to a level. */

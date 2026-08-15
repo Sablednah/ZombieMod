@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-07-30.
+Last updated 2026-08-15.
 
 ## Built and verified in game
 
