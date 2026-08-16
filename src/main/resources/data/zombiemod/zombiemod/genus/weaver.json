@@ -88,5 +88,9 @@
       "count": 2
     }
   ],
-  "bounty": 3.0
+  "bounty": 3.0,
+  "loot": {
+    "table": "zombiemod:entities/weaver",
+    "replace": false
+  }
 }

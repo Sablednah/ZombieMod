@@ -94,5 +94,9 @@
       "id": "minecraft:chainmail_chestplate"
     },
     "drop_chance": 0.0
+  },
+  "loot": {
+    "table": "zombiemod:entities/colossus",
+    "replace": false
   }
 }

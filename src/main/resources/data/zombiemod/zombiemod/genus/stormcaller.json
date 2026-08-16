@@ -87,5 +87,9 @@
   "equipment": {
     "mainhand": "minecraft:trident",
     "drop_chance": 0.0
+  },
+  "loot": {
+    "table": "zombiemod:entities/stormcaller",
+    "replace": false
   }
 }

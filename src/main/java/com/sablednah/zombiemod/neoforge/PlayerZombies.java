@@ -99,11 +99,8 @@ public final class PlayerZombies {
                 ZombieModConfig.PLAYER_ZOMBIE_NAME.get().replace("%P", player.getName().getString())));
         corpse.setCustomNameVisible(true);
 
-        // Their actual face, on a vanilla client. The 1.8 version needed Spout for this.
-        ItemStack head = new ItemStack(net.minecraft.world.item.Items.PLAYER_HEAD);
-        head.set(DataComponents.PROFILE, ResolvableProfile.createResolved(player.getGameProfile()));
-        corpse.setItemSlot(EquipmentSlot.HEAD, head);
-        corpse.setDropChance(EquipmentSlot.HEAD, 0.0F);
+        // Resolved here, because the player is right in front of us and their profile is complete.
+        face(corpse, ResolvableProfile.createResolved(player.getGameProfile()));
 
         List<ItemStack> carried = new ArrayList<>();
         if (ZombieModConfig.PLAYER_ZOMBIE_TAKES_ITEMS.get()) {
@@ -137,7 +134,7 @@ public final class PlayerZombies {
      * <p>Copies, deliberately: the originals stay in the carried list and drop from there. Equipping
      * the real stacks would hand the player their armour twice.
      */
-    private void wearVisibleArmour(Mob corpse, List<ItemStack> carried) {
+    private static void wearVisibleArmour(Mob corpse, List<ItemStack> carried) {
         for (ItemStack stack : carried) {
             EquipmentSlot slot = corpse.getEquipmentSlotForItem(stack);
             if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR && slot != EquipmentSlot.HEAD
@@ -176,9 +173,23 @@ public final class PlayerZombies {
     /** Re-attach a ledger entry's items to a rebuilt corpse, so recovery is a real second chance. */
     static void rebuild(ServerLevel level, Mob corpse, CorpseLedger.Entry entry) {
         corpse.getPersistentData().putString(LEDGER_TAG, entry.id().toString());
+        // The face and the armour, not just the pockets. A rebuilt corpse used to come back bald
+        // and unarmoured while carrying everything, which reads as the wrong corpse - and the whole
+        // point of the player zombie is that it is recognisably *you*. By uuid rather than name so
+        // it still finds the right skin for somebody who has since renamed.
+        face(corpse, ResolvableProfile.createUnresolved(entry.player()));
         if (!entry.items().isEmpty()) {
             store(level, corpse, entry.items());
+            wearVisibleArmour(corpse, entry.items());
         }
+    }
+
+    /** Their actual face, on a vanilla client. The 1.8 version needed Spout for this. */
+    private static void face(Mob corpse, ResolvableProfile profile) {
+        ItemStack head = new ItemStack(net.minecraft.world.item.Items.PLAYER_HEAD);
+        head.set(DataComponents.PROFILE, profile);
+        corpse.setItemSlot(EquipmentSlot.HEAD, head);
+        corpse.setDropChance(EquipmentSlot.HEAD, 0.0F);
     }
 
     // ------------------------------------------------------------------ storage

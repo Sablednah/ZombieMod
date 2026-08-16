@@ -100,5 +100,9 @@
     }
   ],
   "bounty": 8.0,
-  "xp": 25
+  "xp": 25,
+  "loot": {
+    "table": "zombiemod:entities/volatile",
+    "replace": false
+  }
 }

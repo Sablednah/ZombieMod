@@ -95,5 +95,9 @@
       "count": 2
     }
   ],
-  "bounty": 5.0
+  "bounty": 5.0,
+  "loot": {
+    "table": "zombiemod:entities/lazer",
+    "replace": false
+  }
 }

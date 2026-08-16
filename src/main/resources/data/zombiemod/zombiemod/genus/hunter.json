@@ -98,5 +98,9 @@
   "equipment": {
     "mainhand": "minecraft:iron_axe",
     "drop_chance": 0.0
+  },
+  "loot": {
+    "table": "zombiemod:entities/hunter",
+    "replace": false
   }
 }

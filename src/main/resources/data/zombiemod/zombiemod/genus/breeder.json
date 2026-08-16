@@ -94,5 +94,9 @@
     }
   ],
   "bounty": 4.0,
-  "xp": 13
+  "xp": 13,
+  "loot": {
+    "table": "zombiemod:entities/breeder",
+    "replace": false
+  }
 }

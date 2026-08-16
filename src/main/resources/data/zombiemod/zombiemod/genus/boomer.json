@@ -91,5 +91,9 @@
     }
   ],
   "bounty": 3.0,
-  "xp": 8
+  "xp": 8,
+  "loot": {
+    "table": "zombiemod:entities/boomer",
+    "replace": false
+  }
 }

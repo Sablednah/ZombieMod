@@ -79,5 +79,9 @@
     }
   ],
   "bounty": 3.0,
-  "xp": 6
+  "xp": 6,
+  "loot": {
+    "table": "zombiemod:entities/runner",
+    "replace": false
+  }
 }

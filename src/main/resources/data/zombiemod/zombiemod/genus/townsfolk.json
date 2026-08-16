@@ -60,5 +60,9 @@
       "target": "player"
     }
   ],
-  "bounty": 2.0
+  "bounty": 2.0,
+  "loot": {
+    "table": "zombiemod:entities/townsfolk",
+    "replace": false
+  }
 }

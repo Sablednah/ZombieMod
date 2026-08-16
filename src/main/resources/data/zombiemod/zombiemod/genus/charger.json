@@ -79,5 +79,9 @@
     }
   ],
   "bounty": 6.0,
-  "xp": 18
+  "xp": 18,
+  "loot": {
+    "table": "zombiemod:entities/charger",
+    "replace": false
+  }
 }

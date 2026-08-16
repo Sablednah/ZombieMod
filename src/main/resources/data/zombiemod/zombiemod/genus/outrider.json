@@ -101,5 +101,9 @@
   ],
   "abilities": [],
   "bounty": 3.0,
-  "arrows": 2
+  "arrows": 2,
+  "loot": {
+    "table": "zombiemod:entities/outrider",
+    "replace": false
+  }
 }

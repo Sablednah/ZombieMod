@@ -83,5 +83,9 @@
       "target": "player"
     }
   ],
-  "bounty": 3.0
+  "bounty": 3.0,
+  "loot": {
+    "table": "zombiemod:entities/archer",
+    "replace": false
+  }
 }

@@ -89,5 +89,9 @@
   ],
   "bounty": 4.0,
   "xp": 8,
-  "armor_color": 4869946
+  "armor_color": 4869946,
+  "loot": {
+    "table": "zombiemod:entities/sapper",
+    "replace": false
+  }
 }

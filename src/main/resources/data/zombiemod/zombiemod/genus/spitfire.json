@@ -80,5 +80,9 @@
       "count": 3
     }
   ],
-  "bounty": 4.0
+  "bounty": 4.0,
+  "loot": {
+    "table": "zombiemod:entities/spitfire",
+    "replace": false
+  }
 }

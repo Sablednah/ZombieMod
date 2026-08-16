@@ -600,7 +600,9 @@ public final class ZombieModCommands {
         }
         corpse.snapTo(entry.x() + 0.5D, entry.y() + 0.5D, entry.z() + 0.5D, 0.0F, 0.0F);
         GenusApplier.assign(corpse, holder.get());
-        corpse.setCustomName(Component.literal(
+        // Announce.format, not Component.literal - the death path formats this name, so a corpse
+        // rebuilt by command would otherwise wear "&7Corpse Sable" with the code showing.
+        corpse.setCustomName(com.sablednah.zombiemod.core.Announce.format(
                 ZombieModConfig.PLAYER_ZOMBIE_NAME.get().replace("%P", entry.playerName())));
         corpse.setCustomNameVisible(true);
         PlayerZombies.rebuild(level, corpse, entry);

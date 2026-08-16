@@ -100,5 +100,9 @@
     }
   ],
   "bounty": 4.0,
-  "xp": 11
+  "xp": 11,
+  "loot": {
+    "table": "zombiemod:entities/duststalker",
+    "replace": false
+  }
 }

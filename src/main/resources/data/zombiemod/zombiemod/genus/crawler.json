@@ -82,5 +82,9 @@
     }
   ],
   "bounty": 2.0,
-  "xp": 3
+  "xp": 3,
+  "loot": {
+    "table": "zombiemod:entities/crawler",
+    "replace": false
+  }
 }

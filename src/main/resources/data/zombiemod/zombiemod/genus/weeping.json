@@ -65,5 +65,9 @@
     }
   ],
   "bounty": 10.0,
-  "xp": 16
+  "xp": 16,
+  "loot": {
+    "table": "zombiemod:entities/weeping",
+    "replace": false
+  }
 }

@@ -72,5 +72,9 @@
   ],
   "bounty": 1.0,
   "baby": true,
-  "xp": 2
+  "xp": 2,
+  "loot": {
+    "table": "zombiemod:entities/swarmling",
+    "replace": false
+  }
 }

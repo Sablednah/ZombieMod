@@ -94,5 +94,9 @@
       "pitch": 1.2
     }
   ],
-  "bounty": 4.0
+  "bounty": 4.0,
+  "loot": {
+    "table": "zombiemod:entities/howler",
+    "replace": false
+  }
 }

@@ -88,5 +88,9 @@
     }
   ],
   "bounty": 3.0,
-  "xp": 10
+  "xp": 10,
+  "loot": {
+    "table": "zombiemod:entities/screamer",
+    "replace": false
+  }
 }

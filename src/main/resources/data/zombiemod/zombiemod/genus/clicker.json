@@ -93,5 +93,9 @@
     }
   ],
   "bounty": 5.0,
-  "xp": 16
+  "xp": 16,
+  "loot": {
+    "table": "zombiemod:entities/clicker",
+    "replace": false
+  }
 }

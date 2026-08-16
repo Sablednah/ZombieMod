@@ -59,5 +59,9 @@
   ],
   "target_goals": [],
   "bounty": 6.0,
-  "xp": 2
+  "xp": 2,
+  "loot": {
+    "table": "zombiemod:entities/coward",
+    "replace": false
+  }
 }

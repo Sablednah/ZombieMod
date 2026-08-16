@@ -50,5 +50,9 @@
   ],
   "target_goals": [],
   "bounty": 3.0,
-  "xp": 6
+  "xp": 6,
+  "loot": {
+    "table": "zombiemod:entities/stalker",
+    "replace": false
+  }
 }

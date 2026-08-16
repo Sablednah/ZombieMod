@@ -91,5 +91,9 @@
       }
     },
     "drop_chance": 0.0
+  },
+  "loot": {
+    "table": "zombiemod:entities/ghost",
+    "replace": false
   }
 }

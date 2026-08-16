@@ -85,5 +85,9 @@
     }
   ],
   "bounty": 14.0,
-  "xp": 50
+  "xp": 50,
+  "loot": {
+    "table": "zombiemod:entities/warden_golem",
+    "replace": false
+  }
 }

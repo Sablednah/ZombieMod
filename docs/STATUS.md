@@ -58,7 +58,11 @@ Last updated 2026-08-16.
   said nothing about hunting in the dark. Picking by catalogue name is how that happened; picks are
   now screened by rendering the face pixels and looking at them, dimmed as well as lit.
 - ~~Mutation's two damp triggers~~ — **confirmed in play** (2026-08-16): ice and water both fire.
-- **`alert`** — Screamer handing its target to a horde.
+- **`alert`** — Screamer handing its target to a horde. Hard to stage solo, since everything nearby
+  has usually noticed you already. The setup that isolates it: the Screamer's `follow_range` is 48
+  while its `alert` radius is 24 and most genera notice at 16-32, so put other monsters *behind a
+  wall* 20-ish blocks from a Screamer and approach the Screamer from open ground at ~40. It sees
+  you, they cannot; the alert is then the only thing that could bring them round the corner.
 - ~~The Borg Hive~~ — **confirmed in play** ("borg works"). Still untuned by feel: whether horde
   weight 1 is rare enough, and the queen's numbers.
 - ~~The Vault Dweller~~ — **confirmed in play** (2026-08-16): met underground, blue suit and all.
@@ -88,11 +92,16 @@ Last updated 2026-08-16.
   ability expansion and the entity preview, which was the one piece with no headless equivalent at
   all. The vanilla half of the same feature is confirmed too — `/zm bestiary info <genus>` reads well
   in chat, and the written book's pages hold up.
-- **The balance pass.** xp and bounty were re-derived from a threat score across all 54, sixteen loot
-  tables added, tools given to the genera whose identity is a tool. Every one was read back off a
-  built mob and every table was rolled 40 times for real — but whether the numbers *feel* right is a
-  thing only play decides, and the ones most likely to be wrong are the drops, which nobody has
-  farmed yet.
+- **The balance pass.** xp and bounty were re-derived from a threat score across all 54, and tools
+  given to the genera whose identity is a tool. Every one was read back off a built mob — but whether
+  the numbers *feel* right is a thing only play decides.
+
+  **Drops were the part play found wanting** ("a little sparse", 2026-08-16), so the sixteen tables
+  became fifty-six: every genus now leaves something that says what it was, except Walker, which
+  stays ordinary on purpose, and the player corpse, whose drop is your own inventory. Each is a
+  signature item in quantity plus one rarer thing — sugar and a rabbit's foot from a Runner, an echo
+  shard from the blind Clicker, a saddle from the Outrider that rode in, a poppy from the golem. All
+  fifty-six load clean, which validates every item id, but none are farmed yet.
 - **The Sleeper** — the low-`follow_range` genus. Whether six blocks is menacing or merely broken.
 - **The stock-take.** All 54 genera had `follow_range` set by sensory tier, the xp gaps filled and
   trims and arrows added where they say something. Every value was read back off a *built* mob
@@ -112,13 +121,18 @@ Last updated 2026-08-16.
   what was missing was the world being on the right moon, and now it has been.
   `/zombiemod horde start zombiemod:the_siege` still forces it regardless of the moon.
 - **`summon`'s `max_nearby` cap** under real pressure, i.e. a Breeder left alone in a loaded chunk.
-- **Corpse recovery edge cases** — a corpse lost to lava or a mob grinder, then `give`/`respawn`.
+- ~~Corpse recovery~~ — **confirmed in play** (2026-08-16): `respawn` rebuilt the corpse with the
+  items. It came back *bald* though — `rebuild` wrote the ledger tag and the pockets but never the
+  face, so a rebuilt corpse was not recognisably anybody. Fixed, along with two things sitting beside
+  it: the armour was not re-worn either, and the name went through `Component.literal` so a
+  colour-coded `Corpse %P` would have shown its codes. Unverified: the rebuilt face specifically, and
+  the harder edge cases (a corpse lost to lava or a grinder).
 - **Loot tables** — resolution is proven; nobody has watched Patient Zero drop his netherite scrap.
 - **Conversion in play.** The guards are tested (a listed victim rises, an unlisted one doesn't, an
   undead one never does, and 40 kills in one tick produce exactly one). Nobody has watched a Carrier
   work through a village, which is the case that matters.
-- **Infection's two remaining paths.** Being bitten and then dying to something *unrelated* — a fall,
-  drowning — which is the whole point of the delay. And the cure: milk clearing it before you die.
+- ~~Infection's two remaining paths~~ — **both confirmed in play** (2026-08-16): bitten then killed
+  by something unrelated, and milk clearing it before death.
 - **Corpse recovery after killing only the decoy.** The one path where a bug would genuinely cost
   someone their inventory.
 - **Proximity spawning** — `nearbyCap = 8` **settled by play** (2026-08-16). What play also showed
@@ -130,8 +144,8 @@ Last updated 2026-08-16.
   cases the fix is for, so it neither confirms nor refutes it. The counters now also report the
   spawn-rules veto, which used to vanish silently and is where daylight lands.
 - **Bounty payouts** — the scoreboard tally, and whether the numbers feel proportionate.
-- **Hordes.** One Siege survived, which found both of the gaps now closed. The numbers most likely
-  to be wrong are still `cap = 40` and the wave delays — whether it builds or just arrives.
+- **Hordes.** One Siege survived, which found both of the gaps now closed. `cap = 40` **settled by
+  play** (2026-08-16). The wave delays are the remaining guess — whether it builds or just arrives.
   `glowAfter = 1200` is settled: in play it fired just as the player was giving up and heading for a
   bell, which is exactly where that threshold wants to sit.
 - **Horde counting and chunk unloads.** Survivors are counted by identity now, so distance no longer
