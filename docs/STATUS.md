@@ -65,8 +65,9 @@ Last updated 2026-08-16.
   a packet, so the server opens the book itself. Cancelled on both sides now, the server half gated
   on the player speaking our channel. The pages themselves are confirmed good; what nobody has
   watched is an *unmodded* client right-clicking the same item, which is the half a modded client
-  cannot test. **Sneak-right-click** now falls through to the written pages so a modded client can
-  check that without a second instance — built, not yet tried. The sneak decision is taken entirely
+  cannot test. **Sneak-right-click** falls through to the written pages so a modded client can check
+  that without a second instance — confirmed in play (2026-08-16), as is an anvil-renamed book being
+  accepted as a dex. The sneak decision is taken entirely
   on the client, because the crouch flag reaches the server a tick behind the click and two sides
   answering it separately would give both windows or neither on the frame shift changes.
 - ~~The dex concealment configs~~ — **confirmed in play** (2026-08-16), both ladders and both
