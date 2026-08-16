@@ -85,7 +85,7 @@ Here is the coward, in full:
 | `spawn` | *(anywhere)* | Where and when it may appear — see below. |
 | `abilities` | `[]` | Things it does repeatedly while alive — see below. |
 | `attributes` | `{}` | Any other attribute by id, e.g. `{"minecraft:armor": 8.0}`. Covers everything the named fields don't, including other mods' attributes. |
-| `head` | *(none)* | A player head to wear — `"head": "Dinnerbone"`, or the full profile form with an explicit texture. Beats `armor_color` for the head slot. |
+| `head` | *(none)* | A player head to wear — `"head": "jeb_"`, or the full profile form with an explicit texture. Beats `armor_color` for the head slot. |
 | `boss` | *(none)* | Present makes this a boss — see below. |
 | `phases` | `[]` | Stages that open up as it's worn down — see below. |
 | `loot` | *(none)* | `{ "table": "<id>", "replace": false }` — genus-specific drops. |
@@ -793,7 +793,7 @@ Two pools, added together:
 
 ```toml
 [ghost]
-    names = ["jeb_", "Dinnerbone", "Sablednah"]   # always available, resolved by name
+    names = ["jeb_", "Sablednah"]   # always available, resolved by name
     rememberLogins = true
     rememberDays = 90     # forget anyone unseen this long. 0 never forgets
     skipBanned = true
@@ -805,6 +805,11 @@ a zombie — on a fresh server it would be faceless until somebody had played. S
 
 The two are pooled rather than one preferred, so a server with three seeds and thirty players mostly
 shows its own players. Add more seed names to weight them up.
+
+**Dinnerbone and Grumm are a special case.** A Ghost borrows the name as well as the face, and
+vanilla renders any entity called either of those upside-down — so one would hang from the ceiling.
+The mod keeps the face and simply doesn't take the name in those two cases, which also covers a real
+player of that name logging in.
 
 **`rememberDays` is real days, not game days** — the thing being remembered is a person, not
 anything that happens in the world. The list is pruned once per server start, and stays capped at

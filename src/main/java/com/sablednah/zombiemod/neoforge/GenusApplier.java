@@ -112,8 +112,16 @@ public final class GenusApplier {
         if (genus.ghost() && mob.level() instanceof ServerLevel serverLevel) {
             KnownPlayers.get(serverLevel).random(mob.getRandom(), serverLevel.getServer())
                     .ifPresent(seen -> {
-                        mob.setCustomName(net.minecraft.network.chat.Component.literal(seen.name()));
-                        mob.setCustomNameVisible(false);
+                        // ...but not that name. LivingEntityRenderer flips any entity whose custom
+                        // name is exactly "Dinnerbone" or "Grumm", and a Ghost borrows the name as
+                        // well as the face, so drawing either one hangs it from the ceiling. Keep
+                        // the face - it is the point of the genus - and let it stay "Ghost". This
+                        // also covers a real player of that name logging in, which no amount of
+                        // config care could have prevented.
+                        if (!upsideDown(seen.name())) {
+                            mob.setCustomName(net.minecraft.network.chat.Component.literal(seen.name()));
+                            mob.setCustomNameVisible(false);
+                        }
                         ItemStack face = new ItemStack(Items.PLAYER_HEAD);
                         // By id for someone who has played here, by name for a seed entry - a
                         // name-only profile is exactly what "head": "Herobrine" already uses.
@@ -375,6 +383,17 @@ public final class GenusApplier {
         if (instance != null) {
             instance.setBaseValue(value.get());
         }
+    }
+
+    /**
+     * The two names vanilla renders upside-down.
+     *
+     * <p>Mirrors {@code LivingEntityRenderer.isUpsideDownName} — an exact, case-sensitive match on
+     * those two strings. Copied rather than called: that class is client-only, and this decision has
+     * to be made on the server, where the mob is built.
+     */
+    private static boolean upsideDown(String name) {
+        return "Dinnerbone".equals(name) || "Grumm".equals(name);
     }
 
     /**

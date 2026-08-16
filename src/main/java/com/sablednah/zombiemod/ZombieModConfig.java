@@ -405,8 +405,13 @@ public final class ZombieModConfig {
 
         GHOST_NAMES = b.comment("Always available, whether or not they have ever played here.",
                         "Resolved by name against Mojang, so these render for real on a vanilla client.",
-                        "Leave empty to use only players who have actually been here.")
-                .defineList("names", List.of("jeb_", "Dinnerbone", "Sablednah"),
+                        "Leave empty to use only players who have actually been here.",
+                        "",
+                        "Two names are best avoided: vanilla renders any entity named Dinnerbone or",
+                        "Grumm upside-down, and a Ghost wears the name as well as the face. The mod",
+                        "already declines to name a Ghost either of those, so it keeps the face and",
+                        "stays the right way up - but it is worth knowing why that one is different.")
+                .defineList("names", List.of("jeb_", "Sablednah"),
                         () -> "", o -> o instanceof String s && !s.isBlank());
 
         GHOST_REMEMBER = b.comment("Remember players as they log in.")
