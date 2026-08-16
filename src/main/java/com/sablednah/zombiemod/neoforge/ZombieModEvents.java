@@ -242,6 +242,32 @@ public final class ZombieModEvents {
         }
     }
 
+    /**
+     * Don't open the book for someone whose client is opening the screen instead.
+     *
+     * <p>Cancelling on the client is not enough, and this is the whole subtlety: a book is not
+     * opened by the client deciding to: {@code ServerPlayer.openItemGui} sends a
+     * {@code ClientboundOpenBookPacket}, so the server is the one that opens it. Stopping only the
+     * client half gets the dex, then a flicker, then the book on top of it a tick later.
+     *
+     * <p>Gated on the player actually speaking our channel. A vanilla client is not opening anything
+     * of ours, so taking its book away would leave it right-clicking a book that does nothing —
+     * which is a far worse bug than the one being fixed. That guard is why this can live on the
+     * server at all: the same item stays a plain written book for everyone who needs it to be one.
+     */
+    @SubscribeEvent
+    public void onDexBookUsed(
+            net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickItem event) {
+        if (event.getLevel().isClientSide()
+                || !(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)
+                || !com.sablednah.zombiemod.net.Net.listening(player)
+                || !com.sablednah.zombiemod.core.DexBook.is(event.getItemStack())) {
+            return;
+        }
+        event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
+        event.setCanceled(true);
+    }
+
     /** Say so on login, or someone wonders for an hour why nothing can hurt them. */
     @SubscribeEvent
     public void onLogin(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {

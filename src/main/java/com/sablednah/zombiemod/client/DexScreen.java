@@ -406,11 +406,28 @@ public final class DexScreen extends Screen {
             // boxes, other bases, other scales), which is why the floor line wandered between
             // entries. This computes it from the doll's own bounding box instead, so every genus
             // stands on the same line by construction rather than by luck.
-            float hs = (float) (doll.getBbHeight() / Math.max(0.0625D, genus.scale()));
-            int size = Math.max(12, (int) Math.min(30 * genus.scale(), (dh - 14) / (hs + 0.13F)));
-            int footPx = (int) ((hs / 2.0F + 0.0625F) * size);
-            int centerY = dy1 - 8 - footPx;
-            int half = Math.min(centerY - (dy0 + 2), (dy1 - 2) - centerY);
+            // The doll carries no scale attribute (see DexPreview), so this IS the model's height in
+            // world units - which is what the renderer draws, since it forces the render state's
+            // scale to 1. Height on screen is h x size pixels, and nothing else.
+            float h = doll.getBbHeight();
+            // Two ceilings. The genus's own size is the one we want; the frame is the one we must
+            // obey. `- 6` is the margin the fit proof below spends.
+            int size = Math.max(12, (int) Math.min(30 * genus.scale(), (dh - 6) / (h + 0.125F)));
+            // The helper parks the point (h/2 + yOffset) above the entity's origin at the centre of
+            // the rect it is given, so from that centre the feet are footPx down and the crown is
+            // headPx up. Both, separately: they are NOT the same distance, and assuming they were
+            // is what let a doll overflow the end of a box that looked big enough for it.
+            int footPx = Math.round((h / 2.0F + 0.0625F) * size);
+            int headPx = Math.round((h / 2.0F - 0.0625F) * size);
+            // The rect is the viewport AND the clip, and the entity always sits at its centre - so
+            // it has to be symmetric, sized by whichever end reaches further, plus a hair.
+            int half = Math.max(footPx, headPx) + 2;
+            // Feet on a fixed line near the bottom, which is what makes the whole roster stand on
+            // the same floor rather than each doll floating in its own box.
+            int centerY = dy1 - 4 - footPx;
+            // Fits by construction: centerY - half = dy1 - 6 - 2*footPx, and 2*footPx is
+            // (h + 0.125) * size, which the size ceiling above holds at or below dh - 6. So the top
+            // edge lands at or below dy0 + 0 for every genus at every frame height.
             InventoryScreen.renderEntityInInventoryFollowsMouse(g, dx0 + 2, centerY - half,
                     dx1 - 2, centerY + half, size, 0.0625F, mouseX, mouseY, doll);
         }

@@ -79,12 +79,18 @@ public final class DexPreview {
             return null;
         }
 
-        if (genus.scale() != 1.0D) {
-            var scale = living.getAttribute(Attributes.SCALE);
-            if (scale != null) {
-                scale.setBaseValue(genus.scale());
-            }
-        }
+        // NO scale attribute, deliberately. renderEntityInInventoryFollowsAngle divides the render
+        // state's boundingBoxHeight by its scale and then forces that scale to 1, so the attribute
+        // never reaches the model - the doll's on-screen size comes from the `size` argument alone,
+        // which DexScreen multiplies by genus.scale() instead.
+        //
+        // Worse than useless, though: setting it moved getScale() to 2.2 for a Tank while
+        // getBbHeight() stayed at the unscaled 1.95, because a bare entity that was never added to
+        // a level does not refresh its dimensions. The renderer's normalised height came out as
+        // 1.95/2.2 = 0.886, so the translation that anchors the feet was computed for a doll less
+        // than half the height of the one being drawn, and the big genera were cut off mid-torso at
+        // a fixed line. Leaving the attribute alone makes getBbHeight() the true model height and
+        // the arithmetic in DexScreen honest.
         if (genus.baby() && living instanceof net.minecraft.world.entity.monster.zombie.Zombie zombie) {
             zombie.setBaby(true);
         }

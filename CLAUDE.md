@@ -149,6 +149,44 @@ and is then completely empty, which reads like a layout or a data bug and is nei
 `-1` everywhere; `LegendQuest`'s handbook, which works in this version, writes `0xFFFFFFFF`. Either
 is fine, `0xFFFFFF` is not.
 
+### Client screens: the inventory doll normalises scale away
+
+`InventoryScreen.renderEntityInInventoryFollowsAngle` divides the render state's `boundingBoxHeight`
+by its `scale` and then **forces that scale to 1**, so a genus's `Attributes.SCALE` never reaches the
+model. The only size lever is the `size` argument — multiply it by the scale yourself.
+
+Setting the attribute anyway is actively harmful, and the reason is the second half of the trap: **an
+entity that was never added to a level does not refresh its dimensions.** `setBaseValue` on SCALE is
+supposed to trigger `refreshDimensions()`, and on a live mob it does; on a bare
+`EntityType.create(...)` doll it does not. So `getBbHeight()` stays at the unscaled default while
+`getScale()` returns the new value, and the renderer's normalised height comes out as
+`base / scale` — *smaller* the bigger you asked for. Everything computed from it (the translation
+that anchors the feet, the box that clips the model) is then sized for a doll less than half the one
+being drawn, and the big genera get cut off mid-torso at a fixed line.
+
+Leave the attribute alone on a doll and `getBbHeight()` is the true model height. Note also that the
+rect passed to the helper is both the viewport **and** the clip, and the entity always renders at its
+centre — so it must be symmetric about the point you want the entity centred on, sized by whichever
+of head or feet reaches further.
+
+Proven with a temporary `DollProbe` on `ServerStartedEvent` that built every genus's doll and printed
+`bbHeight`/`getScale`/the derived box against the renderer's actual placement. Pure arithmetic, so it
+needed no renderer — worth rebuilding if that geometry is touched again.
+
+### Cancelling an interaction client-side does not cancel the server's half
+
+`PlayerInteractEvent.RightClickItem` fires on both sides independently. Cancelling on the client only
+stops the client's own `ItemStack.use`; the `ServerboundUseItemPacket` is sent regardless, and the
+server runs its own copy of the interaction.
+
+That matters whenever the *server* is what opens a screen. `ServerPlayer.openItemGui` sends a
+`ClientboundOpenBookPacket`, so a book is opened by the server telling the client to — cancelling
+client-side gets the custom screen, then a flicker, then the book on top of it a tick later. Cancel
+on **both** sides.
+
+The server-side cancel must be gated on `Net.listening(player)`, or a vanilla client ends up
+right-clicking a book that does nothing at all — a worse bug than the one being fixed.
+
 ### Verifying changes headlessly
 
 `ServerStartedEvent` logs a genera summary permanently (`ZombieMod: 2 genera loaded - coward (5+0
