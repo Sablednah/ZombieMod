@@ -71,6 +71,7 @@ Worth being explicit so nobody spends a weekend on them.
 | **Custom models** — lickers, crawling torsos, distended jaws | Needs a client mod. Vanilla clients can only render vanilla mob shapes. This is the wall the whole design is built against. |
 | **Renderer-bound effects** — the guardian beam, the skeleton's bow draw, the creeper swell | Each is drawn by one specific renderer. Sometimes there's a way round: the beam works by *parenting an invisible guardian* (see `beam`), the swell is approximated with the `scale` attribute, and the bow draw simply requires a skeleton `base`. Sometimes there isn't. |
 | **Creeper-style swell on a non-creeper** | Renderer-bound. *Approximated* by ramping the `scale` attribute — see `zombiemod:fuse`. |
+| **Dressing an iron golem** | `IronGolemRenderer` adds only the cracks and the flower layers — no `HumanoidArmorLayer`, no `ItemInHandLayer`. So a golem-based genus can use name, scale, attributes and glow, and nothing else: no armour, no head, no weapon. Worth checking a base's renderer layers before promising it a wardrobe. (The **giant** by contrast has both layers, so it dresses like any zombie — `zombiemod:colossus` wears a chestplate.) |
 | **Grabs and pins** — the Jockey riding you, Smoker constricting | Vanilla has no player-restraint primitive. Could fake it with a mount, but the camera is wrong and players hate losing control. |
 | **Dismemberment / partial damage** | No vanilla concept of limb state on a mob. |
 | **Gore, blood decals** | Client rendering. |

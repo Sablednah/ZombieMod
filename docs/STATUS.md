@@ -46,9 +46,11 @@ Last updated 2026-08-16.
 
 - **`NO_SPAWNS` claim mode** — the griefing veto is verified, but only the default `VANILLA_ONLY`
   spawn behaviour has been exercised; nobody has watched `NO_SPAWNS` cancel a spawn.
-- **Non-zombie bases beyond husk/drowned/skeleton** — `zombie_villager` **confirmed in play**
-  (2026-08-16). `giant` and `iron_golem` now have a genus each to try them with, `colossus` and
-  `warden_golem`, both weight 0 so they are deliberate rather than ambient (see ROSTER).
+- ~~Non-zombie bases beyond husk/drowned/skeleton~~ — **all confirmed in play** (2026-08-16).
+  `zombie_villager` met in the wild; `giant` and `iron_golem` given a genus each to try them with,
+  `colossus` and `warden_golem`, and both work. Both weight 0, so they are deliberate rather than
+  ambient — note that proximity spawning ignores the base match, so a weight above 0 would put
+  giants on the landscape whatever vanilla does. The golem cannot wear anything: see TROPES.
 - **The faces themselves.** Every hash resolves at Mojang and every genus wears the head on its head
   slot, both checked headlessly — but nobody has stood in front of one and looked at it. What is
   unproven is whether they *read* at a distance, not whether they load. Already one correction from
