@@ -59,27 +59,30 @@ Last updated 2026-08-16.
 - **`alert`** — Screamer handing its target to a horde.
 - ~~The Borg Hive~~ — **confirmed in play** ("borg works"). Still untuned by feel: whether horde
   weight 1 is rare enough, and the queen's numbers.
-- **The Vault Dweller** — blue suit, gold trim, Vault Boy grin, underground only. Built, never met.
+- ~~The Vault Dweller~~ — **confirmed in play** (2026-08-16): met underground, blue suit and all.
 - ~~The dex book as a key~~ — **confirmed in play** (2026-08-16). The first build opened the book
   behind it a tick later, because the client cancel was not enough: `ServerPlayer.openItemGui` sends
   a packet, so the server opens the book itself. Cancelled on both sides now, the server half gated
-  on the player speaking our channel. Still unwatched: the *vanilla* side of the same item — that a
-  book handed to an unmodded player still opens as a book.
+  on the player speaking our channel. The pages themselves are confirmed good; what nobody has
+  watched is an *unmodded* client right-clicking the same item, which is the half a modded client
+  cannot test. Note the side effect: a modded player now has no way to open the plain book at all.
+  Acceptable — they have the better view — but if that ever needs a door, sneaking should be it.
 - ~~The dex concealment configs~~ — **confirmed in play** (2026-08-16), both ladders and both
   outcomes: `hideUnspawnable` works; a Herobrine on the `hidden` list was killed and still left no
   record; a Duststalker on `hiddenRevealedWhenMet` appeared the moment it was wounded.
 - ~~`sound_target`~~ — **confirmed in play** ("clicker works well"), eyeless face and all.
-- **The dex batch.** Drops enumeration is proven for all 16 tables; the mirror-Ghost, play chips and
-  drop icons are client rendering, provable only by eye. The **doll geometry** is done —
-  **confirmed in play** (2026-08-16) after three passes: feet wandering, then heads clipped, then
-  right. A probe built all 56 dolls and checked the box against the renderer's real placement; every
-  one stands on the same line (feet at 175-176 of 180) with nothing clipped, Tank drawing 128px
-  against Walker's 58 and Swarmling's 29. The bug it found was that setting `Attributes.SCALE` on a
-  doll *shrank* the geometry the renderer computed — see CLAUDE.md.
-- **The dex info page.** All 54 descriptions load, the write-up renders, and the gate was proven in
-  all three modes against a player who had met one thing and killed nothing. Untested in game: the
-  clicking, the back button, the ability expansion, and above all the entity preview — that is the
-  one piece with no headless equivalent at all.
+- ~~The dex batch~~ — **confirmed in play** (2026-08-16), all of it. The mirror dolls read the way
+  they were meant to: the Ghost is the viewer's own face over an invisible body, the Corpse is
+  wearing the viewer's current gear. Play chips sound. The **doll geometry** took three passes —
+  feet wandering, then heads clipped, then right — and only the third started from measurement: a
+  probe built all 56 dolls and checked the box against the renderer's real placement. Every one
+  stands on the same line (feet at 175-176 of 180) with nothing clipped, Tank drawing 128px against
+  Walker's 58 and Swarmling's 29. The bug it found was that setting `Attributes.SCALE` on a doll
+  *shrank* the geometry the renderer computed — see CLAUDE.md.
+- ~~The dex info page~~ — **confirmed in play** (2026-08-16): clicking through, the back button, the
+  ability expansion and the entity preview, which was the one piece with no headless equivalent at
+  all. The vanilla half of the same feature is confirmed too — `/zm bestiary info <genus>` reads well
+  in chat, and the written book's pages hold up.
 - **The balance pass.** xp and bounty were re-derived from a threat score across all 54, sixteen loot
   tables added, tools given to the genera whose identity is a tool. Every one was read back off a
   built mob and every table was rolled 40 times for real — but whether the numbers *feel* right is a
@@ -161,9 +164,11 @@ upkeep once someone actually asks for a translation.
 1. **Proximity in survival.** Enabled in Sable's instance; the cap semantics are settled ("quiet
    place top up is perfect" — 2026-08-15). What remains is simply a survival session on quiet ground
    watching it fire, and whether `nearbyCap = 8` feels like atmosphere.
-2. **The dex, clicked through.** The info page, the back button, the ability expansion and the entity
-   preview are the largest block of code in the mod with no headless proof at all. One session with
-   the book in hand settles most of it.
+2. **A vanilla client, once more.** The dex is finished and the whole of it has been watched working
+   — from a modded client. What has not been re-checked since the book, the payload guard and the
+   server-side interaction cancel all landed is that an unmodded player still joins, stays, and gets
+   a book that opens as a book. The procedure is in CLAUDE.md; it is an hour, and it is the promise
+   the mod is built on.
 3. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
