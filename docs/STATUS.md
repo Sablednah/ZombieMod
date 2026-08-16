@@ -88,9 +88,10 @@ Last updated 2026-08-16.
   200 draws, then un-banning and watching it return. What is unverified is only how it *looks*.
 - **The six new appearance fields** — `invisible`, `baby`, `burning`, `arrows`, `glow`, `villager`.
   Each was built for real through `GenusApplier.assign` and read back headlessly, so the state is
-  right; what nobody has done is stand in front of one. Ghost in particular is unproven: on the dev
-  server no player had ever joined, so `ghost: true` found no face to borrow and it rendered as a
-  lone chestplate. In a played-in world it should read as a head and a torso with a gap between.
+  right; what nobody has done is stand in front of one. ~~Ghost in particular~~ — **Ghost confirmed
+  in play** (2026-08-16): they spawn wearing faces. The lone-chestplate reading noted here was the
+  dev server having no seed list *and* no player who had ever joined; the seed list was added three
+  commits later precisely because of it, and it works.
 - ~~The full-moon Siege~~ — **confirmed in play** (2026-08-16): one fired by itself on a full moon,
   unforced. `moon`, `depth` and `see_sky` had each been proven headlessly in both directions;
   what was missing was the world being on the right moon, and now it has been.

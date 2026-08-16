@@ -85,7 +85,7 @@ Here is the coward, in full:
 | `spawn` | *(anywhere)* | Where and when it may appear — see below. |
 | `abilities` | `[]` | Things it does repeatedly while alive — see below. |
 | `attributes` | `{}` | Any other attribute by id, e.g. `{"minecraft:armor": 8.0}`. Covers everything the named fields don't, including other mods' attributes. |
-| `head` | *(none)* | A player head to wear — `"head": "Notch"`, or the full profile form with an explicit texture. Beats `armor_color` for the head slot. |
+| `head` | *(none)* | A player head to wear — `"head": "Dinnerbone"`, or the full profile form with an explicit texture. Beats `armor_color` for the head slot. |
 | `boss` | *(none)* | Present makes this a boss — see below. |
 | `phases` | `[]` | Stages that open up as it's worn down — see below. |
 | `loot` | *(none)* | `{ "table": "<id>", "replace": false }` — genus-specific drops. |
@@ -793,7 +793,7 @@ Two pools, added together:
 
 ```toml
 [ghost]
-    names = ["Notch", "jeb_", "Dinnerbone"]   # always available, resolved by name
+    names = ["jeb_", "Dinnerbone", "Sablednah"]   # always available, resolved by name
     rememberLogins = true
     rememberDays = 90     # forget anyone unseen this long. 0 never forgets
     skipBanned = true

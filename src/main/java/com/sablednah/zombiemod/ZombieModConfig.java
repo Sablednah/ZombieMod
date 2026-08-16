@@ -406,7 +406,7 @@ public final class ZombieModConfig {
         GHOST_NAMES = b.comment("Always available, whether or not they have ever played here.",
                         "Resolved by name against Mojang, so these render for real on a vanilla client.",
                         "Leave empty to use only players who have actually been here.")
-                .defineList("names", List.of("Notch", "jeb_", "Sablednah"),
+                .defineList("names", List.of("jeb_", "Dinnerbone", "Sablednah"),
                         () -> "", o -> o instanceof String s && !s.isBlank());
 
         GHOST_REMEMBER = b.comment("Remember players as they log in.")
