@@ -268,10 +268,19 @@ public final class ZombieModCommands {
         MutableComponent page = Component.empty();
         page.append(Component.literal("ZombieDex\n").withStyle(ChatFormatting.BOLD));
         page.append(Component.literal(header + "\n\n").withStyle(ChatFormatting.DARK_GRAY));
+        // The book is one item, read two ways: this client has the mod, so right-clicking it will
+        // open the illustrated dex instead of these pages. Only printed for a player who will
+        // actually see that happen - telling a vanilla reader about a screen they cannot open would
+        // be worse than saying nothing.
+        boolean illustrated = com.sablednah.zombiemod.net.Net.listening(player);
+        if (illustrated) {
+            page.append(Component.literal("Right-click to open the\nillustrated edition.\n\n")
+                    .withStyle(ChatFormatting.DARK_PURPLE));
+        }
         // A page holds fourteen lines. The heading costs three, so the first page carries fewer -
         // the previous version put eleven rows on every page and filled the first one exactly to
         // the brim, where one wrapped name would have silently dropped a genus off the end.
-        int room = 10;
+        int room = illustrated ? 7 : 10;
         for (Row row : rows) {
             page.append(line(row, ChatFormatting.DARK_GREEN, ChatFormatting.GOLD,
                     ChatFormatting.GRAY, ChatFormatting.BLACK, ChatFormatting.DARK_GRAY));

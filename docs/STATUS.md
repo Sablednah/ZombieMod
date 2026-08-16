@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-08-15.
+Last updated 2026-08-16.
 
 ## Built and verified in game
 
@@ -60,6 +60,11 @@ Last updated 2026-08-15.
 - ~~The Borg Hive~~ — **confirmed in play** ("borg works"). Still untuned by feel: whether horde
   weight 1 is rare enough, and the queen's numbers.
 - **The Vault Dweller** — blue suit, gold trim, Vault Boy grin, underground only. Built, never met.
+- **The dex book as a key.** Right-clicking a book titled `ZombieDex` opens the illustrated dex on a
+  modded client and the ordinary written pages on a vanilla one — the same item, both ways, so the
+  server never has to know which kind of player it handed it to. The client half of that is
+  unprovable headlessly by definition. What *was* checked: the interaction hook is client-only and
+  guarded on an empty dex, so on a server without this mod a book of that name still opens as a book.
 - **The dex concealment configs in play.**
 - ~~`sound_target`~~ — **confirmed in play** ("clicker works well"), eyeless face and all.
 - **The dex batch.** Drops enumeration is proven for all 16 tables; the mirror-Ghost, true-scale
@@ -148,11 +153,12 @@ upkeep once someone actually asks for a translation.
 1. **Proximity in survival.** Enabled in Sable's instance; the cap semantics are settled ("quiet
    place top up is perfect" — 2026-08-15). What remains is simply a survival session on quiet ground
    watching it fire, and whether `nearbyCap = 8` feels like atmosphere.
+2. **The dex, clicked through.** The info page, the back button, the ability expansion and the entity
+   preview are the largest block of code in the mod with no headless proof at all. One session with
+   the book in hand settles most of it.
 3. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
-4. **A ZombieDex client mod.** The server half is done and vanilla-visible; this is only a nicer
-   window onto it. See the note in the README on why it belongs in this jar rather than beside it.
 
 ## Before release
 

@@ -18,6 +18,17 @@ public final class DexState {
         entries = List.copyOf(payload.entries());
     }
 
+    /**
+     * Forget it on disconnect.
+     *
+     * <p>Otherwise the last server's roster is still here when you join the next one, and until that
+     * server (if it even runs the mod) sends its own, the dex would show another world's zombies
+     * with another world's kill counts.
+     */
+    public static void clear() {
+        entries = List.of();
+    }
+
     public static List<DexPayload.Entry> entries() {
         return entries;
     }
