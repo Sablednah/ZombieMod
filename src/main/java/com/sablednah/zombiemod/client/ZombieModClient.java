@@ -6,7 +6,9 @@ import com.sablednah.zombiemod.core.DexBook;
 
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.BookViewScreen;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -69,9 +71,16 @@ public final class ZombieModClient {
      * sent them. This handler only exists on a client that has the mod, so on that client the same
      * item opens the tome instead — one item, two readings, no second command.
      *
-     * <p>This half only stops the <em>client</em> opening the book. The server has to be stopped
-     * separately, in {@code ZombieModEvents}, because it opens the book by sending a packet rather
-     * than by anything this side does.
+     * <p><b>Sneak to read it as a book.</b> Otherwise a modded client has no way to see the pages at
+     * all, which costs you the ability to check what a vanilla player is actually getting without
+     * keeping a second instance around for it.
+     *
+     * <p>This side decides <em>both</em> outcomes, on purpose. The server's job (in
+     * {@code ZombieModEvents}) is only to stop opening the book itself — it never asks whether
+     * anybody was sneaking, because it would be asking about a flag that syncs a tick behind the
+     * click. Two sides reading their own copy of "was he crouching" disagree on the frame you press
+     * or release shift, and disagreement here means either both windows or neither. One decider, no
+     * race: the client opens whichever screen it wants, and the server opens nothing.
      */
     @SubscribeEvent
     public void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
@@ -79,11 +88,20 @@ public final class ZombieModClient {
         // No dex means no ZombieMod on the other end - the server sends the whole roster on login,
         // so an empty one is not "met nothing", it is "nobody told us anything". Leave a book named
         // ZombieDex on somebody else's server alone and let it open as the book it is.
-        if (!event.getLevel().isClientSide() || DexState.entries().isEmpty()
-                || !DexBook.is(event.getItemStack())) {
+        ItemStack stack = event.getItemStack();
+        if (!event.getLevel().isClientSide() || DexState.entries().isEmpty() || !DexBook.is(stack)) {
             return;
         }
-        Minecraft.getInstance().setScreen(new DexScreen());
+        if (event.getEntity().isShiftKeyDown()) {
+            var pages = BookViewScreen.BookAccess.fromItem(stack);
+            if (pages == null) {
+                // A blank book called ZombieDex. Nothing to read; let vanilla have it.
+                return;
+            }
+            Minecraft.getInstance().setScreen(new BookViewScreen(pages));
+        } else {
+            Minecraft.getInstance().setScreen(new DexScreen());
+        }
         event.setCancellationResult(InteractionResult.SUCCESS);
         event.setCanceled(true);
     }

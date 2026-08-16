@@ -65,8 +65,10 @@ Last updated 2026-08-16.
   a packet, so the server opens the book itself. Cancelled on both sides now, the server half gated
   on the player speaking our channel. The pages themselves are confirmed good; what nobody has
   watched is an *unmodded* client right-clicking the same item, which is the half a modded client
-  cannot test. Note the side effect: a modded player now has no way to open the plain book at all.
-  Acceptable — they have the better view — but if that ever needs a door, sneaking should be it.
+  cannot test. **Sneak-right-click** now falls through to the written pages so a modded client can
+  check that without a second instance — built, not yet tried. The sneak decision is taken entirely
+  on the client, because the crouch flag reaches the server a tick behind the click and two sides
+  answering it separately would give both windows or neither on the frame shift changes.
 - ~~The dex concealment configs~~ — **confirmed in play** (2026-08-16), both ladders and both
   outcomes: `hideUnspawnable` works; a Herobrine on the `hidden` list was killed and still left no
   record; a Duststalker on `hiddenRevealedWhenMet` appeared the moment it was wounded.

@@ -254,11 +254,23 @@ public final class ZombieModEvents {
      * of ours, so taking its book away would leave it right-clicking a book that does nothing —
      * which is a far worse bug than the one being fixed. That guard is why this can live on the
      * server at all: the same item stays a plain written book for everyone who needs it to be one.
+     *
+     * <p>Gated on the bestiary being switched on for the same reason, one step further out: with it
+     * off nothing was ever sent, so a listening client has an empty dex and would decline the book
+     * too. Both sides declining is the one combination that leaves a player clicking on nothing.
+     *
+     * <p>Note what this deliberately does <em>not</em> check: whether the player was sneaking.
+     * Sneaking reads the book instead of the dex, but that is entirely the client's decision, taken
+     * where the keypress happened. The crouch flag reaches the server a tick behind the click, so
+     * asking here would mean two sides answering the same question differently on exactly the frame
+     * a player presses or releases shift — and disagreement means both windows or neither. The
+     * server's whole job is to open nothing and let the client choose.
      */
     @SubscribeEvent
     public void onDexBookUsed(
             net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickItem event) {
         if (event.getLevel().isClientSide()
+                || !ZombieModConfig.BESTIARY.get()
                 || !(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)
                 || !com.sablednah.zombiemod.net.Net.listening(player)
                 || !com.sablednah.zombiemod.core.DexBook.is(event.getItemStack())) {

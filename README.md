@@ -1375,6 +1375,17 @@ gives you a reason to chase down a Coward.
 /zm bestiary book   # the same list as a written book you can carry
 ```
 
+**The book is one item read two ways.** Right-click it: a vanilla player gets the written pages, a
+player with the mod installed gets the illustrated screen. Nothing about the item differs between
+them and the server does not need to know which kind of client it handed one to — only the client
+that has the mod behaves differently, which is the whole shape of this feature in miniature.
+
+**Sneak-right-click to read it as a book anyway.** Useful for seeing exactly what a vanilla player
+sees without keeping a second, unmodded instance around to check.
+
+Any book named `ZombieDex` works, not just the one the command hands out — so an anvil rename or a
+loot table can hand one out too.
+
 ### Reading an entry
 
 ```
