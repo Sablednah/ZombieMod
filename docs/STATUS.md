@@ -60,21 +60,22 @@ Last updated 2026-08-16.
 - ~~The Borg Hive~~ — **confirmed in play** ("borg works"). Still untuned by feel: whether horde
   weight 1 is rare enough, and the queen's numbers.
 - **The Vault Dweller** — blue suit, gold trim, Vault Boy grin, underground only. Built, never met.
-- **The dex book as a key.** ~~Right-clicking~~ — **opens in play** (2026-08-16), but the first build
-  opened the book behind it a tick later: the client cancel was not enough, because
-  `ServerPlayer.openItemGui` sends a packet and the server opens the book itself. Now cancelled on
-  both sides, the server half gated on the player speaking our channel so a vanilla client keeps its
-  book. Re-test is just: right-click, and nothing should follow the screen.
+- ~~The dex book as a key~~ — **confirmed in play** (2026-08-16). The first build opened the book
+  behind it a tick later, because the client cancel was not enough: `ServerPlayer.openItemGui` sends
+  a packet, so the server opens the book itself. Cancelled on both sides now, the server half gated
+  on the player speaking our channel. Still unwatched: the *vanilla* side of the same item — that a
+  book handed to an unmodded player still opens as a book.
 - ~~The dex concealment configs~~ — **confirmed in play** (2026-08-16), both ladders and both
   outcomes: `hideUnspawnable` works; a Herobrine on the `hidden` list was killed and still left no
   record; a Duststalker on `hiddenRevealedWhenMet` appeared the moment it was wounded.
 - ~~`sound_target`~~ — **confirmed in play** ("clicker works well"), eyeless face and all.
 - **The dex batch.** Drops enumeration is proven for all 16 tables; the mirror-Ghost, play chips and
-  drop icons are client rendering, provable only by eye. The **doll geometry** is no longer among
-  them: a probe built all 56 dolls and checked the box against the renderer's real placement, and
-  every one now stands on the same line (feet at 175-176 of 180) with nothing clipped, Tank drawing
-  128px against Walker's 58 and Swarmling's 29. The bug it found was that setting `Attributes.SCALE`
-  on a doll *shrank* the geometry the renderer computed — see CLAUDE.md.
+  drop icons are client rendering, provable only by eye. The **doll geometry** is done —
+  **confirmed in play** (2026-08-16) after three passes: feet wandering, then heads clipped, then
+  right. A probe built all 56 dolls and checked the box against the renderer's real placement; every
+  one stands on the same line (feet at 175-176 of 180) with nothing clipped, Tank drawing 128px
+  against Walker's 58 and Swarmling's 29. The bug it found was that setting `Attributes.SCALE` on a
+  doll *shrank* the geometry the renderer computed — see CLAUDE.md.
 - **The dex info page.** All 54 descriptions load, the write-up renders, and the gate was proven in
   all three modes against a player who had met one thing and killed nothing. Untested in game: the
   clicking, the back button, the ability expansion, and above all the entity preview — that is the
