@@ -43,7 +43,7 @@ public final class SpawnConditions {
 
         @Override
         public boolean test(Level level, BlockPos pos) {
-            return biomes.contains(level.getBiome(pos));
+            return answerable(level, pos) && biomes.contains(level.getBiome(pos));
         }
     }
 
@@ -114,6 +114,9 @@ public final class SpawnConditions {
 
         @Override
         public boolean test(Level level, BlockPos pos) {
+            if (!answerable(level, pos)) {
+                return false;
+            }
             int light = level.getMaxLocalRawBrightness(pos);
             return min.map(m -> light >= m).orElse(true) && max.map(m -> light <= m).orElse(true);
         }
@@ -158,8 +161,11 @@ public final class SpawnConditions {
      * two are opposites.
      *
      * <p>Measured against the heightmap for the column rather than an absolute Y, so it means the
-     * same thing on a mountain as it does at sea level. The chunk must be loaded for the heightmap to
-     * be real; every caller here is at a player or a live spawn attempt, so it always is.
+     * same thing on a mountain as it does at sea level. The chunk must be loaded for the heightmap
+     * to be real — and it is <em>not</em> always, whatever this comment used to claim. It said
+     * "every caller here is at a player or a live spawn attempt, so it always is", and that
+     * assumption is what let a deadlock through: another mod populating a chunk during generation is
+     * a caller too. See {@link #answerable}.
      */
     public record Depth(Optional<Integer> min, Optional<Integer> max) implements SpawnCondition {
 
@@ -177,6 +183,9 @@ public final class SpawnConditions {
 
         @Override
         public boolean test(Level level, BlockPos pos) {
+            if (!answerable(level, pos)) {
+                return false;
+            }
             int surface = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, pos.getX(), pos.getZ());
             int depth = surface - pos.getY();
             return min.map(m -> depth >= m).orElse(true) && max.map(m -> depth <= m).orElse(true);
@@ -199,7 +208,7 @@ public final class SpawnConditions {
 
         @Override
         public boolean test(Level level, BlockPos pos) {
-            return level.canSeeSky(pos) == value;
+            return answerable(level, pos) && level.canSeeSky(pos) == value;
         }
     }
 
@@ -307,6 +316,27 @@ public final class SpawnConditions {
         public boolean test(Level level, BlockPos pos) {
             return com.sablednah.zombiemod.compat.FtbChunks.isClaimed(level, pos) == value;
         }
+    }
+
+    /**
+     * Is this column safe to ask questions about, right now, on this thread?
+     *
+     * <p>Anything that reads terrain — height, biome, light, sky — goes through the chunk source,
+     * and on a chunk that is not resident that means <em>blocking</em> until one is generated. From
+     * the server thread that is merely slow. From a worldgen thread it is fatal: the worker parks on
+     * a future the server thread is itself waiting to fulfil, and the game hangs at "Preparing spawn
+     * area" with no crash and no log line. That is not hypothetical — CityWorld populates chunks
+     * from inside generation, and it hung exactly like that.
+     *
+     * <p>{@code hasChunkAt} answers from what is already loaded and never blocks, so asking first
+     * costs a lookup and removes the whole class of hang.
+     *
+     * <p>Callers <b>fail closed</b> when this is false: an unanswerable condition is treated as not
+     * met, so the genus does not spawn and you get an ordinary mob. Failing open would let a genus
+     * ignore its own rules precisely when we cannot check them, which is the worse of the two.
+     */
+    private static boolean answerable(Level level, BlockPos pos) {
+        return level.hasChunkAt(pos);
     }
 
     // ---------------------------------------------------------------- CityWorld

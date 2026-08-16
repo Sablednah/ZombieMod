@@ -110,6 +110,24 @@ public final class ZombieModEvents {
         if (!ZombieModConfig.ENABLED.get()) {
             return;
         }
+
+        // Worldgen is not our business, and asking questions there hangs the game.
+        //
+        // CityWorld populates a chunk from inside chunk generation, on a worldgen thread, and
+        // correctly routes through EventHooks.finalizeMobSpawn so other mods get their say. Taking
+        // that say and calling level.getHeight/getBiome/canSeeSky asks the chunk system for a chunk
+        // from inside chunk generation: the worker parks on a CompletableFuture the server thread is
+        // itself waiting to fulfil, and world creation hangs at "Preparing spawn area" forever. No
+        // crash and no log line - it just stops. (Diagnosed from a thread dump by the LegendQuest
+        // session, 2026-08-16; two jstacks 60s apart, identical stack, CPU frozen.)
+        //
+        // Bailing out is the honest fix rather than merely the cheap one. These are pre-population
+        // mobs that largely despawn before any player sees them, so a genus roll here buys almost
+        // nothing - and it keeps a per-mob registry scan off the worldgen hot path, which it had no
+        // business being on either.
+        if (event.getSpawnType() == EntitySpawnReason.CHUNK_GENERATION) {
+            return;
+        }
         ServerLevel level = event.getLevel().getLevel();
         Mob mob = event.getEntity();
         if (mob.getPersistentData().getString(GenusApplier.GENUS_TAG).isPresent()) {

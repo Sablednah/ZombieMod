@@ -15,9 +15,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -60,16 +62,18 @@ public final class ProximitySpawner {
         public int capped;
         public int claimed;
         public int noGenus;
+        public int vetoed;
 
         public void reset() {
-            attempts = spawned = noSpot = inView = capped = claimed = noGenus = 0;
+            attempts = spawned = noSpot = inView = capped = claimed = noGenus = vetoed = 0;
         }
 
         @Override
         public String toString() {
             return String.format(
-                    "%d attempts, %d spawned (no spot %d, in view %d, at cap %d, claimed %d, no genus %d)",
-                    attempts, spawned, noSpot, inView, capped, claimed, noGenus);
+                    "%d attempts, %d spawned (no spot %d, in view %d, at cap %d, claimed %d, "
+                            + "no genus %d, rules said no %d)",
+                    attempts, spawned, noSpot, inView, capped, claimed, noGenus, vetoed);
         }
     }
 
@@ -166,6 +170,11 @@ public final class ProximitySpawner {
         // Let other mods veto, exactly as they could for a natural spawn. Skipping this would make
         // proximity spawns invisible to every spawn-control mod on the server.
         if (!net.neoforged.neoforge.event.EventHooks.checkSpawnPosition(mob, level, EntitySpawnReason.NATURAL)) {
+            // Counted, because this is where DAYLIGHT lands: checkSpawnRules is what enforces a
+            // monster's darkness requirement. Uncounted, it left the breakdown not adding up to the
+            // attempt total and the commonest outcome of all invisible - which defeats the point of
+            // having counters for a feature you are not meant to be able to watch.
+            COUNTERS.vetoed++;
             mob.discard();
             return;
         }
@@ -184,8 +193,19 @@ public final class ProximitySpawner {
         }
     }
 
+    /** How far below the local surface a player has to be before we stop aiming at the sky. */
+    private static final int UNDERGROUND = 6;
+    /** How far up and down to look for a floor when they are. */
+    private static final int VERTICAL_REACH = 12;
+
     /**
-     * A spot at a random bearing and distance, on the surface, that a mob can stand in.
+     * A spot at a random bearing and distance that a mob can stand in.
+     *
+     * <p>Usually the surface, which is what the heightmap gives. But a player in a cave, a mine or a
+     * cellar is nowhere near it, and aiming at the surface anyway put the zombies on the roof of the
+     * world above them — technically within range, and no use to anybody. So when they are well
+     * below the local surface, this looks for a floor at <em>their</em> depth instead, which is
+     * where a mine's occupants ought to come from.
      */
     private BlockPos findSpot(ServerLevel level, ServerPlayer player, RandomSource random) {
         int min = ZombieModConfig.PROXIMITY_MIN.get();
@@ -204,10 +224,12 @@ public final class ProximitySpawner {
                 continue;
             }
 
-            int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
-            BlockPos candidate = new BlockPos(x, y, z);
+            int surface = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
+            BlockPos candidate = surface - player.getBlockY() > UNDERGROUND
+                    ? floorNear(level, x, player.getBlockY(), z)
+                    : new BlockPos(x, surface, z);
 
-            if (!standable(level, candidate)) {
+            if (candidate == null || !standable(level, candidate)) {
                 continue;
             }
             if (ZombieModConfig.PROXIMITY_UNSEEN.get() && canSee(level, player, candidate)) {
@@ -225,12 +247,49 @@ public final class ProximitySpawner {
         return null;
     }
 
-    /** Two blocks of room, something solid underfoot, and not in liquid. */
+    /**
+     * The nearest floor to a given height, searched outwards so the closest one wins.
+     *
+     * <p>Outwards rather than downwards on purpose: a player on the middle level of a mine should
+     * get company from that level, not from whatever cavern happens to be beneath it.
+     */
+    private static BlockPos floorNear(ServerLevel level, int x, int y, int z) {
+        for (int offset = 0; offset <= VERTICAL_REACH; offset++) {
+            for (int sign : offset == 0 ? new int[] {0} : new int[] {-1, 1}) {
+                BlockPos pos = new BlockPos(x, y + sign * offset, z);
+                if (level.isInsideBuildHeight(pos.getY()) && standable(level, pos)) {
+                    return pos;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Vanilla's own test for standing room, rather than a stricter guess at it.
+     *
+     * <p>The first version asked for two blocks of literal {@code isAir} over something
+     * {@code isSolidRender}, and that quietly refused most of the outdoors. A tuft of grass, a
+     * flower, a fern or a layer of snow is not air, so every grassy field and every forest floor was
+     * rejected; so was standing on a slab, a path, or a farm. In play that read as "a lot of no
+     * place found" while the ground underfoot looked perfectly walkable, which it was.
+     *
+     * <p>This is {@code SpawnPlacementTypes.ON_GROUND.isSpawnPositionOk} in longhand, pinned to
+     * zombie because a spot is picked before a genus is. That is safe rather than sloppy: the chosen
+     * mob is put through {@code EventHooks.checkSpawnPosition} further down, which runs its real
+     * spawn rules and its obstruction check. This only has to find plausible ground.
+     */
     private static boolean standable(ServerLevel level, BlockPos pos) {
-        return level.getBlockState(pos).isAir()
-                && level.getBlockState(pos.above()).isAir()
-                && level.getBlockState(pos.below()).isSolidRender()
-                && level.getFluidState(pos).isEmpty();
+        BlockPos below = pos.below();
+        return level.getBlockState(below).isValidSpawn(level, below, EntityType.ZOMBIE)
+                && roomy(level, pos)
+                && roomy(level, pos.above());
+    }
+
+    private static boolean roomy(ServerLevel level, BlockPos pos) {
+        var state = level.getBlockState(pos);
+        return NaturalSpawner.isValidEmptySpawnBlock(level, pos, state, state.getFluidState(),
+                EntityType.ZOMBIE);
     }
 
     /** Would the player watch it appear? */

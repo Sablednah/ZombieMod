@@ -1,0 +1,98 @@
+{
+  "name": "&4Colossus",
+  "description": "Something went very wrong in the making of it. It has to stoop to get through the trees, and it does not stoop for anything else.",
+  "base": "minecraft:giant",
+  "weight": 0,
+  "health": 200.0,
+  "damage": 18.0,
+  "speed": 0.55,
+  "follow_range": 48.0,
+  "attributes": {
+    "minecraft:armor": 12.0,
+    "minecraft:knockback_resistance": 1.0,
+    "minecraft:attack_knockback": 3.0,
+    "minecraft:step_height": 2.0
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:light",
+        "max": 7
+      },
+      {
+        "type": "zombiemod:see_sky",
+        "value": true
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.6
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 24.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:shockwave",
+      "interval": 80,
+      "chance": 0.6,
+      "radius": 7.0,
+      "damage": 7.0,
+      "knockup": 1.4
+    },
+    {
+      "type": "zombiemod:sound",
+      "interval": 160,
+      "chance": 0.5,
+      "sound": "minecraft:entity.ravager.roar",
+      "volume": 1.5,
+      "pitch": 0.4
+    }
+  ],
+  "bounty": 25.0,
+  "xp": 100,
+  "equipment": {
+    "chest": {
+      "id": "minecraft:chainmail_chestplate"
+    },
+    "drop_chance": 0.0
+  }
+}

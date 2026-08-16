@@ -1,0 +1,89 @@
+{
+  "name": "&8Rusted Warden",
+  "description": "It was built to guard, and it still is. Nobody has told it the village is gone, or that the last thing it recognised as friendly stopped walking a long time ago.",
+  "base": "minecraft:iron_golem",
+  "weight": 0,
+  "health": 100.0,
+  "damage": 12.0,
+  "speed": 0.85,
+  "follow_range": 32.0,
+  "attributes": {
+    "minecraft:armor": 8.0,
+    "minecraft:knockback_resistance": 1.0,
+    "minecraft:attack_knockback": 2.0,
+    "minecraft:step_height": 1.5
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.7
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 16.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 3,
+      "target": "villager"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:shockwave",
+      "interval": 90,
+      "chance": 0.5,
+      "radius": 4.0,
+      "damage": 5.0,
+      "knockup": 1.2
+    },
+    {
+      "type": "zombiemod:sound",
+      "interval": 140,
+      "chance": 0.5,
+      "sound": "minecraft:entity.iron_golem.damage",
+      "volume": 1.0,
+      "pitch": 0.6
+    }
+  ],
+  "bounty": 14.0,
+  "xp": 50
+}

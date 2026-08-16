@@ -46,16 +46,16 @@ Last updated 2026-08-16.
 
 - **`NO_SPAWNS` claim mode** — the griefing veto is verified, but only the default `VANILLA_ONLY`
   spawn behaviour has been exercised; nobody has watched `NO_SPAWNS` cancel a spawn.
-- **Non-zombie bases beyond husk/drowned/skeleton** — `giant`, `zombie_villager`, `iron_golem`.
+- **Non-zombie bases beyond husk/drowned/skeleton** — `zombie_villager` **confirmed in play**
+  (2026-08-16). `giant` and `iron_golem` now have a genus each to try them with, `colossus` and
+  `warden_golem`, both weight 0 so they are deliberate rather than ambient (see ROSTER).
 - **The faces themselves.** Every hash resolves at Mojang and every genus wears the head on its head
   slot, both checked headlessly — but nobody has stood in front of one and looked at it. What is
   unproven is whether they *read* at a distance, not whether they load. Already one correction from
   play: Nightstalker's head was "Masked Zombie", whose mask turns out to be a *surgical* one, which
   said nothing about hunting in the dark. Picking by catalogue name is how that happened; picks are
   now screened by rendering the face pixels and looking at them, dimmed as well as lit.
-- **Mutation's two damp triggers** — `touching` (Walker on ice turning Frost) and `in_water` (an
-  Ember doused back into a Walker). Same machinery as the three that are confirmed, and both were
-  proven headlessly in both directions, but nobody has watched either happen.
+- ~~Mutation's two damp triggers~~ — **confirmed in play** (2026-08-16): ice and water both fire.
 - **`alert`** — Screamer handing its target to a horde.
 - ~~The Borg Hive~~ — **confirmed in play** ("borg works"). Still untuned by feel: whether horde
   weight 1 is rare enough, and the queen's numbers.
@@ -119,9 +119,14 @@ Last updated 2026-08-16.
   drowning — which is the whole point of the delay. And the cure: milk clearing it before you die.
 - **Corpse recovery after killing only the decoy.** The one path where a bug would genuinely cost
   someone their inventory.
-- **Proximity spawning** — needs `enabled = true`. Whether `outOfSightOnly` actually prevents you
-  watching them appear, and whether `nearbyCap = 8` is atmosphere or a siege. `/zombiemod status`
-  reports the counters.
+- **Proximity spawning** — `nearbyCap = 8` **settled by play** (2026-08-16). What play also showed
+  was a lot of "no spot" in the counters, and two causes have been addressed *unproven*: the
+  standing-room test was stricter than vanilla's (a tuft of grass or a snow layer disqualified a
+  spot), and the search only ever aimed at the surface heightmap, so a player in a cave or a cellar
+  had company placed on the roof of the world above them. A probe over 1681 surface spots in the dev
+  world found the old and new standing rules agreeing exactly — that terrain simply has none of the
+  cases the fix is for, so it neither confirms nor refutes it. The counters now also report the
+  spawn-rules veto, which used to vanish silently and is where daylight lands.
 - **Bounty payouts** — the scoreboard tally, and whether the numbers feel proportionate.
 - **Hordes.** One Siege survived, which found both of the gaps now closed. The numbers most likely
   to be wrong are still `cap = 40` and the wave delays — whether it builds or just arrives.
@@ -130,6 +135,27 @@ Last updated 2026-08-16.
 - **Horde counting and chunk unloads.** Survivors are counted by identity now, so distance no longer
   loses them, but a mob in an unloaded chunk still reads as gone and would end the horde early.
   Unlikely at these radii; not impossible if a player runs.
+
+## Fixed, worth remembering
+
+- **World creation deadlocked with CityWorld installed** (found and diagnosed by the LegendQuest
+  session from a thread dump, 2026-08-16; fixed same day). CityWorld populates chunks from inside
+  generation and routes through `EventHooks.finalizeMobSpawn` so other mods get their say —
+  correctly. ZombieMod took that say and called `level.getHeight` from a worldgen thread, which asks
+  the chunk system for a chunk from inside chunk generation: the worker parked on a future the
+  server thread was itself waiting to fulfil, and world creation hung at "Preparing spawn area"
+  forever with no crash and no log line.
+
+  Two layers of fix. `onFinalizeSpawn` now returns immediately for `CHUNK_GENERATION`, which is also
+  right on its own merits — those are pre-population mobs that mostly despawn, and rolling a genus
+  for each one put a registry scan on the worldgen hot path. And the four terrain conditions
+  (`biome`, `light`, `depth`, `see_sky`) now check `hasChunkAt` first and fail closed, so no other
+  mod can reproduce it from a different direction. Verified by generating a CityWorld world
+  headlessly with both mods present: spawn area 100%, 3858 ms, `Done (5.031s)`.
+
+  The lesson is in the javadoc that licensed it — "every caller here is at a player or a live spawn
+  attempt, so it always is". A comment asserting an invariant about *all callers* is a claim you
+  cannot make about a mod nobody has written yet.
 
 ## Left from the 1.8 plugin
 
