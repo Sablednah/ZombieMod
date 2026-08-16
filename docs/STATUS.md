@@ -9,16 +9,16 @@ Last updated 2026-08-16.
 
 | | |
 |---|---|
-| **Genera as datapacks** | 43 shipped; hot-reload with `/reload` |
-| **AI from JSON** | 9 goal types, recombined per genus |
-| **Abilities** | 19 types |
-| **Spawn conditions** | 9 types, composable with `any_of` / `not` |
+| **Genera as datapacks** | 56 shipped; hot-reload with `/reload` |
+| **AI from JSON** | 12 goal types, recombined per genus |
+| **Abilities** | 22 types |
+| **Spawn conditions** | 12 types, composable with `any_of` / `not` |
 | **Weighted spawning** | Per base mob, with a configurable vanilla share. `vanillaWeight = 40` settled by play (2026-08-16) — measured at ~26% plain zombies on the surface, ~13% deep underground |
 | **Behaviours** | Goal sets that switch on a condition (day/night) |
 | **Bosses** | Boss bars, phases, loot tables, summon rituals with block patterns |
 | **Player zombies** | Corpse wearing the player's real skin, carrying their items, with an admin recovery ledger |
 | **Equipment** | Six slots, bare ids or full stacks with components |
-| **Player-head faces** | Custom embedded textures on 44 of 47 genera, plus name-resolved profiles and `ghost` borrowing a real player's |
+| **Player-head faces** | Custom embedded textures on 51 of 56 genera, plus name-resolved profiles and `ghost` borrowing a real player's |
 | **Climbing** | Navigation swap *plus* the goal that performs it |
 | **Guardian beam** | By parenting an invisible Guardian to the caster |
 | **Particle rays** | Hitscan with an audible, abortable charge-up |
@@ -36,7 +36,7 @@ Last updated 2026-08-16.
 | **Infection** | Bite now, turn later, whatever kills you — and milk cures it. Bite, timer and the infected-player double-raise verified. Confirmed emergent in play: an infected flock wandered into a sweet berry bush and rose from it. |
 | **Proximity spawning** | Zombies out of sight around each player, off by default |
 | **ZombieDex** | Seen/killed per player, in chat, in a written book and on scoreboards. Confirmed in play by an ordinary non-op player: the book spawns and tracks met and kills |
-| **Vanilla clients** | Verified with a genuinely unmodded client against a dedicated server carrying the client half: joined, stayed, no `may not be sent to the client`, no exceptions. See CLAUDE.md for the procedure |
+| **Vanilla clients** | Verified twice with a genuinely unmodded client (the Mojang launcher, not a stripped profile) against a dedicated server carrying the client half: joined, stayed, no `may not be sent to the client`, no `Couldn't place player in world`, no exceptions. Re-run 2026-08-16 after the dex book, the payload guard and the server-side interaction cancel all landed — **and the book opens as a book**, which is the case that had to be watched rather than reasoned about. See CLAUDE.md for the procedure |
 | **Commands** | `list`, `spawn`, `status`, `observe`, `corpse …`, `bestiary`, `config`, and `/zm` |
 | **Herd infection** | A Biter bites, loses interest, and moves on; the flock sickens and spreads it; milk cures an animal. Confirmed in play, including an infected flock dying to a sweet berry bush and rising from it |
 | **Bramble & Blight** | The mirror pair, in play: one lays moss as it walks, the other seeks moss out and eats it, and they hunt each other. Blight usually wins |
@@ -63,13 +63,13 @@ Last updated 2026-08-16.
 - ~~The dex book as a key~~ — **confirmed in play** (2026-08-16). The first build opened the book
   behind it a tick later, because the client cancel was not enough: `ServerPlayer.openItemGui` sends
   a packet, so the server opens the book itself. Cancelled on both sides now, the server half gated
-  on the player speaking our channel. The pages themselves are confirmed good; what nobody has
-  watched is an *unmodded* client right-clicking the same item, which is the half a modded client
-  cannot test. **Sneak-right-click** falls through to the written pages so a modded client can check
-  that without a second instance — confirmed in play (2026-08-16), as is an anvil-renamed book being
-  accepted as a dex. The sneak decision is taken entirely
-  on the client, because the crouch flag reaches the server a tick behind the click and two sides
-  answering it separately would give both windows or neither on the frame shift changes.
+  on the player speaking our channel — and that guard is now verified from the other side too: an
+  unmodded client on the Mojang launcher right-clicks the same item and gets the written pages.
+  **Sneak-right-click** falls through to those pages on a modded client as well, so you can check
+  what a vanilla player sees without a second instance. An anvil-renamed book counts as a dex. The
+  sneak decision is taken entirely on the client, because the crouch flag reaches the server a tick
+  behind the click and two sides answering it separately would give both windows or neither on the
+  frame shift changes.
 - ~~The dex concealment configs~~ — **confirmed in play** (2026-08-16), both ladders and both
   outcomes: `hideUnspawnable` works; a Herobrine on the `hidden` list was killed and still left no
   record; a Duststalker on `hiddenRevealedWhenMet` appeared the moment it was wounded.
@@ -167,12 +167,7 @@ upkeep once someone actually asks for a translation.
 1. **Proximity in survival.** Enabled in Sable's instance; the cap semantics are settled ("quiet
    place top up is perfect" — 2026-08-15). What remains is simply a survival session on quiet ground
    watching it fire, and whether `nearbyCap = 8` feels like atmosphere.
-2. **A vanilla client, once more.** The dex is finished and the whole of it has been watched working
-   — from a modded client. What has not been re-checked since the book, the payload guard and the
-   server-side interaction cancel all landed is that an unmodded player still joins, stays, and gets
-   a book that opens as a book. The procedure is in CLAUDE.md; it is an hour, and it is the promise
-   the mod is built on.
-3. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
+2. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
 
