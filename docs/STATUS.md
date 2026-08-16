@@ -13,7 +13,7 @@ Last updated 2026-08-16.
 | **AI from JSON** | 9 goal types, recombined per genus |
 | **Abilities** | 19 types |
 | **Spawn conditions** | 9 types, composable with `any_of` / `not` |
-| **Weighted spawning** | Per base mob, with a configurable vanilla share |
+| **Weighted spawning** | Per base mob, with a configurable vanilla share. `vanillaWeight = 40` settled by play (2026-08-16) — measured at ~26% plain zombies on the surface, ~13% deep underground |
 | **Behaviours** | Goal sets that switch on a condition (day/night) |
 | **Bosses** | Boss bars, phases, loot tables, summon rituals with block patterns |
 | **Player zombies** | Corpse wearing the player's real skin, carrying their items, with an admin recovery ledger |
@@ -91,9 +91,9 @@ Last updated 2026-08-16.
   right; what nobody has done is stand in front of one. Ghost in particular is unproven: on the dev
   server no player had ever joined, so `ghost: true` found no face to borrow and it rendered as a
   lone chestplate. In a played-in world it should read as a head and a torso with a gap between.
-- **The full-moon Siege.** `moon`, `depth` and `see_sky` were each proven headlessly in both
-  directions, including building a real stone roof and watching "sheltered but not underground" come
-  out true — but the dev world was on a third quarter, so nobody has seen the Siege actually fire.
+- ~~The full-moon Siege~~ — **confirmed in play** (2026-08-16): one fired by itself on a full moon,
+  unforced. `moon`, `depth` and `see_sky` had each been proven headlessly in both directions;
+  what was missing was the world being on the right moon, and now it has been.
   `/zombiemod horde start zombiemod:the_siege` still forces it regardless of the moon.
 - **`summon`'s `max_nearby` cap** under real pressure, i.e. a Breeder left alone in a loaded chunk.
 - **Corpse recovery edge cases** — a corpse lost to lava or a mob grinder, then `give`/`respawn`.
@@ -164,11 +164,8 @@ upkeep once someone actually asks for a translation.
 
 - **Remove the 1.8 source tree** (`src/me/sablednah/`) and the LICENSE carve-out that exists for it.
 - **Rewrite `README.md`'s opening** for a store page; move the technical detail down or out.
-- **Balance pass.** Nothing has been tuned by playing — weights, radii, damage and phase thresholds
-  are all first guesses. See the note in [ROSTER.md](ROSTER.md) about the vanilla share drifting as
-  the roster grew.
-- **Decide `vanillaWeight`.** At 200 with 43 genera, roughly half of all eligible zombie spawns are
-  now a genus. That may be right, but it was set when the roster was a third the size.
+- **Balance pass.** Radii, damage and phase thresholds are still first guesses. Weights are not:
+  see [ROSTER.md](ROSTER.md).
 - `docs/curseforge-description.md`, mod icon, banner — the WoodDye release shape.
 
 ## Known limitations
