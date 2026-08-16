@@ -125,6 +125,11 @@ public final class ZombieModEvents {
         // mobs that largely despawn before any player sees them, so a genus roll here buys almost
         // nothing - and it keeps a per-mob registry scan off the worldgen hot path, which it had no
         // business being on either.
+        // Exactly one reason, and no more. Everything else still rolls a genus, which matters most
+        // for MOB_SUMMONED: another mod's summoning skill routes through the same event, on the
+        // server thread, for a chunk that is necessarily loaded - and a summoned zombie should be
+        // able to be one of ours. (Checked against LegendQuest's summon skill, which is a caller of
+        // finalizeMobSpawn rather than a handler of it - CityWorld's side of this fence, not ours.)
         if (event.getSpawnType() == EntitySpawnReason.CHUNK_GENERATION) {
             return;
         }
