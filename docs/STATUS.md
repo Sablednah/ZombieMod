@@ -122,8 +122,12 @@ Last updated 2026-08-16.
   fix below). `respawn` rebuilt the corpse with the items, but it came back *bald* — `rebuild` wrote the ledger tag and the pockets but never the
   face, so a rebuilt corpse was not recognisably anybody. Fixed, along with two things sitting beside
   it: the armour was not re-worn either, and the name went through `Component.literal` so a
-  colour-coded `Corpse %P` would have shown its codes. Unverified: the rebuilt face specifically, and
-  the harder edge cases (a corpse lost to lava or a grinder).
+  colour-coded `Corpse %P` would have shown its codes. The **lava and void cases** are now handled and
+  proven headlessly in all three directions: a lava death and a void death leave the entry
+  outstanding with a reason recorded, a clean kill still settles it, and an entry written before the
+  field existed still decodes. What nobody has watched is any of it in play, and a **grinder** is
+  deliberately left undecidable — a hopper may have taken the items, so re-issuing could duplicate an
+  inventory, and that stays an admin's call.
 - **Loot tables** — resolution is proven; nobody has watched Patient Zero drop his netherite scrap.
 - **Conversion in play.** The guards are tested (a listed victim rises, an unlisted one doesn't, an
   undead one never does, and 40 kills in one tick produce exactly one). Nobody has watched a Carrier

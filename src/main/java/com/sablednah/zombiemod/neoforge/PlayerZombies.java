@@ -121,7 +121,7 @@ public final class PlayerZombies {
         CorpseLedger.get(level).record(new CorpseLedger.Entry(ledgerId, player.getUUID(),
                 player.getName().getString(), level.dimension().identifier().toString(),
                 player.blockPosition().getX(), player.blockPosition().getY(), player.blockPosition().getZ(),
-                level.getGameTime() / 24000L, carried, false));
+                level.getGameTime() / 24000L, carried, false, java.util.Optional.empty()));
 
         level.addFreshEntity(corpse);
         LOG.info("ZombieMod: {} rose at {} {} {}", corpse.getName().getString(),
@@ -150,6 +150,13 @@ public final class PlayerZombies {
     private void dropCarried(ServerLevel level, Mob mob, LivingDropsEvent event) {
         // Settle the ledger whether or not it was carrying anything - a corpse that died properly
         // owes nothing, and leaving it listed would have admins handing out duplicates.
+        //
+        // Unless it did not die properly. "Settled" is really two claims - the items entered the
+        // world, AND somebody could pick them up - and lava satisfies the first while destroying the
+        // second. So a death in a place that eats what it drops leaves the entry outstanding and
+        // records why, which is the difference between an admin re-issuing an inventory and telling
+        // a player it was already handed back.
+        String destroyer = destroys(event.getSource());
         mob.getPersistentData().getString(LEDGER_TAG)
                 .map(id -> {
                     try {
@@ -158,7 +165,13 @@ public final class PlayerZombies {
                         return null;
                     }
                 })
-                .ifPresent(id -> CorpseLedger.get(level).claim(id));
+                .ifPresent(id -> {
+                    if (destroyer == null) {
+                        CorpseLedger.get(level).claim(id);
+                    } else {
+                        CorpseLedger.get(level).lost(id, destroyer);
+                    }
+                });
 
         List<ItemStack> carried = read(level, mob);
         if (carried.isEmpty()) {
@@ -168,6 +181,35 @@ public final class PlayerZombies {
             event.getDrops().add(new ItemEntity(level, mob.getX(), mob.getY() + 0.5D, mob.getZ(), stack));
         }
         mob.getPersistentData().remove(ITEMS_TAG);
+    }
+
+    /**
+     * Did the killing blow happen somewhere the drops cannot survive? The reason, or null.
+     *
+     * <p>Only the three that are decided by <em>place</em> rather than by state. Lava burns what
+     * lands in it, a fire block burns what lands in it, and the void is below the world along with
+     * everything that follows the corpse into it.
+     *
+     * <p>Deliberately not {@code ON_FIRE}: a corpse can burn to death standing on grass, and its
+     * drops land on that same unburning grass perfectly intact. Guessing there would produce the
+     * mirror-image bug - an entry left outstanding for items already lying in the open, and an admin
+     * duplicating an inventory. A grinder is undecidable for the same reason and worse, since a
+     * hopper may have taken them; that one stays a judgement call, which is what an admin is for.
+     */
+    private static String destroys(net.minecraft.world.damagesource.DamageSource source) {
+        if (source == null) {
+            return null;
+        }
+        if (source.is(net.minecraft.world.damagesource.DamageTypes.LAVA)) {
+            return "lava";
+        }
+        if (source.is(net.minecraft.world.damagesource.DamageTypes.IN_FIRE)) {
+            return "fire";
+        }
+        if (source.is(net.minecraft.world.damagesource.DamageTypes.FELL_OUT_OF_WORLD)) {
+            return "the void";
+        }
+        return null;
     }
 
     /** Re-attach a ledger entry's items to a rebuilt corpse, so recovery is a real second chance. */

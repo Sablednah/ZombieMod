@@ -761,6 +761,15 @@ A corpse that dies normally settles its own entry. Anything else, and an admin c
 `n` is the index shown by `list`, defaulting to the most recent. All op-only, like every other
 ZombieMod command.
 
+**A corpse that died in lava or fell out of the world stays outstanding**, and says so:
+`(died in lava - items destroyed, not yet re-issued)`. Settling an entry really asserts two things —
+that the items entered the world *and* that somebody could pick them up — and lava satisfies only the
+first, so reporting it as "already recovered" would have an admin telling a player their inventory
+had been handed back when it had been incinerated. Only deaths decided by *place* are treated this
+way: lava, a fire block, and the void. Burning to death on grass is not one of them, because those
+drops land on that same unburning grass intact — and a mob grinder is undecidable, since a hopper may
+have taken them. That one stays an admin's judgement call.
+
 ## Faces
 
 The 1.8 plugin reskinned its zombies with Spout, which meant a client mod, which meant almost nobody

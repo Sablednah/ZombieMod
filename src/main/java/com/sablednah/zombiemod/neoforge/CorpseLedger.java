@@ -32,8 +32,13 @@ import net.minecraft.world.level.saveddata.SavedDataType;
  */
 public final class CorpseLedger extends SavedData {
 
+    /**
+     * @param claimed the items reached the world and are somebody's problem now, not ours
+     * @param lostTo how the corpse died, when the way it died means the items did not survive it
+     */
     public record Entry(UUID id, UUID player, String playerName, String dimension,
-            int x, int y, int z, long day, List<ItemStack> items, boolean claimed) {
+            int x, int y, int z, long day, List<ItemStack> items, boolean claimed,
+            Optional<String> lostTo) {
 
         public static final Codec<Entry> CODEC = RecordCodecBuilder.create(i -> i.group(
                 UUIDUtil.CODEC.fieldOf("id").forGetter(Entry::id),
@@ -45,11 +50,19 @@ public final class CorpseLedger extends SavedData {
                 Codec.INT.fieldOf("z").forGetter(Entry::z),
                 Codec.LONG.fieldOf("day").forGetter(Entry::day),
                 ItemStack.CODEC.listOf().optionalFieldOf("items", List.of()).forGetter(Entry::items),
-                Codec.BOOL.optionalFieldOf("claimed", false).forGetter(Entry::claimed))
+                Codec.BOOL.optionalFieldOf("claimed", false).forGetter(Entry::claimed),
+                // Optional, so every ledger written before this existed still loads.
+                Codec.STRING.optionalFieldOf("lost_to").forGetter(Entry::lostTo))
                 .apply(i, Entry::new));
 
         public Entry claim() {
-            return new Entry(id, player, playerName, dimension, x, y, z, day, items, true);
+            return new Entry(id, player, playerName, dimension, x, y, z, day, items, true, lostTo);
+        }
+
+        /** Died in a way that destroys what it was carrying. Stays outstanding, and says why. */
+        public Entry lostTo(String how) {
+            return new Entry(id, player, playerName, dimension, x, y, z, day, items, false,
+                    Optional.of(how));
         }
 
         public BlockPos pos() {
@@ -88,6 +101,24 @@ public final class CorpseLedger extends SavedData {
         for (int i = 0; i < entries.size(); i++) {
             if (entries.get(i).id().equals(id) && !entries.get(i).claimed()) {
                 entries.set(i, entries.get(i).claim());
+                setDirty();
+                return;
+            }
+        }
+    }
+
+    /**
+     * The corpse died somewhere its cargo could not survive. Leave the entry outstanding.
+     *
+     * <p>"Settled" used to mean nothing more than "the corpse died", which quietly conflated two
+     * different facts: that the items entered the world, and that anybody could ever pick them up.
+     * A corpse that falls in lava satisfies the first and not the second, and the ledger would
+     * cheerfully report it as "already recovered" when it had been incinerated.
+     */
+    public void lost(UUID id, String how) {
+        for (int i = 0; i < entries.size(); i++) {
+            if (entries.get(i).id().equals(id) && !entries.get(i).claimed()) {
+                entries.set(i, entries.get(i).lostTo(how));
                 setDirty();
                 return;
             }

@@ -550,10 +550,17 @@ public final class ZombieModCommands {
         for (int i = 0; i < found.size() && i < 20; i++) {
             CorpseLedger.Entry e = found.get(i);
             int n = i + 1;
+            // Three states, not two, and the third is the one worth having: an entry that is still
+            // outstanding AND says why the items are not lying where the corpse fell. An admin
+            // reading "already recovered" about an inventory that went into lava would tell the
+            // player it had been handed back, which is the wrong answer given confidently.
+            String note = e.lostTo()
+                    .map(how -> " §c(died in " + how + " - items destroyed, not yet re-issued)")
+                    .orElse(e.claimed() ? " §8(already recovered)" : "");
             source.sendSuccess(() -> Component.literal(String.format(
                     "#%d %s - %d %d %d in %s, day %d, %d item stacks%s",
                     n, e.playerName(), e.x(), e.y(), e.z(), e.dimension(), e.day(), e.items().size(),
-                    e.claimed() ? " (already recovered)" : "")), false);
+                    note)), false);
         }
         return found.size();
     }
