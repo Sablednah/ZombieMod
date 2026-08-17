@@ -87,6 +87,10 @@ public final class HordeDirector {
         Active(HordeSpec spec, ServerPlayer player) {
             this.spec = spec;
             this.player = player;
+            // The first wave's own delay, so `delay: 0` means "immediately" and anything else is a
+            // beat before it starts. Left at the field default of 0, the first wave always landed on
+            // the first tick regardless of what its JSON asked for.
+            this.countdown = spec.waves().isEmpty() ? 0 : spec.waves().get(0).delay();
             this.bar = spec.barColor()
                     .map(colour -> new ServerBossEvent(Announce.format(spec.name()), colour,
                             BossEvent.BossBarOverlay.NOTCHED_10))
@@ -202,11 +206,32 @@ public final class HordeDirector {
         List<Mob> alive = survivors(level, active);
 
         if (active.wave < active.spec.waves().size()) {
-            if (--active.countdown <= 0) {
-                HordeSpec.Wave wave = active.spec.waves().get(active.wave);
-                active.countdown = wave.delay();
+            HordeSpec.Wave wave = active.spec.waves().get(active.wave);
+            // Chained: the field is clear, so stop waiting. The delay stays as a ceiling, so a player
+            // who hides or runs still gets the wave rather than a horde that stalls forever. Never on
+            // the first wave, which has nothing to be clear of - and `placed > 0` because "nothing
+            // alive" is also true of the instant before anything has been made.
+            boolean chained = wave.onClear() && active.wave > 0 && active.placed > 0 && alive.isEmpty();
+            if (--active.countdown <= 0 || chained) {
                 active.placed += spawnWave(level, player, active, wave);
                 active.wave++;
+                // The delay belongs to the wave that is WAITING, not the one that just landed. Read
+                // from the wave just spawned, every wave inherited its predecessor's delay: the first
+                // wave's `delay: 0` therefore made the second arrive on the very next tick, the third
+                // one tick after that, and the last wave's delay was never read at all. A three-wave
+                // siege was over in three ticks - it never built, it just arrived, and the numbers in
+                // the JSON described a horde nobody had ever seen. (Measured with a FakePlayer:
+                // waves at ticks 21 and 22, then nothing for 1378 ticks.)
+                if (active.wave < active.spec.waves().size()) {
+                    active.countdown = active.spec.waves().get(active.wave).delay();
+                    LOG.info("ZombieMod: horde '{}' wave {}/{} placed, next in {} ticks{}",
+                            active.spec.name(), active.wave, active.spec.waves().size(),
+                            active.countdown,
+                            active.spec.waves().get(active.wave).onClear() ? " (or when cleared)" : "");
+                } else {
+                    LOG.info("ZombieMod: horde '{}' final wave {}/{} placed, {} mobs total",
+                            active.spec.name(), active.wave, active.spec.waves().size(), active.placed);
+                }
             }
         } else if (alive.isEmpty()) {
             // Last wave is out and nothing is left standing. Ending on the last kill rather than a

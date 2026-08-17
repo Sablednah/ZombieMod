@@ -151,7 +151,16 @@ Last updated 2026-08-16.
   could not.
 - **Bounty payouts** — the scoreboard tally, and whether the numbers feel proportionate.
 - **Hordes.** One Siege survived, which found both of the gaps now closed. `cap = 40` **settled by
-  play** (2026-08-16). The wave delays are the remaining guess — whether it builds or just arrives.
+  play** (2026-08-16). "Whether it builds or just arrives" turned out to be a **bug, not a tuning
+  question**: every wave inherited the *previous* wave's delay, so a `delay: 0` first wave made the
+  second arrive on the next tick and the third one tick after that, and the last wave's delay was
+  never read at all. Measured with a FakePlayer: waves at ticks 21 and 22, then nothing for 1378
+  ticks. Three waves in three ticks — it never built, and the numbers in every shipped horde described
+  something nobody had seen. Fixed and re-measured at +1/+401/+901, matching the JSON.
+  **`on_clear` (new)** makes a wave arrive the moment the previous is dead, with the delay as a
+  ceiling; proven both ways — wave 3 came at tick 501 when the field was wiped at 500, and at 921 when
+  it was not. The retuned numbers are now a genuine first guess rather than a wrong one, and nobody
+  has played a chained horde yet.
   `glowAfter = 1200` is settled: in play it fired just as the player was giving up and heading for a
   bell, which is exactly where that threshold wants to sit.
 - **Horde counting and chunk unloads.** Survivors are counted by identity now, so distance no longer

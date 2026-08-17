@@ -51,13 +51,18 @@ public record HordeSpec(
      * One push.
      *
      * @param count  how many to try to place
-     * @param delay  ticks after the previous wave before this one arrives
+     * @param delay   ticks after the previous wave before this one arrives
+     * @param onClear arrive as soon as the previous wave is dead, without waiting out {@code delay}.
+     *                The delay stays a ceiling, so a player who hides or runs still gets the wave
+     *                eventually rather than a horde that quietly stalls. Ignored on the first wave,
+     *                which has nothing to be clear of.
      * @param genera explicit genus ids, or empty to draw from the weighted table as normal
      */
-    public record Wave(int count, int delay, List<Identifier> genera) {
+    public record Wave(int count, int delay, boolean onClear, List<Identifier> genera) {
         public static final Codec<Wave> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.INT.fieldOf("count").forGetter(Wave::count),
                 Codec.INT.optionalFieldOf("delay", 200).forGetter(Wave::delay),
+                Codec.BOOL.optionalFieldOf("on_clear", false).forGetter(Wave::onClear),
                 Identifier.CODEC.listOf().optionalFieldOf("genera", List.of()).forGetter(Wave::genera))
                 .apply(i, Wave::new));
     }

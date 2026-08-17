@@ -34,17 +34,19 @@
     },
     {
       "count": 7,
-      "delay": 400,
+      "delay": 500,
       "genera": [
         "zombiemod:zomborg"
-      ]
+      ],
+      "on_clear": true
     },
     {
       "count": 1,
-      "delay": 500,
+      "delay": 900,
       "genera": [
         "zombiemod:borg_queen"
-      ]
+      ],
+      "on_clear": true
     }
   ]
 }

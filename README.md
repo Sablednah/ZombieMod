@@ -972,8 +972,8 @@ Hordes are a datapack registry too, at `data/<pack>/zombiemod/horde/<name>.json`
   "conditions": [ { "type": "zombiemod:time", "phase": "night" } ],
   "waves": [
     { "count": 6,  "delay": 0 },
-    { "count": 10, "delay": 400 },
-    { "count": 16, "delay": 500 }
+    { "count": 10, "delay": 500, "on_clear": true },
+    { "count": 16, "delay": 700, "on_clear": true }
   ]
 }
 ```
@@ -981,6 +981,15 @@ Hordes are a datapack registry too, at `data/<pack>/zombiemod/horde/<name>.json`
 **Waves rather than a number, on purpose.** Twenty at once is a wall; six, then ten, then sixteen is a
 story with a middle. A wave can name specific `genera` or leave it out and draw from the weighted
 table as usual, and `conditions` are the same ones that gate spawning.
+
+`delay` is ticks after the previous wave landed. **`on_clear` makes a wave arrive the moment the
+previous one is dead**, so clearing the field fast earns the next wave rather than standing about
+waiting for a timer — which is what turns three waves into one escalating fight. The `delay` stays on
+as a **ceiling**, so a player who hides or runs still gets the wave eventually instead of a horde that
+quietly stalls forever with nothing left to kill.
+
+Three of the four shipped hordes chain. The Swarm deliberately doesn't — it's meant to be one
+overwhelming press, so its second wave lands while you're still busy with the first.
 
 Four ship: **The Horde** (a general build), **The Swarm** (many weak things, a different problem to
 solve), **The Siege** (breakers first, so the way is open when the rest arrive) and **The Borg Hive**

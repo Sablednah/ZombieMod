@@ -44,20 +44,22 @@
     },
     {
       "count": 8,
-      "delay": 400,
+      "delay": 600,
       "genera": [
         "zombiemod:breaker",
         "zombiemod:rioter",
         "zombiemod:juggernaut"
-      ]
+      ],
+      "on_clear": true
     },
     {
       "count": 3,
-      "delay": 500,
+      "delay": 900,
       "genera": [
         "zombiemod:bigbreaker",
         "zombiemod:tank"
-      ]
+      ],
+      "on_clear": true
     }
   ]
 }

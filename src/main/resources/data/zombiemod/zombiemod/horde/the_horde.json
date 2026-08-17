@@ -31,11 +31,13 @@
     },
     {
       "count": 10,
-      "delay": 400
+      "delay": 500,
+      "on_clear": true
     },
     {
       "count": 16,
-      "delay": 500
+      "delay": 700,
+      "on_clear": true
     }
   ]
 }
