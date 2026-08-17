@@ -187,6 +187,17 @@ on **both** sides.
 The server-side cancel must be gated on `Net.listening(player)`, or a vanilla client ends up
 right-clicking a book that does nothing at all — a worse bug than the one being fixed.
 
+### A FakePlayer makes player-driven systems testable headlessly
+
+`new FakePlayer(level, new GameProfile(uuid, name))` is a real `ServerPlayer`, which is what lets the
+horde director, proximity spawning and anything else keyed on a player be driven from a probe on a
+dedicated server with nobody connected. It found the wave-delay bug — every wave was inheriting the
+previous wave's delay, so a three-wave horde fired in three ticks and no shipped horde's numbers had
+ever been experienced.
+
+Caveats: it has no connection, so anything that sends a packet to it will NPE. Build the spec you are
+testing without a `bar_color`, and don't rely on chat. `displayClientMessage` is already a no-op.
+
 ### Verifying changes headlessly
 
 `ServerStartedEvent` logs a genera summary permanently (`ZombieMod: 2 genera loaded - coward (5+0
@@ -210,6 +221,11 @@ Two things it is worth re-deriving if you touch that area, because nothing else 
   `level.setChunkForced(x >> 4, z >> 4, true)`. Two further traps in the same family: a freshly added
   entity is queued and does not appear until the **next tick**, so spawn on one tick and search on a
   later one; and `ServerStartedEvent` is too early for either, so defer to `ServerTickEvent.Post`.
+- **`GenusApplier.assign` does not apply AI.** It writes the persistent half only; goals are built
+  from `EntityJoinLevelEvent`, so a probe that calls `assign` on a bare entity and counts
+  `goalSelector` is measuring **vanilla's own goals**. That reads as a dramatic bug for any base with
+  no default AI — `Giant` has none, so a probe reported "0 of 5 goals applied" for a genus that was
+  fine. Call `applyAi` explicitly, or add the entity to the world and let the event fire.
 - **A probe must call the real code, not re-derive it.** A ritual probe recomputed pattern offsets
   itself instead of calling `RitualHandler.matchPattern`, reported 5/5 blocks matched, and sailed
   past the actual bug — the rotation helper was dropping the Y component, so every vertical offset

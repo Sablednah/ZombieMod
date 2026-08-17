@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-08-16.
+Last updated 2026-08-17.
 
 ## Built and verified in game
 
@@ -219,6 +219,16 @@ Not adopted yet, deliberately: ZombieMod's player-facing text is small (dex pros
 JSON, which datapacks already override per-server), and a second string system is only worth its
 upkeep once someone actually asks for a translation.
 
+## Where this stands, 2026-08-17
+
+**Everything testable has been tested.** The "built, not yet verified" list is down to items that
+need a *situation* to arise rather than a session to run (a Carrier working through a village, a
+Breeder left alone under real pressure), items that are matters of feel rather than function (drop
+rates, the Sleeper's six-block range, the Borg Queen's numbers, the new chained wave timings), and
+one thing that is blocked outright (bounty payouts).
+
+The mod is feature-complete for a first release. **What remains is release work**, below.
+
 ## Next, in the order I'd do it
 
 1. **Proximity in survival.** Enabled in Sable's instance; the cap semantics are settled ("quiet
@@ -234,6 +244,12 @@ upkeep once someone actually asks for a translation.
 - **Rewrite `README.md`'s opening** for a store page; move the technical detail down or out.
 - **Balance pass.** Radii, damage and phase thresholds are still first guesses. Weights are not:
   see [ROSTER.md](ROSTER.md).
+- **Root-folder leftovers from the Bukkit plugin** — `config.yml`, `lang.yml`, `plugin.yml` are still
+  in the repo root and mean nothing to a NeoForge mod. They go with the 1.8 source tree.
+- **Version number.** Still `3.0.0-alpha.1` in `gradle.properties`; a release wants a real one.
+- **`mod_description`** in `gradle.properties` is what the mods screen shows beside the new logo. It
+  already reads as store prose; worth one re-read against the final feature list rather than a
+  rewrite.
 - `docs/curseforge-description.md` — the WoodDye release shape. **Artwork is in hand** (2026-08-17):
   `docs/main-logo.png` is the square lockup for the CurseForge project icon, `docs/slime-logo.png` the
   banner, and `night-`/`Stone-`/`survival-logo.png` are variants held back for updates and themed
