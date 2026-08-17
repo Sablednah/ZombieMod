@@ -4,9 +4,9 @@
   "base": "minecraft:zombie_villager",
   "weight": 10,
   "health": 22.0,
-  "damage": 3.5,
+  "damage": 3.0,
   "speed": 1.0,
-  "follow_range": 22.0,
+  "follow_range": 20.0,
   "villager": {
     "profession": "minecraft:farmer",
     "type": "minecraft:savanna"

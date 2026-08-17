@@ -22,6 +22,7 @@ This is a **first build**, not a release update. Everything below is new.
 | Writing a genus — fields, goals, abilities, conditions | `README.md` §§ *Writing a genus* → *Abilities* (lines ~42–566) |
 | Bosses, phases, loot, summon rituals | `README.md` §§ *Bosses* → *Summoning* |
 | Horde events | `README.md` § *Horde events* |
+| Balance rules — sensory tiers, how `xp`/`bounty` are derived | `docs/BALANCE.md` |
 | What is and is not finished | `docs/STATUS.md` |
 | Artwork | `docs/main-logo.png` (square lockup), `docs/slime-logo.png` (banner) |
 

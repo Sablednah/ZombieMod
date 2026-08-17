@@ -573,7 +573,9 @@ out of parts instead of waiting for that exact ability to exist.
 ## What's included
 
 **58 genera ship with the mod**, along with 4 horde events. See [`docs/ROSTER.md`](docs/ROSTER.md)
-for the full list, what each one is, and which feature it demonstrates.
+for the full list, what each one is, and which feature it demonstrates, and
+[`docs/BALANCE.md`](docs/BALANCE.md) for the rules their numbers follow — the sensory tiers, and how
+`xp` and `bounty` are derived — if you're writing genera to sit alongside them.
 
 ### Running your own roster instead
 

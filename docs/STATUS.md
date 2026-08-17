@@ -290,8 +290,32 @@ reachable in the history and anyone who recovers it needs those terms. CLAUDE.md
 
 Still outstanding:
 
-- **Balance pass.** Radii, damage and phase thresholds are still first guesses. Weights are not:
-  see [ROSTER.md](ROSTER.md). Note the two genera that missed the sweeps, above.
+- ~~**Balance pass.**~~ **Done 2026-08-17, and the model is now written down** in
+  [BALANCE.md](BALANCE.md) — which was the actual gap. The August pass set `xp`, `bounty` and
+  `follow_range` from a threat score that was never recorded, so there was nothing for later
+  additions to be checked against.
+
+  Measuring first found the roster in better shape than this file implied. `xp ≈ health/2` holds
+  within ±25% across forty-odd genera, with three *deliberate* departures that account for every
+  apparent outlier: ambient high-weight genera discounted toward vanilla's 5, bosses at a 2.5–3.5×
+  premium, and Herobrine paid for the encounter rather than the kill. Shockwave, leap and alert
+  numbers scale with the genus rather than being set per ability. Nothing was broken.
+
+  Changed: three genera were off the 4-block `follow_range` grid (Field Hand 22→20, Biter 30→28,
+  Charger 34→36) and Field Hand carried the roster's only non-integer damage (3.5→3.0). All
+  imperceptible in play; the point is that "set by sensory tier" is now true rather than nearly true.
+
+  **A near-miss worth recording:** Colossus and Rusted Warden look badly underpaid next to the
+  Butcher (100 xp on 200 HP against 200 xp on 120 HP) and were nearly "corrected". They are not
+  bosses — no bar, no phases, no ritual — so they take the plain `health/2` and scale off **Tank**,
+  which they match exactly. The Butcher's 200 is a boss premium. Reaching for the wrong comparator is
+  the specific failure an unwritten model invites, and it is why BALANCE.md exists.
+
+  **Left unsettled deliberately:** Coward's bounty of 6 on 2 xp — a ratio of 0.3 where the roster runs
+  2.5–4.0, and by a distance the biggest outlier. Defensible (bounty rewards difficulty of the kill,
+  and a fleeing genus is genuinely hard to catch) and also possibly wrong (weight 30, so it is
+  everywhere, and 6 is what a 60 HP Bramble pays). This wants play on a server with an economy, not
+  arithmetic.
 - **`mod_description`** in `gradle.properties` is what the mods screen shows beside the new logo. It
   already reads as store prose; worth one re-read against the final feature list rather than a
   rewrite.

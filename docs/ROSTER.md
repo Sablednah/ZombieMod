@@ -11,7 +11,9 @@ gets essentially every eligible skeleton spawn, because nothing else wants skele
 **The balance was settled deliberately in August.** The default is low on purpose — if the mod is
 installed you should notice — and the vanilla share is *depth-dependent*, because most genera carry
 spawn conditions: measured at roughly 26% plain zombies on the surface and 13% deep underground. The
-measured table and the reasoning live in the README's spawning section; `builtinGenera = false`
+measured table and the reasoning live in the README's spawning section, and the rules governing every
+*other* number — the `follow_range` tiers, and how `xp` and `bounty` are derived — are in
+[BALANCE.md](BALANCE.md). `builtinGenera = false`
 switches the whole shipped roster off for servers running their own.
 
 ## Speed horror — *28 Days Later*, *Dying Light*
