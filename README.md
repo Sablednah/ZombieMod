@@ -755,7 +755,7 @@ A corpse that dies normally settles its own entry. Anything else, and an admin c
 |---------|--|
 | `/zombiemod corpse list [player]` | Every recorded corpse, newest first, with position and stack count. |
 | `/zombiemod corpse give <player> [n]` | Hand the items back — straight to the owner if they're online, otherwise to you. |
-| `/zombiemod corpse respawn <player> [n]` | Rebuild the corpse where it fell, carrying its items again. |
+| `/zombiemod corpse respawn <player> [n] [here]` | Rebuild the corpse where it fell, carrying its items again. Add `here` to rebuild it where you're looking instead — for when the death spot is the problem: lava, a grinder, the void, or the bottom of a ravine you'd rather not visit twice. |
 | `/zombiemod corpse forget <player> [n]` | Drop the record. |
 
 `n` is the index shown by `list`, defaulting to the most recent. All op-only, like every other

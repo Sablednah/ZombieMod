@@ -133,10 +133,27 @@ public final class ZombieModCommands {
                                         .executes(ctx -> giveCorpse(ctx.getSource(),
                                                 StringArgumentType.getString(ctx, "player"),
                                                 IntegerArgumentType.getInteger(ctx, "index"))))))
+                // `here` rebuilds it where you are looking rather than where they died, which is
+                // what you actually want when the death spot is the problem - lava, a grinder, the
+                // void, or simply the bottom of a ravine you would rather not visit twice. `index`
+                // matches `give`, so an older corpse is reachable too.
                 .then(Commands.literal("respawn")
                         .then(Commands.argument("player", StringArgumentType.word())
                                 .executes(ctx -> respawnCorpse(ctx.getSource(),
-                                        StringArgumentType.getString(ctx, "player"), 1))))
+                                        StringArgumentType.getString(ctx, "player"), 1, null))
+                                .then(Commands.literal("here")
+                                        .executes(ctx -> respawnCorpse(ctx.getSource(),
+                                                StringArgumentType.getString(ctx, "player"), 1,
+                                                lookingAt(ctx.getSource()))))
+                                .then(Commands.argument("index", IntegerArgumentType.integer(1))
+                                        .executes(ctx -> respawnCorpse(ctx.getSource(),
+                                                StringArgumentType.getString(ctx, "player"),
+                                                IntegerArgumentType.getInteger(ctx, "index"), null))
+                                        .then(Commands.literal("here")
+                                                .executes(ctx -> respawnCorpse(ctx.getSource(),
+                                                        StringArgumentType.getString(ctx, "player"),
+                                                        IntegerArgumentType.getInteger(ctx, "index"),
+                                                        lookingAt(ctx.getSource())))))))
                 .then(Commands.literal("forget")
                         .then(Commands.argument("player", StringArgumentType.word())
                                 .executes(ctx -> forgetCorpse(ctx.getSource(),
@@ -581,7 +598,8 @@ public final class ZombieModCommands {
         return 1;
     }
 
-    private static int respawnCorpse(CommandSourceStack source, String player, int index)
+    /** {@code at} null means the death spot recorded in the ledger; otherwise, put it there. */
+    private static int respawnCorpse(CommandSourceStack source, String player, int index, Vec3 at)
             throws CommandSyntaxException {
         CorpseLedger.Entry entry = pick(source, player, index);
         ServerLevel level = source.getLevel();
@@ -598,7 +616,9 @@ public final class ZombieModCommands {
         if (!(created instanceof Mob corpse)) {
             return 0;
         }
-        corpse.snapTo(entry.x() + 0.5D, entry.y() + 0.5D, entry.z() + 0.5D, 0.0F, 0.0F);
+        Vec3 where = at != null ? at
+                : new Vec3(entry.x() + 0.5D, entry.y() + 0.5D, entry.z() + 0.5D);
+        corpse.snapTo(where.x, where.y, where.z, 0.0F, 0.0F);
         GenusApplier.assign(corpse, holder.get());
         // Announce.format, not Component.literal - the death path formats this name, so a corpse
         // rebuilt by command would otherwise wear "&7Corpse Sable" with the code showing.
@@ -608,9 +628,14 @@ public final class ZombieModCommands {
         PlayerZombies.rebuild(level, corpse, entry);
         level.addFreshEntity(corpse);
 
+        // Report where it actually went, not where it died - those are now different things, and
+        // the message is how an admin tells the player where to go looking.
         source.sendSuccess(() -> Component.literal(String.format(
-                "Rebuilt %s's corpse at %d %d %d with %d stacks.",
-                entry.playerName(), entry.x(), entry.y(), entry.z(), entry.items().size())), true);
+                "Rebuilt %s's corpse at %d %d %d with %d stacks%s.",
+                entry.playerName(), (int) where.x, (int) where.y, (int) where.z,
+                entry.items().size(),
+                at != null ? " (moved from " + entry.x() + " " + entry.y() + " " + entry.z() + ")"
+                        : "")), true);
         return 1;
     }
 

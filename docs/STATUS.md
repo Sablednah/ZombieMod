@@ -58,11 +58,8 @@ Last updated 2026-08-16.
   said nothing about hunting in the dark. Picking by catalogue name is how that happened; picks are
   now screened by rendering the face pixels and looking at them, dimmed as well as lit.
 - ~~Mutation's two damp triggers~~ — **confirmed in play** (2026-08-16): ice and water both fire.
-- **`alert`** — Screamer handing its target to a horde. Hard to stage solo, since everything nearby
-  has usually noticed you already. The setup that isolates it: the Screamer's `follow_range` is 48
-  while its `alert` radius is 24 and most genera notice at 16-32, so put other monsters *behind a
-  wall* 20-ish blocks from a Screamer and approach the Screamer from open ground at ~40. It sees
-  you, they cannot; the alert is then the only thing that could bring them round the corner.
+- ~~`alert`~~ — **confirmed in play** (2026-08-17), and reported "subtle", which is about right for a
+  genus whose whole job is to make the fight someone else's problem.
 - ~~The Borg Hive~~ — **confirmed in play** ("borg works"). Still untuned by feel: whether horde
   weight 1 is rare enough, and the queen's numbers.
 - ~~The Vault Dweller~~ — **confirmed in play** (2026-08-16): met underground, blue suit and all.
@@ -121,8 +118,8 @@ Last updated 2026-08-16.
   what was missing was the world being on the right moon, and now it has been.
   `/zombiemod horde start zombiemod:the_siege` still forces it regardless of the moon.
 - **`summon`'s `max_nearby` cap** under real pressure, i.e. a Breeder left alone in a loaded chunk.
-- ~~Corpse recovery~~ — **confirmed in play** (2026-08-16): `respawn` rebuilt the corpse with the
-  items. It came back *bald* though — `rebuild` wrote the ledger tag and the pockets but never the
+- ~~Corpse recovery~~ — **confirmed in play**, face and all (2026-08-16, re-confirmed 17th after the
+  fix below). `respawn` rebuilt the corpse with the items, but it came back *bald* — `rebuild` wrote the ledger tag and the pockets but never the
   face, so a rebuilt corpse was not recognisably anybody. Fixed, along with two things sitting beside
   it: the armour was not re-worn either, and the name went through `Component.literal` so a
   colour-coded `Corpse %P` would have shown its codes. Unverified: the rebuilt face specifically, and
@@ -135,14 +132,15 @@ Last updated 2026-08-16.
   by something unrelated, and milk clearing it before death.
 - **Corpse recovery after killing only the decoy.** The one path where a bug would genuinely cost
   someone their inventory.
-- **Proximity spawning** — `nearbyCap = 8` **settled by play** (2026-08-16). What play also showed
-  was a lot of "no spot" in the counters, and two causes have been addressed *unproven*: the
-  standing-room test was stricter than vanilla's (a tuft of grass or a snow layer disqualified a
-  spot), and the search only ever aimed at the surface heightmap, so a player in a cave or a cellar
-  had company placed on the roof of the world above them. A probe over 1681 surface spots in the dev
-  world found the old and new standing rules agreeing exactly — that terrain simply has none of the
-  cases the fix is for, so it neither confirms nor refutes it. The counters now also report the
-  spawn-rules veto, which used to vanish silently and is where daylight lands.
+- ~~Proximity spawning~~ — **confirmed in play**. `nearbyCap = 8` settled 2026-08-16, and the "no
+  spot" flood fixed 2026-08-17: "less no spots, mostly at cap, which is fine", which is the counter
+  you want to be dominant — it means the ground is full rather than unusable. Two causes were behind
+  it: the standing-room test was stricter than vanilla's (a tuft of grass or a snow layer
+  disqualified a spot), and the search only ever aimed at the surface heightmap, so a player in a
+  cave or a cellar had company placed on the roof of the world above them. Worth recording that the
+  probe for this was *inconclusive* — 1681 surface spots in the dev world, old and new rules agreeing
+  exactly, because that terrain has none of the cases the fix is for. Play settled what the probe
+  could not.
 - **Bounty payouts** — the scoreboard tally, and whether the numbers feel proportionate.
 - **Hordes.** One Siege survived, which found both of the gaps now closed. `cap = 40` **settled by
   play** (2026-08-16). The wave delays are the remaining guess — whether it builds or just arrives.
