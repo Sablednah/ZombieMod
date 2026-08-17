@@ -44,8 +44,12 @@ Last updated 2026-08-16.
 
 ## Built, not yet verified in game
 
-- **`NO_SPAWNS` claim mode** — the griefing veto is verified, but only the default `VANILLA_ONLY`
-  spawn behaviour has been exercised; nobody has watched `NO_SPAWNS` cancel a spawn.
+- ~~`NO_SPAWNS` claim mode~~ — **confirmed in play** (2026-08-17), in both directions, which is the
+  only version of this test that means anything: a claimed nine-chunk grid stayed empty while
+  unclaimed land beside it kept spawning. Confirmed too that mobs spawn outside a claim and then walk
+  in and aggro — correct, but not a safe zone, and now said so in the README because it is the first
+  thing that reads as a bug. `/zombiemod status` counts cancellations, since the feature's whole
+  effect is an absence.
 - ~~Non-zombie bases beyond husk/drowned/skeleton~~ — **all confirmed in play** (2026-08-16).
   `zombie_villager` met in the wild; `giant` and `iron_golem` given a genus each to try them with,
   `colossus` and `warden_golem`, and both work. Both weight 0, so they are deliberate rather than

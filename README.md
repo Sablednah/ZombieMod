@@ -1675,6 +1675,14 @@ closes the gap from its own side.
 base is this mod's business, while emptying it of vanilla mobs isn't. Set `NO_SPAWNS` if you want
 claims genuinely quiet.
 
+**`NO_SPAWNS` stops spawning, not walking.** Mobs still spawn in the unclaimed land around a claim,
+and they will happily walk in and come after you — which is right, but is not the same thing as a safe
+zone, and is the first thing that reads as a bug. If you want a claim nothing can enter, this is not
+the setting for it; that is a wall.
+
+`/zombiemod status` reports what the rule actually did — `17 cancelled, 0 left vanilla` — because the
+effect is an absence, and an absence looks the same whether the setting is working, idle, or broken.
+
 The griefing veto is scoped to ZombieMod's own mobs, for the same reason — silently vetoing griefing
 for every mob in the game would be doing a land-protection mod's job for it, from a mob pack.
 
