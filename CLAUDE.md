@@ -5,9 +5,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 **ZombieMod ReForged** — a NeoForge rewrite of ZombieMod, a 2013 Bukkit/Spigot plugin that added
-configurable custom zombie types. The port is being built in place at the repo root; the original
-1.8 plugin source is still in the working tree under `src/me/sablednah/zombiemod/` as a reference
-(Gradle does not compile it — it sits outside `src/main/java`).
+configurable custom zombie types. The port was built in place at the repo root. **Released as 3.0.0**
+(2026-08-17); the port is complete and the 1.8 reference tree has been removed — see *Reading the
+original Bukkit plugin* below for how to get it back when you need it.
 
 This is the **fourth** Bukkit→NeoForge port in a series. `../MobHealth-Forge` is the canonical
 template and `../CityWorld-ReForged/PORTING.md` is the richest source of verified 1.21.11 API notes.
@@ -311,11 +311,25 @@ unzip -oq build/moddev/artifacts/neoforge-21.11.42-sources.jar 'net/neoforged/**
 
 ## Reading the original Bukkit plugin
 
-Still in the tree at `src/me/sablednah/zombiemod/` (6.4k lines, 1.8/`v1_8_R1` NMS). Worth reading for
-intent, not for API. Highlights: `ZombieType` (the goal set per genus), `ReadData`/`Config`/
-`PutredineImmortui` (the genus pipeline), `Animations` (per-tick abilities, driven by an `intervals`
-counter and `% N` sub-rates), `ProximitySystems` (spawn-near-player). Note it does **not** compile:
-`RegisterEntities` names a `ZombieSteed` class that exists nowhere, and `bin/` is stale output.
+**Removed from the working tree at the 3.0.0 release**, along with the Bukkit-era `config.yml`,
+`lang.yml` and `plugin.yml` in the repo root. It lives in git history and in
+`github.com/Sablednah/ZombieMod`. To read it again without restoring it:
+
+```bash
+# find the commit that removed it, then browse or restore from its parent
+git log --diff-filter=D --oneline -- src/me/sablednah/
+git show <sha>^:src/me/sablednah/zombiemod/ZombieType.java     # read one file
+git checkout <sha>^ -- src/me/sablednah/                       # restore the tree
+```
+
+It was 6.4k lines of 1.8/`v1_8_R1` NMS, worth reading for **intent, not for API**. Highlights:
+`ZombieType` (the goal set per genus), `ReadData`/`Config`/`PutredineImmortui` (the genus pipeline),
+`Animations` (per-tick abilities, driven by an `intervals` counter and `% N` sub-rates),
+`ProximitySystems` (spawn-near-player). Note it does **not** compile: `RegisterEntities` names a
+`ZombieSteed` class that exists nowhere, and `bin/` was stale output.
+
+Everything it had to teach is now either implemented or recorded in `docs/FROM_1_8.md`, so needing it
+again should be rare.
 
 Abilities the old mod shipped, as a to-port checklist: `BACKSTAB BORG BREEDER EXPLODE GHOST HEAL
 HEROBRINE HUNTER INFEST INK LAZER LIGHTNING SHOCKWAVE SPIDER STOMP WEB`.

@@ -224,9 +224,13 @@ public final class ZombieModCommands {
         // /zm, redirected rather than re-registered: a redirect shares the one node tree, so every
         // subcommand, argument type and suggestion provider is the same object. Building the tree
         // twice would mean two trees to keep in step, and the second would eventually drift.
-        dispatcher.register(Commands.literal("zm")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                .redirect(registered));
+        //
+        // No bar here either, for the same reason the root has none. Brigadier checks the redirect
+        // node's own requirement before following it, so a gamemaster bar on `zm` ANDs with every
+        // child and put `/zm bestiary` and `/zm list` out of a normal player's reach - reintroducing,
+        // for the alias, exactly the bug the root comment above describes avoiding. Each subcommand
+        // carries its own bar, so the alias is as restricted as the full name and no more.
+        dispatcher.register(Commands.literal("zm").redirect(registered));
     }
 
 

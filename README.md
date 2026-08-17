@@ -19,10 +19,11 @@ plugin.
 | Loader | NeoForge 21.11.42+ |
 | Java | 21 |
 | License | MIT |
-| Side | **Server-side only** — players do not need the mod installed |
+| Side | Install on the server. **Players do not need the mod** — a stock client can join and meet every genus. Installing it client-side too is optional and adds the ZombieDex screen. |
 
-> **Alpha.** The genus format, AI, spawning and abilities all work. See [Status](#status) for what
-> is still missing.
+> **3.0.0 — first release.** 58 genera, every ability from the 1.8 plugin rebuilt, and the great
+> majority of it confirmed in play. See [Status](#status) for what is verified, what is waiting on a
+> situation to arise, and the one thing still blocked.
 
 ## Install
 
@@ -252,8 +253,14 @@ horde of itself.
 | `zombiemod:time` | `phase` (`day`/`night`), or `min`/`max` on the 24000-tick cycle |
 | `zombiemod:moon` | `phases` — any of vanilla's eight, e.g. `["full_moon"]` |
 | `zombiemod:in_claim` | `value` (default `true`) — inside an FTB Chunks claim. Always `false` without FTB. |
+| `zombiemod:city_district` | `districts` — CityWorld district types. Always fails without CityWorld. See [CityWorld districts](#cityworld-districts). |
+| `zombiemod:city_lot` | `lots` — CityWorld lot styles. Same. |
+| `zombiemod:city_nature` | `min`, `max` — CityWorld's wilderness-to-dense-city grading. Same. |
 | `zombiemod:any_of` | `conditions` — passes if any nested condition passes |
 | `zombiemod:not` | `condition` — inverts one |
+
+Fourteen in all, of which `any_of` and `not` are combinators rather than places, and four
+(`in_claim` and the three `city_*`) come alive only when the mod they read is installed.
 
 Conditions are a **registry**, not a fixed list, so another mod can contribute its own types via
 `SpawnConditionTypes.register`. That's how CityWorld integration is planned to work — a
@@ -565,8 +572,8 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**54 genera ship with the mod.** See [`docs/ROSTER.md`](docs/ROSTER.md) for the full list, what each
-one is, and which feature it demonstrates.
+**58 genera ship with the mod**, along with 4 horde events. See [`docs/ROSTER.md`](docs/ROSTER.md)
+for the full list, what each one is, and which feature it demonstrates.
 
 ### Running your own roster instead
 
@@ -1724,11 +1731,28 @@ worst case is protection quietly doing nothing rather than zombies quietly break
 Per-world in singleplayer is deliberate on NeoForge's part — these settings change how a world plays,
 so they travel with the save. **The file doesn't exist until you've loaded the world once.**
 
+If a setting appears to do nothing, run **`/zombiemod status`** first. It reports what the mod
+actually believes, which is the quickest way to discover you've been editing the global copy for a
+single-player world.
+
+There are nine sections. The ones most people change first:
+
 | Option | Default | Purpose |
 |--------|---------|---------|
-| `enabled` | `true` | Master switch. Off means everything spawns exactly as vanilla would. |
-| `vanillaWeight` | `40` | How strongly to leave a mob alone, weighed against the genera that could claim it. `0` means a genus claims every eligible spawn. |
-| `logSpawns` | `false` | Log every genus spawn to the console. Noisy; for tuning weights. |
+| `spawning.enabled` | `true` | Master switch. Off means everything spawns exactly as vanilla would. |
+| `spawning.vanillaWeight` | `40` | How strongly to leave a mob alone, weighed against the genera that could claim it. `0` means a genus claims every eligible spawn. |
+| `spawning.builtinGenera` | `true` | Let the shipped roster claim spawns at all. Off to run only your own. |
+| `spawning.logSpawns` | `false` | Log every genus spawn to the console. Noisy; for tuning weights. |
+| `playerZombies.enabled` | `false` | Your corpse gets up wearing your skin and carrying your things. |
+| `proximity.enabled` | `false` | Zombies placed just out of sight around each player, ignoring vanilla's spawn table. |
+| `hordes.enabled` | `false` | Let horde events start on their own. |
+
+The three that are off by default are off deliberately: each one *adds* mobs or takes hold of a
+player's dropped items, and installing a mob pack shouldn't silently do either.
+
+**→ Every setting in all nine sections, with the reasoning:
+[`CURSEFORGE-CONFIGURATION.md`](CURSEFORGE-CONFIGURATION.md).** Nine switches can also be flipped
+in-game with `/zombiemod config`, which writes them to disk.
 
 ## Commands
 
@@ -1737,20 +1761,24 @@ so they travel with the save. **The file doesn't exist until you've loaded the w
 | `/zombiemod list` | Every genus the loaded datapacks define. |
 | `/zombiemod spawn <genus>` | Spawn one where you're **looking**, up to 48 blocks. |
 | `/zombiemod spawn <genus> <x> <y> <z>` | Spawn one at a position. Accepts `~ ~ ~` relative and `^ ^ ^5` local — so `^ ^ ^5` is "five blocks in front of me". Works from the console and command blocks. |
-| `/zombiemod horde list\|start <horde>\|stop` | Wave events. |
-| `/zm …` | Alias for everything below — a redirect onto the same node tree, so subcommands and suggestions are identical. |
-| | **`bestiary` and `list` are open to everyone.** Everything else needs permission level 2, and `config` needs 3. |
+| `/zombiemod horde list\|start <horde>\|stop` | Wave events. `start` overrides config, cooldown, time of day and moon phase. |
 | `/zombiemod bestiary [book]` | Your ZombieDex checklist, in chat or as a written book. |
+| `/zombiemod bestiary info <genus>` | The full write-up for one genus, as far as you've earned it. |
 | `/zombiemod config` | List the live toggles. **Admin only** (permission level 3). |
 | `/zombiemod config <name> [on\|off]` | Flip one, and write it to disk. Omit `on`/`off` to toggle. |
-| `/zombiemod status` | What the mod believes its settings are, whether the corpse genus resolved, and whether FTB Chunks linked. **Start here when something seems not to work.** |
+| `/zombiemod status` | What the mod believes its settings are, whether the corpse genus resolved, whether FTB Chunks linked, and running counters for proximity, claims and spawn rules. **Start here when something seems not to work.** |
 | `/zombiemod observe [on\|off]` | Take no damage while staying a completely normal target. |
 | `/zombiemod corpse list [player]` | Every recorded player corpse, newest first. |
 | `/zombiemod corpse give <player> [n]` | Hand a corpse's items back. |
-| `/zombiemod corpse respawn <player> [n]` | Rebuild a corpse where it fell. |
+| `/zombiemod corpse respawn <player> [n] [here]` | Rebuild a corpse where it fell — or where *you're* looking, with `here`, for when the death spot is the problem. |
 | `/zombiemod corpse forget <player> [n]` | Drop the record. |
+| `/zm …` | Alias for the whole tree — a redirect onto the same node tree, so subcommands, suggestions and permissions are identical. |
 
-All require permission level `LEVEL_GAMEMASTERS` (op 2).
+**`list` and `bestiary` are open to everyone**, under both names; the checklist is a player feature.
+Everything else needs permission level 2, and `config` needs 3.
+
+**→ Every command with the reasoning behind it:
+[`CURSEFORGE-COMMANDS.md`](CURSEFORGE-COMMANDS.md).**
 
 `observe` exists because the usual ways to survive a test don't work here. Creative mode and every
 god-mode command set vanilla's invulnerable flag, and `LivingEntity.canBeSeenAsEnemy()` is
@@ -1764,10 +1792,11 @@ already does the job.
 
 ## Status
 
-**Alpha, but broadly working.** 54 genera, every ability from the 1.8 plugin rebuilt, and most of it
-confirmed in play. See [`docs/STATUS.md`](docs/STATUS.md) for what's verified, what's built but
-untested, and what's left — including the two things still missing from the original (proximity
-spawning, and bounty pending an economy decision).
+**3.0.0, the first release.** 58 genera, 11 goal types, 21 abilities, 14 spawn conditions and 4 horde
+events; every ability from the 1.8 plugin rebuilt, and the great majority of it confirmed in play
+rather than merely compiled. See [`docs/STATUS.md`](docs/STATUS.md) for what's verified, what's
+waiting on a situation to arise, and the one thing still outstanding from the original — bounty
+payouts, which are blocked on there being no Vault equivalent on NeoForge.
 
 Known limitations worth knowing before you write a genus:
 
@@ -1842,6 +1871,7 @@ Originally a Bukkit plugin by **Sablednah**
 NeoForge. Released under the **MIT** licence — the original's CC BY-NC-ND terms were relicensed by
 the same author.
 
-The 2013 plugin's source is retained in this repository under `src/me/sablednah/` as a reference
-while the port is completed. It contains third-party contributions and is **not** covered by the MIT
-grant; see `LICENSE`. It will be removed at release.
+The 2013 plugin's source was kept in this repository as a reference while the port was written and
+was **removed at the 3.0.0 release**, as always intended. It remains in the git history and at the
+link above. It contains third-party contributions and is **not** covered by the MIT grant; see
+`LICENSE` before reusing anything from it.

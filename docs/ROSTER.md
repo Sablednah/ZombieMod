@@ -1,6 +1,6 @@
 # The shipped roster
 
-56 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+58 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -177,3 +177,14 @@ this table cannot drift from the game the way the ones above once did).
 | **Townsfolk** | 14 | Somebody's neighbour. No skills, no weapon, no idea what happened. |
 | **Vault Dweller** | 6 | The sirens sounded, the door rolled shut, and the vault kept its promise about survival - after a fashion. The suit still fits. The smile never left. |
 | **The Borg Queen** | 0 | The hive's one mind. What wounds the queen, every drone soon shrugs off. Summons her own kind and teaches them her immunities. |
+
+## Not zombies at all
+
+Two genera exist to prove that a base does not have to be undead. Both are **weight 0** — deliberate
+encounters rather than ambient ones, which matters more than usual here: proximity spawning ignores
+the base-mob match, so a weight above 0 would put giants on the landscape whatever vanilla does.
+
+| Genus | Base | Weight | Idea |
+|-------|------|-------:|------|
+| **Colossus** | `minecraft:giant` | *0* | 200 HP. Something went very wrong in the making of it. It has to stoop to get through the trees, and it does not stoop for anything else. Vanilla's giant has no AI of its own, so all of this one's behaviour is ours. |
+| **Rusted Warden** | `minecraft:iron_golem` | *0* | 100 HP. It was built to guard, and it still is. Nobody has told it the village is gone. **The golem cannot wear anything** — no head, no equipment — so it is the one genus whose identity is carried entirely by name, attributes and behaviour. See [TROPES.md](TROPES.md). |

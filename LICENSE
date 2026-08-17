@@ -25,18 +25,17 @@ SOFTWARE.
 Note on the original 2013 Bukkit plugin
 ---------------------------------------------------------------------------
 
-The MIT terms above cover the NeoForge mod: everything under
-`src/main/`, together with the build files and documentation.
+The MIT grant above covers this entire repository.
 
-The tree under `src/me/sablednah/` is the original 2013 Bukkit/Spigot plugin,
-kept in place only as a reference while the port is written. It shares no
-code with the mod above and is NOT covered by the MIT grant. It was
-originally distributed under Creative Commons BY-NC-ND, and parts of it
-derive from other people's work (the README credits DarkLust's DaySpawner
-and BlockBreaker code, and some utility classes appear to have come from
-other plugins), so those parts remain under whatever terms their authors
-granted.
+Until the 3.0.0 release the tree under `src/me/sablednah/` held the original
+2013 Bukkit/Spigot plugin, kept only as a reference while the port was
+written. It was removed at release, as always intended, and it remains in the
+git history. It shared no code with the mod above.
 
-That directory will be removed when the port is released, at which point
-this note becomes redundant and the MIT grant covers the whole repository.
-The original plugin will remain in the git history.
+It was NOT covered by the MIT grant and is not now: it was originally
+distributed under Creative Commons BY-NC-ND, and parts of it derive from
+other people's work (the 2013 README credits DarkLust's DaySpawner and
+BlockBreaker code, and some utility classes appear to have come from other
+plugins), so those parts remain under whatever terms their authors granted.
+Anyone recovering that directory from the history should treat it on those
+terms rather than these.

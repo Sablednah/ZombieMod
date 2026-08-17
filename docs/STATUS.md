@@ -5,20 +5,26 @@ in game, not that it compiled.
 
 Last updated 2026-08-17.
 
+**Counts here are now taken off the source, not off prose.** They had drifted — this file said 56
+genera, 12 goal types, 22 abilities, 12 conditions and 3 hordes, and every one of those was wrong.
+Re-derive them from `data/zombiemod/zombiemod/genus/*.json`, `.../horde/*.json` and the `register(`
+lines in `GoalSpecTypes` / `AbilityTypes` / `SpawnConditionTypes` rather than editing the numbers by
+hand.
+
 ## Built and verified in game
 
 | | |
 |---|---|
-| **Genera as datapacks** | 56 shipped; hot-reload with `/reload` |
-| **AI from JSON** | 12 goal types, recombined per genus |
-| **Abilities** | 22 types |
-| **Spawn conditions** | 12 types, composable with `any_of` / `not` |
+| **Genera as datapacks** | 58 shipped; hot-reload with `/reload` |
+| **AI from JSON** | 11 goal types, recombined per genus |
+| **Abilities** | 21 types |
+| **Spawn conditions** | 14 types (11 general + 3 CityWorld), composable with `any_of` / `not` |
 | **Weighted spawning** | Per base mob, with a configurable vanilla share. `vanillaWeight = 40` settled by play (2026-08-16) — measured at ~26% plain zombies on the surface, ~13% deep underground |
 | **Behaviours** | Goal sets that switch on a condition (day/night) |
 | **Bosses** | Boss bars, phases, loot tables, summon rituals with block patterns |
 | **Player zombies** | Corpse wearing the player's real skin, carrying their items, with an admin recovery ledger |
 | **Equipment** | Six slots, bare ids or full stacks with components |
-| **Player-head faces** | Custom embedded textures on 51 of 56 genera, plus name-resolved profiles and `ghost` borrowing a real player's |
+| **Player-head faces** | Custom embedded textures on 51 of 58 genera, plus name-resolved profiles and `ghost` borrowing a real player's |
 | **Climbing** | Navigation swap *plus* the goal that performs it |
 | **Guardian beam** | By parenting an invisible Guardian to the caster |
 | **Particle rays** | Hitscan with an audible, abortable charge-up |
@@ -27,7 +33,7 @@ Last updated 2026-08-17.
 | **Land claims** | FTB Chunks, by reflection, inert without it. Griefing veto verified in both directions: refuses inside a claim, breaks again the instant the claim is removed. |
 | **XP** | Per genus |
 | **Bounty** | Per genus, with a pluggable payer and a scoreboard fallback |
-| **Horde events** | Wave director with a boss bar, three shipped hordes, off by default |
+| **Horde events** | Wave director with a boss bar, four shipped hordes, off by default |
 | **CityWorld districts** | 3 conditions on district, lot and wildness, reflective and inert without it. Verified against a generated city: 289 lots, 7 districts, 4 lot styles — and **in play**: Commuters in a highrise district and Harvesters in a farm one, at roughly the rate their weights predict. Weights since raised to 45/40; the new rate is being checked |
 | **Mutation** | Genus becomes another genus on a trigger. `health_below`, `on_fire` and `where` (dimension) all watched in game |
 | **Horde payoff** | Victory line, sound and XP on the last kill |
@@ -104,6 +110,13 @@ Last updated 2026-08-17.
   shard from the blind Clicker, a saddle from the Outrider that rode in, a poppy from the golem. All
   fifty-six load clean, which validates every item id, but none are farmed yet.
 - **The Sleeper** — the low-`follow_range` genus. Whether six blocks is menacing or merely broken.
+- ~~**Colossus and Rusted Warden's dolls**~~ — **confirmed in play** (2026-08-17): both render fine,
+  and the Colossus "fills the box perfectly", which is the case that had the most room to go wrong.
+  Worth recording *why* they were in doubt: both were added in `ba1222b`, later than the doll probe
+  and the stock-take, so the "all 54" and "all 56" counts in this section are accurate history rather
+  than stale numbers — and those two genuinely sat outside them. The doll half is now closed by
+  eyes; what neither has had is the `follow_range`/xp **stock-take**, so their numbers are still
+  first guesses where the other 56 are derived.
 - **The stock-take.** All 54 genera had `follow_range` set by sensory tier, the xp gaps filled and
   trims and arrows added where they say something. Every value was read back off a *built* mob
   rather than out of the JSON — 54 checked, 0 mismatched — but whether the tiers make a crowd read
@@ -229,6 +242,33 @@ one thing that is blocked outright (bounty payouts).
 
 The mod is feature-complete for a first release. **What remains is release work**, below.
 
+## Release, 2026-08-17
+
+**Version is `3.0.0`** — the alpha qualifier is gone from `gradle.properties`, and README and the
+store copy now say "first release" rather than "alpha". Sable's call.
+
+**The release materials exist**, following CityWorld's four-file shape and living in the **repo
+root**, not here, to match `../CityWorld-ReForged` exactly:
+
+| File | What it is |
+|---|---|
+| `CURSEFORGE.md` | The store description — covers everything, links out for depth. |
+| `CURSEFORGE-CONFIGURATION.md` | Every setting in all nine config sections. |
+| `CURSEFORGE-COMMANDS.md` | Every command. |
+| `WEBSITE.md` | Handover to the sablecraft.co.uk session: six pages, sources, and the three things a casual summary gets wrong. |
+
+**One deliberate departure from the CityWorld pattern:** the genus reference — fields, goals,
+abilities, conditions, ~900 lines of `README.md` — is **not** copied into a `CURSEFORGE-*.md`. It is
+current and maintained where it is, and a second copy would drift on the first new ability, which is
+exactly what happened to the counts in this file. The site builds those pages from README sections
+instead. CityWorld could copy because its equivalent was small.
+
+**Fixed while documenting:** `/zm` was registered as a Brigadier redirect carrying its own
+`LEVEL_GAMEMASTERS` requirement, so the alias was op-only *including* `bestiary` and `list` — which
+the root node deliberately leaves open, with a comment explaining why. Brigadier checks the redirect
+node's own requirement before following it, so that bar ANDed with every child. The bar is gone; each
+subcommand keeps its own, so the alias is now exactly as restricted as the full name.
+
 ## Next, in the order I'd do it
 
 1. **Proximity in survival.** Enabled in Sable's instance; the cap semantics are settled ("quiet
@@ -238,24 +278,32 @@ The mod is feature-complete for a first release. **What remains is release work*
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
 
-## Before release
+## Before release — what is left
 
-- **Remove the 1.8 source tree** (`src/me/sablednah/`) and the LICENSE carve-out that exists for it.
-- **Rewrite `README.md`'s opening** for a store page; move the technical detail down or out.
+Done: the version number, the README opening, the store/site copy (see *Release* above), and the
+**1.8 source tree** — `src/me/sablednah/` is gone, along with the Bukkit-era `config.yml`, `lang.yml`
+and `plugin.yml` in the repo root. `src/` now contains only `main/`. The LICENSE carve-out has been
+rewritten rather than deleted: the MIT grant now covers the whole repository, but the note stays to
+record that the removed tree was CC BY-NC-ND with third-party contributions, because it is still
+reachable in the history and anyone who recovers it needs those terms. CLAUDE.md carries the
+`git log --diff-filter=D` recipe for reading it again.
+
+Still outstanding:
+
 - **Balance pass.** Radii, damage and phase thresholds are still first guesses. Weights are not:
-  see [ROSTER.md](ROSTER.md).
-- **Root-folder leftovers from the Bukkit plugin** — `config.yml`, `lang.yml`, `plugin.yml` are still
-  in the repo root and mean nothing to a NeoForge mod. They go with the 1.8 source tree.
-- **Version number.** Still `3.0.0-alpha.1` in `gradle.properties`; a release wants a real one.
+  see [ROSTER.md](ROSTER.md). Note the two genera that missed the sweeps, above.
 - **`mod_description`** in `gradle.properties` is what the mods screen shows beside the new logo. It
   already reads as store prose; worth one re-read against the final feature list rather than a
   rewrite.
-- `docs/curseforge-description.md` — the WoodDye release shape. **Artwork is in hand** (2026-08-17):
-  `docs/main-logo.png` is the square lockup for the CurseForge project icon, `docs/slime-logo.png` the
-  banner, and `night-`/`Stone-`/`survival-logo.png` are variants held back for updates and themed
-  events. All five arrived with a magenta chroma-key background rather than alpha, which would have
-  shown as a solid magenta square wherever they were used; keyed out on the magenta-ness axis
-  (`min(R,B) - G`, since the key colour was not uniform) with a despill on the ramp, then trimmed.
+- **Upload the artwork.** In hand (2026-08-17): `docs/main-logo.png` is the square lockup for the
+  CurseForge project icon, `docs/slime-logo.png` the banner, and `night-`/`Stone-`/`survival-logo.png`
+  are variants held back for updates and themed events. All five arrived with a magenta chroma-key
+  background rather than alpha, which would have shown as a solid magenta square wherever they were
+  used; keyed out on the magenta-ness axis (`min(R,B) - G`, since the key colour was not uniform)
+  with a despill on the ramp, then trimmed.
+- **Screenshots.** There are none. CityWorld shipped a `screengrabs/` folder and the site leans on it;
+  a mob mod with 51 distinct faces and no pictures of any of them is the most obvious gap on the
+  store page.
 
 ## Known limitations
 
