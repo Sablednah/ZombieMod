@@ -13,6 +13,10 @@ description='''
 ${mod_description}
 '''
 displayURL="https://github.com/Sablednah/ZombieMod"
+# Banner rather than the square lockup: the mods screen gives this a wide slot, and the full
+# shield emblem shrinks to illegibility in it. The square one is the CurseForge project icon.
+logoFile="zombiemod-logo.png"
+# The zombie face in the wordmark is literal pixel art, and blurring it is exactly wrong.
 logoBlur=false
 
 [[dependencies.${mod_id}]]

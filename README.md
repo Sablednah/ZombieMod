@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="docs/main-logo.png" alt="ZombieMod ReForged" width="420">
+</div>
+
 # ZombieMod ReForged
 
 *28 Dead Resident Shaun's of Evil Later.*

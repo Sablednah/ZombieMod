@@ -234,7 +234,12 @@ upkeep once someone actually asks for a translation.
 - **Rewrite `README.md`'s opening** for a store page; move the technical detail down or out.
 - **Balance pass.** Radii, damage and phase thresholds are still first guesses. Weights are not:
   see [ROSTER.md](ROSTER.md).
-- `docs/curseforge-description.md`, mod icon, banner — the WoodDye release shape.
+- `docs/curseforge-description.md` — the WoodDye release shape. **Artwork is in hand** (2026-08-17):
+  `docs/main-logo.png` is the square lockup for the CurseForge project icon, `docs/slime-logo.png` the
+  banner, and `night-`/`Stone-`/`survival-logo.png` are variants held back for updates and themed
+  events. All five arrived with a magenta chroma-key background rather than alpha, which would have
+  shown as a solid magenta square wherever they were used; keyed out on the magenta-ness axis
+  (`min(R,B) - G`, since the key colour was not uniform) with a despill on the ramp, then trimmed.
 
 ## Known limitations
 
