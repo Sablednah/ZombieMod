@@ -509,7 +509,21 @@ public final class ZombieModCommands {
                 + (ftb ? "linked" : "not present")
                 + "§r   respectClaims: " + ZombieModConfig.CLAIM_PROTECTION.get()
                 + "   noGriefingInClaims: " + ZombieModConfig.CLAIM_NO_GRIEFING.get()
-                + "   inClaims: " + ZombieModConfig.CLAIM_SPAWNS.get()), false);
+                + "   inClaims: " + ZombieModConfig.CLAIM_SPAWNS.get()
+                + "§r   " + ZombieModEvents.CLAIMS), false);
+        // The three ways this setting looks broken when it is not, in the order people hit them.
+        if (ZombieModConfig.CLAIM_PROTECTION.get()
+                && ZombieModConfig.CLAIM_SPAWNS.get() != ZombieModConfig.ClaimSpawns.ALLOW) {
+            if (!ftb) {
+                src.sendSuccess(() -> Component.literal(
+                        "§e  note: inClaims does nothing without FTB Chunks installed"), false);
+            } else if (ZombieModEvents.CLAIMS.cancelled == 0
+                    && ZombieModEvents.CLAIMS.keptVanilla == 0) {
+                src.sendSuccess(() -> Component.literal(
+                        "§e  note: no spawn has been inside a claim yet - claim the chunk you are"
+                        + " standing in, then wait somewhere a mob would normally appear"), false);
+            }
+        }
 
         boolean prox = ZombieModConfig.PROXIMITY.get();
         src.sendSuccess(() -> Component.literal((prox ? "§a" : "§7") + "  proximity: " + prox

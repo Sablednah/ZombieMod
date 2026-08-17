@@ -46,6 +46,33 @@ public final class ZombieModEvents {
     private static final Logger LOG = LogUtils.getLogger();
 
     /**
+     * What the claim rules actually did, because what they do is make things <em>not</em> happen.
+     *
+     * <p>An absence is unfalsifiable evidence: standing in a claim seeing no zombies is exactly what
+     * you see in a claim where nothing was going to spawn anyway, and the same is true of a setting
+     * that silently is not working. These two numbers are the difference between "I saw nothing" and
+     * "it stopped 42 of them", which is the only version of this test worth running. Same reasoning
+     * as the proximity counters.
+     */
+    public static final class ClaimCounters {
+        /** Spawns cancelled outright — {@code NO_SPAWNS}. */
+        public int cancelled;
+        /** Spawns left as ordinary vanilla mobs — {@code VANILLA_ONLY}. */
+        public int keptVanilla;
+
+        public void reset() {
+            cancelled = keptVanilla = 0;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%d cancelled, %d left vanilla", cancelled, keptVanilla);
+        }
+    }
+
+    public static final ClaimCounters CLAIMS = new ClaimCounters();
+
+    /**
      * Report what the datapacks gave us. Worth having permanently: a genus whose JSON failed to
      * parse is dropped by the registry loader, and without this line an empty registry and a
      * working one look exactly the same from the console.
@@ -146,6 +173,9 @@ public final class ZombieModEvents {
                 && com.sablednah.zombiemod.compat.FtbChunks.isClaimed(level, pos)) {
             if (ZombieModConfig.CLAIM_SPAWNS.get() == ZombieModConfig.ClaimSpawns.NO_SPAWNS) {
                 event.setSpawnCancelled(true);
+                CLAIMS.cancelled++;
+            } else {
+                CLAIMS.keptVanilla++;
             }
             // VANILLA_ONLY: leave the mob alone rather than cancelling it, so a claim keeps ordinary
             // mobs and loses only ours.
