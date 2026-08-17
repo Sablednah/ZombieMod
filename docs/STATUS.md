@@ -311,11 +311,11 @@ Still outstanding:
   which they match exactly. The Butcher's 200 is a boss premium. Reaching for the wrong comparator is
   the specific failure an unwritten model invites, and it is why BALANCE.md exists.
 
-  **Left unsettled deliberately:** Coward's bounty of 6 on 2 xp — a ratio of 0.3 where the roster runs
-  2.5–4.0, and by a distance the biggest outlier. Defensible (bounty rewards difficulty of the kill,
-  and a fleeing genus is genuinely hard to catch) and also possibly wrong (weight 30, so it is
-  everywhere, and 6 is what a 60 HP Bramble pays). This wants play on a server with an economy, not
-  arithmetic.
+  **Coward's bounty is intent, not an outlier** (Sable, 2026-08-17). 6 on 2 xp, a ratio of 0.3 where
+  the roster runs 2.5–4.0 — because the payout is **bait**, not payment. It exists to make players
+  chase something that runs, out across dark ground, into whatever else is out there. The only genus
+  whose reward is designed to get you killed by a different one. Flagged here because read as
+  arithmetic it looks like an error, and normalising it would delete a mechanic.
 - **`mod_description`** in `gradle.properties` is what the mods screen shows beside the new logo. It
   already reads as store prose; worth one re-read against the final feature list rather than a
   rewrite.

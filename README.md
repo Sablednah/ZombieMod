@@ -6,12 +6,13 @@
 
 *28 Dead Resident Shaun's of Evil Later.*
 
-Build your own undead. ZombieMod turns zombie types into **datapack files** — health, size, colour,
-and above all **AI** — so a cowardly zombie that flees on sight, a stalker that watches you from
-across the valley, or a climber that comes over the wall are all just JSON.
+**Build your own undead.** ZombieMod turns zombie types into **datapack files** — health, size,
+colour, face, and above all **AI** — so a coward that flees on sight, a stalker that watches you from
+across the valley, and a climber that comes over the wall are all just JSON. It ships with **58 of
+them** already written.
 
-A modern **NeoForge** rewrite of the 2013 [ZombieMod](https://github.com/Sablednah/ZombieMod) Bukkit
-plugin.
+A modern **NeoForge** rewrite of the 2013 ZombieMod Bukkit plugin, in the same repository — the
+original plugin's source was removed at this release and remains in the git history.
 
 | | |
 |---|---|
@@ -23,7 +24,8 @@ plugin.
 
 > **3.0.0 — first release.** 58 genera, every ability from the 1.8 plugin rebuilt, and the great
 > majority of it confirmed in play. See [Status](#status) for what is verified, what is waiting on a
-> situation to arise, and the one thing still blocked.
+> situation to arise, and the one thing still blocked, or
+> [`CHANGELOG.md`](CHANGELOG.md) for what this release contains.
 
 ## Install
 
@@ -1868,12 +1870,11 @@ Because the mod mutates vanilla mobs from outside, it needs an access transforme
 
 ## Credits & licence
 
-Originally a Bukkit plugin by **Sablednah**
-([Sablednah/ZombieMod](https://github.com/Sablednah/ZombieMod)), rewritten from the ground up for
-NeoForge. Released under the **MIT** licence — the original's CC BY-NC-ND terms were relicensed by
+Originally a Bukkit plugin by **Sablednah**, rewritten from the ground up for NeoForge in the same
+repository. Released under the **MIT** licence — the original's CC BY-NC-ND terms were relicensed by
 the same author.
 
-The 2013 plugin's source was kept in this repository as a reference while the port was written and
-was **removed at the 3.0.0 release**, as always intended. It remains in the git history and at the
-link above. It contains third-party contributions and is **not** covered by the MIT grant; see
-`LICENSE` before reusing anything from it.
+The 2013 plugin's source was kept here as a reference while the port was written and was **removed at
+the 3.0.0 release**, as always intended. It is still in this repository's **git history** — see
+`CLAUDE.md` for how to read it back — but not in the working tree. It contains third-party
+contributions and is **not** covered by the MIT grant; see `LICENSE` before reusing anything from it.

@@ -91,12 +91,14 @@ This is exactly the trap the top of this file describes.
 Two departures worth knowing:
 
 - **Patient Zero** pays 150 on 300 xp (ratio 2.0) — a boss should be worth robbing.
-- **Coward** pays 6 on 2 xp (ratio 0.3), by a distance the biggest outlier in the roster. The
-  argument for it: bounty rewards *difficulty of the kill* where xp rewards threat, and a genus whose
-  whole behaviour is fleeing at sprint speed 1.5 is genuinely hard to catch. The argument against: at
-  weight 30 it is one of the commonest things in the world, and 6 is what a 60 HP Bramble pays.
-  **Unsettled — it wants play on a server with an economy**, and it is the single number here most
-  likely to be wrong.
+- **Coward** pays 6 on 2 xp (ratio 0.3), by a distance the biggest outlier in the roster — and it is
+  **deliberate, load-bearing, and not to be normalised** (Sable, 2026-08-17). The payout is not
+  payment for a hard kill. It is **bait**: a reason to chase something that runs, so that a player
+  sprints off across dark ground after six easy coins and finds out what else lives out there. The
+  Coward is the only genus whose reward exists to get you killed by a different one.
+
+  This is why a rule needs its exceptions written down beside it. Read as arithmetic the number looks
+  like an error, and "correcting" it to 1 would quietly delete a mechanic.
 
 ## Ability numbers
 
@@ -125,7 +127,6 @@ you to the whole neighbourhood is the Screamer's entire job.
 Everything above is *consistent*; consistency is not the same as *right*. These need play, not
 arithmetic:
 
-- **Coward's bounty**, above.
 - **Phase thresholds** — Patient Zero flips at 66% and 33%, the Butcher at 60% and 30%. Nobody has
   fought either enough to say whether the second phase arrives too early to matter.
 - **Drop rates.** Fifty-eight tables load clean, which validates every item id and nothing else. None
