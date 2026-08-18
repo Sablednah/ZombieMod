@@ -18,6 +18,9 @@
 # Legacy Eclipse project for the 1.8 Bukkit plugin (kept as reference, see CLAUDE.md)
 /bin/
 
+# Python venv, for the odd image-processing script (no Pillow system-wide, PEP 668 blocks pip)
+/venv/
+
 # IDE
 /.idea/
 *.iml

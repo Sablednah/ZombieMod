@@ -75,8 +75,8 @@ Requirements block to append to the release body:
 | Summary | The one-liner |
 | Description | [`CURSEFORGE.md`](CURSEFORGE.md) |
 | Changelog | The `## 3.0.0` section of [`CHANGELOG.md`](CHANGELOG.md) |
-| Project icon | `docs/main-logo.png` (square lockup) |
-| Header/banner | `docs/slime-logo.png` |
+| Project icon | `docs/main-logo.png` — 1035×1035, square |
+| Header/banner | `docs/slime-logo-850.png` — 850px wide, the description limit |
 | Licence | MIT |
 | Source | `https://github.com/Sablednah/ZombieMod` |
 | Issues | `https://github.com/Sablednah/ZombieMod/issues` |
@@ -93,7 +93,7 @@ Requirements block to append to the release body:
 |---|---|
 | Summary | The one-liner (limit 256) |
 | Description | [`CURSEFORGE.md`](CURSEFORGE.md) |
-| Icon | `docs/main-logo.png` |
+| Icon | **`docs/main-logo-icon.png`** — 512×512, 82 KB. *Not* `main-logo.png`: Modrinth's icon limit is 256 KiB and that one is 1.4 MB |
 | Licence | MIT |
 | Source / Issues / Wiki | as CurseForge above |
 
@@ -139,6 +139,46 @@ Several shots include **CityWorld** scenery, a **LegendQuest** XP bar, and one h
 screenshot as…" toast. That is honest gameplay and fine — but do not caption a CityWorld street in a
 way that implies ZombieMod builds cities. The integration is real and optional; the city is not part
 of this mod.
+
+---
+
+## Image sizes — the two limits that bite
+
+Both were found the hard way rather than in advance. Sizes here are correct as of 3.0.0.
+
+| Where | Limit | Use |
+|---|---|---|
+| CurseForge **description** images | **850px wide** | `docs/slime-logo-850.png` |
+| Modrinth **project icon** | **256 KiB** | `docs/main-logo-icon.png` (512×512, 82 KB) |
+| CurseForge project icon | square | `docs/main-logo.png` (1035×1035) |
+| Gallery screenshots | no practical limit | `screenshots/*.png` at 1597×1075 |
+
+**The icon has to be square.** `main-logo.png` is a shield lockup that was wider than it was tall, so
+it was padded to 1035×1035. A non-square icon gets cropped or letterboxed by both stores.
+
+**Modrinth rejects an icon over 256 KiB**, and the padded logo is 1.4 MB — five times over, so it
+would simply fail. `main-logo-icon.png` is the compliant one: 512×512, palette-quantised to 82 KB
+with alpha intact and no visible banding. Regenerate it with Pillow if the artwork changes:
+
+```python
+from PIL import Image
+src = Image.open('docs/main-logo.png').convert('RGBA')
+src.resize((512, 512), Image.LANCZOS) \
+   .quantize(colors=256, method=Image.FASTOCTREE) \
+   .save('docs/main-logo-icon.png', 'PNG', optimize=True)
+```
+
+`FASTOCTREE` specifically, because it is the quantiser that preserves alpha — the default drops it
+and the icon gains a black box. Plain RGBA resizing does not get under the limit until about 384px,
+so quantising buys a sharper icon than shrinking does.
+
+There is **no Pillow system-wide on this box and PEP 668 blocks pip**, so use the venv:
+`python3 -m venv venv && ./venv/bin/pip install Pillow`. It is gitignored. Creating it takes a couple
+of minutes and looks like a hang.
+
+**The gallery screenshots do not need resizing** — the 850px limit is for images embedded in the
+*description body*, not the gallery. `CURSEFORGE.md` currently embeds no images at all, so nothing in
+it is affected; if you add one, it must be ≤850px and uploaded to the project first.
 
 ---
 
