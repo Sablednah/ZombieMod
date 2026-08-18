@@ -214,6 +214,11 @@ unlike Modrinth it has no create-project endpoint. Make it on the website first.
   special meaning inside an `-F` value, so a changelog containing any of them silently mangles the
   JSON — and CurseForge answers *"Error in field `metadata`: Invalid JSON"*, which reads like a bug
   in the JSON you built. (Tested here: a changelog containing all three arrives intact.)
+- **A 500 on upload usually means the project is not approved yet.** A bad field gives a 400 naming
+  it; a 500 is CurseForge failing server-side, and the known trigger is uploading to a project still
+  in moderation — it has no approved game or category, so associating a game version with it throws.
+  Nothing to fix; wait for approval and re-run the workflow. Hit on ZombieMod's first upload,
+  2026-08-18.
 - **HTTP 200 means accepted, not published.** Moderation runs afterwards. CurseForge **dedupes by
   file content**, so re-uploading a jar that is already up gets it *rejected as a duplicate* even
   though the API returned a file ID — and rejected files are hidden from the authors file list by

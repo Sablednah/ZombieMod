@@ -169,4 +169,12 @@ fi
 
 echo "!! CurseForge rejected the upload (HTTP $STATUS)" >&2
 echo "$BODY" >&2
+if [ "$STATUS" = "500" ]; then
+    echo "!!" >&2
+    echo "!! A 500 is CurseForge failing, not a bad request - a rejected field gives a 400 naming" >&2
+    echo "!! it. The known cause is uploading to a project that is still AWAITING MODERATION: it" >&2
+    echo "!! has no approved game or category yet, so associating a game version with it throws" >&2
+    echo "!! server-side. Wait for the project to be approved and re-run; nothing needs changing" >&2
+    echo "!! here. Check the project's state at https://authors.curseforge.com/#/projects" >&2
+fi
 exit 1
