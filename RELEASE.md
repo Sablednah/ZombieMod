@@ -111,13 +111,109 @@ marking it *Required* would send away the people the mod was built for.
 
 ---
 
+## Screenshots
+
+Fifteen in `screenshots/`, all 1597x1075. Suggested gallery order — the first two do the persuading,
+so lead with them:
+
+| # | File | Caption to use |
+|---|---|---|
+| 1 | `giant.png` | **The Colossus.** A giant zombie in the middle of a ruined high street, scaled against the tower blocks behind it. Clean daylight shot with no HUD — the best hero image. |
+| 2 | `boss.png` | **Patient Zero.** Boss bar, darkened sky, a burning zombie beside him — and the tooltip reading `minecraft:zombie`, because that is all he ever was. |
+| 3 | `ZombieDex.png` | **The ZombieDex.** A field guide to the dead: slain, met, and not yet found. |
+| 4 | `ZombieDex3.png` | **Every entry earns itself.** The Corpse, wearing your own face and your own gear. |
+| 5 | `ZombieDex_book.png` | **The same dex on a vanilla client**, as a written book. Players who install the mod get the illustrated edition; players who don't get this. |
+| 6 | `Corpse.png` | **Your corpse gets up.** Wearing your real skin, carrying your netherite. Kill it to get it back. |
+| 7 | `runners.png` | **Runners.** Fast, fragile, and never alone. |
+| 8 | `swarmlings.png` | **Swarmlings.** Half-size, trivial one at a time. |
+| 9 | `peekaboo.png` | **Climbers get close.** |
+| — | `ZombieDex1/2/4/5/6.png`, `zombiedex_chat.png` | Further dex entries and the chat view. Hold back as spares — a gallery of one screen repeated sells nothing. |
+
+**Two things to know before uploading them.**
+
+The boss and corpse shots carry a **Jade tooltip** showing `minecraft:zombie`, and that is worth
+keeping rather than cropping out: it is visual proof of the mod's central claim, which no amount of
+description text can make as well.
+
+Several shots include **CityWorld** scenery, a **LegendQuest** XP bar, and one has the "Saved
+screenshot as…" toast. That is honest gameplay and fine — but do not caption a CityWorld street in a
+way that implies ZombieMod builds cities. The integration is real and optional; the city is not part
+of this mod.
+
+---
+
+## Publishing by API
+
+Both stores have an API. They are not equally useful.
+
+### CurseForge — automated, and worth it
+
+`scripts/curseforge-upload.sh` uploads a jar; `.github/workflows/curseforge.yml` runs it whenever a
+GitHub release is **published**, so publishing to GitHub publishes to CurseForge too.
+
+**One-time setup (owner only — the token must never be pasted into a chat or committed):**
+
+1. Create a token at <https://legacy.curseforge.com/account/api-tokens>.
+2. Repo **Settings → Secrets and variables → Actions → Secrets**: add `CURSEFORGE_TOKEN`.
+3. Same screen, **Variables** tab: add `CURSEFORGE_PROJECT_ID` — the numeric ID on the project page.
+
+Until both exist the workflow **skips rather than fails**, so it will not put a red cross on a
+release. `workflow_dispatch` re-uploads an existing tag by hand.
+
+**The project must already exist.** The CurseForge upload API can only add files to a project;
+unlike Modrinth it has no create-project endpoint. Make it on the website first.
+
+**Four gotchas, all of which bit CityWorld during its 5.1.0 upload:**
+
+- **Game-version IDs are numeric and they change**, so the script resolves them from
+  `/api/game/versions` on every run. If a Minecraft version is not listed yet it fails with the
+  names CurseForge *does* know — the expected failure right after a Minecraft release.
+- **An upload naming no environment is rejected** — *"You must select at least one version from the
+  environment group of versions"*. The script always sends Client and Server.
+- **`--form-string`, not `-F`, for the metadata.** curl gives `;`, a leading `@` and a leading `<`
+  special meaning inside an `-F` value, so a changelog containing any of them silently mangles the
+  JSON — and CurseForge answers *"Error in field `metadata`: Invalid JSON"*, which reads like a bug
+  in the JSON you built. (Tested here: a changelog containing all three arrives intact.)
+- **HTTP 200 means accepted, not published.** Moderation runs afterwards. CurseForge **dedupes by
+  file content**, so re-uploading a jar that is already up gets it *rejected as a duplicate* even
+  though the API returned a file ID — and rejected files are hidden from the authors file list by
+  default, so they do not look rejected, they look like they never arrived. The authoritative view is
+  always `https://authors.curseforge.com/#/projects/<id>/files`; the public Files tab lags it.
+
+### Modrinth — do the first one by hand
+
+`POST /v2/project` exists and works (multipart/form-data; a `data` JSON part plus an optional `icon`
+file; `Authorization: <token>` with **no** `Bearer` prefix; PAT scope `PROJECT_CREATE`). Required
+fields: `project_type`, `slug`, `title`, `description`, `body`, `categories`, `client_side`,
+`server_side`, `license_id`.
+
+It is still not worth it for a one-off. Projects land as **drafts** needing manual review submission,
+so the API saves nothing on the first publish and gives you a multipart call to debug on release
+morning. Create it on the website; automate *versions* later, where the repetition is — the usual
+tool for a Gradle project is the **Minotaur** plugin, which uploads a version but cannot create a
+project either.
+
+Two notes for when you do automate it: `client_side`/`server_side` are marked deprecated in favour of
+`environment`, but `environment` does not exist in v2 and the deprecated pair is still required — so
+on v2 you must send the old fields. **v3 is live**, and that is where this changes.
+
+Verified against the live API on 2026-08-18: `mobs`, `adventure` and `game-mechanics` are all real
+mod categories, `neoforge` is a valid loader, and `1.21.11` is a valid game version.
+
+---
+
 ## Before you publish
 
 - [ ] `./gradlew build` and confirm the jar is `zombiemod-3.0.0.jar`
-- [ ] Screenshots — the ZombieDex screen is the best single image the mod has; `/zm bestiary` with
-      `bestiary.info = ALWAYS` and `hideUnspawnable = off` fills it out for photography
+- [ ] Redeploy to the test instance if it still has the pre-balance jar
+- [ ] Create the CurseForge and Modrinth projects **on the websites**, and note the CurseForge
+      numeric project ID
+- [ ] Add `CURSEFORGE_TOKEN` (secret) and `CURSEFORGE_PROJECT_ID` (variable) to the repo
 - [ ] Push `master` and the `v3.0.0` tag
-- [ ] GitHub release first — CurseForge and Modrinth descriptions link back to it
+- [ ] **GitHub release first** — it triggers the CurseForge upload, and the store pages link back to it
+- [ ] Check `https://authors.curseforge.com/#/projects/<id>/files`, not the public Files tab
+- [ ] Modrinth: create, upload the jar, submit for review
+- [ ] Upload the gallery in the order above
 - [ ] Hand `WEBSITE.md` to the sablecraft.co.uk session; **Cloudflare must be purged** before the
       pages are visible
 
