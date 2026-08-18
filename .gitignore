@@ -22,6 +22,12 @@
 /.idea/
 *.iml
 /.vscode/
+# Eclipse. The 2013 Bukkit plugin's .classpath/.project/.settings lived here until 3.0.0 - they
+# pinned JavaSE-1.6, Spigot 1.8 and absolute C:/Users paths, and pointed at the src/ and bin/ of
+# the removed 1.8 tree. ModDevGradle can regenerate them with `./gradlew eclipse` if wanted.
+/.classpath
+/.project
+/.settings/
 
 # Claude Code local settings
 /.claude/settings.local.json
