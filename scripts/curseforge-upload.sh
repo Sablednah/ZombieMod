@@ -40,17 +40,30 @@ RELEASE_TYPE="${4:-release}"
 [ -f "$CHANGELOG_FILE" ] || { echo "!! No such changelog: $CHANGELOG_FILE" >&2; exit 1; }
 
 echo ">> Resolving CurseForge version IDs for Minecraft $MC_VERSION"
-VERSIONS_JSON="$(curl -sS --max-time 120 -H "X-Api-Token: $CURSEFORGE_TOKEN" "$BASE/api/game/versions")"
+# Written to a file, not a shell variable: CurseForge lists every game version it has ever known
+# and the response is hundreds of KB. Passing that to python through an environment variable or an
+# argument dies with "Argument list too long" - the per-variable limit is around 128 KB - and the
+# failure surfaces as a bogus "is the token valid?" because the resolver simply produced nothing.
+VERSIONS_FILE="$(mktemp)"
+trap 'rm -f "$VERSIONS_FILE"' EXIT
+HTTP_CODE="$(curl -sS --max-time 120 -o "$VERSIONS_FILE" -w '%{http_code}' \
+    -H "X-Api-Token: $CURSEFORGE_TOKEN" "$BASE/api/game/versions")"
 
-# Resolve every tag in one pass. Exact name matches only: "1.21.1" must not match "1.21.11".
-IDS="$(MC="$MC_VERSION" VERSIONS="$VERSIONS_JSON" python3 <<'PY'
+if [ "$HTTP_CODE" != "200" ]; then
+    echo "!! $BASE/api/game/versions returned HTTP $HTTP_CODE - is the token valid?" >&2
+    head -c 400 "$VERSIONS_FILE" >&2; echo >&2; exit 1
+fi
+
+set +e
+IDS="$(MC="$MC_VERSION" VERSIONS_FILE="$VERSIONS_FILE" python3 <<'PY'
 import json, os, sys
 try:
-    versions = json.loads(os.environ["VERSIONS"])
-except Exception:
-    print("PARSE_ERROR"); sys.exit(0)
+    with open(os.environ["VERSIONS_FILE"], encoding="utf-8") as fh:
+        versions = json.load(fh)
+except Exception as exc:
+    print("PARSE_ERROR:%s" % exc); sys.exit(0)
 if not isinstance(versions, list):
-    print("PARSE_ERROR"); sys.exit(0)
+    print("PARSE_ERROR:expected a JSON array, got %s" % type(versions).__name__); sys.exit(0)
 mc = os.environ["MC"]
 def find(name):
     return next((v["id"] for v in versions if v.get("name") == name), None)
@@ -64,12 +77,18 @@ if out["mc"] is None:
 else:
     print(json.dumps(out))
 PY
-)" || true
+)"
+PY_STATUS=$?
+set -e
 
 case "$IDS" in
-    PARSE_ERROR|"")
-        echo "!! Unexpected response from $BASE/api/game/versions - is the token valid?" >&2
-        head -c 400 <<<"$VERSIONS_JSON" >&2; echo >&2; exit 1 ;;
+    "")
+        echo "!! The version resolver produced nothing (python exit $PY_STATUS)." >&2
+        echo "!! Response was $(wc -c < "$VERSIONS_FILE") bytes; first 400:" >&2
+        head -c 400 "$VERSIONS_FILE" >&2; echo >&2; exit 1 ;;
+    PARSE_ERROR:*)
+        echo "!! Could not parse $BASE/api/game/versions: ${IDS#PARSE_ERROR:}" >&2
+        head -c 400 "$VERSIONS_FILE" >&2; echo >&2; exit 1 ;;
     NO_MC:*)
         echo "!! CurseForge does not list Minecraft '$MC_VERSION' yet." >&2
         echo "!! Closest names it does know: ${IDS#NO_MC:}" >&2
