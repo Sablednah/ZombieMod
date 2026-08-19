@@ -7,9 +7,35 @@ what must stay in sync with the mod.
 This follows the shape already proven for CityWorld (`../CityWorld-ReForged/WEBSITE.md`). Read that
 one first if you are the site session — the conventions below are its conventions.
 
-## Status — the mod is LIVE, the site section is not built yet
+## Status — ✅ BUILT AND DEPLOYED (2026-08-19) by the site session
 
-**ZombieMod 3.0.0 shipped 2026-08-18/19.** This is a first build, not a release update.
+**ZombieMod 3.0.0 shipped 2026-08-18/19.** The site section was built from this file the same day.
+
+All six pages below are live at the proposed URLs, plus a card on `/game-plugins/`. What the site
+session did, for the record:
+
+- `/zombiemod-reforged/` and its five children exist as real WP pages (ids 129–134, children on
+  `post_parent = 129`), each on its own theme template, sharing a `zombiemod-subnav.php` tab strip —
+  the same shape as CityWorld's.
+- **Version facts are on the landing page only.** The hero tags are version-agnostic ("58 genera",
+  "NeoForge", "MIT", "No client mod required"), as CityWorld's now are, so a release that does not
+  change the support matrix needs no landing-page edit at all.
+- The three "careful to get right" points are all honoured: the page leads with *"your players do not
+  need to install anything"* rather than "server-side only"; `/settings/` carries a callout that a
+  claim is not a safe zone; and both `/settings/` and `/commands/` say the server config is per-world
+  in singleplayer and point at `/zombiemod status`.
+- Counts were taken off the source, not off prose: 58 genera, 51 with a `head`, 11 goals, 21
+  abilities, 14 conditions, 4 hordes.
+- The roster write-ups are each genus's own `description` field, so that page cannot drift from the
+  game. Genus/hordes/settings/commands were built from `README.md` and the CURSEFORGE docs; nothing
+  was copied into a new markdown file in this repo.
+- Artwork used: `docs/slime-logo-850.png` as the landing wordmark, `docs/main-logo.png` as the
+  `/game-plugins/` card logo, and ten of `screenshots/` resized to 1200px JPEG.
+
+**One drift risk to know about:** the `/game-plugins/` card carries a version line
+("Minecraft 1.21.11, NeoForge 21.11.42+, Java 21"), matching the other NeoForge cards on that page.
+That is the one place outside the landing page where a version number lives, and it is exactly the
+line that went stale for CityWorld once. Check it on any release that moves the matrix.
 
 ### The section URL is already fixed: `/zombiemod-reforged/`
 
@@ -53,7 +79,7 @@ the site pages from those sections and treat `README.md` as the upstream. This i
 ZombieMod deliberately departs from the CityWorld pattern, where the equivalent material was small
 enough to live in its own file.
 
-## Proposed page tree
+## The page tree — as built
 
 Six pages. The split is by *what the reader is trying to do*, which is why "the roster" and "writing
 your own" are separate — almost nobody wants both on the same visit.
