@@ -130,9 +130,15 @@ DISPLAY_NAME="${DISPLAY_NAME:-$(basename "$JAR" .jar)}"
 
 METADATA="$(CHANGELOG="$CHANGELOG_FILE" DISPLAY="$DISPLAY_NAME" RTYPE="$RELEASE_TYPE" \
     GV="$GAME_VERSIONS" python3 -c '
-import json,os
+import json,os,re
+# CurseForge sanitises the changelog as HTML, and a Markdown angle-bracket autolink - <https://x> -
+# reads to that sanitiser as a malformed tag. A changelog containing one made the upload spend 30
+# seconds and then return HTTP 500, "An unhandled exception occurred", while the same upload with a
+# one-line changelog succeeded instantly. Unwrap them; the bare URL still renders as a link.
+text = open(os.environ["CHANGELOG"], encoding="utf-8").read()
+text = re.sub(r"<((?:https?|ftp)://[^>\s]+)>", r"\1", text)
 print(json.dumps({
-  "changelog": open(os.environ["CHANGELOG"], encoding="utf-8").read(),
+  "changelog": text,
   "changelogType": "markdown",
   "displayName": os.environ["DISPLAY"],
   "releaseType": os.environ["RTYPE"],
@@ -179,9 +185,10 @@ echo "$BODY" >&2
 if [ "$STATUS" = "500" ]; then
     echo "!!" >&2
     echo "!! A 500 is CurseForge failing, not a bad request - a rejected field gives a 400 naming" >&2
-    echo "!! it. The known cause is uploading to a project that is still AWAITING MODERATION: it" >&2
-    echo "!! has no approved game or category yet, so associating a game version with it throws" >&2
-    echo "!! server-side. Wait for the project to be approved and re-run; nothing needs changing" >&2
-    echo "!! here. Check the project's state at https://authors.curseforge.com/#/projects" >&2
+    echo "!! it. The known cause is the CHANGELOG, not the project: CurseForge sanitises it as HTML," >&2
+    echo "!! and constructs it cannot parse throw server-side after a long pause. An angle-bracket" >&2
+    echo "!! autolink <https://x> did exactly this once; those are now unwrapped automatically, so" >&2
+    echo "!! the next suspect is the Markdown table. Re-run with -f minimal=true to confirm it is" >&2
+    echo "!! the changelog: minimal sends a one-line one and nothing else changes." >&2
 fi
 exit 1
