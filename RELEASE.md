@@ -78,7 +78,7 @@ Requirements block to append to the release body:
 | Project icon | `docs/main-logo.png` — 1035×1035, square |
 | Header/banner | `docs/slime-logo-850.png` — 850px wide, the description limit |
 | Licence | MIT |
-| **Live at** | `https://www.curseforge.com/minecraft/mc-mods/zombiemod-reloaded` — note the slug is *reloaded*, not *reforged* |
+| **Live at** | `https://www.curseforge.com/minecraft/mc-mods/zombiemod-reforged` |
 | Source | `https://github.com/Sablednah/ZombieMod` |
 | Issues | `https://github.com/Sablednah/ZombieMod/issues` |
 | Wiki | `https://sablecraft.co.uk/zombiemod-reforged/` |

@@ -21,18 +21,11 @@ description. Anything else breaks links that already exist. Trailing slash inclu
 
 | | |
 |---|---|
-| CurseForge | `https://www.curseforge.com/minecraft/mc-mods/zombiemod-reloaded` — **live** |
+| CurseForge | `https://www.curseforge.com/minecraft/mc-mods/zombiemod-reforged` — **live** |
 | GitHub | `https://github.com/Sablednah/ZombieMod` |
 | Latest release | `https://github.com/Sablednah/ZombieMod/releases/latest` |
 | Direct jar | the `zombiemod-3.0.0.jar` asset on that release |
 | Modrinth | not created yet — leave the link out rather than pointing at a 404 |
-
-**⚠ The CurseForge slug says *reloaded*, everything else says *ReForged*.** The mod is
-`ZombieMod ReForged`, the repo is `Sablednah/ZombieMod`, and this site section is
-`/zombiemod-reforged/` — but the store URL is `zombiemod-reloaded`. Copy it exactly rather than
-inferring it; a slug cannot be sensibly changed once a project is live and linked. Worth writing
-"ZombieMod ReForged" as the visible link text everywhere so the odd URL is never the name a reader
-sees.
 
 **Note for a future release, not for the site:** the jar's own `displayURL` points at GitHub rather
 than at this site, so the Homepage button in the mods list goes to the repo. Worth pointing at
