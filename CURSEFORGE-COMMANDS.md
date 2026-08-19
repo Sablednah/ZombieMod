@@ -170,6 +170,27 @@ Everything else lives in `zombiemod-server.toml` — see the settings reference.
 
 ---
 
+## Rendering the roster — `/zmdex render [size]`
+
+A **client** command, so it needs no permission and does not touch the server. Writes one
+transparent PNG per genus to `screenshots/zombiemod/<namespace>/<genus>.png` in your game folder,
+using the same doll the ZombieDex draws — feet on one line, honest relative scale, so a Tank towers
+over a Swarmling.
+
+It renders **whatever genera the server sent you**, not just the shipped ones, so if you are writing
+your own pack this is how you get a matching image set for your own documentation. `/zmdex cancel`
+stops a run.
+
+`size` is the canvas in GUI units (default 256, max whatever your window holds). The output inherits
+your GUI scale, so at scale 3 a 256 canvas gives 768×768 images — raise your GUI scale for bigger
+pictures rather than raising `size`.
+
+Two things worth knowing. It takes over the screen for a few seconds and captures frames, so **do
+not touch the mouse** while it runs. And the **Corpse and Ghost render with your own face and gear**,
+because that is what those two genera do — they are mirrors, in the dex and here alike.
+
+---
+
 ## Testing
 
 ### `/zombiemod observe [on|off]`

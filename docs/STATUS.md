@@ -43,7 +43,8 @@ hand.
 | **Proximity spawning** | Zombies out of sight around each player, off by default |
 | **ZombieDex** | Seen/killed per player, in chat, in a written book and on scoreboards. Confirmed in play by an ordinary non-op player: the book spawns and tracks met and kills |
 | **Vanilla clients** | Verified twice with a genuinely unmodded client (the Mojang launcher, not a stripped profile) against a dedicated server carrying the client half: joined, stayed, no `may not be sent to the client`, no `Couldn't place player in world`, no exceptions. Re-run 2026-08-16 after the dex book, the payload guard and the server-side interaction cancel all landed — **and the book opens as a book**, which is the case that had to be watched rather than reasoned about. See CLAUDE.md for the procedure |
-| **Commands** | `list`, `spawn`, `status`, `observe`, `corpse …`, `bestiary`, `config`, and `/zm` |
+| **Commands** | `list`, `spawn`, `status`, `observe`, `corpse …`, `bestiary`, `config`, and `/zm`; plus the client-side `/zmdex render` |
+| **Roster image export** | `/zmdex render` writes a transparent PNG per genus, two-pass alpha, reusing the dex doll. Confirmed in play: 58 images, every head correct. Renders whatever roster the server sent, so a third-party pack gets its own set |
 | **Herd infection** | A Biter bites, loses interest, and moves on; the flock sickens and spreads it; milk cures an animal. Confirmed in play, including an infected flock dying to a sweet berry bush and rising from it |
 | **Bramble & Blight** | The mirror pair, in play: one lays moss as it walks, the other seeks moss out and eats it, and they hunt each other. Blight usually wins |
 | **`seek_blocks`** | A genus walking to blocks it has an opinion about. Confirmed in play: three Blights stripped a terraced CityWorld roof of moss and vines |
