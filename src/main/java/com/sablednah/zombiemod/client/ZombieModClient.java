@@ -15,7 +15,12 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
+import net.minecraft.commands.Commands;
+import net.minecraft.network.chat.Component;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
@@ -55,6 +60,60 @@ public final class ZombieModClient {
         }
         while (OPEN_DEX.consumeClick()) {
             mc.setScreen(new DexScreen());
+        }
+    }
+
+    /**
+     * {@code /zmdex render [size]} — write one PNG per genus to
+     * {@code screenshots/zombiemod/<namespace>/<genus>.png}.
+     *
+     * <p>A <b>client</b> command, registered on the client dispatcher: it draws things, so it has to
+     * run where the renderer is, and it needs no permission because it changes nothing on the server.
+     *
+     * <p>It walks the genus registry as the client has it, which is whatever the server sent — so
+     * anyone running their own roster gets their own image set from the same command, and a
+     * third-party pack needs no support from us to be documented the way the shipped one is.
+     */
+    @SubscribeEvent
+    public void onRegisterClientCommands(RegisterClientCommandsEvent event) {
+        event.getDispatcher().register(Commands.literal("zmdex")
+                .then(Commands.literal("render")
+                        .executes(ctx -> render(ctx.getSource(), 256))
+                        .then(Commands.argument("size", IntegerArgumentType.integer(64, 1024))
+                                .executes(ctx -> render(ctx.getSource(),
+                                        IntegerArgumentType.getInteger(ctx, "size")))))
+                .then(Commands.literal("cancel").executes(ctx -> {
+                    DexRender.cancel();
+                    return 1;
+                })));
+    }
+
+    private static int render(net.minecraft.commands.CommandSourceStack source, int size) {
+        // The canvas is cropped out of the middle of the window, so it cannot be bigger than it.
+        Minecraft mc = Minecraft.getInstance();
+        int limit = Math.min(mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+        if (size > limit) {
+            source.sendFailure(Component.literal(
+                    "Canvas " + size + " is larger than the window allows (" + limit
+                            + "). Use a smaller size, or a bigger window."));
+            return 0;
+        }
+        int queued = DexRender.start(size);
+        switch (queued) {
+            case -1 -> source.sendFailure(Component.literal("Already rendering. /zmdex cancel to stop."));
+            case -2 -> source.sendFailure(Component.literal("Join a world first - the dolls come from the world's registry."));
+            case 0 -> source.sendFailure(Component.literal("No genera loaded."));
+            default -> source.sendSuccess(() -> Component.literal(
+                    "Rendering " + queued + " genera at " + size + "px. Do not touch the mouse."), false);
+        }
+        return Math.max(queued, 0);
+    }
+
+    /** The frame that just finished is the one the exporter captures. */
+    @SubscribeEvent
+    public void onRenderFrameEnd(RenderFrameEvent.Post event) {
+        if (DexRender.running()) {
+            DexRender.onFrameEnd();
         }
     }
 
