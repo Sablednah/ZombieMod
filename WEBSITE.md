@@ -7,9 +7,30 @@ what must stay in sync with the mod.
 This follows the shape already proven for CityWorld (`../CityWorld-ReForged/WEBSITE.md`). Read that
 one first if you are the site session — the conventions below are its conventions.
 
-## Status: the section does not exist yet
+## Status — the mod is LIVE, the site section is not built yet
 
-This is a **first build**, not a release update. Everything below is new.
+**ZombieMod 3.0.0 shipped 2026-08-18/19.** This is a first build, not a release update.
+
+### The section URL is already fixed: `/zombiemod-reforged/`
+
+Not a choice left to make. That exact URL is **already published and in the wild** — in the GitHub
+release notes people are reading now, in the repo's homepage field, and in the CurseForge project
+description. Anything else breaks links that already exist. Trailing slash included, as CityWorld's.
+
+### Canonical outbound links
+
+| | |
+|---|---|
+| CurseForge | **live — confirm the exact slug from the project page** (CityWorld's pattern is `.../mc-mods/cityworld-reforged`) |
+| GitHub | `https://github.com/Sablednah/ZombieMod` |
+| Latest release | `https://github.com/Sablednah/ZombieMod/releases/latest` |
+| Direct jar | the `zombiemod-3.0.0.jar` asset on that release |
+| Modrinth | not created yet — leave the link out rather than pointing at a 404 |
+
+**Note for a future release, not for the site:** the jar's own `displayURL` points at GitHub rather
+than at this site, so the Homepage button in the mods list goes to the repo. Worth pointing at
+`/zombiemod-reforged/` in 3.0.1 once the pages exist; it cannot be changed in a jar already
+published.
 
 ## Where the site's facts come from
 
