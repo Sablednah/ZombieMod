@@ -113,6 +113,13 @@ print(*( "" if d[k] is None else d[k] for k in ("mc","loader","client","server",
 [ -n "$JAVA_ID" ]   || echo "!! Warning: no matching Java tag found; uploading without one." >&2
 
 GAME_VERSIONS="[$MC_ID${LOADER_ID:+,$LOADER_ID},$CLIENT_ID,$SERVER_ID${JAVA_ID:+,$JAVA_ID}]"
+# Diagnostic mode: the smallest request CurseForge could possibly accept, to tell a content problem
+# apart from a project-state one. Keeps the environment tags, which are mandatory.
+if [ -n "${CURSEFORGE_MINIMAL:-}" ]; then
+    GAME_VERSIONS="[$MC_ID${LOADER_ID:+,$LOADER_ID},$CLIENT_ID,$SERVER_ID]"
+    CHANGELOG_FILE="$(mktemp)"; printf 'Initial release.' > "$CHANGELOG_FILE"
+    echo "   (minimal mode: one-line changelog, no Java tag)"
+fi
 echo "   Minecraft $MC_VERSION = $MC_ID${LOADER_ID:+, NeoForge = $LOADER_ID}, Client = $CLIENT_ID, Server = $SERVER_ID${JAVA_ID:+, Java = $JAVA_ID}"
 
 # "ZombieMod 3.0.0" reads better in the file list than the raw filename. Taken from the filename so
