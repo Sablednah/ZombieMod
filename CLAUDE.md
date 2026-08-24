@@ -141,6 +141,74 @@ Nothing was needed in `neoforge.mods.toml` for the connection itself: no `displa
 change. (Untested: how the server renders in the multiplayer *list* ping, since that test used Direct
 Connect.)
 
+### Command output: styles, never section codes
+
+**Anything that is not a client reads a component through `getString()`, which hands legacy section
+codes straight back as literal text.** A server console, the log, and RCON therefore render
+`Component.literal("§eZombieMod status")` as exactly that, section sign and all, while the
+in-game client shows it correctly. That asymmetry is the whole trap: you cannot see a representation
+error while looking through the one thing that interprets the representation.
+
+Build command output as a component tree instead — `Component.literal("ZombieMod status")
+.withStyle(ChatFormatting.YELLOW)`. It renders identically in chat and flattens to a clean sentence
+everywhere else.
+
+Two details when converting:
+
+- **A coloured span must not be the root.** Children inherit their parent's style, so making the
+  coloured part the root colours everything appended after it. Where a line was `§a...§r...`,
+  use an unstyled `Component.empty()` root with both spans as children — that is what `§r` meant.
+- The same inheritance rule is what made the dex book's first page bleed bold into its list; see the
+  comment on the `asBook` branch of `bestiary` in `ZombieModCommands`.
+
+It bites hardest on the output that exists *to* be read out-of-game: `/zombiemod status` is an
+admin's command, and `/zombiemod corpse list` is read on a console before deciding whether to
+re-issue someone's inventory. The config path line in `status` exists to be **copied**, and a
+section code makes it uncopyable from a console.
+
+Fixed across the whole mod on 2026-08-21. The same bug was found and fixed independently in
+Standards (`38cb7a0`) and LegendQuest (`dda06b6`) — it is a family-wide pattern, so check for it in
+the next port rather than waiting to be told. The cheap check: `grep -rn '§' src/main/java` and
+confirm every hit is either a comment or `GuiGraphics.drawString` on the client, where section codes
+*are* the correct mechanism. Legitimate hits today are `client/DexScreen.java` (font rendering),
+`Bounties` (action bar) and `HordeDirector` (boss-bar name) — all client-rendered only.
+
+### Picking a face for a new genus
+
+Faces come from **minecraft-heads.com**, and the catalogue is fetchable rather than scrapeable:
+
+```
+https://minecraft-heads.com/scripts/api.php?cat=monsters&tags=true
+```
+
+`cat` is one of `monsters`, `animals`, `humanoid`, `humans`, `miscellaneous`, `decoration`, … Each
+entry is `{name, uuid, value, tags}`, and **`value` is already exactly the base64 string that goes
+into `head.properties.textures[0]`** — no transformation, paste it straight in. It decodes to
+`{"textures":{"SKIN":{"url":"http://textures.minecraft.net/texture/<hash>"}}}`; the mod ships the
+hash, never the artwork.
+
+**Render every candidate and look at it. Never pick by catalogue name.** Nightstalker was given
+"Masked Zombie", whose mask turned out to be a *surgical* one — it said nothing about hunting in the
+dark. The renderer is a dozen lines with Pillow (`./venv/bin/python`, see RELEASE.md for the venv):
+
+- The face is the **8×8 at (8,8)**, with the **hat layer at (40,8) composited over it**. Do both, or
+  you are judging half the design — on many heads the hat layer carries the whole face.
+- Scale with `Image.NEAREST`. Anything else invents pixels that are not there.
+- Composite against **the base mob's body colour**, not neutral grey. The face is seen against the
+  mob, and a pale face on a drowned reads differently from a pale face on a plain zombie.
+
+**Judge on the dimmed version — that is the one that decides.** Multiply RGB by ~0.3 for night and
+~0.18 for deep water or a cave. These are things you meet in the dark, and a face that only works in
+daylight does not work.
+
+That test is not a formality; it reverses picks. Choosing the Undertow's face (2026-08-24), **Deep
+One** was the obvious winner on concept — Lovecraft's Deep Ones drag people into the sea, which is
+precisely what `pull` does — and it *failed*: pale skin and small yellow eyes collapse into a dark
+blob by night, unreadable at deep-water light. **Dagon** won on the one feature that survives
+darkness, a band of bright teeth still legible at 0.18, and its green sits on a drowned body where
+Leviathan's equally-legible orange eyes read as a dragon and fought the `dark_aqua` glow. The name
+matched the mechanic; the pixels decided.
+
 ### Client screens: the colour is ARGB
 
 `GuiGraphics.drawString` and friends take **ARGB**, so the obvious `0xFFFFFF` carries an alpha of

@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-08-17.
+Last updated 2026-08-24.
 
 **Counts here are now taken off the source, not off prose.** They had drifted — this file said 56
 genera, 12 goal types, 22 abilities, 12 conditions and 3 hordes, and every one of those was wrong.
@@ -15,7 +15,7 @@ hand.
 
 | | |
 |---|---|
-| **Genera as datapacks** | 58 shipped; hot-reload with `/reload` |
+| **Genera as datapacks** | 59 shipped; hot-reload with `/reload` |
 | **AI from JSON** | 11 goal types, recombined per genus |
 | **Abilities** | 21 types |
 | **Spawn conditions** | 14 types (11 general + 3 CityWorld), composable with `any_of` / `not` |
@@ -24,7 +24,7 @@ hand.
 | **Bosses** | Boss bars, phases, loot tables, summon rituals with block patterns |
 | **Player zombies** | Corpse wearing the player's real skin, carrying their items, with an admin recovery ledger |
 | **Equipment** | Six slots, bare ids or full stacks with components |
-| **Player-head faces** | Custom embedded textures on 51 of 58 genera, plus name-resolved profiles and `ghost` borrowing a real player's |
+| **Player-head faces** | Custom embedded textures on 52 of 59 genera, plus name-resolved profiles and `ghost` borrowing a real player's |
 | **Climbing** | Navigation swap *plus* the goal that performs it |
 | **Guardian beam** | By parenting an invisible Guardian to the caster |
 | **Particle rays** | Hitscan with an audible, abortable charge-up |
@@ -62,9 +62,12 @@ hand.
   `colossus` and `warden_golem`, and both work. Both weight 0, so they are deliberate rather than
   ambient — note that proximity spawning ignores the base match, so a weight above 0 would put
   giants on the landscape whatever vanilla does. The golem cannot wear anything: see TROPES.
-- **The faces themselves.** Every hash resolves at Mojang and every genus wears the head on its head
-  slot, both checked headlessly — but nobody has stood in front of one and looked at it. What is
-  unproven is whether they *read* at a distance, not whether they load. Already one correction from
+- **The faces themselves** — **read correctly in play** (2026-08-24): "faces and styles seem to read
+  ok". Held as *provisional* rather than closed, and deliberately so — this is the one item on the
+  list that a single pair of eyes cannot settle, because it is a question about whether a stranger
+  recognises a genus at a glance. It wants **player feedback at volume**, which only the public
+  release can supply. Every hash resolves at Mojang and every genus wears the head on its head slot,
+  both checked headlessly, so what was ever in doubt was legibility, not loading. Already one correction from
   play: Nightstalker's head was "Masked Zombie", whose mask turns out to be a *surgical* one, which
   said nothing about hunting in the dark. Picking by catalogue name is how that happened; picks are
   now screened by rendering the face pixels and looking at them, dimmed as well as lit.
@@ -115,9 +118,11 @@ hand.
   and the Colossus "fills the box perfectly", which is the case that had the most room to go wrong.
   Worth recording *why* they were in doubt: both were added in `ba1222b`, later than the doll probe
   and the stock-take, so the "all 54" and "all 56" counts in this section are accurate history rather
-  than stale numbers — and those two genuinely sat outside them. The doll half is now closed by
-  eyes; what neither has had is the `follow_range`/xp **stock-take**, so their numbers are still
-  first guesses where the other 56 are derived.
+  than stale numbers — and those two genuinely sat outside them. The doll half is closed by eyes, and
+  **the stock-take is now done too** (2026-08-24) — measured against the roster rather than guessed
+  at. `follow_range`, `look_at` distance, xp/bounty and ability shape all checked out on both; one
+  number was wrong, the Rusted Warden's shockwave cadence, which fired half as often as its weight
+  predicts. Fixed and written up in [BALANCE.md](BALANCE.md).
 - **The stock-take.** All 54 genera had `follow_range` set by sensory tier, the xp gaps filled and
   trims and arrows added where they say something. Every value was read back off a *built* mob
   rather than out of the JSON — 54 checked, 0 mismatched — but whether the tiers make a crowd read
@@ -127,7 +132,8 @@ hand.
   200 draws, then un-banning and watching it return. What is unverified is only how it *looks*.
 - **The six new appearance fields** — `invisible`, `baby`, `burning`, `arrows`, `glow`, `villager`.
   Each was built for real through `GenusApplier.assign` and read back headlessly, so the state is
-  right; what nobody has done is stand in front of one. ~~Ghost in particular~~ — **Ghost confirmed
+  right — and they **read correctly in play** (2026-08-24), on the same provisional footing as the
+  faces above. ~~Ghost in particular~~ — **Ghost confirmed
   in play** (2026-08-16): they spawn wearing faces. The lone-chestplate reading noted here was the
   dev server having no seed list *and* no player who had ever joined; the seed list was added three
   commits later precisely because of it, and it works.
@@ -135,7 +141,12 @@ hand.
   unforced. `moon`, `depth` and `see_sky` had each been proven headlessly in both directions;
   what was missing was the world being on the right moon, and now it has been.
   `/zombiemod horde start zombiemod:the_siege` still forces it regardless of the moon.
-- **`summon`'s `max_nearby` cap** under real pressure, i.e. a Breeder left alone in a loaded chunk.
+- ~~**`summon`'s `max_nearby` cap** under real pressure~~ — **confirmed in play** (2026-08-24). A
+  Breeder left running beside an AFK player in observer mode "didn't get out of hand - max
+  respected", which is the exact scenario the cap exists for: not a burst, but an unattended spawner
+  with an indefinite amount of time to overrun a loaded chunk. Observer mode is what made the test
+  clean — the player takes no damage, so the Breeder was never interrupted and never had a reason to
+  stop.
 - ~~Corpse recovery~~ — **confirmed in play**, face and all (2026-08-16, re-confirmed 17th after the
   fix below). `respawn` rebuilt the corpse with the items, but it came back *bald* — `rebuild` wrote the ledger tag and the pockets but never the
   face, so a rebuilt corpse was not recognisably anybody. Fixed, along with two things sitting beside
@@ -143,8 +154,11 @@ hand.
   colour-coded `Corpse %P` would have shown its codes. The **lava and void cases** are now handled and
   proven headlessly in all three directions: a lava death and a void death leave the entry
   outstanding with a reason recorded, a clean kill still settles it, and an entry written before the
-  field existed still decodes. What nobody has watched is any of it in play, and a **grinder** is
-  deliberately left undecidable — a hopper may have taken the items, so re-issuing could duplicate an
+  field existed still decodes. **Ordinary recovery is now confirmed by repeated play**
+  (2026-08-24) — killed himself several times and got his things back each time, which is the loop
+  most players will actually use. Note this is the *plain* corpse and **not** the decoy scene below:
+  an uninfected death raises one zombie, and there is nothing to pick the wrong one from. A
+  **grinder** is deliberately left undecidable — a hopper may have taken the items, so re-issuing could duplicate an
   inventory, and that stays an admin's call.
 - **Loot tables** — resolution is proven; nobody has watched Patient Zero drop his netherite scrap.
 - **Conversion in play.** The guards are tested (a listed victim rises, an unlisted one doesn't, an
@@ -152,8 +166,32 @@ hand.
   work through a village, which is the case that matters.
 - ~~Infection's two remaining paths~~ — **both confirmed in play** (2026-08-16): bitten then killed
   by something unrelated, and milk clearing it before death.
-- **Corpse recovery after killing only the decoy.** The one path where a bug would genuinely cost
-  someone their inventory.
+- **Corpse recovery after killing only the decoy** — the inventory-losing half of this is now
+  **closed by construction**, and the rest is cosmetic.
+
+  **First, what the decoy is not.** It is *not* the player corpse — that is the real one, and it is
+  the thing you are meant to kill. This entry's old one-line phrasing read as though it were, and did
+  in fact mislead once (2026-08-24), so it is spelled out here.
+
+  The scene: die while *infected* and two things get up. Your **corpse**, wearing your face and
+  carrying your belongings, and a second zombie raised by the infection itself
+  (`infectionAlsoRaises`, on by default). The second one copies your **armour** so it looks the part,
+  but at drop chance 0 and with none of your inventory — so killing the wrong one gets you nothing.
+  That is the decoy.
+
+  The fear was that killing the decoy might *settle the ledger*, leaving an admin reading "already
+  recovered" about an inventory still walking around, and refusing to re-issue it. It cannot: the
+  ledger is settled only from `LEDGER_TAG` in the dead mob's persistent data
+  (`PlayerZombies.dropCarried`), and the decoy is a fresh mob from `Conversions.raiseInfected` that is
+  never given that tag. No tag, no `claim()` and no `lost()` — the entry stays outstanding and keeps
+  listing. Read off the code rather than watched in play, but it is a structural argument, not a
+  probabilistic one.
+
+  **The pair has now been seen in play** (2026-08-24) and read correctly — "different enough, I
+  wasn't confused". Held *provisional* for a reason Sable raised himself and which is worth keeping:
+  he knows the mod, so he is the **worst available witness** for a question about whether a stranger
+  can tell the two apart. Someone without that frame of reference may simply read it as one zombie
+  duplicated. Revisit once people are playing; do not close it on the author's own read.
 - ~~Proximity spawning~~ — **confirmed in play**. `nearbyCap = 8` settled 2026-08-16, and the "no
   spot" flood fixed 2026-08-17: "less no spots, mostly at cap, which is fine", which is the counter
   you want to be dominant — it means the ground is full rather than unusable. Two causes were behind
@@ -173,8 +211,10 @@ hand.
   something nobody had seen. Fixed and re-measured at +1/+401/+901, matching the JSON.
   **`on_clear` (new)** makes a wave arrive the moment the previous is dead, with the delay as a
   ceiling; proven both ways — wave 3 came at tick 501 when the field was wiped at 500, and at 921 when
-  it was not. The retuned numbers are now a genuine first guess rather than a wrong one, and nobody
-  has played a chained horde yet.
+  it was not. The retuned numbers are now a genuine first guess rather than a wrong one — and a
+  **horde has now been played through end to end** (2026-08-24, "worked great"), which closes the
+  last thing the wave-delay fix left open. The measured timings were already proven; what was missing
+  was somebody fighting one from the first wave to the victory line.
   `glowAfter = 1200` is settled: in play it fired just as the player was giving up and heading for a
   bell, which is exactly where that threshold wants to sit.
 - **Horde counting and chunk unloads.** Survivors are counted by identity now, so distance no longer
@@ -205,10 +245,15 @@ hand.
 ## Left from the 1.8 plugin
 
 Every ability is done, and so is proximity spawning — it is built, configurable and off by default,
-waiting only for somebody to turn it on and judge it. One thing is genuinely outstanding:
+waiting only for somebody to turn it on and judge it. **Nothing is outstanding.**
 
-- **Bounty.** Waiting on an economy decision. There is no Vault equivalent on NeoForge; Impactor is
-  the nearest thing to a common API and isn't on 1.21.11. `xp` covers most of the intent meanwhile.
+- ~~**Bounty.**~~ **Unblocked and wired, 2026-08-24.** It waited on an economy decision that could not
+  be made: no Vault on NeoForge, and no leader among the economy mods to build against. Sable's
+  **SableCraft Standards** closes it by shipping a ledger *behind an interface*, so paying through it
+  is not choosing its ledger — a dedicated economy mod registers a higher-priority provider and takes
+  over, and neither side needs to know the other exists. `compat/StandardsEconomy` is a
+  `Bounties.Payer` doing exactly that, reflective and inert without Standards, like FTB Chunks and
+  CityWorld. The scoreboard tally still runs alongside it, because payers are additive.
 
 ## Parked ideas
 
@@ -233,15 +278,32 @@ Not adopted yet, deliberately: ZombieMod's player-facing text is small (dex pros
 JSON, which datapacks already override per-server), and a second string system is only worth its
 upkeep once someone actually asks for a translation.
 
-## Where this stands, 2026-08-17
+## Where this stands, 2026-08-24
 
-**Everything testable has been tested.** The "built, not yet verified" list is down to items that
-need a *situation* to arise rather than a session to run (a Carrier working through a village, a
-Breeder left alone under real pressure), items that are matters of feel rather than function (drop
-rates, the Sleeper's six-block range, the Borg Queen's numbers, the new chained wave timings), and
-one thing that is blocked outright (bounty payouts).
+**Everything testable has been tested, and the mod is released.** It is live on CurseForge and on
+sablecraft.co.uk.
 
-The mod is feature-complete for a first release. **What remains is release work**, below.
+Four things came off the list on 2026-08-24, all from play: a **horde fought end to end**, the
+**Breeder's `max_nearby` cap** holding against an AFK observer, **faces and appearance styles reading
+correctly**, and **corpse recovery** confirmed by repeated use. A fifth — *killing only the decoy* —
+was closed from the code instead: the ledger cannot be settled by the wrong zombie, because settling
+is keyed on a tag the decoy never carries.
+
+What is left is genuinely thin, and none of it blocks anything:
+
+- **Needs a situation to arise** — a Carrier working through a village.
+- **Matters of feel** — drop rates, the Sleeper's six-block range, the Borg Queen's numbers.
+- **Wants an audience, not a session** — whether the faces read to somebody who has not seen them
+  before, and whether the infected pair reads as a decoy rather than a duplication bug. Both look
+  right to Sable and both are held open anyway, because the author knowing what he is looking at is
+  exactly what disqualifies him as the witness. Only the public release answers these.
+- ~~**Blocked outright**~~ — bounty payouts are **no longer blocked**: they pay through SableCraft
+  Standards' economy facade as of 2026-08-24. Never watched paying a real player, though.
+- **Known gap** — a horde survivor in an unloaded chunk still reads as dead and would end the horde
+  early. Unlikely at these radii; not impossible if a player runs.
+
+**Release work is done bar one store:** see *Before release* below for Modrinth, which is the only
+unticked box left.
 
 ## Release, 2026-08-17
 
@@ -281,6 +343,22 @@ subcommand keeps its own, so the alias is now exactly as restricted as the full 
 
 ## Before release — what is left
 
+**Released 2026-08-18.** GitHub release `v3.0.0` is published, CurseForge is live at
+`https://www.curseforge.com/minecraft/mc-mods/zombiemod-reforged`, and the sablecraft.co.uk pages are
+up. Publishing to GitHub now publishes to CurseForge too, via `.github/workflows/curseforge.yml`.
+
+**The one unticked box is Modrinth** — checked 2026-08-24 and the project does not exist yet (the API
+returns 404 and a search for it returns nothing). The full recipe, including the two limits that
+would otherwise cost a morning, is in [`../RELEASE.md`](../RELEASE.md): the icon must be
+`docs/main-logo-icon.png`, because Modrinth caps icons at 256 KiB and `main-logo.png` is 1.4 MB; and
+`client_side`/`server_side` are marked deprecated in favour of an `environment` field that does not
+exist on v2, so the deprecated pair is still what you must send. Environment is Server **Required**,
+Client **Optional** — the field people filter on, and the one it would be most costly to get wrong.
+
+The **gallery is up on CurseForge** (confirmed 2026-08-24). Worth recording that it is a *manual*
+step — `.github/workflows/curseforge.yml` pushes jars only — so a future release does not silently
+assume the images ride along with the upload.
+
 Done: the version number, the README opening, the store/site copy (see *Release* above), and the
 **1.8 source tree** — `src/me/sablednah/` is gone, along with the Bukkit-era `config.yml`, `lang.yml`
 and `plugin.yml` in the repo root. `src/` now contains only `main/`. The LICENSE carve-out has been
@@ -317,18 +395,21 @@ Still outstanding:
   chase something that runs, out across dark ground, into whatever else is out there. The only genus
   whose reward is designed to get you killed by a different one. Flagged here because read as
   arithmetic it looks like an error, and normalising it would delete a mechanic.
-- **`mod_description`** in `gradle.properties` is what the mods screen shows beside the new logo. It
-  already reads as store prose; worth one re-read against the final feature list rather than a
-  rewrite.
-- **Upload the artwork.** In hand (2026-08-17): `docs/main-logo.png` is the square lockup for the
+- ~~**`mod_description`**~~ **Done** — re-read against the final feature list on 2026-08-24 and it is
+  accurate as written (59 types, bosses, hordes, infection, the bestiary, and the vanilla-client
+  promise). No rewrite needed.
+- ~~**Upload the artwork.**~~ **Done for CurseForge** — the project is live carrying the icon. The
+  Modrinth icon is still unused because the project does not exist yet, and it must be
+  `docs/main-logo-icon.png` rather than the 1.4 MB lockup. In hand (2026-08-17): `docs/main-logo.png` is the square lockup for the
   CurseForge project icon, `docs/slime-logo.png` the banner, and `night-`/`Stone-`/`survival-logo.png`
   are variants held back for updates and themed events. All five arrived with a magenta chroma-key
   background rather than alpha, which would have shown as a solid magenta square wherever they were
   used; keyed out on the magenta-ness axis (`min(R,B) - G`, since the key colour was not uniform)
   with a despill on the ramp, then trimmed.
-- **Screenshots.** There are none. CityWorld shipped a `screengrabs/` folder and the site leans on it;
-  a mob mod with 51 distinct faces and no pictures of any of them is the most obvious gap on the
-  store page.
+- ~~**Screenshots.**~~ **Done** — fifteen in `screenshots/`, all 1597x1075, with a captioned gallery
+  order in [`../RELEASE.md`](../RELEASE.md). Two carry a Jade tooltip reading `minecraft:zombie`, kept
+  rather than cropped because it is visual proof of the mod's central claim. **Uploaded to the CurseForge gallery**, confirmed
+  2026-08-24 — a manual step, since the automation pushes jars only.
 
 ## Known limitations
 

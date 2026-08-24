@@ -1,6 +1,6 @@
 # The shipped roster
 
-58 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+59 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -66,6 +66,7 @@ switches the whole shipped roster off for servers running their own.
 | **Ember** | 5 | Nether or deep underground. Immune to burning, trails flame. |
 | **Frost** | 8 | Snowy biomes. Chills you with Slowness. |
 | **Bogman** | 10 | A *drowned*, amphibious, swamp only. Inflicts Hunger. |
+| **Undertow** | 25 | A *drowned* that swims properly rather than walking the bottom. Blinds you with ink and drags you under. Any water, not just swamp. Wears Dagon's face. |
 | **Dust Stalker** | 10 | A *husk*, desert/badlands/savanna. Kicks up blinding dust. |
 
 ## Armed and organised
@@ -143,8 +144,8 @@ He cannot hurt you. That's the point.
 
 Worth reading the files rather than just the table — between them they exercise every feature:
 
-- **Different base mobs** — Bogman is a drowned, Dust Stalker a husk. Anything vanilla works.
-- **Navigation swaps** — Hunter and Crawler climb; Bogman is amphibious.
+- **Different base mobs** — Bogman and Undertow are drowned, Dust Stalker a husk. Anything vanilla works.
+- **Navigation swaps** — Hunter and Crawler climb; Bogman is amphibious and Undertow swims.
 - **Attributes beyond the named fields** — Tank sets `attack_knockback` and `step_height`, Ember zeroes
   `burning_time`, Bogman raises `oxygen_bonus`.
 - **Composed conditions** — Ember uses `any_of` to mean "the Nether *or* deep underground".

@@ -169,6 +169,12 @@ What killing a genus is worth. A genus carries a number; who pays it is a separa
 There is **no Vault on NeoForge** — no abstraction every economy mod implements — so ZombieMod does
 not pick one for you. An economy adapter registers itself and gets called.
 
+**With [SableCraft Standards](https://github.com/Sablednah/SableCraft-Standards) installed there is
+nothing to wire up:** bounties are paid into whichever economy that server is running, because
+Standards holds the money behind an interface rather than insisting it *is* the economy. Inert
+without it. `/zombiemod status` tells you how many payers answered, which is the first thing to check
+if a bounty pays nobody.
+
 With no economy mod at all the scoreboard is the fallback, which is a real reward on a vanilla server
 rather than a number waiting for a dependency. The objective is only used if it already exists, so
 nothing appears on a server that never asked for it. Opt in with:

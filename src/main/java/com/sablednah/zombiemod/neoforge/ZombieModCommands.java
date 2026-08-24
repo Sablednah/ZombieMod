@@ -489,66 +489,107 @@ public final class ZombieModCommands {
         return 1;
     }
 
+    // Styles, never legacy section codes. Status exists to be read by an admin, and an admin is
+    // as likely to be at a console or on RCON as standing in the world - and everything that is
+    // not a client reads a component through getString(), which hands section codes straight back
+    // as literal text. The config path two screens down is the sharp end of it: that line exists
+    // to be copied. A component tree renders identically in chat and flattens to a clean sentence
+    // everywhere else. Note the empty roots below - a coloured span cannot be the root or its
+    // siblings inherit the colour, which is the same trap documented on the dex book above.
     private static int status(CommandSourceStack source) {
         var src = source;
-        src.sendSuccess(() -> Component.literal("§eZombieMod status"), false);
+        src.sendSuccess(() -> Component.literal("ZombieMod status")
+                .withStyle(ChatFormatting.YELLOW), false);
         src.sendSuccess(() -> Component.literal("  enabled: " + ZombieModConfig.ENABLED.get()
                 + "   vanillaWeight: " + ZombieModConfig.VANILLA_WEIGHT.get()
                 + "   logSpawns: " + ZombieModConfig.LOG_SPAWNS.get()), false);
 
         boolean pz = ZombieModConfig.PLAYER_ZOMBIES.get();
-        src.sendSuccess(() -> Component.literal((pz ? "§a" : "§c") + "  playerZombies: " + pz
-                + "§r   takeItems: " + ZombieModConfig.PLAYER_ZOMBIE_TAKES_ITEMS.get()), false);
+        src.sendSuccess(() -> Component.empty()
+                .append(Component.literal("  playerZombies: " + pz)
+                        .withStyle(pz ? ChatFormatting.GREEN : ChatFormatting.RED))
+                .append(Component.literal("   takeItems: "
+                        + ZombieModConfig.PLAYER_ZOMBIE_TAKES_ITEMS.get())), false);
 
         // Resolve the corpse genus, because a valid-looking id that is not loaded fails silently at
         // the moment of death - which is the worst possible time to find out.
         String genusId = ZombieModConfig.PLAYER_ZOMBIE_GENUS.get();
         Identifier id = Identifier.tryParse(genusId);
         boolean ok = id != null && lookup(source).get(ResourceKey.create(ZombieModRegistries.GENUS, id)).isPresent();
-        src.sendSuccess(() -> Component.literal((ok ? "§a" : "§c") + "  corpse genus: " + genusId
-                + (ok ? " (loaded)" : " (NOT LOADED - no corpse will be raised)")), false);
+        src.sendSuccess(() -> Component.literal("  corpse genus: " + genusId
+                + (ok ? " (loaded)" : " (NOT LOADED - no corpse will be raised)"))
+                .withStyle(ok ? ChatFormatting.GREEN : ChatFormatting.RED), false);
 
         boolean ftb = com.sablednah.zombiemod.compat.FtbChunks.available();
-        src.sendSuccess(() -> Component.literal((ftb ? "§a" : "§7") + "  FTB Chunks: "
-                + (ftb ? "linked" : "not present")
-                + "§r   respectClaims: " + ZombieModConfig.CLAIM_PROTECTION.get()
-                + "   noGriefingInClaims: " + ZombieModConfig.CLAIM_NO_GRIEFING.get()
-                + "   inClaims: " + ZombieModConfig.CLAIM_SPAWNS.get()
-                + "§r   " + ZombieModEvents.CLAIMS), false);
+        src.sendSuccess(() -> Component.empty()
+                .append(Component.literal("  FTB Chunks: " + (ftb ? "linked" : "not present"))
+                        .withStyle(ftb ? ChatFormatting.GREEN : ChatFormatting.GRAY))
+                .append(Component.literal(
+                        "   respectClaims: " + ZombieModConfig.CLAIM_PROTECTION.get()
+                        + "   noGriefingInClaims: " + ZombieModConfig.CLAIM_NO_GRIEFING.get()
+                        + "   inClaims: " + ZombieModConfig.CLAIM_SPAWNS.get()
+                        + "   " + ZombieModEvents.CLAIMS)), false);
         // The three ways this setting looks broken when it is not, in the order people hit them.
         if (ZombieModConfig.CLAIM_PROTECTION.get()
                 && ZombieModConfig.CLAIM_SPAWNS.get() != ZombieModConfig.ClaimSpawns.ALLOW) {
             if (!ftb) {
                 src.sendSuccess(() -> Component.literal(
-                        "§e  note: inClaims does nothing without FTB Chunks installed"), false);
+                        "  note: inClaims does nothing without FTB Chunks installed")
+                        .withStyle(ChatFormatting.YELLOW), false);
             } else if (ZombieModEvents.CLAIMS.cancelled == 0
                     && ZombieModEvents.CLAIMS.keptVanilla == 0) {
                 src.sendSuccess(() -> Component.literal(
-                        "§e  note: no spawn has been inside a claim yet - claim the chunk you are"
-                        + " standing in, then wait somewhere a mob would normally appear"), false);
+                        "  note: no spawn has been inside a claim yet - claim the chunk you are"
+                        + " standing in, then wait somewhere a mob would normally appear")
+                        .withStyle(ChatFormatting.YELLOW), false);
             }
         }
 
+        // Bounty is the one reward that can be switched on, configured, and still pay nobody -
+        // because "who holds the money" is a question about the rest of the server, not about us.
+        // Say how many payers actually answered, or the failure looks like a bug in the bounty.
+        boolean bounty = ZombieModConfig.BOUNTY.get();
+        boolean std = com.sablednah.zombiemod.compat.StandardsEconomy.present();
+        int payers = Bounties.payerCount();
+        src.sendSuccess(() -> Component.empty()
+                .append(Component.literal("  bounty: " + bounty)
+                        .withStyle(bounty ? ChatFormatting.GREEN : ChatFormatting.GRAY))
+                .append(Component.literal("   payers: " + payers
+                        + "   Standards economy: " + (std ? "linked" : "not present")
+                        + "   scoreboard: " + ZombieModConfig.BOUNTY_OBJECTIVE.get())), false);
+        if (bounty && payers == 0) {
+            src.sendSuccess(() -> Component.literal(
+                    "  note: no economy payer registered - bounties go to the scoreboard objective"
+                    + " only, and only if that objective already exists")
+                    .withStyle(ChatFormatting.YELLOW), false);
+        }
+
         boolean prox = ZombieModConfig.PROXIMITY.get();
-        src.sendSuccess(() -> Component.literal((prox ? "§a" : "§7") + "  proximity: " + prox
-                + "§r   " + ProximitySpawner.COUNTERS), false);
+        src.sendSuccess(() -> Component.empty()
+                .append(Component.literal("  proximity: " + prox)
+                        .withStyle(prox ? ChatFormatting.GREEN : ChatFormatting.GRAY))
+                .append(Component.literal("   " + ProximitySpawner.COUNTERS)), false);
         // The question this line answers cost a real debugging session: proximity skips creative
         // and spectator players entirely, and a tester flying about in creative sees "enabled" and
         // zero effect. Status should say so to their face.
         if (prox && src.getEntity() instanceof ServerPlayer self
                 && (self.isCreative() || self.isSpectator())) {
             src.sendSuccess(() -> Component.literal(
-                    "§e  note: you are in " + (self.isCreative() ? "creative" : "spectator")
-                    + " - proximity ignores you until you are in survival"), false);
+                    "  note: you are in " + (self.isCreative() ? "creative" : "spectator")
+                    + " - proximity ignores you until you are in survival")
+                    .withStyle(ChatFormatting.YELLOW), false);
         }
 
         src.sendSuccess(() -> Component.literal("  genera loaded: "
                 + lookup(source).listElementIds().count()), false);
-        src.sendSuccess(() -> Component.literal("§7  config is per-world in singleplayer:"), false);
-        src.sendSuccess(() -> Component.literal("§7  saves/<world>/serverconfig/zombiemod-server.toml"), false);
+        src.sendSuccess(() -> Component.literal("  config is per-world in singleplayer:")
+                .withStyle(ChatFormatting.GRAY), false);
+        src.sendSuccess(() -> Component.literal("  saves/<world>/serverconfig/zombiemod-server.toml")
+                .withStyle(ChatFormatting.GRAY), false);
         if (!pz) {
             src.sendSuccess(() -> Component.literal(
-                    "§7  keepInventory must also be off, or there are no drops to take."), false);
+                    "  keepInventory must also be off, or there are no drops to take.")
+                    .withStyle(ChatFormatting.GRAY), false);
         }
         return 1;
     }
@@ -572,13 +613,22 @@ public final class ZombieModCommands {
             // outstanding AND says why the items are not lying where the corpse fell. An admin
             // reading "already recovered" about an inventory that went into lava would tell the
             // player it had been handed back, which is the wrong answer given confidently.
-            String note = e.lostTo()
-                    .map(how -> " §c(died in " + how + " - items destroyed, not yet re-issued)")
-                    .orElse(e.claimed() ? " §8(already recovered)" : "");
+            // Styled span rather than a section code, for the same reason as status: this list
+            // is printed to be read by an admin deciding whether to re-issue items, and on a
+            // console the section code would arrive as literal text wrapped round the one detail
+            // the decision turns on.
+            Component note = e.lostTo()
+                    .map(how -> Component
+                            .literal(" (died in " + how + " - items destroyed, not yet re-issued)")
+                            .withStyle(ChatFormatting.RED))
+                    .orElseGet(() -> e.claimed()
+                            ? Component.literal(" (already recovered)")
+                                    .withStyle(ChatFormatting.DARK_GRAY)
+                            : Component.empty());
             source.sendSuccess(() -> Component.literal(String.format(
-                    "#%d %s - %d %d %d in %s, day %d, %d item stacks%s",
-                    n, e.playerName(), e.x(), e.y(), e.z(), e.dimension(), e.day(), e.items().size(),
-                    note)), false);
+                    "#%d %s - %d %d %d in %s, day %d, %d item stacks",
+                    n, e.playerName(), e.x(), e.y(), e.z(), e.dimension(), e.day(),
+                    e.items().size())).append(note), false);
         }
         return found.size();
     }

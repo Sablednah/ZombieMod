@@ -53,6 +53,8 @@ public class ZombieMod {
                             com.sablednah.zombiemod.neoforge.GenusApplier.applyAi(mob, holder.value());
                         }));
 
+        com.sablednah.zombiemod.compat.StandardsEconomy.install();
+
         NeoForge.EVENT_BUS.register(new ZombieModEvents());
         NeoForge.EVENT_BUS.register(new RitualHandler());
         NeoForge.EVENT_BUS.register(new LootHandler());

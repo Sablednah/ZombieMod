@@ -17,14 +17,14 @@ session did, for the record:
 - `/zombiemod-reforged/` and its five children exist as real WP pages (ids 129–134, children on
   `post_parent = 129`), each on its own theme template, sharing a `zombiemod-subnav.php` tab strip —
   the same shape as CityWorld's.
-- **Version facts are on the landing page only.** The hero tags are version-agnostic ("58 genera",
+- **Version facts are on the landing page only.** The hero tags are version-agnostic ("59 genera",
   "NeoForge", "MIT", "No client mod required"), as CityWorld's now are, so a release that does not
   change the support matrix needs no landing-page edit at all.
 - The three "careful to get right" points are all honoured: the page leads with *"your players do not
   need to install anything"* rather than "server-side only"; `/settings/` carries a callout that a
   claim is not a safe zone; and both `/settings/` and `/commands/` say the server config is per-world
   in singleplayer and point at `/zombiemod status`.
-- Counts were taken off the source, not off prose: 58 genera, 51 with a `head`, 11 goals, 21
+- Counts were taken off the source, not off prose: 59 genera, 52 with a `head`, 11 goals, 21
   abilities, 14 conditions, 4 hordes.
 - The roster write-ups are each genus's own `description` field, so that page cannot drift from the
   game. Genus/hordes/settings/commands were built from `README.md` and the CURSEFORGE docs; nothing
@@ -50,7 +50,7 @@ description. Anything else breaks links that already exist. Trailing slash inclu
 | CurseForge | `https://www.curseforge.com/minecraft/mc-mods/zombiemod-reforged` — **live** |
 | GitHub | `https://github.com/Sablednah/ZombieMod` |
 | Latest release | `https://github.com/Sablednah/ZombieMod/releases/latest` |
-| Direct jar | the `zombiemod-3.0.0.jar` asset on that release |
+| Direct jar | the `zombiemod-3.1.0.jar` asset on that release |
 | Modrinth | not created yet — leave the link out rather than pointing at a 404 |
 
 **Note for a future release, not for the site:** the jar's own `displayURL` points at GitHub rather
@@ -65,7 +65,7 @@ published.
 | Landing — what it is, requirements, feature overview | `CURSEFORGE.md` |
 | Settings reference | `CURSEFORGE-CONFIGURATION.md` |
 | Commands reference | `CURSEFORGE-COMMANDS.md` |
-| The roster — all 58 genera | `docs/ROSTER.md`, plus the `description` field in each `src/main/resources/data/zombiemod/zombiemod/genus/*.json` |
+| The roster — all 59 genera | `docs/ROSTER.md`, plus the `description` field in each `src/main/resources/data/zombiemod/zombiemod/genus/*.json` |
 | Writing a genus — fields, goals, abilities, conditions | `README.md` §§ *Writing a genus* → *Abilities* (lines ~42–566) |
 | Bosses, phases, loot, summon rituals | `README.md` §§ *Bosses* → *Summoning* |
 | Horde events | `README.md` § *Horde events* |
@@ -87,7 +87,7 @@ your own" are separate — almost nobody wants both on the same visit.
 | Path | For | Source |
 |---|---|---|
 | `/zombiemod-reforged/` | Landing. What it is, requirements, install, the highlights, links out. | `CURSEFORGE.md` |
-| `/zombiemod-reforged/roster/` | All 58 genera, grouped by family, with what each one does. | `docs/ROSTER.md` |
+| `/zombiemod-reforged/roster/` | All 59 genera, grouped by family, with what each one does. | `docs/ROSTER.md` |
 | `/zombiemod-reforged/genus/` | **Build your own zombie.** Every field, all 11 goal types, all 21 abilities, all 14 spawn conditions, with worked examples. | `README.md` |
 | `/zombiemod-reforged/hordes/` | **Build your own horde.** Wave events, and the boss layer — phases, boss bars, loot, summon rituals. | `README.md` |
 | `/zombiemod-reforged/settings/` | Every setting in `zombiemod-server.toml`. | `CURSEFORGE-CONFIGURATION.md` |
@@ -137,7 +137,7 @@ Worth leading with, because they are the things nothing else does:
 - **Herobrine.** Weight 1, zero damage, no attack goal. He only moves while you are facing away, he
   leaves if you get within six blocks, he blinks the instant an arrow lands, and a quarter of the
   time he simply is not there any more. He cannot hurt you. That is the point.
-- **The faces.** 51 of the 58 wear a real player-head texture on an unmodified client. It is what
+- **The faces.** 52 of the 59 wear a real player-head texture on an unmodified client. It is what
   makes a crowd read as a cast rather than a palette swap.
 
 ## The numbers, and where to get them
@@ -146,7 +146,7 @@ Correct as of 2026-08-17, counted off the source:
 
 | | | Where it comes from |
 |---|---:|---|
-| Genera | **58** | `data/zombiemod/zombiemod/genus/*.json` |
+| Genera | **59** | `data/zombiemod/zombiemod/genus/*.json` |
 | Genera wearing a face | **51** | those files with a `head` field |
 | Goal types | **11** | `register(` lines in `GoalSpecTypes.java` |
 | Abilities | **21** | `AbilityTypes.java` |
@@ -159,8 +159,8 @@ All are corrected now, but the failure mode is the point: a hand-maintained numb
 silently, and nothing about a wrong count looks wrong.
 
 Two caveats when writing the roster page:
-`player_zombie` is in the 58 but is the player-corpse template rather than something you meet in the
-wild, and several genera are weight 0 (bosses and summon-only), so "58 you can encounter" would
+`player_zombie` is in the 59 but is the player-corpse template rather than something you meet in the
+wild, and several genera are weight 0 (bosses and summon-only), so "59 you can encounter" would
 overstate it. `any_of` and `not` are among the 14 conditions but are combinators, not places.
 
 ## Checklist for future releases

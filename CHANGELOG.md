@@ -6,6 +6,57 @@ Zombie types are **datapack files**, so `/reload` picks up changes to them witho
 settings in `zombiemod-server.toml` are a **server** config — per-world in singleplayer, at
 `saves/<world>/serverconfig/`, not `config/`.
 
+## 3.1.0
+
+*2026-08-24.* A new genus, an economy, and the
+command output made readable from a console.
+
+### Added
+
+- **A new genus: the Undertow.** A drowned that swims properly instead of walking along the bottom,
+  outlined in dark aqua, trailing ink, wearing the face of Dagon. It blinds you and then drags you under — which in water is a
+  different kind of problem from being hit.
+
+  It fills the emptiest part of the roster. Of the fifty-eight genera before it, exactly one used the
+  drowned base and one used `pull`, so open water was the place the mod had least to say. It spawns
+  ambiently wherever drowned do, at weight 25 — the draw is per base mob, so this changes what you
+  meet while swimming and touches nothing on land.
+
+- **Bounties can be paid into a real economy.** If
+  [SableCraft Standards](https://github.com/Sablednah/SableCraft-Standards) is installed, ZombieMod
+  registers a bounty payer against its economy facade and money lands in players' accounts — no
+  configuration, and nothing to install if you do not want it.
+
+  This was the last thing outstanding from the 1.8 plugin, and it was blocked rather than unbuilt:
+  NeoForge has no Vault, no abstraction every economy mod implements, so picking one would have
+  picked a side on the server owner's behalf. Standards resolves it by keeping the money *behind an
+  interface* — a dedicated economy mod registers a higher-priority provider and takes over the
+  payments — so paying through Standards is not a vote for Standards' ledger.
+
+  The scoreboard tally still runs alongside it; payers are additive on purpose. `/zombiemod status`
+  now reports how many payers answered, which is the first thing to check when a bounty pays nobody.
+
+### Changed
+
+- **The Rusted Warden's shockwave fires at the right rate now.** It was set to a 9-second average
+  gap — the slowest of the four genera that have a shockwave, despite being the lightest of them,
+  and slower than a Patient Zero at two and a half times its health. It now matches the Tank, which
+  is the genus it is balanced against. Its radius, damage and knockup are unchanged: a small blast
+  with a hard throw is the Warden's character.
+
+### Fixed
+
+- **Command output was unreadable outside the game.** `/zombiemod status` and `/zombiemod corpse
+  list` were built with legacy section codes inside the string, so while the in-game client rendered
+  them correctly, everything that is not a client — the server console, the log, and RCON — printed
+  the codes as literal text (`§eZombieMod status`). Both commands now build a component tree
+  with explicit styles: identical in chat, and a clean sentence everywhere else.
+
+  It matters most on exactly the output written to be read out-of-game. `status` is an admin's
+  command, its config-path line exists to be **copied**, and `corpse list` is read on a console
+  before deciding whether to re-issue a dead player's inventory — where the note explaining that the
+  items went into lava was the part wrapped in codes.
+
 ## 3.0.0
 
 The first release of the NeoForge rewrite. The 2013 Bukkit plugin was version 2.x; this is a complete

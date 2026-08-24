@@ -53,6 +53,11 @@ public final class Bounties {
         LOG.info("ZombieMod: bounty payer registered ({} total)", PAYERS.size());
     }
 
+    /** How many payers are wired up, for {@code /zombiemod status}. */
+    public static int payerCount() {
+        return PAYERS.size();
+    }
+
     static void award(ServerLevel level, ServerPlayer player, double amount, Component what) {
         if (amount <= 0.0D || !ZombieModConfig.BOUNTY.get()) {
             return;

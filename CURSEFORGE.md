@@ -2,7 +2,7 @@
 
 **Build your own undead.** ZombieMod turns zombie types into **datapack files** — health, size,
 colour, face, and above all **AI** — so a coward that flees on sight, a stalker that watches you from
-across the valley, and a climber that comes over the wall are all just JSON. It ships with **58 of
+across the valley, and a climber that comes over the wall are all just JSON. It ships with **59 of
 them** already written, drawn from the genre canon.
 
 A full **NeoForge rewrite** of the 2013 ZombieMod Bukkit plugin, rebuilt from the ground up for
@@ -65,7 +65,7 @@ trouble.
 | **Player corpses** | Die and your corpse gets up wearing your real skin and carrying your things. Kill it to get them back. Admins get a recovery ledger for when it goes in the lava. Off by default. |
 | **ZombieDex** | A per-player bestiary — in chat, as a written book that works on a vanilla client, on scoreboards, and on a proper screen for players who do have the mod. Entries unlock by meeting things. |
 | **Proximity spawning** | Zombies placed just out of sight around each player, ignoring vanilla's spawn table entirely. The thing that made the 1.8 plugin's world feel *occupied*. Off by default. |
-| **Bounties** | Per genus. Falls back to a scoreboard tally where there is no economy mod, which on NeoForge is everywhere. |
+| **Bounties** | Per genus. Paid into the server's economy via [SableCraft Standards](https://github.com/Sablednah/SableCraft-Standards) if it is installed, and tallied to a scoreboard everywhere else — so the reward is real on a server with nothing else added. |
 
 ## Build your own
 

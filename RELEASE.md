@@ -14,7 +14,7 @@ If you change a tagline, change it *here first*, then re-copy everywhere it appe
 
 Used for: GitHub repo description, CurseForge summary, Modrinth summary.
 
-> 58 zombie types with hand-built AI, and the JSON to write your own. Your players join with a vanilla client.
+> 59 zombie types with hand-built AI, and the JSON to write your own. Your players join with a vanilla client.
 
 *(119 characters. Modrinth's limit is 256, GitHub's 350, so it fits everywhere with room.)*
 
@@ -24,7 +24,7 @@ Used for: the top of any long description, forum posts, Reddit.
 
 > **Build your own undead.** ZombieMod turns zombie types into datapack files — health, size, colour,
 > face, and above all **AI** — so a coward that flees on sight, a stalker that watches you from across
-> the valley, and a climber that comes over the wall are all just JSON. It ships with 58 of them
+> the valley, and a climber that comes over the wall are all just JSON. It ships with 59 of them
 > already written. Install it on the server; your players need nothing.
 
 ### The promise (one sentence, never soften it)
@@ -55,9 +55,9 @@ per-platform edit. Do not fork it into a second file.
 
 | Field | Value |
 |---|---|
-| Tag | `v3.0.0` |
-| Title | `3.0.0 — Build your own undead` |
-| Body | The `## 3.0.0` section of [`CHANGELOG.md`](CHANGELOG.md), plus the requirements table below |
+| Tag | `v3.1.0` |
+| Title | `3.1.0 — The water is not safe` |
+| Body | The `## 3.1.0` section of [`CHANGELOG.md`](CHANGELOG.md), plus the requirements table below |
 | Attach | `build/libs/zombiemod-3.0.0.jar` |
 
 Requirements block to append to the release body:
@@ -74,7 +74,7 @@ Requirements block to append to the release body:
 |---|---|
 | Summary | The one-liner |
 | Description | [`CURSEFORGE.md`](CURSEFORGE.md) |
-| Changelog | The `## 3.0.0` section of [`CHANGELOG.md`](CHANGELOG.md) |
+| Changelog | The `## 3.1.0` section of [`CHANGELOG.md`](CHANGELOG.md) |
 | Project icon | `docs/main-logo.png` — 1035×1035, square |
 | Header/banner | `docs/slime-logo-850.png` — 850px wide, the description limit |
 | Licence | MIT |
@@ -251,12 +251,12 @@ mod categories, `neoforge` is a valid loader, and `1.21.11` is a valid game vers
 
 ## Before you publish
 
-- [ ] `./gradlew build` and confirm the jar is `zombiemod-3.0.0.jar`
+- [ ] `./gradlew build` and confirm the jar is `zombiemod-3.1.0.jar`
 - [ ] Redeploy to the test instance if it still has the pre-balance jar
 - [ ] Create the CurseForge and Modrinth projects **on the websites**, and note the CurseForge
       numeric project ID
 - [ ] Add `CURSEFORGE_TOKEN` (secret) and `CURSEFORGE_PROJECT_ID` (variable) to the repo
-- [ ] Push `master` and the `v3.0.0` tag
+- [ ] Push `master` and the `v3.1.0` tag
 - [ ] **GitHub release first** — it triggers the CurseForge upload, and the store pages link back to it
 - [ ] Check `https://authors.curseforge.com/#/projects/<id>/files`, not the public Files tab
 - [ ] Modrinth: create, upload the jar, submit for review

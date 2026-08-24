@@ -75,6 +75,13 @@ high:
 | The Borg Queen | 80 | 250 |
 | The Butcher | 60 | 200 |
 
+**The Undertow is discounted only slightly** — 10 xp on 24 HP, where the plain rule says 12 and the
+ambient discount would say 6. The discount exists because *things you kill constantly* should not
+inflate, and that is a statement about encounter rate rather than about weight. Weight 25 is high,
+but it is 25 of the **drowned** draw and drowned live in water, so nobody grinds them the way they
+grind a Walker on a road. High weight in a narrow niche is not the same as high weight everywhere,
+and only the second one earns the discount.
+
 **Herobrine is a rarity premium**, not a threat one — 100 xp on a 40 HP mob that cannot hurt you at
 all. You are being paid for the encounter, not the kill.
 
@@ -118,6 +125,38 @@ Zero's 12 and 5. That is deliberate: vanilla's own heavies sit there (Warden 30,
 Ravager 12), and a Giant that hits like a zombie would be a joke. It is weight 0, so nobody meets one
 by accident.
 
+### Ability *cadence* — heavier fires slower
+
+`interval` is a floor and `chance` is rolled once the floor is reached (`AbilityGoal` resets its
+counter *before* the roll), so the two numbers mean:
+
+```
+minimum gap  = interval
+average gap  = interval / chance
+```
+
+Quote both when tuning. `interval` alone hides a `chance` doing half the work.
+
+For `shockwave`, the roster's heavies form a clean line — **the heavier the genus, the rarer and
+harder the hit:**
+
+| Genus | health | interval | chance | min gap | average gap |
+|---|---:|---:|---:|---:|---:|
+| Rusted Warden | 100 | 70 | 0.7 | 3.5s | **5.0s** |
+| Tank | 120 | 70 | 0.7 | 3.5s | **5.0s** |
+| Colossus | 200 | 80 | 0.6 | 4.0s | **6.7s** |
+| Patient Zero | 250 | 90 | 0.6 | 4.5s | **7.5s** |
+
+**Rusted Warden was the one number the August sweep missed** (corrected 2026-08-24). It sat at
+`interval 90 / chance 0.5` — a 9-second average, the *longest* gap of the four, on the *lightest*
+genus of the four, and longer than a Patient Zero at two and a half times its health. Its signature
+move fired half as often as its weight predicts. It now takes **Tank's cadence**, Tank being the
+comparator this file already assigns it for xp. Its radius, damage and knockup were left alone: a
+small radius with high knockup is the Warden's character — it does not hit everyone, it throws you.
+
+Colossus was measured at the same time and is **already on the line** (6.7s at 200 HP, between Tank
+and Patient Zero). It needed nothing.
+
 `leap` range runs 10–14 and must stay below `follow_range` or the goal can never fire. `alert` radius
 tracks intent rather than size: Rioter reaches 14 for 6 mates, Screamer 24 for 16, because handing
 you to the whole neighbourhood is the Screamer's entire job.
@@ -132,6 +171,10 @@ arithmetic:
 - **Drop rates.** Fifty-eight tables load clean, which validates every item id and nothing else. None
   are farmed yet.
 - **The Sleeper's 6-block range** — menacing, or merely broken.
-- **Colossus and Rusted Warden's stock-take.** Their dolls are confirmed (2026-08-17) and their
-  xp/bounty follow the rule above, but neither went through the original sweep, so their ability
-  intervals and radii are first guesses where the other fifty-six are derived.
+- ~~**Colossus and Rusted Warden's stock-take.**~~ **Done 2026-08-24.** Both were measured against
+  the roster rather than guessed at. Their dolls were already confirmed (2026-08-17), their xp/bounty
+  already followed the rule above, and their `follow_range`, `look_at` distance (both at 0.50 of
+  follow range, the roster's most common ratio) and ability *shape* (`shockwave` + `sound`, exactly
+  Tank's) all checked out. One number was wrong — the Warden's shockwave cadence, above — and it is
+  fixed. What remains for these two is only what remains for everything: whether the numbers *feel*
+  right in a fight.

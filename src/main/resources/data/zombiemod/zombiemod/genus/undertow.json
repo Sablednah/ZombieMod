@@ -1,0 +1,101 @@
+{
+  "name": "&3Undertow",
+  "description": "It went under a long way out, and whatever it learned down there, it learned to be patient about. It does not have to drag you deep - only deeper than you can swim back from.",
+  "base": "minecraft:drowned",
+  "weight": 25,
+  "health": 24.0,
+  "damage": 4.0,
+  "speed": 1.0,
+  "follow_range": 24.0,
+  "head": {
+    "properties": {
+      "textures": [
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjU3MDJkNjMyMWEyZjkzZjk0MjZhNThjOTBjOTE5YjY5NWU4YWJkNWUyNTVkNmZhNjQ4NWQ3NmYzODkzNWM4ZiJ9fX0="
+      ]
+    }
+  },
+  "navigation": "swim",
+  "glow": "dark_aqua",
+  "attributes": {
+    "minecraft:water_movement_efficiency": 1.0,
+    "minecraft:oxygen_bonus": 10.0
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:pull",
+      "interval": 90,
+      "chance": 0.45,
+      "range": 10.0,
+      "power": 0.6
+    },
+    {
+      "type": "zombiemod:effect",
+      "interval": 100,
+      "chance": 0.4,
+      "target": "nearby_players",
+      "effect": "minecraft:blindness",
+      "duration": 80,
+      "radius": 5.0
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 20,
+      "particle": "minecraft:squid_ink",
+      "count": 4
+    }
+  ],
+  "bounty": 3.0,
+  "xp": 10,
+  "loot": {
+    "table": "zombiemod:entities/undertow",
+    "replace": false
+  }
+}

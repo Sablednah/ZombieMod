@@ -69,8 +69,8 @@
   "abilities": [
     {
       "type": "zombiemod:shockwave",
-      "interval": 90,
-      "chance": 0.5,
+      "interval": 70,
+      "chance": 0.7,
       "radius": 4.0,
       "damage": 5.0,
       "knockup": 1.2
