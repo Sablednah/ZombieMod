@@ -1,5 +1,7 @@
 package com.sablednah.zombiemod.core.goal;
 
+import com.sablednah.zombiemod.platform.BlockTypes;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,7 +50,7 @@ public final class SeekBlocksGoal extends MoveToBlockGoal {
 
     @Override
     protected boolean isValidTarget(LevelReader level, BlockPos pos) {
-        if (!wanted.contains(level.getBlockState(pos).getBlockHolder())) {
+        if (!wanted.contains(BlockTypes.holderOf(level.getBlockState(pos)))) {
             return false;
         }
         // No "must have solid ground under it" rule here, deliberately, and it was a mistake to add

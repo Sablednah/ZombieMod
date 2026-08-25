@@ -6,6 +6,9 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import com.sablednah.zombiemod.platform.Tags;
+import com.sablednah.zombiemod.platform.Msg;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -104,7 +107,7 @@ public record Infect(int interval, float chance, Holder<MobEffect> effect, int d
     public static boolean mark(ServerLevel level, LivingEntity victim, Holder<MobEffect> effect,
             int duration, Optional<Identifier> genus, boolean announce) {
         // Already dead once, or already one of ours - neither can catch it.
-        if (victim.getType().is(EntityTypeTags.UNDEAD)) {
+        if (Tags.is(victim.getType(), EntityTypeTags.UNDEAD)) {
             return false;
         }
         if (victim instanceof Mob m
@@ -122,8 +125,11 @@ public record Infect(int interval, float chance, Holder<MobEffect> effect, int d
         victim.addEffect(new MobEffectInstance(effect, duration, 0, false, true, true));
 
         if (announce && victim instanceof Player player) {
-            player.displayClientMessage(
-                    Component.literal("\u00a7cYou have been bitten. \u00a77Milk will still help you."), false);
+            Msg.chat(player, Component.empty()
+                    .append(Component.literal("You have been bitten. ")
+                            .withStyle(net.minecraft.ChatFormatting.RED))
+                    .append(Component.literal("Milk will still help you.")
+                            .withStyle(net.minecraft.ChatFormatting.GRAY)));
         }
         // Attached here as well as on level join, or the first animal bitten would sit there
         // contagious-in-name-only until something happened to unload its chunk.

@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.mojang.logging.LogUtils;
+import com.sablednah.zombiemod.platform.Bars;
+import com.sablednah.zombiemod.platform.Msg;
 import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.compat.FtbChunks;
@@ -92,7 +94,7 @@ public final class HordeDirector {
             // the first tick regardless of what its JSON asked for.
             this.countdown = spec.waves().isEmpty() ? 0 : spec.waves().get(0).delay();
             this.bar = spec.barColor()
-                    .map(colour -> new ServerBossEvent(Announce.format(spec.name()), colour,
+                    .map(colour -> Bars.create(Announce.format(spec.name()), colour,
                             BossEvent.BossBarOverlay.NOTCHED_10))
                     .orElse(null);
             if (bar != null) {
@@ -178,7 +180,7 @@ public final class HordeDirector {
         Active active = new Active(spec, player);
         RUNNING.put(player.getUUID(), active);
 
-        spec.announce().ifPresent(text -> player.displayClientMessage(Announce.format(text), false));
+        spec.announce().ifPresent(text -> Msg.chat(player, Announce.format(text)));
         spec.sound().ifPresent(sound -> level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 sound.value(), SoundSource.HOSTILE, 2.0F, 0.8F));
 
@@ -386,7 +388,7 @@ public final class HordeDirector {
         }
         if (cleared) {
             ServerPlayer player = active.player;
-            player.displayClientMessage(Announce.format(active.spec.victoryText()), false);
+            Msg.chat(player, Announce.format(active.spec.victoryText()));
             if (active.spec.xp() > 0) {
                 player.giveExperiencePoints(active.spec.xp());
             }

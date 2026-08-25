@@ -8,6 +8,8 @@ import java.util.UUID;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import com.sablednah.zombiemod.platform.Saves;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.server.level.ServerLevel;
@@ -75,7 +77,7 @@ public final class CorpseLedger extends SavedData {
             .fieldOf("corpses").codec();
 
     public static final SavedDataType<CorpseLedger> TYPE =
-            new SavedDataType<>("zombiemod_corpses", CorpseLedger::new, CODEC, null);
+            Saves.of("zombiemod_corpses", CorpseLedger::new, CODEC, null);
 
     private final List<Entry> entries;
 

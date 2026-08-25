@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 
+import com.sablednah.zombiemod.platform.Msg;
 import com.sablednah.zombiemod.core.Announce;
 import com.sablednah.zombiemod.core.Phase;
 
@@ -90,12 +91,12 @@ final class PhaseGoal extends Goal {
                 continue;
             }
             switch (phase.announce()) {
-                case ACTION_BAR -> player.displayClientMessage(message, true);
-                case CHAT -> player.displayClientMessage(message, false);
+                case ACTION_BAR -> Msg.actionBar(player, message);
+                case CHAT -> Msg.chat(player, message);
                 case TITLE -> sendTitle(player, message);
                 case TITLE_AND_CHAT -> {
                     sendTitle(player, message);
-                    player.displayClientMessage(message, false);
+                    Msg.chat(player, message);
                 }
                 case NONE -> {
                     // unreachable; handled above

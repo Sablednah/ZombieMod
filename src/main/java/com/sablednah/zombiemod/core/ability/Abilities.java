@@ -7,6 +7,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import com.sablednah.zombiemod.platform.BlockTypes;
 import com.sablednah.zombiemod.platform.Types;
 
 import net.minecraft.core.Holder;
@@ -865,7 +866,7 @@ public final class Abilities {
             }
 
             for (net.minecraft.core.BlockPos candidate : candidates) {
-                if (!allowed.contains(level.getBlockState(candidate).getBlockHolder())) {
+                if (!allowed.contains(BlockTypes.holderOf(level.getBlockState(candidate)))) {
                     continue;
                 }
                 if (infest) {

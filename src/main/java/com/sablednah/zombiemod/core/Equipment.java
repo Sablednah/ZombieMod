@@ -6,6 +6,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import com.sablednah.zombiemod.platform.Items;
+
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
@@ -44,8 +46,7 @@ public record Equipment(
      * {@code {"id": "minecraft:iron_sword", "components": {...}}}. Most entries are the former, so
      * demanding the object form everywhere would make genus files noisy for no gain.
      */
-    private static final Codec<ItemStack> ITEM_CODEC =
-            Codec.withAlternative(ItemStack.STRICT_SINGLE_ITEM_CODEC, ItemStack.SIMPLE_ITEM_CODEC);
+    private static final Codec<ItemStack> ITEM_CODEC = Items.stackCodec();
 
     public static final MapCodec<Equipment> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
             ITEM_CODEC.optionalFieldOf("mainhand").forGetter(Equipment::mainHand),

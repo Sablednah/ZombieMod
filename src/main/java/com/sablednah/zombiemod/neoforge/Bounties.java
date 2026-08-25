@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.mojang.logging.LogUtils;
+import com.sablednah.zombiemod.platform.Msg;
 import com.sablednah.zombiemod.ZombieModConfig;
 
 import org.slf4j.Logger;
@@ -74,8 +75,12 @@ public final class Bounties {
         paid |= toScoreboard(level, player, amount);
 
         if (paid && ZombieModConfig.BOUNTY_ANNOUNCE.get()) {
-            player.displayClientMessage(Component.literal(
-                    String.format("§6+%s §7bounty §r(%s)", trim(amount), what.getString())), true);
+            Msg.actionBar(player, Component.empty()
+                    .append(Component.literal("+" + trim(amount))
+                            .withStyle(net.minecraft.ChatFormatting.GOLD))
+                    .append(Component.literal(" bounty ")
+                            .withStyle(net.minecraft.ChatFormatting.GRAY))
+                    .append(Component.literal("(").append(what).append(Component.literal(")"))));
         }
     }
 

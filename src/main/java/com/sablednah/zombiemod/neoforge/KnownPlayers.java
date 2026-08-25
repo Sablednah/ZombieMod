@@ -10,6 +10,7 @@ import java.util.UUID;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.sablednah.zombiemod.platform.Saves;
 import com.sablednah.zombiemod.ZombieModConfig;
 
 import net.minecraft.core.UUIDUtil;
@@ -65,7 +66,7 @@ public final class KnownPlayers extends SavedData {
             .fieldOf("players").codec();
 
     public static final SavedDataType<KnownPlayers> TYPE =
-            new SavedDataType<>("zombiemod_known_players", KnownPlayers::new, CODEC, null);
+            Saves.of("zombiemod_known_players", KnownPlayers::new, CODEC, null);
 
     private final Map<UUID, Seen> seen;
 

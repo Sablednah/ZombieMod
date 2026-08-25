@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import com.sablednah.zombiemod.platform.Tags;
 import com.sablednah.zombiemod.platform.Types;
 
 import net.minecraft.core.HolderSet;
@@ -120,7 +121,7 @@ public record Convert(int interval, float chance, HolderSet<EntityType<?>> victi
             return false;
         }
         // Already dead once. Raising the risen is how you get an unkillable feedback loop.
-        return !victim.getType().is(EntityTypeTags.UNDEAD);
+        return !Tags.is(victim.getType(), EntityTypeTags.UNDEAD);
     }
 
     /** Flavour for the moment it turns, so a conversion is never silent. */
