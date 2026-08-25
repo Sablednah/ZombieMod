@@ -146,6 +146,8 @@ Worth reading the files rather than just the table — between them they exercis
 
 - **Different base mobs** — Bogman and Undertow are drowned, Dust Stalker a husk. Anything vanilla works.
 - **Navigation swaps** — Hunter and Crawler climb; Bogman is amphibious and Undertow swims.
+  A swimmer needs `random_swim` rather than `random_stroll`, and must **not** be given `float`:
+  `FloatGoal` pins a mob to the surface. Bogman keeps `float` because it walks the bottom.
 - **Attributes beyond the named fields** — Tank sets `attack_knockback` and `step_height`, Ember zeroes
   `burning_time`, Bogman raises `oxygen_bonus`.
 - **Composed conditions** — Ember uses `any_of` to mean "the Nether *or* deep underground".

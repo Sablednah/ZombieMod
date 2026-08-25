@@ -24,7 +24,7 @@ session did, for the record:
   need to install anything"* rather than "server-side only"; `/settings/` carries a callout that a
   claim is not a safe zone; and both `/settings/` and `/commands/` say the server config is per-world
   in singleplayer and point at `/zombiemod status`.
-- Counts were taken off the source, not off prose: 59 genera, 52 with a `head`, 11 goals, 21
+- Counts were taken off the source, not off prose: 59 genera, 52 with a `head`, 12 goals, 21
   abilities, 14 conditions, 4 hordes.
 - The roster write-ups are each genus's own `description` field, so that page cannot drift from the
   game. Genus/hordes/settings/commands were built from `README.md` and the CURSEFORGE docs; nothing
@@ -50,7 +50,7 @@ description. Anything else breaks links that already exist. Trailing slash inclu
 | CurseForge | `https://www.curseforge.com/minecraft/mc-mods/zombiemod-reforged` — **live** |
 | GitHub | `https://github.com/Sablednah/ZombieMod` |
 | Latest release | `https://github.com/Sablednah/ZombieMod/releases/latest` |
-| Direct jar | the `zombiemod-3.1.0.jar` asset on that release |
+| Direct jar | the `zombiemod-3.1.1.jar` asset on that release |
 | Modrinth | not created yet — leave the link out rather than pointing at a 404 |
 
 **Note for a future release, not for the site:** the jar's own `displayURL` points at GitHub rather
@@ -88,7 +88,7 @@ your own" are separate — almost nobody wants both on the same visit.
 |---|---|---|
 | `/zombiemod-reforged/` | Landing. What it is, requirements, install, the highlights, links out. | `CURSEFORGE.md` |
 | `/zombiemod-reforged/roster/` | All 59 genera, grouped by family, with what each one does. | `docs/ROSTER.md` |
-| `/zombiemod-reforged/genus/` | **Build your own zombie.** Every field, all 11 goal types, all 21 abilities, all 14 spawn conditions, with worked examples. | `README.md` |
+| `/zombiemod-reforged/genus/` | **Build your own zombie.** Every field, all 12 goal types, all 21 abilities, all 14 spawn conditions, with worked examples. | `README.md` |
 | `/zombiemod-reforged/hordes/` | **Build your own horde.** Wave events, and the boss layer — phases, boss bars, loot, summon rituals. | `README.md` |
 | `/zombiemod-reforged/settings/` | Every setting in `zombiemod-server.toml`. | `CURSEFORGE-CONFIGURATION.md` |
 | `/zombiemod-reforged/commands/` | Every command. | `CURSEFORGE-COMMANDS.md` |

@@ -91,7 +91,7 @@ reload picks them up.
 
 That is the whole coward. What you have to work with:
 
-- **11 goal types** — vanilla's own pathfinder goals, pulled apart and recombined. Avoid, melee,
+- **12 goal types** — vanilla's own pathfinder goals, pulled apart and recombined. Avoid, melee,
   bow, watch, stroll, float, and targeting by ear or by block.
 - **21 abilities** — effects, healing, lightning, explosions, creeper-style fuses, shockwaves,
   leaps, drags, summons, block-breaking, projectiles, cobwebs, infection, conversion, a real

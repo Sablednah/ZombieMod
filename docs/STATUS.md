@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-08-24.
+Last updated 2026-08-25 (3.1.1).
 
 **Counts here are now taken off the source, not off prose.** They had drifted — this file said 56
 genera, 12 goal types, 22 abilities, 12 conditions and 3 hordes, and every one of those was wrong.
@@ -16,7 +16,7 @@ hand.
 | | |
 |---|---|
 | **Genera as datapacks** | 59 shipped; hot-reload with `/reload` |
-| **AI from JSON** | 11 goal types, recombined per genus |
+| **AI from JSON** | 12 goal types, recombined per genus |
 | **Abilities** | 21 types |
 | **Spawn conditions** | 14 types (11 general + 3 CityWorld), composable with `any_of` / `not` |
 | **Weighted spawning** | Per base mob, with a configurable vanilla share. `vanillaWeight = 40` settled by play (2026-08-16) — measured at ~26% plain zombies on the surface, ~13% deep underground |
@@ -32,7 +32,7 @@ hand.
 | **Block breaking** | Tag-gated, griefing-hook aware, long target memory |
 | **Land claims** | FTB Chunks, by reflection, inert without it. Griefing veto verified in both directions: refuses inside a claim, breaks again the instant the claim is removed. |
 | **XP** | Per genus |
-| **Bounty** | Per genus, with a pluggable payer and a scoreboard fallback |
+| **Bounty** | Per genus, with a pluggable payer and a scoreboard fallback. **Paying into a real economy confirmed in play** (2026-08-25) through SableCraft Standards — the last thing outstanding from the 1.8 plugin, now closed end to end |
 | **Horde events** | Wave director with a boss bar, four shipped hordes, off by default |
 | **CityWorld districts** | 3 conditions on district, lot and wildness, reflective and inert without it. Verified against a generated city: 289 lots, 7 districts, 4 lot styles — and **in play**: Commuters in a highrise district and Harvesters in a farm one, at roughly the rate their weights predict. Weights since raised to 45/40; the new rate is being checked |
 | **Mutation** | Genus becomes another genus on a trigger. `health_below`, `on_fire` and `where` (dimension) all watched in game |
@@ -201,7 +201,8 @@ hand.
   probe for this was *inconclusive* — 1681 surface spots in the dev world, old and new rules agreeing
   exactly, because that terrain has none of the cases the fix is for. Play settled what the probe
   could not.
-- **Bounty payouts** — the scoreboard tally, and whether the numbers feel proportionate.
+- **Bounty payouts** — the payment itself is confirmed (2026-08-25). What is still open is only the
+  scoreboard tally, and whether the *numbers* feel proportionate, which is a matter of feel.
 - **Hordes.** One Siege survived, which found both of the gaps now closed. `cap = 40` **settled by
   play** (2026-08-16). "Whether it builds or just arrives" turned out to be a **bug, not a tuning
   question**: every wave inherited the *previous* wave's delay, so a `delay: 0` first wave made the
@@ -220,6 +221,19 @@ hand.
 - **Horde counting and chunk unloads.** Survivors are counted by identity now, so distance no longer
   loses them, but a mob in an unloaded chunk still reads as gone and would end the horde early.
   Unlikely at these radii; not impossible if a player runs.
+- **The Undertow** (new in 3.1.0). **It swims** — confirmed in play 2026-08-25, but only after
+  3.1.1 fixed it; see *Fixed, worth remembering* below, because the first build bobbed at the surface
+  and the cause is worth carrying forward. Still unproven: whether blindness plus `pull` in water is
+  a good fight or an unfair drowning, and **weight 25**, which is the number most likely to be wrong
+  — roughly 38% of drowned spawns once it competes with `vanillaWeight`, chosen deliberately so the
+  update is noticeable. The containment is that drowned only spawn in water, so nothing on land
+  changes whatever the number turns out to be.
+- ~~**Bounties paid through Standards**~~ (new in 3.1.0) — **confirmed in play** (2026-08-25):
+  "bountys are paying out". Money reaches a real account through the facade, which closes the last
+  unproven step of the feature. The reflective link had already been verified against the shipped
+  Standards jar — all three handles resolve, and `isAvailable()` with no provider returns a plain
+  `false` rather than throwing — but a reflective call that resolves is not the same as a payment
+  that arrives, and only the second one is worth anything to a player.
 
 ## Fixed, worth remembering
 
@@ -242,13 +256,56 @@ hand.
   attempt, so it always is". A comment asserting an invariant about *all callers* is a claim you
   cannot make about a mod nobody has written yet.
 
+- **`navigation: swim` planned a route and nothing followed it** (shipped in 3.1.0, fixed in 3.1.1).
+  The Undertow bobbed at the surface instead of swimming, and there were two independent causes plus
+  a structural one.
+
+  The visible cause was **`FloatGoal`**, which calls `JumpControl.jump()` every tick it is in water
+  — it pins a mob to the surface and bounces it. The goal list had been copied from the Bogman, which
+  is *amphibious* and walks the bottom, where floating is exactly right. **A goal that is correct on
+  one genus can be actively wrong on another**, and nothing about the JSON says so.
+
+  The quieter cause was **`random_stroll`**, which picks destinations on land via `LandRandomPos`, so
+  a swim navigator was handed places it could not path to and had nowhere to go when idle.
+
+  The structural one is the lesson: **a navigator is only half a movement mode.** `GenusApplier`
+  already says so for `climb` — "the navigator plans the climb; ClimbGoal performs it. Neither works
+  alone" — and `swim` had only the planning half, with no goal to perform it. It went unnoticed
+  because no shipped genus used `swim` until the Undertow. `random_swim` is the missing half.
+
+  Worth knowing for any future swimmer: vanilla `Drowned.wantsToSwim()` is
+  `searchingForLand || (target != null && target.isInWater())`, and `searchingForLand` is set only by
+  `DrownedGoToBeachGoal`, which `clear_goals: true` removes. So `DrownedMoveControl` does real
+  swimming movement while **chasing something in water**, and idle movement is a separate problem —
+  which is why the two had to be fixed separately. (Checked and discarded along the way: `Drowned`
+  does *not* reassign `navigation` in `updateSwimming()` on 1.21.11, so the `swim` assignment does
+  stick.)
+
+- **Command output was unreadable outside the game** (2026-08-24, found by the LegendQuest session).
+  `/zombiemod status` and `/zombiemod corpse list` were built with legacy section codes inside the
+  string. The client rendered them correctly, so nothing *inside* the game could reveal that a server
+  console, the log and RCON were printing the codes as literal text.
+
+  The structural lesson is the useful part, and it is why this was the **third of four ports** to
+  have it: you cannot see a representation error while looking through the thing that interprets the
+  representation. Standards (`38cb7a0`) and LegendQuest (`dda06b6`) each found their own copy the
+  same way — from outside. The rule and the two conversion traps are in CLAUDE.md; the cheap audit is
+  `grep -rn '§' src/main/java` and confirming every hit is a comment or client font rendering.
+
+- **`/zm` was op-only, including the subcommands that are deliberately open.** The alias was a
+  Brigadier redirect carrying its own `LEVEL_GAMEMASTERS` requirement, and Brigadier checks the
+  redirect node's requirement *before* following it — so that bar ANDed with every child, including
+  `bestiary` and `list`, which the root node leaves open on purpose. The bar is gone; each subcommand
+  keeps its own, so the alias is now exactly as restricted as the full name.
+
 ## Left from the 1.8 plugin
 
 Every ability is done, and so is proximity spawning — it is built, configurable and off by default,
 waiting only for somebody to turn it on and judge it. **Nothing is outstanding.**
 
-- ~~**Bounty.**~~ **Unblocked and wired, 2026-08-24.** It waited on an economy decision that could not
-  be made: no Vault on NeoForge, and no leader among the economy mods to build against. Sable's
+- ~~**Bounty.**~~ **Closed 2026-08-25** — wired on the 24th, confirmed paying in play on the 25th.
+  It waited on an economy decision that could not be made: no Vault on NeoForge, and no leader among
+  the economy mods to build against. Sable's
   **SableCraft Standards** closes it by shipping a ledger *behind an interface*, so paying through it
   is not choosing its ledger — a dedicated economy mod registers a higher-priority provider and takes
   over, and neither side needs to know the other exists. `compat/StandardsEconomy` is a
@@ -278,138 +335,119 @@ Not adopted yet, deliberately: ZombieMod's player-facing text is small (dex pros
 JSON, which datapacks already override per-server), and a second string system is only worth its
 upkeep once someone actually asks for a translation.
 
-## Where this stands, 2026-08-24
+## Where this stands, 2026-08-25
 
-**Everything testable has been tested, and the mod is released.** It is live on CurseForge and on
-sablecraft.co.uk.
+**Released and in players' hands.** `3.0.0` shipped 2026-08-18 and `3.1.0` on 2026-08-24; both are
+live on CurseForge, and the sablecraft.co.uk pages are up.
 
-Four things came off the list on 2026-08-24, all from play: a **horde fought end to end**, the
-**Breeder's `max_nearby` cap** holding against an AFK observer, **faces and appearance styles reading
-correctly**, and **corpse recovery** confirmed by repeated use. A fifth — *killing only the decoy* —
-was closed from the code instead: the ledger cannot be settled by the wrong zombie, because settling
-is keyed on a tag the decoy never carries.
+Everything that can be settled without an audience has been settled. What is left falls into four
+kinds, and none of it blocks anything:
 
-What is left is genuinely thin, and none of it blocks anything:
-
-- **Needs a situation to arise** — a Carrier working through a village.
-- **Matters of feel** — drop rates, the Sleeper's six-block range, the Borg Queen's numbers.
-- **Wants an audience, not a session** — whether the faces read to somebody who has not seen them
-  before, and whether the infected pair reads as a decoy rather than a duplication bug. Both look
-  right to Sable and both are held open anyway, because the author knowing what he is looking at is
+- **Wants an audience, not a session.** Whether the faces read at a glance to somebody who has never
+  seen them, and whether the infected pair reads as a decoy rather than a duplication bug. Both look
+  right to Sable, and both are held open deliberately — the author knowing what he is looking at is
   exactly what disqualifies him as the witness. Only the public release answers these.
-- ~~**Blocked outright**~~ — bounty payouts are **no longer blocked**: they pay through SableCraft
-  Standards' economy facade as of 2026-08-24. Never watched paying a real player, though.
-- **Known gap** — a horde survivor in an unloaded chunk still reads as dead and would end the horde
+- **Needs a situation to arise.** A Carrier working through a village. Somebody meeting the Undertow
+  without knowing what it does.
+- **Matters of feel.** Drop rates, the Sleeper's six-block range, the Borg Queen's numbers, and the
+  Undertow's weight.
+- **Known gap.** A horde survivor in an unloaded chunk still reads as dead and would end the horde
   early. Unlikely at these radii; not impossible if a player runs.
 
-**Release work is done bar one store:** see *Before release* below for Modrinth, which is the only
-unticked box left.
+**The 1.8 plugin is now fully accounted for.** Bounty payouts — the last thing outstanding, and the
+only item ever on this list that was *stuck* rather than merely unbuilt — pay through SableCraft
+Standards as of 3.1.0, and were **confirmed paying in play on 2026-08-25**. Nothing from the original
+plugin is missing, unbuilt or unverified. See *Left from the 1.8 plugin* above for why it was stuck
+and how Standards resolves it without ZombieMod having to pick an economy.
 
-## Release, 2026-08-17
+## Releases
 
-**Version is `3.0.0`** — the alpha qualifier is gone from `gradle.properties`, and README and the
-store copy now say "first release" rather than "alpha". Sable's call.
+**The version lives in `gradle.properties` and nowhere else** — `neoforge.mods.toml` is generated
+from it at build time, so never edit the generated file.
 
-**The release materials exist**, following CityWorld's four-file shape and living in the **repo
-root**, not here, to match `../CityWorld-ReForged` exactly:
+| Version | Shipped | What it was |
+|---|---|---|
+| `3.0.0` | 2026-08-18 | First release of the NeoForge rewrite. 58 genera. |
+| `3.1.0` | 2026-08-24 | The Undertow (59 genera), bounties through Standards, the Rusted Warden's shockwave cadence, and section codes gone from command output. |
+
+**Publishing to GitHub publishes to CurseForge**, via `.github/workflows/curseforge.yml`. Proven on
+both releases.
+
+**Three things the automation does not do.** Each is manual, and each is invisible when forgotten:
+
+- **The store description.** The workflow pushes *jars only*. When a release changes a number in the
+  copy — 3.1.0 moved 58 genera to 59 — the live page goes on describing the previous version until
+  `CURSEFORGE.md` is pasted in by hand.
+- **The gallery.** Fifteen screenshots, uploaded 2026-08-24, with a captioned order in
+  [`../RELEASE.md`](../RELEASE.md).
+- **Moderation.** HTTP 200 means *accepted*, not published. CurseForge dedupes by file content, so a
+  duplicate is rejected while looking like it never arrived — rejected files are hidden from the
+  authors list by default. The authoritative view is
+  `https://authors.curseforge.com/#/projects/1658560/files`, not the public Files tab.
+
+**The one store still missing is Modrinth** — checked 2026-08-24; the project does not exist (API
+404, no search hits). The recipe and its two expensive traps are in [`../RELEASE.md`](../RELEASE.md):
+the icon must be `docs/main-logo-icon.png`, because Modrinth caps icons at 256 KiB and the lockup is
+1.4 MB; and `client_side`/`server_side` are marked deprecated in favour of an `environment` field
+that **does not exist on v2**, so the deprecated pair is still what you must send. Environment is
+Server **Required**, Client **Optional** — the field people filter on, and the costliest to get
+wrong.
+
+### The materials, and what is deliberately not in them
+
+Four files in the **repo root**, matching `../CityWorld-ReForged`:
 
 | File | What it is |
 |---|---|
-| `CURSEFORGE.md` | The store description — covers everything, links out for depth. |
+| `CURSEFORGE.md` | The store description — covers everything, links out for depth. Used for Modrinth too; do not fork it. |
 | `CURSEFORGE-CONFIGURATION.md` | Every setting in all nine config sections. |
 | `CURSEFORGE-COMMANDS.md` | Every command. |
-| `WEBSITE.md` | Handover to the sablecraft.co.uk session: six pages, sources, and the three things a casual summary gets wrong. |
+| `RELEASE.md` | Every store field, the gallery order, and the publishing traps. |
+| `WEBSITE.md` | Handover to the sablecraft.co.uk session. |
 
-**One deliberate departure from the CityWorld pattern:** the genus reference — fields, goals,
-abilities, conditions, ~900 lines of `README.md` — is **not** copied into a `CURSEFORGE-*.md`. It is
-current and maintained where it is, and a second copy would drift on the first new ability, which is
-exactly what happened to the counts in this file. The site builds those pages from README sections
-instead. CityWorld could copy because its equivalent was small.
+**Two deliberate departures, both for the same reason — a second copy drifts.**
 
-**Fixed while documenting:** `/zm` was registered as a Brigadier redirect carrying its own
-`LEVEL_GAMEMASTERS` requirement, so the alias was op-only *including* `bestiary` and `list` — which
-the root node deliberately leaves open, with a comment explaining why. Brigadier checks the redirect
-node's own requirement before following it, so that bar ANDed with every child. The bar is gone; each
-subcommand keeps its own, so the alias is now exactly as restricted as the full name.
+The genus reference (~900 lines of `README.md`) is **not** copied into a `CURSEFORGE-*.md`; the site
+builds those pages from README sections instead. CityWorld could copy because its equivalent was
+small.
+
+The balance model lives in [BALANCE.md](BALANCE.md) and **not here**. It was duplicated in this file
+and the copies had already begun diverging — the same failure that made every count in this document
+wrong once. BALANCE.md carries the rules, the deliberate exceptions (the Coward's bounty is *bait*
+and must not be normalised), and the near-miss where Colossus and Rusted Warden were nearly
+"corrected" against the wrong comparator.
+
+### Artwork
+
+`docs/main-logo.png` is the square CurseForge icon (1035×1035), `docs/slime-logo-850.png` the banner
+at CurseForge's 850px description-image limit, `docs/main-logo-icon.png` the 82 KB Modrinth-legal
+icon, and `night-`/`Stone-`/`survival-logo.png` are variants held back for updates and themed events.
+
+All of them arrived with a **magenta chroma-key background rather than alpha**, which would have
+shown as a solid magenta square wherever they were used. Keyed out on the magenta-ness axis
+(`min(R,B) - G`, since the key colour was not uniform) with a despill on the ramp, then trimmed.
+
+### The 1.8 source tree
+
+**Removed at the 3.0.0 release**, along with the Bukkit-era `config.yml`, `lang.yml` and
+`plugin.yml`; `src/` now contains only `main/`. The LICENSE carve-out was **rewritten rather than
+deleted**: the MIT grant now covers the whole repository, but the note stays on the record because
+the removed tree was CC BY-NC-ND with third-party contributions and is still reachable in git
+history, so anyone who recovers it needs those terms. CLAUDE.md carries the
+`git log --diff-filter=D` recipe for reading it again.
 
 ## Next, in the order I'd do it
 
-1. **Proximity in survival.** Enabled in Sable's instance; the cap semantics are settled ("quiet
-   place top up is perfect" — 2026-08-15). What remains is simply a survival session on quiet ground
+1. **Watch the Undertow meet somebody.** It is the headline of 3.1.0, it has never been played, and
+   its weight is a first guess.
+2. **Modrinth.** The last unticked box on the release list.
+3. **Proximity in survival.** Enabled in Sable's instance; the cap semantics are settled ("quiet
+   place top up is perfect" — 2026-08-15). What remains is a survival session on quiet ground
    watching it fire, and whether `nearbyCap = 8` feels like atmosphere.
-2. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
+4. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
 
-## Before release — what is left
-
-**Released 2026-08-18.** GitHub release `v3.0.0` is published, CurseForge is live at
-`https://www.curseforge.com/minecraft/mc-mods/zombiemod-reforged`, and the sablecraft.co.uk pages are
-up. Publishing to GitHub now publishes to CurseForge too, via `.github/workflows/curseforge.yml`.
-
-**The one unticked box is Modrinth** — checked 2026-08-24 and the project does not exist yet (the API
-returns 404 and a search for it returns nothing). The full recipe, including the two limits that
-would otherwise cost a morning, is in [`../RELEASE.md`](../RELEASE.md): the icon must be
-`docs/main-logo-icon.png`, because Modrinth caps icons at 256 KiB and `main-logo.png` is 1.4 MB; and
-`client_side`/`server_side` are marked deprecated in favour of an `environment` field that does not
-exist on v2, so the deprecated pair is still what you must send. Environment is Server **Required**,
-Client **Optional** — the field people filter on, and the one it would be most costly to get wrong.
-
-The **gallery is up on CurseForge** (confirmed 2026-08-24). Worth recording that it is a *manual*
-step — `.github/workflows/curseforge.yml` pushes jars only — so a future release does not silently
-assume the images ride along with the upload.
-
-Done: the version number, the README opening, the store/site copy (see *Release* above), and the
-**1.8 source tree** — `src/me/sablednah/` is gone, along with the Bukkit-era `config.yml`, `lang.yml`
-and `plugin.yml` in the repo root. `src/` now contains only `main/`. The LICENSE carve-out has been
-rewritten rather than deleted: the MIT grant now covers the whole repository, but the note stays to
-record that the removed tree was CC BY-NC-ND with third-party contributions, because it is still
-reachable in the history and anyone who recovers it needs those terms. CLAUDE.md carries the
-`git log --diff-filter=D` recipe for reading it again.
-
-Still outstanding:
-
-- ~~**Balance pass.**~~ **Done 2026-08-17, and the model is now written down** in
-  [BALANCE.md](BALANCE.md) — which was the actual gap. The August pass set `xp`, `bounty` and
-  `follow_range` from a threat score that was never recorded, so there was nothing for later
-  additions to be checked against.
-
-  Measuring first found the roster in better shape than this file implied. `xp ≈ health/2` holds
-  within ±25% across forty-odd genera, with three *deliberate* departures that account for every
-  apparent outlier: ambient high-weight genera discounted toward vanilla's 5, bosses at a 2.5–3.5×
-  premium, and Herobrine paid for the encounter rather than the kill. Shockwave, leap and alert
-  numbers scale with the genus rather than being set per ability. Nothing was broken.
-
-  Changed: three genera were off the 4-block `follow_range` grid (Field Hand 22→20, Biter 30→28,
-  Charger 34→36) and Field Hand carried the roster's only non-integer damage (3.5→3.0). All
-  imperceptible in play; the point is that "set by sensory tier" is now true rather than nearly true.
-
-  **A near-miss worth recording:** Colossus and Rusted Warden look badly underpaid next to the
-  Butcher (100 xp on 200 HP against 200 xp on 120 HP) and were nearly "corrected". They are not
-  bosses — no bar, no phases, no ritual — so they take the plain `health/2` and scale off **Tank**,
-  which they match exactly. The Butcher's 200 is a boss premium. Reaching for the wrong comparator is
-  the specific failure an unwritten model invites, and it is why BALANCE.md exists.
-
-  **Coward's bounty is intent, not an outlier** (Sable, 2026-08-17). 6 on 2 xp, a ratio of 0.3 where
-  the roster runs 2.5–4.0 — because the payout is **bait**, not payment. It exists to make players
-  chase something that runs, out across dark ground, into whatever else is out there. The only genus
-  whose reward is designed to get you killed by a different one. Flagged here because read as
-  arithmetic it looks like an error, and normalising it would delete a mechanic.
-- ~~**`mod_description`**~~ **Done** — re-read against the final feature list on 2026-08-24 and it is
-  accurate as written (59 types, bosses, hordes, infection, the bestiary, and the vanilla-client
-  promise). No rewrite needed.
-- ~~**Upload the artwork.**~~ **Done for CurseForge** — the project is live carrying the icon. The
-  Modrinth icon is still unused because the project does not exist yet, and it must be
-  `docs/main-logo-icon.png` rather than the 1.4 MB lockup. In hand (2026-08-17): `docs/main-logo.png` is the square lockup for the
-  CurseForge project icon, `docs/slime-logo.png` the banner, and `night-`/`Stone-`/`survival-logo.png`
-  are variants held back for updates and themed events. All five arrived with a magenta chroma-key
-  background rather than alpha, which would have shown as a solid magenta square wherever they were
-  used; keyed out on the magenta-ness axis (`min(R,B) - G`, since the key colour was not uniform)
-  with a despill on the ramp, then trimmed.
-- ~~**Screenshots.**~~ **Done** — fifteen in `screenshots/`, all 1597x1075, with a captioned gallery
-  order in [`../RELEASE.md`](../RELEASE.md). Two carry a Jade tooltip reading `minecraft:zombie`, kept
-  rather than cropped because it is visual proof of the mod's central claim. **Uploaded to the CurseForge gallery**, confirmed
-  2026-08-24 — a manual step, since the automation pushes jars only.
 
 ## Known limitations
 

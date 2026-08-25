@@ -33,18 +33,15 @@
   "clear_goals": true,
   "goals": [
     {
-      "type": "zombiemod:float",
-      "priority": 0
-    },
-    {
       "type": "zombiemod:melee_attack",
       "priority": 3,
       "speed": 1.0
     },
     {
-      "type": "zombiemod:random_stroll",
+      "type": "zombiemod:random_swim",
       "priority": 7,
-      "speed": 0.9
+      "speed": 1.0,
+      "interval": 60
     },
     {
       "type": "zombiemod:look_at",

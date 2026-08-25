@@ -6,6 +6,30 @@ Zombie types are **datapack files**, so `/reload` picks up changes to them witho
 settings in `zombiemod-server.toml` are a **server** config — per-world in singleplayer, at
 `saves/<world>/serverconfig/`, not `config/`.
 
+## 3.1.1
+
+*2026-08-25.* The Undertow swims. In 3.1.0 it did not.
+
+### Fixed
+
+- **The Undertow bobbed at the surface instead of swimming.** It shipped with a `float` goal, and
+  `FloatGoal` calls `JumpControl.jump()` on every tick it spends in water — which pins a mob to the
+  surface and bounces it there. Harmless on the genus the goal list was copied from (the Bogman is
+  *amphibious* and walks the bottom, where floating is correct) and completely wrong on a swimmer.
+
+  Its idle wandering was broken too, for a separate reason: `random_stroll` picks destinations on
+  land, so a swim navigator was being handed places it could not path to.
+
+### Added
+
+- **A `random_swim` goal type**, which is what `navigation: swim` had been missing. The navigator
+  plans a route through water but nothing was choosing anywhere to go — the same shape as `climb`,
+  where the spider navigator plans the climb and `ClimbGoal` performs it, and neither works alone.
+  `swim` had the planning half only, and no genus had exercised it until the Undertow.
+
+  Datapack authors: give a swimmer `random_swim` rather than `random_stroll`, and **do not give it
+  `float`**.
+
 ## 3.1.0
 
 *2026-08-24.* A new genus, an economy, and the

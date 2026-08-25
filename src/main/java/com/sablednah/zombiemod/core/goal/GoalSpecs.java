@@ -86,6 +86,47 @@ public final class GoalSpecs {
         }
     }
 
+    /**
+     * Wander <em>underwater</em>. The counterpart to {@code random_stroll} for anything with
+     * {@code navigation: swim}.
+     *
+     * <p>This exists because the navigator alone is not enough - the same trap as {@code climb},
+     * where the spider navigator plans the climb and {@code ClimbGoal} performs it. A swim
+     * navigator will happily path through water, but {@code random_stroll} hands it land positions
+     * from {@code LandRandomPos}, so an idle swimmer has nowhere to go and mills about wherever it
+     * happens to be. {@code RandomSwimmingGoal} is vanilla's own answer: the same stroll goal with
+     * {@code getPosition} overridden to pick somewhere wet.
+     *
+     * <p><b>Do not give a swimmer {@code float} as well.</b> {@code FloatGoal} calls
+     * {@code JumpControl.jump()} every tick it is in water, which pins the mob to the surface and
+     * bobs it there - which looks exactly like swimming being broken, and was
+     * (2026-08-25, the Undertow).
+     */
+    public record RandomSwim(int priority, double speed, int interval) implements GoalSpec {
+
+        public static final Identifier TYPE = id("random_swim");
+
+        public static final MapCodec<RandomSwim> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                priorityField(8).forGetter(RandomSwim::priority),
+                com.mojang.serialization.Codec.DOUBLE.optionalFieldOf("speed", 1.0D)
+                        .forGetter(RandomSwim::speed),
+                com.mojang.serialization.Codec.INT.optionalFieldOf("interval", 80)
+                        .forGetter(RandomSwim::interval))
+                .apply(i, RandomSwim::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public Goal build(Mob mob) {
+            return mob instanceof PathfinderMob pf
+                    ? new net.minecraft.world.entity.ai.goal.RandomSwimmingGoal(pf, speed, interval)
+                    : null;
+        }
+    }
+
     /** Swim rather than sink. */
     public record Float_(int priority) implements GoalSpec {
 

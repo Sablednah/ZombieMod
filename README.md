@@ -1803,7 +1803,7 @@ already does the job.
 
 ## Status
 
-**3.1.0.** 59 genera, 11 goal types, 21 abilities, 14 spawn conditions and 4 horde
+**3.1.1.** 59 genera, 12 goal types, 21 abilities, 14 spawn conditions and 4 horde
 events; every ability from the 1.8 plugin rebuilt, and the great majority of it confirmed in play
 rather than merely compiled. See [`docs/STATUS.md`](docs/STATUS.md) for what's verified, what's
 waiting on a situation to arise. Bounty payouts — the last thing outstanding from the original, and

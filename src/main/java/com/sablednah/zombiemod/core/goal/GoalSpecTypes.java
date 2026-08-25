@@ -27,6 +27,7 @@ public final class GoalSpecTypes {
     static {
         register(GoalSpecs.AvoidEntity.TYPE, GoalSpecs.AvoidEntity.CODEC);
         register(GoalSpecs.RandomStroll.TYPE, GoalSpecs.RandomStroll.CODEC);
+        register(GoalSpecs.RandomSwim.TYPE, GoalSpecs.RandomSwim.CODEC);
         register(GoalSpecs.Float_.TYPE, GoalSpecs.Float_.CODEC);
         register(GoalSpecs.LookAtPlayer.TYPE, GoalSpecs.LookAtPlayer.CODEC);
         register(GoalSpecs.RandomLook.TYPE, GoalSpecs.RandomLook.CODEC);
