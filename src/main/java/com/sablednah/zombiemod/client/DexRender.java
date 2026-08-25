@@ -12,6 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.sablednah.zombiemod.platform.Msg;
 import com.sablednah.zombiemod.ZombieMod;
 import com.sablednah.zombiemod.core.Genus;
 import com.sablednah.zombiemod.ZombieModRegistries;
@@ -300,7 +301,7 @@ public final class DexRender {
                 : "ZombieDex render complete: " + written + " image(s)"
                         + (skipped > 0 ? ", " + skipped + " skipped" : "") + " -> " + outDir);
         if (mc.player != null) {
-            mc.player.displayClientMessage(msg, false);
+            Msg.chat(mc.player, msg);
         }
         LOG.info("ZombieMod: {}", msg.getString());
     }

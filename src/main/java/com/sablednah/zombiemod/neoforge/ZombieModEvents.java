@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.mojang.logging.LogUtils;
+import com.sablednah.zombiemod.platform.Msg;
 import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.core.Genus;
@@ -344,10 +345,12 @@ public final class ZombieModEvents {
             }
         }
         if (ObserverMode.isOn(event.getEntity())) {
-            event.getEntity().displayClientMessage(
-                    net.minecraft.network.chat.Component.literal(
-                            "\u00a7eZombieMod observer mode is ON - you take no damage. \u00a77/zombiemod observe off"),
-                    false);
+            Msg.chat(event.getEntity(), net.minecraft.network.chat.Component.empty()
+                    .append(net.minecraft.network.chat.Component
+                            .literal("ZombieMod observer mode is ON - you take no damage. ")
+                            .withStyle(net.minecraft.ChatFormatting.YELLOW))
+                    .append(net.minecraft.network.chat.Component.literal("/zombiemod observe off")
+                            .withStyle(net.minecraft.ChatFormatting.GRAY)));
         }
     }
 

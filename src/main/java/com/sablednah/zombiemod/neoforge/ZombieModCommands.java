@@ -11,6 +11,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.sablednah.zombiemod.platform.Msg;
 import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.core.Genus;
@@ -668,7 +669,8 @@ public final class ZombieModCommands {
         source.sendSuccess(() -> Component.literal(
                 "Returned " + entry.items().size() + " stacks to " + where + "."), true);
         if (owner != null) {
-            owner.displayClientMessage(Component.literal("\u00a7eYour corpse's belongings have been returned."), false);
+            Msg.chat(owner, Component.literal("Your corpse's belongings have been returned.")
+                    .withStyle(ChatFormatting.YELLOW));
         }
         return 1;
     }
