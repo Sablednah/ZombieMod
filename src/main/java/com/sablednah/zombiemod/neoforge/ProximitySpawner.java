@@ -3,6 +3,7 @@ package com.sablednah.zombiemod.neoforge;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sablednah.zombiemod.platform.Types;
 import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.compat.FtbChunks;
@@ -281,7 +282,7 @@ public final class ProximitySpawner {
      */
     private static boolean standable(ServerLevel level, BlockPos pos) {
         BlockPos below = pos.below();
-        return level.getBlockState(below).isValidSpawn(level, below, EntityType.ZOMBIE)
+        return level.getBlockState(below).isValidSpawn(level, below, Types.zombie())
                 && roomy(level, pos)
                 && roomy(level, pos.above());
     }
@@ -289,7 +290,7 @@ public final class ProximitySpawner {
     private static boolean roomy(ServerLevel level, BlockPos pos) {
         var state = level.getBlockState(pos);
         return NaturalSpawner.isValidEmptySpawnBlock(level, pos, state, state.getFluidState(),
-                EntityType.ZOMBIE);
+                Types.zombie());
     }
 
     /** Would the player watch it appear? */

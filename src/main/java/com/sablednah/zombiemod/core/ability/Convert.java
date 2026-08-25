@@ -6,6 +6,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import com.sablednah.zombiemod.platform.Types;
+
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.particles.ParticleTypes;
@@ -100,16 +102,16 @@ public record Convert(int interval, float chance, HolderSet<EntityType<?>> victi
      * <p>A villager becoming a zombie villager keeps the loss legible — you can see what you lost.
      */
     public static EntityType<?> undeadFormOf(EntityType<?> victim) {
-        if (victim == EntityType.VILLAGER || victim == EntityType.WANDERING_TRADER) {
-            return EntityType.ZOMBIE_VILLAGER;
+        if (victim == Types.villager() || victim == Types.wanderingTrader()) {
+            return Types.zombieVillager();
         }
-        if (victim == EntityType.PIGLIN || victim == EntityType.PIGLIN_BRUTE) {
-            return EntityType.ZOMBIFIED_PIGLIN;
+        if (victim == Types.piglin() || victim == Types.piglinBrute()) {
+            return Types.zombifiedPiglin();
         }
-        if (victim == EntityType.HORSE || victim == EntityType.DONKEY || victim == EntityType.MULE) {
-            return EntityType.ZOMBIE_HORSE;
+        if (victim == Types.horse() || victim == Types.donkey() || victim == Types.mule()) {
+            return Types.zombieHorse();
         }
-        return EntityType.ZOMBIE;
+        return Types.zombie();
     }
 
     /** True if this corpse is a legitimate candidate. The applier does the spawning. */

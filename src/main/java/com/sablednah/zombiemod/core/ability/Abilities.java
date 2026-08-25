@@ -7,6 +7,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import com.sablednah.zombiemod.platform.Types;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.particles.ParticleOptions;
@@ -186,9 +188,9 @@ public final class Abilities {
         @Override
         public void run(ServerLevel level, Mob mob) {
             for (LivingEntity victim : Targets.of(target, level, mob, radius)) {
-                LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(level,
-                        net.minecraft.world.entity.EntitySpawnReason.TRIGGERED);
-                if (bolt == null) {
+                if (!(Types.lightningBolt().create(level,
+                        net.minecraft.world.entity.EntitySpawnReason.TRIGGERED)
+                        instanceof LightningBolt bolt)) {
                     return;
                 }
                 bolt.snapTo(victim.getX(), victim.getY(), victim.getZ(), 0.0F, 0.0F);
@@ -480,7 +482,7 @@ public final class Abilities {
                 Abilities.<Summon>intervalField(200),
                 Abilities.<Summon>chanceField(0.25F),
                 BuiltInRegistries.ENTITY_TYPE.byNameCodec()
-                        .optionalFieldOf("entity", (EntityType<?>) EntityType.ZOMBIE).forGetter(Summon::entity),
+                        .optionalFieldOf("entity", Types.zombie()).forGetter(Summon::entity),
                 Codec.INT.optionalFieldOf("count", 1).forGetter(Summon::count),
                 Codec.INT.optionalFieldOf("max_nearby", 6).forGetter(Summon::maxNearby),
                 Codec.DOUBLE.optionalFieldOf("radius", 8.0D).forGetter(Summon::radius),
@@ -892,7 +894,7 @@ public final class Abilities {
                 Abilities.<Projectile>intervalField(40),
                 Abilities.<Projectile>chanceField(0.7F),
                 BuiltInRegistries.ENTITY_TYPE.byNameCodec()
-                        .optionalFieldOf("projectile", (EntityType<?>) EntityType.ARROW).forGetter(Projectile::projectile),
+                        .optionalFieldOf("projectile", Types.arrow()).forGetter(Projectile::projectile),
                 Codec.DOUBLE.optionalFieldOf("range", 16.0D).forGetter(Projectile::range),
                 Codec.DOUBLE.optionalFieldOf("power", 1.6D).forGetter(Projectile::power),
                 Codec.DOUBLE.optionalFieldOf("inaccuracy", 6.0D).forGetter(Projectile::inaccuracy))
@@ -1184,9 +1186,7 @@ public final class Abilities {
                     || !mob.hasLineOfSight(target)) {
                 return;
             }
-            var type = beam.elder()
-                    ? net.minecraft.world.entity.EntityType.ELDER_GUARDIAN
-                    : net.minecraft.world.entity.EntityType.GUARDIAN;
+            var type = beam.elder() ? Types.elderGuardian() : Types.guardian();
             if (!(type.create(level, net.minecraft.world.entity.EntitySpawnReason.TRIGGERED)
                     instanceof net.minecraft.world.entity.monster.Guardian guardian)) {
                 return;
