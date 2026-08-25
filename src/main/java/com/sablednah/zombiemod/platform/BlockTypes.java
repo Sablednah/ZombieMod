@@ -31,6 +31,6 @@ public final class BlockTypes {
      * <p><b>Differs per version.</b> On 26.1+ this becomes {@code state.typeHolder()}.
      */
     public static Holder<Block> holderOf(BlockState state) {
-        return state.getBlockHolder();
+        return state.typeHolder();
     }
 }

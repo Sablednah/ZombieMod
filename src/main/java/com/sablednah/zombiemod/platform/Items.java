@@ -32,11 +32,14 @@ public final class Items {
      * preserve *both* accepted spellings — see the class note.
      */
     public static Codec<ItemStack> stackCodec() {
-        return Codec.withAlternative(ItemStack.STRICT_SINGLE_ITEM_CODEC, ItemStack.SIMPLE_ITEM_CODEC);
+        // Both spellings preserved: the object form, and a bare id via the item registry.
+        return Codec.withAlternative(ItemStack.CODEC,
+                net.minecraft.core.registries.BuiltInRegistries.ITEM.byNameCodec()
+                        .xmap(ItemStack::new, ItemStack::getItem));
     }
 
     /** The holder for a stack's item, for testing against an item tag. */
     public static Holder<Item> holderOf(ItemStack stack) {
-        return stack.getItemHolder();
+        return stack.typeHolder();
     }
 }

@@ -20,6 +20,6 @@ public final class Tags {
      * {@code type.builtInRegistryHolder().is(tag)}.
      */
     public static boolean is(EntityType<?> type, TagKey<EntityType<?>> tag) {
-        return type.is(tag);
+        return type.builtInRegistryHolder().is(tag);
     }
 }

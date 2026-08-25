@@ -34,7 +34,23 @@ public final class Colours {
      * <p><b>Differs per version.</b> Gone on 26.2 — see the class note for how to rebuild it.
      */
     public static Codec<ChatFormatting> glowCodec() {
-        return ChatFormatting.COLOR_CODEC;
+        // Built by name, never by ordinal: names are stable across versions, ids are not.
+        // getByName is gone on 26.2 as well, so go through the enum's own name - and reject
+        // anything that is not a colour, or "bold" would parse and then glow nothing.
+        return Codec.STRING.comapFlatMap(Colours::parse, Colours::name);
+    }
+
+    // ChatFormatting.isColor() is gone on 26.2 too, and TeamColor is the better test anyway: a glow
+    // colour is valid exactly when the thing it feeds can take it. "bold" fails here rather than
+    // parsing and then glowing nothing.
+    private static com.mojang.serialization.DataResult<ChatFormatting> parse(String name) {
+        String upper = name.toUpperCase(java.util.Locale.ROOT);
+        try {
+            net.minecraft.world.scores.TeamColor.valueOf(upper);
+            return com.mojang.serialization.DataResult.success(ChatFormatting.valueOf(upper));
+        } catch (IllegalArgumentException e) {
+            return com.mojang.serialization.DataResult.error(() -> "Not a glow colour: " + name);
+        }
     }
 
     /**
@@ -46,7 +62,7 @@ public final class Colours {
      * change of spelling here strands mobs on the old team and they stop sharing an outline.
      */
     public static String name(ChatFormatting colour) {
-        return colour.getName();
+        return colour.name().toLowerCase(java.util.Locale.ROOT);
     }
 
     /**
@@ -56,6 +72,9 @@ public final class Colours {
      * {@code team.setColor(Optional.of(TeamColor...))}.
      */
     public static void paint(PlayerTeam team, ChatFormatting colour) {
-        team.setColor(colour);
+        // ChatFormatting and TeamColor share their colour names, so the enum name is the
+        // bridge. glowCodec admits colours only, so there is no styling constant to miss.
+        team.setColor(java.util.Optional.of(
+                net.minecraft.world.scores.TeamColor.valueOf(colour.name())));
     }
 }

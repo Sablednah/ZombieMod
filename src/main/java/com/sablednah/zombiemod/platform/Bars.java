@@ -30,6 +30,6 @@ public final class Bars {
      */
     public static ServerBossEvent create(Component name, BossEvent.BossBarColor colour,
             BossEvent.BossBarOverlay overlay) {
-        return new ServerBossEvent(name, colour, overlay);
+        return new ServerBossEvent(UUID.randomUUID(), name, colour, overlay);
     }
 }

@@ -19,6 +19,6 @@ public final class Times {
      * <p><b>Differs per version.</b> On 26.1+ this becomes {@code level.getOverworldClockTime()}.
      */
     public static long dayTime(Level level) {
-        return level.getDayTime();
+        return level.getOverworldClockTime();
     }
 }
