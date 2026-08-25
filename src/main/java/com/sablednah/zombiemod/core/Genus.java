@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.sablednah.zombiemod.platform.Types;
 import com.sablednah.zombiemod.core.ability.Ability;
 import com.sablednah.zombiemod.core.goal.GoalSpec;
 import com.sablednah.zombiemod.core.spawn.SpawnRules;
@@ -195,7 +196,7 @@ public record Genus(
     public static final Codec<Genus> CODEC = RecordCodecBuilder.create(i -> i.group(
             Appearance.MAP_CODEC.forGetter(Genus::appearance),
             BuiltInRegistries.ENTITY_TYPE.byNameCodec()
-                    .optionalFieldOf("base", (EntityType<?>) EntityType.ZOMBIE).forGetter(Genus::base),
+                    .optionalFieldOf("base", Types.zombie()).forGetter(Genus::base),
             Codec.INT.optionalFieldOf("weight", 0).forGetter(Genus::weight),
             Codec.DOUBLE.optionalFieldOf("health").forGetter(Genus::health),
             Codec.DOUBLE.optionalFieldOf("damage").forGetter(Genus::damage),
