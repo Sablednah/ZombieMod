@@ -1,5 +1,7 @@
 package com.sablednah.zombiemod.core;
 
+import com.sablednah.zombiemod.platform.Colours;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,7 +50,7 @@ public final class DexEntry {
         if (genus.burning()) {
             rows.add(new Row("Build", "alight"));
         }
-        genus.glow().ifPresent(c -> rows.add(new Row("Glow", c.getName())));
+        genus.glow().ifPresent(c -> rows.add(new Row("Glow", Colours.name(c))));
         return rows;
     }
 
