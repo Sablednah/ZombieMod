@@ -168,9 +168,17 @@ section code makes it uncopyable from a console.
 
 Fixed across the whole mod on 2026-08-21. The same bug was found and fixed independently in
 Standards (`38cb7a0`) and LegendQuest (`dda06b6`) — it is a family-wide pattern, so check for it in
-the next port rather than waiting to be told. The cheap check: `grep -rn '§' src/main/java` and
-confirm every hit is either a comment or `GuiGraphics.drawString` on the client, where section codes
-*are* the correct mechanism. Legitimate hits today are `client/DexScreen.java` (font rendering),
+the next port rather than waiting to be told. The cheap check — **and it must look for both spellings**:
+
+```bash
+grep -rnE '§|\\\\u00[aA]7' src/main/java
+```
+
+Grepping for the character alone is not enough, and that gap hid three real cases until
+2026-08-26: a string written `\\u00a7c` contains no section character in the source, but javac
+decodes the escape and the running mod emits one. Confirm every hit is a comment, a
+`GuiGraphics.drawString` on the client (where section codes *are* the correct mechanism), or a
+regex that strips them. Legitimate hits today are `client/DexScreen.java` (font rendering),
 `Bounties` (action bar) and `HordeDirector` (boss-bar name) — all client-rendered only.
 
 ### Picking a face for a new genus

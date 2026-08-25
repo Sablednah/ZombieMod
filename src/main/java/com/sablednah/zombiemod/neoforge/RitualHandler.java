@@ -1,6 +1,7 @@
 package com.sablednah.zombiemod.neoforge;
 
 import com.mojang.logging.LogUtils;
+import com.sablednah.zombiemod.platform.Items;
 import com.sablednah.zombiemod.platform.BlockTypes;
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.core.Genus;
@@ -41,7 +42,7 @@ public final class RitualHandler {
         BlockState state = level.getBlockState(pos);
 
         Holder<net.minecraft.world.level.block.Block> block = BlockTypes.holderOf(state);
-        Holder<net.minecraft.world.item.Item> item = held.getItemHolder();
+        Holder<net.minecraft.world.item.Item> item = Items.holderOf(held);
 
         for (Holder.Reference<SummonRitual> holder :
                 level.registryAccess().lookupOrThrow(ZombieModRegistries.RITUAL).listElements().toList()) {

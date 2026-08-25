@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.sablednah.zombiemod.platform.Bars;
 import com.sablednah.zombiemod.core.BossSpec;
 
 import net.minecraft.network.chat.Component;
@@ -31,7 +32,7 @@ final class BossBars {
     /** Create or refresh the bar for this mob: title, progress, and who can currently see it. */
     static void update(Mob mob, BossSpec spec) {
         ServerBossEvent bar = BARS.computeIfAbsent(mob.getId(), id -> {
-            ServerBossEvent created = new ServerBossEvent(title(mob, spec), spec.color(), spec.overlay());
+            ServerBossEvent created = Bars.create(title(mob, spec), spec.color(), spec.overlay());
             created.setDarkenScreen(spec.darkenSky());
             created.setPlayBossMusic(spec.bossMusic());
             created.setCreateWorldFog(spec.fog());

@@ -10,6 +10,7 @@ import java.util.UUID;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.sablednah.zombiemod.platform.Saves;
 import com.sablednah.zombiemod.ZombieModConfig;
 
 import net.minecraft.core.UUIDUtil;
@@ -61,7 +62,7 @@ public final class Bestiary extends SavedData {
             .fieldOf("players").codec();
 
     public static final SavedDataType<Bestiary> TYPE =
-            new SavedDataType<>("zombiemod_bestiary", Bestiary::new, CODEC, null);
+            Saves.of("zombiemod_bestiary", Bestiary::new, CODEC, null);
 
     private final Map<UUID, Set<Identifier>> met = new HashMap<>();
     private final Map<UUID, Map<Identifier, Integer>> kills = new HashMap<>();

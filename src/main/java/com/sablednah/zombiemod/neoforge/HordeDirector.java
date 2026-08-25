@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.mojang.logging.LogUtils;
+import com.sablednah.zombiemod.platform.Bars;
 import com.sablednah.zombiemod.platform.Msg;
 import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;
@@ -93,7 +94,7 @@ public final class HordeDirector {
             // the first tick regardless of what its JSON asked for.
             this.countdown = spec.waves().isEmpty() ? 0 : spec.waves().get(0).delay();
             this.bar = spec.barColor()
-                    .map(colour -> new ServerBossEvent(Announce.format(spec.name()), colour,
+                    .map(colour -> Bars.create(Announce.format(spec.name()), colour,
                             BossEvent.BossBarOverlay.NOTCHED_10))
                     .orElse(null);
             if (bar != null) {

@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import com.sablednah.zombiemod.platform.Tags;
 import com.sablednah.zombiemod.platform.Msg;
 
 import net.minecraft.core.Holder;
@@ -106,7 +107,7 @@ public record Infect(int interval, float chance, Holder<MobEffect> effect, int d
     public static boolean mark(ServerLevel level, LivingEntity victim, Holder<MobEffect> effect,
             int duration, Optional<Identifier> genus, boolean announce) {
         // Already dead once, or already one of ours - neither can catch it.
-        if (victim.getType().is(EntityTypeTags.UNDEAD)) {
+        if (Tags.is(victim.getType(), EntityTypeTags.UNDEAD)) {
             return false;
         }
         if (victim instanceof Mob m

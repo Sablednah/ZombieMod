@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.sablednah.zombiemod.platform.Colours;
 import com.sablednah.zombiemod.platform.Types;
 import com.sablednah.zombiemod.core.ability.Ability;
 import com.sablednah.zombiemod.core.goal.GoalSpec;
@@ -171,7 +172,7 @@ public record Genus(
                         Codec.BOOL.optionalFieldOf("baby", false).forGetter(Appearance::baby),
                         Codec.BOOL.optionalFieldOf("burning", false).forGetter(Appearance::burning),
                         Codec.INT.optionalFieldOf("arrows", 0).forGetter(Appearance::arrows),
-                        ChatFormatting.COLOR_CODEC.optionalFieldOf("glow").forGetter(Appearance::glow),
+                        Colours.glowCodec().optionalFieldOf("glow").forGetter(Appearance::glow),
                         VillagerLook.MAP_CODEC.codec().optionalFieldOf("villager")
                                 .forGetter(Appearance::villager))
                         .apply(i, Appearance::new));

@@ -8,6 +8,8 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import com.sablednah.zombiemod.platform.Times;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
@@ -284,7 +286,7 @@ public final class SpawnConditions {
 
         @Override
         public boolean test(Level level, BlockPos pos) {
-            int t = (int) (level.getDayTime() % 24000L);
+            int t = (int) (Times.dayTime(level) % 24000L);
             if (phase.isPresent() && (t < phase.get().from || t > phase.get().to)) {
                 return false;
             }
