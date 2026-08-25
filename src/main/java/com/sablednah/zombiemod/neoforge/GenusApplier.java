@@ -3,6 +3,7 @@ package com.sablednah.zombiemod.neoforge;
 import java.util.Optional;
 
 import com.mojang.logging.LogUtils;
+import com.sablednah.zombiemod.platform.Colours;
 import com.sablednah.zombiemod.ZombieMod;
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.core.Genus;
@@ -188,11 +189,11 @@ public final class GenusApplier {
             mob.setGlowingTag(true);
             if (mob.level() instanceof ServerLevel server) {
                 Scoreboard scoreboard = server.getScoreboard();
-                String name = TEAM_PREFIX + colour.getName();
+                String name = TEAM_PREFIX + Colours.name(colour);
                 PlayerTeam team = scoreboard.getPlayerTeam(name);
                 if (team == null) {
                     team = scoreboard.addPlayerTeam(name);
-                    team.setColor(colour);
+                    Colours.paint(team, colour);
                     // Or a dozen glowing zombies read as one blob with no edges between them.
                     team.setSeeFriendlyInvisibles(false);
                 }
