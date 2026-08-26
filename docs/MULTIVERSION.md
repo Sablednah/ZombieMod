@@ -116,6 +116,36 @@ ZombieMod borrows a JDK rather than bundling one, and now needs two: MobHealth's
 the 1.21 line and CityWorld's `tools/jdk25` for 26.x. `deploy.sh` should prefer the newest present,
 the way CityWorld's does, and let an existing `JAVA_HOME` win.
 
+## The one thing blocking 26.x, and it is not a rename
+
+**An `ItemStack` cannot be constructed while a datapack registry is loading on 26.x.**
+
+Genus files are parsed on a worker thread during registry data loading, before item data components
+are bound, and every spelling of "read an item from JSON" fails there:
+
+```
+Failed to parse zombiemod:archer from pack mod/zombiemod
+  Caused by: Item minecraft:chainmail_chestplate does not have components yet
+```
+
+Both accepted forms die the same way — the bare `"minecraft:bow"` and the full
+`{"id": ..., "components": {...}}` — so it is not the codec pair that 26.2 removed. 26.2 makes the
+rule visible by adding `Item.CODEC_WITH_BOUND_COMPONENTS` beside the plain `Item.CODEC`; the new
+constant is the one that *requires* components, so it does not help either.
+
+**The fix is to defer construction.** Parse equipment into a *description* — an item `Holder` plus a
+`DataComponentPatch` — and materialise the `ItemStack` when a mob is actually equipped, which happens
+at spawn, long after bootstrap. That is a change to `Equipment` and `GenusApplier`, not to the
+platform layer, and it is **version-agnostic**: deferring works on 1.21.11 exactly as well, so it
+lands on `master` like the other seams.
+
+It is deliberately not done yet. It changes how every genus's equipment is read and applied, which
+is worth doing with the result watched in game rather than merely compiled — six equipment slots,
+trims, and the components that make a Vault Dweller's suit blue.
+
+**Everything else on the server side is finished.** 26.2 compiles with zero server or common errors,
+builds a jar, and starts a server; it falls over at genus parsing on this one point.
+
 ## Still unknown
 
 - **Runtime behaviour on 26.x.** Everything here is a *compile* measurement. Nothing has been run.
