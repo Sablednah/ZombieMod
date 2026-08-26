@@ -103,7 +103,7 @@ public final class GenusApplier {
         // Explicit equipment last, so it wins any slot it names. The cascade is broad -> specific:
         // armor_color dresses all four armour slots, head replaces the helmet, equipment overrides
         // whichever slots it mentions.
-        genus.equipment().forEach((slot, stack) -> {
+        genus.equipment().forEach(holder.key().identifier().toString(), (slot, stack) -> {
             mob.setItemSlot(slot, stack.copy());
             mob.setDropChance(slot, genus.equipment().dropChance());
         });
