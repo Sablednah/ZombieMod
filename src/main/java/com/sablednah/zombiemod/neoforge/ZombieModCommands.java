@@ -583,9 +583,15 @@ public final class ZombieModCommands {
 
         src.sendSuccess(() -> Component.literal("  genera loaded: "
                 + lookup(source).listElementIds().count()), false);
-        src.sendSuccess(() -> Component.literal("  config is per-world in singleplayer:")
+        // Printed because "I edited the config and nothing changed" is the commonest way this
+        // mod looks broken. NeoForge's own serverconfig/readme.txt is the authority: config/ holds
+        // the file, and a copy under a world's serverconfig/ *overrides* it for that world only.
+        // This used to say the opposite - that config/ did nothing in singleplayer - which sent
+        // people to edit a file that does not exist.
+        src.sendSuccess(() -> Component.literal("  config: config/zombiemod-server.toml")
                 .withStyle(ChatFormatting.GRAY), false);
-        src.sendSuccess(() -> Component.literal("  saves/<world>/serverconfig/zombiemod-server.toml")
+        src.sendSuccess(() -> Component.literal(
+                "  per-world override: saves/<world>/serverconfig/zombiemod-server.toml")
                 .withStyle(ChatFormatting.GRAY), false);
         if (!pz) {
             src.sendSuccess(() -> Component.literal(

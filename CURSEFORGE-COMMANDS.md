@@ -38,8 +38,9 @@ Those counters exist because several of this mod's features produce an **absence
 stays empty, a spawn that does not happen — and an absence looks identical whether it is working or
 broken. A number tells you which.
 
-It is also the fastest way to discover you have been editing the wrong config file. A server config
-is **per-world in singleplayer**, so the copy in `config/` does nothing for a single-player world.
+It is also the fastest way to discover you have been editing the wrong config file. The settings
+live in **`config/zombiemod-server.toml`**; a copy placed under a world's `serverconfig/` folder
+overrides it for that world alone. `/zombiemod status` prints both paths.
 
 ---
 

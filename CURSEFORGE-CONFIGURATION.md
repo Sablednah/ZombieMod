@@ -8,16 +8,20 @@ step with it.
 
 ## Where the file lives
 
-It is a **server** config, so where it lives depends on how you are playing:
+It is a **server** config. There is one file, and an optional per-world override:
 
 | | |
 |---|---|
-| Dedicated server | `config/zombiemod-server.toml` |
-| Singleplayer / LAN | `saves/<world>/serverconfig/zombiemod-server.toml` |
+| The settings | `config/zombiemod-server.toml` — edit this one |
+| One world only | copy it to `saves/<world>/serverconfig/zombiemod-server.toml` |
 
-Per-world in singleplayer is NeoForge's decision, not ours, and it is the right one — these settings
-change how a world plays, so they travel with the save. **The file does not exist until you have
-loaded the world once.**
+That is NeoForge's arrangement, described in the `readme.txt` it leaves in every world's
+`serverconfig/` folder: a file placed there **overrides** the one in `config/` for that world. The
+override does not exist until you put it there — an empty `serverconfig/` folder is normal and means
+the world is using the settings in `config/`.
+
+*(Earlier versions of this page had it backwards, claiming the `config/` copy did nothing in
+singleplayer. It sent people to edit a file that was never there.)*
 
 This catches everyone at least once. If a setting appears to do nothing, run **`/zombiemod status`**
 first — it reports what the mod actually believes, which is the fastest way to find out you have been
