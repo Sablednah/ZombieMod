@@ -107,7 +107,7 @@ public final class DexPreview {
             skull.set(DataComponents.PROFILE, profile);
             living.setItemSlot(EquipmentSlot.HEAD, skull);
         });
-        genus.equipment().forEach((slot, stack) -> living.setItemSlot(slot, stack.copy()));
+        genus.equipment().forEach(id.toString(), (slot, stack) -> living.setItemSlot(slot, stack.copy()));
 
         if ((genus.ghost() || isCorpse(id)) && Minecraft.getInstance().player != null) {
             ItemStack face = new ItemStack(Items.PLAYER_HEAD);

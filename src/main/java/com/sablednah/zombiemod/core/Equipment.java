@@ -6,8 +6,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import com.sablednah.zombiemod.platform.Items;
-
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
 
@@ -30,12 +28,12 @@ import net.minecraft.world.item.ItemStack;
  *                   it into a loot piñata, and a farmable diamond-armour zombie is an economy bug
  */
 public record Equipment(
-        Optional<ItemStack> mainHand,
-        Optional<ItemStack> offHand,
-        Optional<ItemStack> head,
-        Optional<ItemStack> chest,
-        Optional<ItemStack> legs,
-        Optional<ItemStack> feet,
+        Optional<ItemSpec> mainHand,
+        Optional<ItemSpec> offHand,
+        Optional<ItemSpec> head,
+        Optional<ItemSpec> chest,
+        Optional<ItemSpec> legs,
+        Optional<ItemSpec> feet,
         float dropChance) {
 
     public static final Equipment NONE = new Equipment(Optional.empty(), Optional.empty(),
@@ -43,10 +41,10 @@ public record Equipment(
 
     /**
      * Accepts {@code "minecraft:iron_sword"} or the full
-     * {@code {"id": "minecraft:iron_sword", "components": {...}}}. Most entries are the former, so
-     * demanding the object form everywhere would make genus files noisy for no gain.
+     * {@code {"id": "minecraft:iron_sword", "components": {...}}} — see {@link ItemSpec}, which also
+     * explains why a slot holds a description rather than a built stack.
      */
-    private static final Codec<ItemStack> ITEM_CODEC = Items.stackCodec();
+    private static final Codec<ItemSpec> ITEM_CODEC = ItemSpec.CODEC;
 
     public static final MapCodec<Equipment> MAP_CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
             ITEM_CODEC.optionalFieldOf("mainhand").forGetter(Equipment::mainHand),
@@ -61,13 +59,25 @@ public record Equipment(
     /** Nested under an {@code "equipment"} key, unlike Appearance which is flattened. */
     public static final Codec<Equipment> CODEC = MAP_CODEC.codec();
 
-    /** Slot/stack pairs that were actually specified. */
-    public void forEach(java.util.function.BiConsumer<EquipmentSlot, ItemStack> action) {
-        mainHand.ifPresent(s -> action.accept(EquipmentSlot.MAINHAND, s));
-        offHand.ifPresent(s -> action.accept(EquipmentSlot.OFFHAND, s));
-        head.ifPresent(s -> action.accept(EquipmentSlot.HEAD, s));
-        chest.ifPresent(s -> action.accept(EquipmentSlot.CHEST, s));
-        legs.ifPresent(s -> action.accept(EquipmentSlot.LEGS, s));
-        feet.ifPresent(s -> action.accept(EquipmentSlot.FEET, s));
+    /**
+     * Slot/stack pairs that were specified <em>and</em> could be built.
+     *
+     * <p>A slot whose item is wrong is reported once and skipped rather than throwing, so one bad
+     * line costs that slot and nothing else — see {@link ItemSpec}.
+     *
+     * @param genus names the genus in any warning, so the log points at the file to fix
+     */
+    public void forEach(String genus, java.util.function.BiConsumer<EquipmentSlot, ItemStack> action) {
+        build(genus, EquipmentSlot.MAINHAND, mainHand, action);
+        build(genus, EquipmentSlot.OFFHAND, offHand, action);
+        build(genus, EquipmentSlot.HEAD, head, action);
+        build(genus, EquipmentSlot.CHEST, chest, action);
+        build(genus, EquipmentSlot.LEGS, legs, action);
+        build(genus, EquipmentSlot.FEET, feet, action);
+    }
+
+    private static void build(String genus, EquipmentSlot slot, Optional<ItemSpec> spec,
+            java.util.function.BiConsumer<EquipmentSlot, ItemStack> action) {
+        spec.flatMap(s -> s.stack(genus, slot.name())).ifPresent(stack -> action.accept(slot, stack));
     }
 }
