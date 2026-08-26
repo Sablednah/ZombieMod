@@ -146,6 +146,29 @@ ZombieMod borrows a JDK rather than bundling one, and now needs two: MobHealth's
 the 1.21 line and CityWorld's `tools/jdk25` for 26.x. `deploy.sh` should prefer the newest present,
 the way CityWorld's does, and let an existing `JAVA_HOME` win.
 
+## What to stress-test on a new version
+
+Ranked by how much of it was *rewritten*, not by how visible it is. Each names a genus that
+exercises the path, so the list is usable rather than aspirational.
+
+| Test | What it proves | How |
+|---|---|---|
+| **Restart the world** | `Saves` — the bestiary, corpse ledger and known-players list all changed shape (`SavedDataType` takes an `Identifier`, not a `String`). Silent data loss is the failure mode. | Meet a few genera, quit, reload, open the dex — does it still remember? |
+| **A glowing genus** | `Colours` — the most-rewritten single path: a codec rebuilt from the enum name *and* a different type at the point the team is painted. | `/zombiemod spawn glowing_one` (green) or `undertow` (dark aqua). Wrong colour or no outline both mean something. |
+| **A boss, or a horde** | `Bars` — `ServerBossEvent` gained a leading `UUID`. A bar is addressed by it on the wire, so a wrong id shows up as bars merging or not appearing. | `/zombiemod spawn patient_zero`, or `/zombiemod horde start zombiemod:the_siege`. |
+| **A component-laden item** | The *full* `ItemSpec` form — id plus components. The corpse only proves the bare path. | `/zombiemod spawn archer` (trimmed chainmail), `butcher`, `outrider`. Trim/dye missing means the patch is being dropped. |
+| **Infection through to rising** | `Tags` — "is this already undead" is the guard that stops a zombie rising from a zombie, and it now answers through the registry holder. | Get bitten by a `biter`, die infected. Both should get up. |
+| **Conversion** | `Types` + `Tags` — the undead-counterpart map is all registry lookups now. | A `carrier` killing a villager should raise a zombie villager, not a plain zombie. |
+| **Lightning and projectiles** | `Types` — entity types created by registry rather than constant. | `stormcaller` (lightning), `spitfire` (arrows). |
+| **`seek_blocks`** | `BlockTypes` — tag tests on block state holders, on the hot path of every tick of that goal. | A `blight` on a mossy roof should strip it. |
+| **A bounty landing** | `Msg` — the action-bar half, which is a different call from chat. | Kill anything with a bounty and watch above the hotbar. |
+| **Day/night gating** | `Times` — the world clock accessor changed. | A `nightstalker` switches behaviour on it. |
+
+**One known gap worth checking deliberately: a world carried *across* versions.** The saved-data name
+is a bare string on 1.21.11 and an `Identifier` from 26.1, so a world moved between the two lines may
+not find its old bestiary or corpse ledger. Fresh worlds are unaffected, and no shipped world has
+been migrated yet — but if the dex looks empty after a move, that is the first thing to suspect.
+
 ## Still open
 
 - **Client code diverges in three places.** `mc.setScreen`, `mc.screen` and `getMainRenderTarget`
