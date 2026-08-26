@@ -13,11 +13,24 @@ description='''
 ${mod_description}
 '''
 displayURL="https://github.com/Sablednah/ZombieMod"
-# Banner rather than the square lockup: the mods screen gives this a wide slot, and the full
-# shield emblem shrinks to illegibility in it. The square one is the CurseForge project icon.
+# Three slots, and which one a version reads depends on the version. All three keys are safe to
+# declare everywhere: a version that does not know a key ignores it, which is why this file is
+# identical on the 1.21 and 26.x branches.
+#
+#   logoFile   what 1.21.x and 26.1 show in the info panel, and what 26.2 falls back to.
+#   bannerFile the wide image in 26.2's info panel, drawn at its own aspect ratio.
+#   iconFile   the small square beside the name in 26.2's mod list. Without it this is the one
+#              row in the list with no icon at all.
+#
+# Banner for the panel rather than the square lockup: that slot is wide, and the full shield
+# emblem shrinks to illegibility in it. The square lockup is right for the list icon, where it is
+# the only thing distinguishing the row.
 logoFile="zombiemod-logo.png"
+bannerFile="zombiemod-logo.png"
+iconFile="zombiemod-icon.png"
 # The zombie face in the wordmark is literal pixel art, and blurring it is exactly wrong.
 logoBlur=false
+iconBlur=false
 
 [[dependencies.${mod_id}]]
     modId="neoforge"
