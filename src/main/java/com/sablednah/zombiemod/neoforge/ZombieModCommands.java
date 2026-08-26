@@ -565,6 +565,19 @@ public final class ZombieModCommands {
                     .withStyle(ChatFormatting.YELLOW), false);
         }
 
+        // Conversion declines for several reasons and every one of them looks the same from in the
+        // world: a mob dies and nothing gets up. Say which reason, or "the Carrier is broken" is the
+        // only conclusion available.
+        src.sendSuccess(() -> Component.literal("  conversions: " + Conversions.COUNTERS)
+                .withStyle(ChatFormatting.GRAY), false);
+        if (Conversions.COUNTERS.crowded > 0 && Conversions.COUNTERS.raised == 0) {
+            src.sendSuccess(() -> Component.literal(
+                    "  note: every conversion so far was blocked by the nearby cap - a genus only"
+                    + " converts while fewer than its max_nearby of the risen shape are within its"
+                    + " radius, which a busy area passes constantly")
+                    .withStyle(ChatFormatting.YELLOW), false);
+        }
+
         boolean prox = ZombieModConfig.PROXIMITY.get();
         src.sendSuccess(() -> Component.empty()
                 .append(Component.literal("  proximity: " + prox)
