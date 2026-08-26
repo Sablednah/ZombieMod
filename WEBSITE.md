@@ -125,10 +125,12 @@ These are the points where a casual summary would say something false.
    walk in, and aggro normally. This reads as a bug the first time, and it is the first support
    question the settings page can pre-empt.
 
-3. **The server config is per-world in singleplayer.** `saves/<world>/serverconfig/`, not `config/`,
-   and the file does not exist until the world has been loaded once. This was the cause of a real
-   "feature doesn't work" report during development. Both the settings and commands pages should say
-   it, and point at `/zombiemod status`.
+3. **The server config is `config/zombiemod-server.toml`**, and a copy under a world's
+   `serverconfig/` folder overrides it for that world alone — that is what NeoForge's own
+   `serverconfig/readme.txt` says. **The site previously had this backwards** (claiming the config/
+   copy did nothing in singleplayer), which sent people to edit a file that does not exist and caused
+   a real "feature doesn't work" report. Both the settings and commands pages should carry the
+   corrected wording and point at `/zombiemod status`, which prints both paths.
 
 ## Two good hooks for the landing page
 
