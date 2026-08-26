@@ -7,6 +7,47 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone.
 
+## 3.2.0
+
+*2026-08-26.* Minecraft 26.1 and 26.2, and a genus file that gets an item wrong no longer costs you
+the world.
+
+### Added
+
+- **Minecraft 26.1.2 and 26.2 are supported**, alongside 1.21.11. Each has its own jar — check the
+  `+mc` in the filename — and all three are built from the same source, so a fix reaches every
+  version. Both new versions have been played, not merely compiled.
+- **An icon in 26.2's mod list.** 26.2 gives each mod a small square beside its name; without one,
+  ZombieMod was the only row in the list without an icon.
+- **`/zombiemod status` now explains conversions.** A genus that converts what it kills declines for
+  six different reasons, and every one of them looks the same from in the world — a mob dies and
+  nothing gets up. Status now counts them, so "the Carrier is broken" can be answered with "the
+  Carrier is at its nearby cap".
+
+### Fixed
+
+- **A wrong item in a genus file no longer stops the world loading.** Previously a misspelled item id
+  was a parse failure, and a malformed genus refuses to load the world — so one typo in one armour
+  slot took everything with it. The mistake is now reported once, naming the genus, the item and the
+  slot, that slot is left empty, and the mob spawns without it. A bare-headed zombie and a line in
+  the log tell a datapack author far more than a world that will not start.
+- **The documentation named the wrong config file.** `/zombiemod status`, the changelog and both
+  store pages said the settings were per-world in singleplayer and that the copy in `config/` did
+  nothing. That is the opposite of how NeoForge works: `config/zombiemod-server.toml` holds the
+  settings, and a copy under a world's `serverconfig/` overrides it for that world alone. This sent
+  people to edit a file that never existed.
+- **Three player-facing messages carried raw formatting codes** — the infection warning, the observer
+  notice and the corpse-returned message.
+- **On 26.2, opening a ZombieDex entry for a genus holding an item crashed the game.**
+
+### Changed
+
+- **Equipment is read as a description and built when a mob is equipped**, rather than when the genus
+  file is parsed. Required by 26.x, where an item cannot be constructed that early — and it is what
+  makes a wrong item line survivable.
+- **Entity types are looked up in the registry** rather than read from constants, which 26.2 removed.
+  It is also more correct for a mod whose genera come from datapacks.
+
 ## 3.1.1
 
 *2026-08-25.* The Undertow swims. In 3.1.0 it did not.

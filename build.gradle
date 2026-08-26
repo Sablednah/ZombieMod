@@ -9,7 +9,11 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-version = mod_version
+// The jar carries the Minecraft version it was built against. A release now ships a jar per
+// supported version, and three files called zombiemod-3.2.0.jar would be indistinguishable in a
+// mods folder, on a releases page, or to the CurseForge upload - which reads this suffix to know
+// what to label each one. The mod's own version (in neoforge.mods.toml) stays ${mod_version}.
+version = "${mod_version}+mc${minecraft_version}"
 group = mod_group_id
 
 sourceSets.main.resources {
