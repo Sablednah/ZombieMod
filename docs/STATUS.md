@@ -363,8 +363,16 @@ and how Standards resolves it without ZombieMod having to pick an economy.
 ## Minecraft 26.1 and 26.2
 
 **Both build the whole mod and run**, on branches `mc26.1` and `mc26.2`. **26.2 is confirmed in
-play** (2026-08-26) — "zombie a plenty, all seemed to work well". 26.1 has been built and run
-headlessly but not played.
+play** (2026-08-26): zombies spawning across the roster, the **ZombieDex screen** open and clicking
+through entries, and a **player corpse raised wearing its gear**. That last one matters most — a
+corpse carries the dead player's equipment, so it is the sharpest available test of the deferred
+item build, which is the change 26.x forced. 26.1 has been built and run headlessly but not played.
+
+Two bugs surfaced on 26.2 and both are fixed: the dex crashed to desktop on any genus holding an
+item (a doll is never added to a level, so it had no entity id, and 26.2's `Entity.getId` throws
+where 1.21.11 tolerated it), and the corpse that "did not spawn" was `playerZombies` being off by
+default — which the mod's own documentation made hard to check, because it named the wrong config
+file. See *Releases* for that correction; it was wrong on every version.
 
 Everything that moved between versions is behind `com.sablednah.zombiemod.platform`, so a version
 branch edits one small class per concern rather than the call sites. The full account — the seam

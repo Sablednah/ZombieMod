@@ -14,7 +14,7 @@ Last updated 2026-08-26. **All three versions build the whole mod and run.**
 | moddev plugin | 2.0.141 | 2.0.144 | 2.0.144 |
 | Java | 21 (`java-runtime-delta`) | **25** (`java-runtime-epsilon`) | **25** |
 | Builds & runs | yes | yes | yes |
-| Confirmed in play | yes | — | **yes** (2026-08-26) |
+| Confirmed in play | yes | — | **yes** (2026-08-26) — roster, dex screen, corpse with gear |
 
 **A branch per Minecraft version**, as CityWorld and LegendQuest both do. Each branch differs from
 `master` only in `gradle.properties` (three lines), `build.gradle` (plugin version, Java toolchain),
