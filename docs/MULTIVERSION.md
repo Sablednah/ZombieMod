@@ -182,6 +182,11 @@ been migrated yet — but if the dex looks empty after a move, that is the first
   future dex change will conflict there. A small `platform/Screens` seam would make the client files
   identical across all three branches, the way the server side already is.
 - **26.1 has not been played**, only built and run headlessly. 26.2 has been played and was fine.
-- **Nothing is pushed.** All three branches are local.
-- **`master`'s jar name** does not carry `+mc`, unlike the branches. Worth aligning before the next
-  multi-version release, since it changes the released artifact's filename.
+- ~~Nothing is pushed~~ — **all three branches are on GitHub**, and **3.2.0 shipped 2026-08-26**
+  with a jar per version.
+
+  Worth knowing how a multi-version release reaches CurseForge: the workflow uploads *every jar
+  attached to the GitHub release*, and takes each one's Minecraft version **from its `+mc`
+  filename**. It only ever checks out the tag's ref, so `gradle.properties` there describes one
+  version and would mislabel the other two. That is what the suffix is for — it is the only place a
+  jar states what it was built against.
