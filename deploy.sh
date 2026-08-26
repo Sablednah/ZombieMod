@@ -35,10 +35,26 @@ instance_locked() {
     exit 1
 }
 
-echo ">> Removing previous ZombieMod jars from the instance..."
-rm -f "$MODS"/zombiemod-*.jar || instance_locked "remove"
+echo ">> Placing the jar in the instance..."
+# Overwrite in place before resorting to delete-then-copy. Windows refuses to *unlink* a jar whose
+# handle the CurseForge launcher still holds - which it does for a while after the game window
+# closes - while still allowing the bytes to be replaced. That distinction is the difference between
+# "close everything and try again" and simply deploying.
+TARGET="$MODS/$(basename "$JAR")"
+if [ -e "$TARGET" ] && cp -f "$JAR" "$TARGET" 2>/dev/null; then
+    :
+else
+    rm -f "$TARGET" || instance_locked "remove"
+    cp "$JAR" "$TARGET" || instance_locked "copy"
+fi
 
-cp "$JAR" "$MODS/" || instance_locked "copy"
+# Any jar for a *different* version must still go, or NeoForge loads two copies of the mod. These
+# are only present when switching branches, and they are never the one just overwritten.
+for stale in "$MODS"/zombiemod-*.jar; do
+    [ -e "$stale" ] || continue
+    [ "$stale" = "$TARGET" ] && continue
+    rm -f "$stale" || instance_locked "remove the stale $(basename "$stale") from"
+done
 
 # Confirm the jar really landed and matches: a half-written copy is worse than a loud failure.
 if ! cmp -s "$JAR" "$MODS/$(basename "$JAR")"; then
