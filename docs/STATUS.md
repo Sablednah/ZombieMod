@@ -364,7 +364,11 @@ and how Standards resolves it without ZombieMod having to pick an economy.
 
 **Both build the whole mod and run**, on branches `mc26.1` and `mc26.2`. **26.2 is confirmed in
 play** (2026-08-26): zombies spawning across the roster, the **ZombieDex screen** open and clicking
-through entries, and a **player corpse raised wearing its gear**. That last one matters most — a
+through entries, and a **player corpse raised wearing its gear**. Then the four highest-risk rewrites, all confirmed the same day:
+**saved data survives a restart** (the dex remembers), **glow works** (the Glowing One glows),
+**boss bars work** (Patient Zero and a horde bar, which are separate call sites), and
+**item components render** (trims, plus the Vault Dweller's yellow-and-blue, which is `armor_color`
+rather than a component and so a path of its own). That last one matters most — a
 corpse carries the dead player's equipment, so it is the sharpest available test of the deferred
 item build, which is the change 26.x forced. 26.1 has been built and run headlessly but not played.
 
