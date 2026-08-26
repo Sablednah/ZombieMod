@@ -3,8 +3,9 @@
 All notable changes to the NeoForge rewrite of ZombieMod.
 
 Zombie types are **datapack files**, so `/reload` picks up changes to them without a restart. The
-settings in `zombiemod-server.toml` are a **server** config — per-world in singleplayer, at
-`saves/<world>/serverconfig/`, not `config/`.
+settings in `zombiemod-server.toml` are a **server** config, and it lives at
+`config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
+world alone.
 
 ## 3.1.1
 
