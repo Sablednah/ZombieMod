@@ -24,10 +24,23 @@ Read those before inventing anything.
 
 ## Build & run
 
-No system Java. Borrow the portable JDK from the first port in the series:
+**This mod ships for three Minecraft versions, one per branch** — see
+[docs/MULTIVERSION.md](docs/MULTIVERSION.md), which is the file to read before touching any of it.
+
+| Branch | Minecraft | JDK |
+|---|---|---|
+| `master` | 1.21.11 | 21 — `/mnt/d/Repos/sable/MobHealth-Forge/tools/jdk21` |
+| `mc26.1` | 26.1.2 | **25** — `/mnt/d/Repos/sable/CityWorld-ReForged/tools/jdk25` |
+| `mc26.2` | 26.2 | **25** — same |
+
+Fixes go on **`master` first** and cherry-pick forward; that is what the `platform/` seam layer is
+for, and cherry-picks have been conflict-free apart from the seams themselves. 26.x needs Java 25
+because Minecraft 26.1 ships `java-runtime-epsilon`, where the 1.21 line shipped delta.
+
+No system Java. Borrow the portable JDK — this repo bundles none:
 
 ```bash
-export JAVA_HOME=/mnt/d/Repos/sable/MobHealth-Forge/tools/jdk21
+export JAVA_HOME=/mnt/d/Repos/sable/MobHealth-Forge/tools/jdk21   # or .../CityWorld-ReForged/tools/jdk25 on 26.x
 export PATH="$JAVA_HOME/bin:$PATH"
 
 ./gradlew compileJava   # fast inner loop
@@ -140,6 +153,51 @@ The procedure (from the LegendQuest session, which found this the hard way on th
 Nothing was needed in `neoforge.mods.toml` for the connection itself: no `displayTest`, no `side`
 change. (Untested: how the server renders in the multiplayer *list* ping, since that test used Direct
 Connect.)
+
+### Anything vanilla that moves between versions goes behind `platform/`
+
+`com.sablednah.zombiemod.platform` is the seam layer: one small class per thing Minecraft renamed or
+reshaped, so a version branch edits one documented method instead of twenty call sites. The full
+table of what moved is in [docs/MULTIVERSION.md](docs/MULTIVERSION.md). Three rules:
+
+- **`platform` is not `compat`.** `compat` is *other mods*, reflective and inert when they are
+  absent. `platform` is *Minecraft itself*. A missing mod is normal and must be survived; a missing
+  vanilla type is a broken build and should be.
+- **Never name a seam after a common vanilla class.** `BlockTypes` and `ItemTypes` are named that way
+  because `...block.Blocks` and `...item.Items` are imported all over this codebase, and the
+  single-type-import clash is a baffling error from a class meant to reduce confusion.
+- **Prefer the seam that needs no per-version body.** `Types` looks entity types up in the registry
+  and compiles unchanged everywhere — and is the more correct code anyway, because entity types live
+  in an open registry that datapacks extend. That shape costs the branches nothing.
+
+### An ItemStack cannot be built while a datapack registry is loading
+
+Genus files are parsed on a worker thread before item data components are bound. On 26.x every
+spelling of "read an item from JSON" fails with *"Item minecraft:bow does not have components yet"*,
+and `Item.CODEC_WITH_BOUND_COMPONENTS` is the constant that *requires* them, so it does not help.
+
+So `core/ItemSpec` holds a **description** — an id plus a component patch — and builds the stack when
+a mob is actually equipped. If you add another place that reads an item out of a genus file, do the
+same; do not reach for `ItemStack.CODEC`.
+
+It also makes a wrong item line cheap: the id resolves late, so a typo is **reported once** naming
+genus, item and slot, that slot is left empty, and the mob still spawns. Deduplicated deliberately —
+equipment applies on *every* spawn, so a warning per spawn would bury what it is saying. Note this is
+a deliberate exception to "a malformed genus stops the world loading": one misspelled helmet should
+not cost the world.
+
+### The 26.x GUI is a rename, not a redesign — and the sibling mods know it
+
+Judged wrong once, at the cost of treating the dex screen as design work. `GuiGraphics` became
+`GuiGraphicsExtractor`, `render` became `extractRenderState`, `drawString` became `text`, and the
+doll helper is a pure rename with an identical signature. The table, including the two rows that are
+**26.2-only** because 26.1 sits between the two states, is in
+[docs/MULTIVERSION.md](docs/MULTIVERSION.md).
+
+The general lesson is the useful one: **CityWorld and LegendQuest carry the same three-branch layout
+and have hit these APIs already.** One diff from a sibling that has done the port beats an afternoon
+of guessing at `javap` output — that is exactly how the rename table was found, after the wrong
+conclusion had already been drawn from two missing methods.
 
 ### Command output: styles, never section codes
 

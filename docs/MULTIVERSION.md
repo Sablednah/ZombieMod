@@ -1,11 +1,11 @@
 # Building for more than one Minecraft version
 
-Measured, not estimated. Every number here came from actually compiling the mod against the version
-in question; nothing in this file is a guess about what *might* break.
+Measured, not estimated. Every number here came from compiling and *running* the mod against the
+version in question.
 
-Last measured 2026-08-25, against `master` at 3.1.1.
+Last updated 2026-08-26. **All three versions build the whole mod and run.**
 
-## The state of it
+## The shape of it
 
 | | 1.21.11 | 26.1.2 | 26.2 |
 |---|---|---|---|
@@ -13,98 +13,128 @@ Last measured 2026-08-25, against `master` at 3.1.1.
 | NeoForge | 21.11.42 | 26.1.2.95 | 26.2.0.59 |
 | moddev plugin | 2.0.141 | 2.0.144 | 2.0.144 |
 | Java | 21 (`java-runtime-delta`) | **25** (`java-runtime-epsilon`) | **25** |
-| Compiles | yes | **no — 80 errors** | **no — 142 errors** |
+| Builds & runs | yes | yes | yes |
+| Confirmed in play | yes | — | **yes** (2026-08-26) |
 
-`mc26.1` and `mc26.2` exist as branches carrying the retarget only. Neither compiles yet; both are
-honest starting points rather than half-finished ports.
+**A branch per Minecraft version**, as CityWorld and LegendQuest both do. Each branch differs from
+`master` only in `gradle.properties` (three lines), `build.gradle` (plugin version, Java toolchain),
+and the bodies of the seams below.
+
+**ZombieMod bundles no JDK and now needs two.** MobHealth's `tools/jdk21` for the 1.21 line and
+CityWorld's `tools/jdk25` for 26.x:
+
+```bash
+git checkout mc26.2
+export JAVA_HOME=/mnt/d/Repos/sable/CityWorld-ReForged/tools/jdk25
+./gradlew build --offline
+```
+
+Jars are named `zombiemod-<ver>+mc<mc>.jar`, so three files cannot be confused in a mods folder.
+(`master` still produces a plain name — worth aligning before the next multi-version release.)
+
+## The platform seam, and why it exists
+
+Everything that moved between versions is behind `com.sablednah.zombiemod.platform`. Each class is
+one documented method whose body names the new API, so a version branch edits **one file per
+concern** rather than the twenty-odd call sites the drift is spread across.
+
+| Seam | What moved | 26.x body |
+|---|---|---|
+| `Types` | `EntityType.ZOMBIE` and 14 siblings — **26.2 removed them** (159 constants on 26.1, 2 on 26.2) | *none needed* |
+| `Msg` | `displayClientMessage(c, bool)` split by name | `sendSystemMessage` / `sendOverlayMessage` |
+| `BlockTypes` | `getBlockHolder()` | `typeHolder()` |
+| `ItemTypes` | `getItemHolder()` | `typeHolder()` |
+| `Times` | `Level.getDayTime()` | `getOverworldClockTime()` |
+| `Tags` | `EntityType.is(TagKey)` | `builtInRegistryHolder().is(tag)` |
+| `Bars` | `ServerBossEvent` ctor | gained a leading `UUID` |
+| `Saves` | `SavedDataType` name | an `Identifier`, not a `String` |
+| `Colours` | `ChatFormatting.COLOR_CODEC`, `getName()`, `isColor()` — **26.2 only** | codec by enum name; `TeamColor` when painting |
+
+**`platform` is not `compat`.** `compat` is for *other mods* — FTB Chunks, CityWorld, Standards — and
+everything in it is reflective and inert when they are absent. `platform` is for *Minecraft* moving
+underneath us. A missing mod is normal and must be survived; a missing vanilla type is a broken build
+and should be.
+
+**Do not name a seam after a common vanilla class.** `BlockTypes` and `ItemTypes` are named that way
+because `net.minecraft...block.Blocks` and `...item.Items` are imported all over this codebase, and a
+single-type-import clash is a confusing error from a class whose job is to reduce confusion.
+
+**The best seam is the one that needs no per-version body.** `Types` looks entity types up in the
+registry, which compiles unchanged on every version — and is the more correct code anyway, since
+entity types live in an open registry that datapacks extend. Reach for that shape first.
+
+## The two changes that were not renames
+
+**Item stacks cannot be built during registry load.** Genus files are parsed on a worker thread
+before item data components are bound, so on 26.x every spelling of "read an item from JSON" fails
+with *"Item minecraft:bow does not have components yet"*. `Item.CODEC_WITH_BOUND_COMPONENTS` is the
+constant that *requires* them, so it does not help.
+
+Fixed by `core/ItemSpec`: a genus slot holds a **description** — an id plus a component patch — and
+the stack is built when a mob is equipped, long after bootstrap. Version-agnostic, so it lives on
+`master`. It also bought better behaviour: a wrong item id is now resolved late, **reported once**
+with genus, item and slot named, and that one slot is skipped while the mob still spawns. Previously
+a bad id was a parse failure, and a malformed genus stops world loading — so one misspelled helmet
+took the whole world with it.
+
+**Equipment applies on every spawn**, which is why the warning is deduplicated; a line per spawn
+would bury what it is trying to say.
+
+## The 26.x GUI: a rename table, not a redesign
+
+This was misjudged once and cost a day of treating the dex screen as design work. It is a rename
+table, and **LegendQuest's handbook diff is the reference** — it was ported first.
+
+| 1.21.x | 26.1 | 26.2 |
+|---|---|---|
+| `GuiGraphics` | `GuiGraphicsExtractor` | same |
+| `Screen.render` | `extractRenderState` | same |
+| `Screen.renderBackground` | `extractBackground` | same |
+| `g.drawString` / `drawCenteredString` | `g.text` / `g.centeredText` | same |
+| `g.renderItem` / `renderItemDecorations` | `g.item` / `g.itemDecorations` | same |
+| `InventoryScreen.renderEntityInInventoryFollowsMouse` | `extractEntityInInventoryFollowsMouse` | same |
+| `mc.setScreen` / `mc.screen` | *unchanged* | `mc.gui.setScreen` / `mc.gui.screen()` |
+| `Minecraft.getMainRenderTarget()` | *unchanged* | `gameRenderer.mainRenderTarget()` |
+
+**26.1 sits between the two states**: it renamed the graphics class but kept 1.21's screen accessors
+and render target. A 26.2 client fix does not automatically carry backwards — the last two rows are
+26.2 only.
+
+The doll — `extractEntityInInventoryFollowsMouse` — is a **pure rename with an identical signature**,
+which is worth knowing because its geometry took three passes to get right originally.
 
 ## What is *not* a problem
 
-**The access transformer survives both versions.** All five entries — `Mob.goalSelector`,
-`Mob.targetSelector`, `Mob.navigation`, `Guardian.setActiveAttackTarget`, `Entity.hasVisualFire` —
-still resolve, and both builds got past the JST step to `compileJava`. This was checked first on
-purpose: an AT naming a field that has moved fails the build in a way that needs a redesign rather
-than an edit, and it would have changed the whole plan.
+**The access transformer survives every version.** All five entries still resolve. Checked first on
+purpose: an AT naming a field that moved fails in a way that needs a redesign rather than an edit.
 
-**There are no mixins.** Nothing in this mod patches vanilla bytecode, which removes the single most
-version-fragile thing a mod can have.
+**There are no mixins**, which removes the most version-fragile thing a mod can have.
 
-**`ChunkPos` is not touched.** 26.1 turned it into a record, so `pos.x` became `pos.x()`. That change
-rewrote code all over CityWorld and costs us nothing, because nothing here reads those fields.
+**`ChunkPos` is untouched.** 26.1 made it a record, so `pos.x` became `pos.x()` — that rewrote code
+all over CityWorld and costs us nothing.
 
-## The drift, by version
+## Adding the next version
 
-26.2 breaks everything 26.1 breaks, plus more. The shared set:
+Roughly an hour, most of it waiting on builds.
 
-| Change | 26.1 hits | 26.2 hits | Notes |
-|---|---:|---:|---|
-| `GuiGraphics` gone | 20 | 20 | **client only** — the dex screen |
-| `displayClientMessage(Component, boolean)` | 20 | 20 | split into `sendSystemMessage` / `sendOverlayMessage` |
-| `BlockState.getBlockHolder()` | 10 | 10 | |
-| `SavedDataType<>` inference | 6 | 6 | Bestiary, CorpseLedger |
-| `EntityType.is(TagKey)` | 4 | 4 | |
-| `ServerBossEvent` constructor | 6 | 6 | |
-| `ItemStack.STRICT_SINGLE_ITEM_CODEC` / `SIMPLE_ITEM_CODEC` | 4 | 4 | |
-| `ItemStack.getItemHolder()`, `Level.getDayTime()` | 2 each | 2 each | |
-| override mismatches | 6 | 6 | fallout from `GuiGraphics` |
-
-**The `displayClientMessage` split is the friendliest of them:** the old boolean said "action bar or
-chat", and the two replacements say it in their names. It is a rename with a decision attached, not
-a redesign.
-
-## What makes 26.2 different in kind
-
-**26.2 removed the `EntityType` constants.**
-
-| | `public static final` fields on `EntityType` |
-|---|---:|
-| 26.1.2 | 159 |
-| 26.2 | **2** — and both are codecs |
-
-So `EntityType.ZOMBIE`, `.ARROW`, `.GUARDIAN`, `.ELDER_GUARDIAN` and `.LIGHTNING_BOLT` are gone, and
-an entity type is reached through the registry instead. That one change is most of the gap between
-80 errors and 142: `Convert.java` goes from 2 errors to 24 and `Abilities.java` from 2 to 12.
-
-26.2 also drops `ChatFormatting.COLOR_CODEC`, which is what a genus's `glow` field is built on — so
-the Undertow's `"glow": "dark_aqua"` sits directly on this path. And `Minecraft.setScreen` and
-`getMainRenderTarget()` changed, both client-side.
-
-**CityWorld solved exactly this shape** with an interned shim over `BuiltInRegistries`, and its
-reasoning applies here with more force than it does there: *entity types live in an open registry
-that datapacks and other mods extend, so an enum would be wrong.* For a mod whose whole premise is
-datapack-defined genera, a registry lookup is not a workaround — it is the more correct code, and it
-compiles on every version including 1.21.11.
-
-## The plan
-
-**A branch per Minecraft version**, as CityWorld does. No build-system work, proven in the family,
-and each branch differs by five lines of configuration.
-
-**With a compat seam, which CityWorld could afford to skip and we cannot.** With branches, merge pain
-is proportional to how *scattered* the version-specific code is; theirs is concentrated in a
-generated `compat/` layer, ours is spread across roughly **45 call sites in 19 files**. Collect those
-behind one thin layer and a genus or a bugfix cherry-picked across three branches touches one file
-instead of twenty.
-
-The seam earns its keep twice, because several of the fixes are **version-agnostic**: a registry
-lookup for an entity type compiles on 1.21.11, 26.1 and 26.2 alike. Every call converted that way is
-one the branches never have to differ over at all.
-
-Order of work, cheapest and most valuable first:
-
-1. **Entity types by registry lookup.** Kills most of the 26.2-only gap and is correct on every
-   version, so it lands on `master` and helps immediately.
-2. **Player messaging behind one helper.** 20 hits, purely mechanical.
-3. **The remaining small ones** — block/item holders, day time, item codecs, boss events, saved data.
-4. **The client dex screen last.** 44 of 26.2's 142 errors, 6 of 71 files, and the only part a
-   server running for vanilla clients never loads. It is separable, and it is the piece most worth
-   deferring if the goal is a working server jar sooner.
+1. **Branch from `master`, do not cherry-pick onto an old branch.** `mc26.1` was branched before the
+   seams existed and fought every cherry-pick; rebranching and re-applying the retarget took five
+   minutes and was clean.
+2. Retarget `gradle.properties` (3 lines) and `build.gradle` (plugin, toolchain).
+3. Build. Everything that breaks in `platform/` is a seam body to fill in; anything breaking
+   *outside* `platform/` is a new drift that wants a new seam.
+4. **Check the sibling mods first.** CityWorld and LegendQuest carry the same branch layout, and both
+   have hit these APIs already. One diff from a mod that has done the port beats an afternoon of
+   guessing at javap output — that is how the GUI table above was found.
+5. Run it, do not just build it. The item-components failure compiled, built a jar, and started a
+   server before falling over.
 
 ## Reproducing the measurement
 
-The expensive part — the NeoForm decompile — is already cached from CityWorld's builds, but a compile
-still takes about **16 minutes per version** because `transformSources` re-runs the AT. Budget ~50
-minutes of CI for three versions in parallel.
+The expensive part — the NeoForm decompile — is cached from CityWorld's builds. The *first* compile
+on a version still takes about **16 minutes** because `transformSources` re-runs the access
+transformer; after that, incremental builds are seconds. Budget ~50 minutes of CI for three versions
+in parallel.
 
 ```bash
 git checkout mc26.2
@@ -116,42 +146,13 @@ ZombieMod borrows a JDK rather than bundling one, and now needs two: MobHealth's
 the 1.21 line and CityWorld's `tools/jdk25` for 26.x. `deploy.sh` should prefer the newest present,
 the way CityWorld's does, and let an existing `JAVA_HOME` win.
 
-## The one thing blocking 26.x, and it is not a rename
+## Still open
 
-**An `ItemStack` cannot be constructed while a datapack registry is loading on 26.x.**
-
-Genus files are parsed on a worker thread during registry data loading, before item data components
-are bound, and every spelling of "read an item from JSON" fails there:
-
-```
-Failed to parse zombiemod:archer from pack mod/zombiemod
-  Caused by: Item minecraft:chainmail_chestplate does not have components yet
-```
-
-Both accepted forms die the same way — the bare `"minecraft:bow"` and the full
-`{"id": ..., "components": {...}}` — so it is not the codec pair that 26.2 removed. 26.2 makes the
-rule visible by adding `Item.CODEC_WITH_BOUND_COMPONENTS` beside the plain `Item.CODEC`; the new
-constant is the one that *requires* components, so it does not help either.
-
-**The fix is to defer construction.** Parse equipment into a *description* — an item `Holder` plus a
-`DataComponentPatch` — and materialise the `ItemStack` when a mob is actually equipped, which happens
-at spawn, long after bootstrap. That is a change to `Equipment` and `GenusApplier`, not to the
-platform layer, and it is **version-agnostic**: deferring works on 1.21.11 exactly as well, so it
-lands on `master` like the other seams.
-
-It is deliberately not done yet. It changes how every genus's equipment is read and applied, which
-is worth doing with the result watched in game rather than merely compiled — six equipment slots,
-trims, and the components that make a Vault Dweller's suit blue.
-
-**Everything else on the server side is finished.** 26.2 compiles with zero server or common errors,
-builds a jar, and starts a server; it falls over at genus parsing on this one point.
-
-## Still unknown
-
-- **Runtime behaviour on 26.x.** Everything here is a *compile* measurement. Nothing has been run.
-- **The vanilla-client promise, per version.** The mod's central claim needs re-proving on each
-  version rather than assumed; the procedure is in CLAUDE.md.
-- **Jar naming.** All three versions currently produce `zombiemod-3.1.1.jar`, which is
-  indistinguishable in a mods folder or on a releases page. CityWorld solves it with
-  `version = "${mod_version}+mc${minecraft_version}"` and we will need the same before shipping any
-  of this.
+- **Client code diverges in three places.** `mc.setScreen`, `mc.screen` and `getMainRenderTarget`
+  differ on 26.2 only, and they sit in `DexScreen` and `DexRender` — the largest client files, so any
+  future dex change will conflict there. A small `platform/Screens` seam would make the client files
+  identical across all three branches, the way the server side already is.
+- **26.1 has not been played**, only built and run headlessly. 26.2 has been played and was fine.
+- **Nothing is pushed.** All three branches are local.
+- **`master`'s jar name** does not carry `+mc`, unlike the branches. Worth aligning before the next
+  multi-version release, since it changes the released artifact's filename.
