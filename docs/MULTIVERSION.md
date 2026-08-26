@@ -14,7 +14,7 @@ Last updated 2026-08-26. **All three versions build the whole mod and run.**
 | moddev plugin | 2.0.141 | 2.0.144 | 2.0.144 |
 | Java | 21 (`java-runtime-delta`) | **25** (`java-runtime-epsilon`) | **25** |
 | Builds & runs | yes | yes | yes |
-| Confirmed in play | yes | — | **yes** (2026-08-26) — roster, dex screen, corpse with gear |
+| Confirmed in play | yes | **yes** (2026-08-26) | **yes** (2026-08-26) |
 
 **A branch per Minecraft version**, as CityWorld and LegendQuest both do. Each branch differs from
 `master` only in `gradle.properties` (three lines), `build.gradle` (plugin version, Java toolchain),
@@ -150,6 +150,9 @@ the way CityWorld's does, and let an existing `JAVA_HOME` win.
 
 Ranked by how much of it was *rewritten*, not by how visible it is. Each names a genus that
 exercises the path, so the list is usable rather than aspirational.
+
+**Every row below was confirmed on 26.2 and again on 26.1.2 (2026-08-26)**, bar the action-bar
+bounty, which needs an economy mod or a scoreboard objective before anything pays at all.
 
 | Test | What it proves | How |
 |---|---|---|
