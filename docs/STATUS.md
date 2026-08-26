@@ -362,8 +362,9 @@ and how Standards resolves it without ZombieMod having to pick an economy.
 
 ## Minecraft 26.1 and 26.2
 
-**Both build the whole mod and run**, on branches `mc26.1` and `mc26.2`. **26.2 is confirmed in
-play** (2026-08-26): zombies spawning across the roster, the **ZombieDex screen** open and clicking
+**Both build the whole mod and run**, on branches `mc26.1` and `mc26.2`, and **both are confirmed in
+play** (2026-08-26) — 26.2 first, then the same checks repeated on 26.1.2 with the same results. All
+three versions are now equally tested. What follows was watched on 26.2: zombies spawning across the roster, the **ZombieDex screen** open and clicking
 through entries, and a **player corpse raised wearing its gear**. Then the four highest-risk rewrites, all confirmed the same day:
 **saved data survives a restart** (the dex remembers), **glow works** (the Glowing One glows),
 **boss bars work** (Patient Zero and a horde bar, which are separate call sites), and
