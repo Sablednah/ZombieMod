@@ -368,9 +368,12 @@ through entries, and a **player corpse raised wearing its gear**. Then the four 
 **saved data survives a restart** (the dex remembers), **glow works** (the Glowing One glows),
 **boss bars work** (Patient Zero and a horde bar, which are separate call sites), and
 **item components render** (trims, plus the Vault Dweller's yellow-and-blue, which is `armor_color`
-rather than a component and so a path of its own), and **infection through to rising** — bitten,
-died infected, a zombie rose, which clears the undead guard that `Tags` rewrote and was the one
-remaining test whose failure would have been silent rather than visible. That last one matters most — a
+rather than a component and so a path of its own), and **infection through to rising** — as a
+player, and the whole herd chain: a Biter biting, ignoring the already-infected, victims turning on
+their own timer, and the infection spreading through a flock. That clears the undead guard `Tags`
+rewrote, and it was the one remaining test whose failure would have been silent rather than visible.
+**Only the action-bar bounty is now unexercised on 26.2**, and only because that instance has no
+economy mod and no scoreboard objective, so nothing pays and the message correctly never fires. That last one matters most — a
 corpse carries the dead player's equipment, so it is the sharpest available test of the deferred
 item build, which is the change 26.x forced. 26.1 has been built and run headlessly but not played.
 
