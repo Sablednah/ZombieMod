@@ -2,7 +2,7 @@ package com.sablednah.zombiemod.client;
 
 import com.sablednah.zombiemod.core.Genus;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.core.Holder;
@@ -39,11 +39,11 @@ public final class DexRenderScreen extends Screen {
 
     /** No dimming: the world behind must not show through, or the two passes would not match. */
     @Override
-    public void renderBackground(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+    public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
     }
 
     @Override
-    public void render(GuiGraphics g, int mouseX, int mouseY, float partialTick) {
+    public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float partialTick) {
         // The canvas is a square in the middle of whatever the window happens to be. The exporter
         // crops to exactly this rectangle, so the window size does not change the output.
         int x0 = (this.width - canvas) / 2;

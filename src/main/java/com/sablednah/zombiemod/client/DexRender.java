@@ -201,7 +201,7 @@ public final class DexRender {
                     index++;
                     return;
                 }
-                mc.setScreen(new DexRenderScreen(doll, holder, BLACK, canvas));
+                mc.gui.setScreen(new DexRenderScreen(doll, holder, BLACK, canvas));
                 // Two frames, not one. The skin future completing means the texture is registered;
                 // giving the renderer an extra frame to actually bind and draw with it costs
                 // nothing at 60fps and removes the last of the race.
@@ -214,7 +214,7 @@ public final class DexRender {
                 Holder.Reference<Genus> holder = mc.level.registryAccess()
                         .lookupOrThrow(ZombieModRegistries.GENUS)
                         .get(ResourceKey.create(ZombieModRegistries.GENUS, id)).orElseThrow();
-                mc.setScreen(new DexRenderScreen(DexPreview.of(id, holder), holder, WHITE, canvas));
+                mc.gui.setScreen(new DexRenderScreen(DexPreview.of(id, holder), holder, WHITE, canvas));
                 waitFrames = 1;
                 phase = Phase.GRAB_WHITE;
             });
@@ -239,7 +239,7 @@ public final class DexRender {
 
     private void capture(java.util.function.Consumer<NativeImage> then) {
         capturePending = true;
-        Screenshot.takeScreenshot(Minecraft.getInstance().getMainRenderTarget(), img -> {
+        Screenshot.takeScreenshot(Minecraft.getInstance().gameRenderer.mainRenderTarget(), img -> {
             try {
                 then.accept(img);
             } finally {
@@ -295,7 +295,7 @@ public final class DexRender {
         phase = Phase.DONE;
         active = null;
         Minecraft mc = Minecraft.getInstance();
-        mc.setScreen(null);
+        mc.gui.setScreen(null);
         Component msg = Component.literal(cancelled
                 ? "ZombieDex render cancelled after " + written + " image(s)."
                 : "ZombieDex render complete: " + written + " image(s)"

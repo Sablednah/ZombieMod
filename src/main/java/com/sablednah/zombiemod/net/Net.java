@@ -35,15 +35,11 @@ public final class Net {
     /** {@code optional()} first: the registrar returns derived instances, so it must precede them. */
     public static void register(RegisterPayloadHandlersEvent event) {
         var registrar = event.registrar("1").optional();
-        // The client half is excluded from this branch's build until the dex screen is ported to
-        // 26.x, so there is nothing to hand a payload to and the channel is deliberately not
-        // registered. Net.listening then answers false for everyone and every player gets the
-        // written-book dex - the same path a vanilla client takes. Restore this together with the
-        // screen; see docs/MULTIVERSION.md.
-        if (Boolean.FALSE) {
-            registrar.playToClient(DexPayload.TYPE, DexPayload.STREAM_CODEC,
-                    (payload, context) -> context.enqueueWork(() -> { }));
-        }
+        registrar.playToClient(DexPayload.TYPE, DexPayload.STREAM_CODEC,
+                // Client classes are touched only inside this lambda, never at class-load time, so a
+                // dedicated server never loads one. No @OnlyIn and no DistExecutor needed.
+                (payload, context) -> context.enqueueWork(
+                        () -> com.sablednah.zombiemod.client.DexState.accept(payload)));
     }
 
     /** Send, if this player is one of the few who can hear it. */

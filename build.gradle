@@ -31,16 +31,6 @@ base {
     archivesName = mod_id
 }
 
-// The ZombieDex *screen* is not ported to 26.x yet: 26.2 restructured GUI rendering rather than
-// renaming it - drawString is gone from the graphics class, Screen.render changed shape, and
-// Minecraft.setScreen no longer exists. That is design work, not a rename, so the client half is
-// held out of this branch's build for now.
-//
-// This is a degradation the mod already supports rather than a hack. Without the client half the
-// dex payload channel is never registered, so Net.listening is false for everyone and every player
-// gets the *written book* edition of the dex - which is precisely the path a genuinely vanilla
-// client already takes, and the one that is tested. Nothing else in the mod is client-side.
-sourceSets.main.java.exclude 'com/sablednah/zombiemod/client/**'
 
 
 // Mojang ships Java 21 to end users, so mods should target Java 21.

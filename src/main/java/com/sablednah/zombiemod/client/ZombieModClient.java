@@ -55,11 +55,11 @@ public final class ZombieModClient {
     @SubscribeEvent
     public void onClientTick(ClientTickEvent.Post event) {
         Minecraft mc = Minecraft.getInstance();
-        if (mc.screen != null) {
+        if (mc.gui.screen() != null) {
             return;
         }
         while (OPEN_DEX.consumeClick()) {
-            mc.setScreen(new DexScreen());
+            mc.gui.setScreen(new DexScreen());
         }
     }
 
@@ -157,9 +157,9 @@ public final class ZombieModClient {
                 // A blank book called ZombieDex. Nothing to read; let vanilla have it.
                 return;
             }
-            Minecraft.getInstance().setScreen(new BookViewScreen(pages));
+            Minecraft.getInstance().gui.setScreen(new BookViewScreen(pages));
         } else {
-            Minecraft.getInstance().setScreen(new DexScreen());
+            Minecraft.getInstance().gui.setScreen(new DexScreen());
         }
         event.setCancellationResult(InteractionResult.SUCCESS);
         event.setCanceled(true);
