@@ -153,10 +153,10 @@ exercises the path, so the list is usable rather than aspirational.
 
 | Test | What it proves | How |
 |---|---|---|
-| **Restart the world** | `Saves` — the bestiary, corpse ledger and known-players list all changed shape (`SavedDataType` takes an `Identifier`, not a `String`). Silent data loss is the failure mode. | Meet a few genera, quit, reload, open the dex — does it still remember? |
-| **A glowing genus** | `Colours` — the most-rewritten single path: a codec rebuilt from the enum name *and* a different type at the point the team is painted. | `/zombiemod spawn glowing_one` (green) or `undertow` (dark aqua). Wrong colour or no outline both mean something. |
-| **A boss, or a horde** | `Bars` — `ServerBossEvent` gained a leading `UUID`. A bar is addressed by it on the wire, so a wrong id shows up as bars merging or not appearing. | `/zombiemod spawn patient_zero`, or `/zombiemod horde start zombiemod:the_siege`. |
-| **A component-laden item** | The *full* `ItemSpec` form — id plus components. The corpse only proves the bare path. | `/zombiemod spawn archer` (trimmed chainmail), `butcher`, `outrider`. Trim/dye missing means the patch is being dropped. |
+| ~~**Restart the world**~~ **✔ 26.2** | `Saves` — the bestiary, corpse ledger and known-players list all changed shape (`SavedDataType` takes an `Identifier`, not a `String`). Silent data loss was the failure mode. | Confirmed 2026-08-26: the dex remembered across a reload. |
+| ~~**A glowing genus**~~ **✔ 26.2** | `Colours` — the most-rewritten single path: a codec rebuilt from the enum name *and* a different type at the point the team is painted. | Confirmed 2026-08-26: the Glowing One glows. |
+| ~~**A boss, or a horde**~~ **✔ 26.2** | `Bars` — `ServerBossEvent` gained a leading `UUID`. A bar is addressed by it on the wire, so a wrong id shows up as bars merging or not appearing. | Confirmed 2026-08-26: Patient Zero's bar *and* a horde bar, which are separate call sites. |
+| ~~**A component-laden item**~~ **✔ 26.2** | The *full* `ItemSpec` form — id plus components. The corpse only proved the bare path. | Confirmed 2026-08-26: trims render, and the Vault Dweller's yellow-and-blue is right — which also clears `armor_color`, a separate path from components. |
 | **Infection through to rising** | `Tags` — "is this already undead" is the guard that stops a zombie rising from a zombie, and it now answers through the registry holder. | Get bitten by a `biter`, die infected. Both should get up. |
 | **Conversion** | `Types` + `Tags` — the undead-counterpart map is all registry lookups now. | A `carrier` killing a villager should raise a zombie villager, not a plain zombie. |
 | **Lightning and projectiles** | `Types` — entity types created by registry rather than constant. | `stormcaller` (lightning), `spitfire` (arrows). |
