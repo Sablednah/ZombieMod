@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.141'
+    id 'net.neoforged.moddev' version '2.0.144'
     id 'idea'
 }
 
@@ -9,7 +9,7 @@ tasks.named('wrapper', Wrapper).configure {
     distributionType = Wrapper.DistributionType.BIN
 }
 
-version = mod_version
+version = "${mod_version}+mc${minecraft_version}"
 group = mod_group_id
 
 sourceSets.main.resources {
@@ -27,8 +27,14 @@ base {
     archivesName = mod_id
 }
 
+// The ZombieDex *screen* is not ported to 26.x yet - see the 26.2 branch and docs/MULTIVERSION.md.
+// Without the client half the dex payload channel is never registered, so every player gets the
+// written-book edition: the same path a genuinely vanilla client already takes, and the tested one.
+sourceSets.main.java.exclude 'com/sablednah/zombiemod/client/**'
+
+
 // Mojang ships Java 21 to end users, so mods should target Java 21.
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 neoForge {
     version = project.neo_version

@@ -36,6 +36,8 @@ public final class Saves {
      */
     public static <T extends SavedData> SavedDataType<T> of(String name, Supplier<T> factory,
             Codec<T> codec, net.minecraft.util.datafix.DataFixTypes dataFix) {
-        return new SavedDataType<>(name, factory, codec, dataFix);
+        return new SavedDataType<>(
+                net.minecraft.resources.Identifier.fromNamespaceAndPath("zombiemod", name),
+                factory, codec, dataFix);
     }
 }

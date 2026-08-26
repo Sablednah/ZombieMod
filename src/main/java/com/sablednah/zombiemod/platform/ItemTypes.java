@@ -24,6 +24,6 @@ public final class ItemTypes {
 
     /** The holder for a stack's item, for testing against an item tag. */
     public static Holder<Item> holderOf(ItemStack stack) {
-        return stack.getItemHolder();
+        return stack.typeHolder();
     }
 }

@@ -31,7 +31,7 @@ public final class Msg {
      * <p><b>Differs per version.</b> On 26.1+ this becomes {@code player.sendSystemMessage(text)}.
      */
     public static void chat(Player player, Component text) {
-        player.displayClientMessage(text, false);
+        player.sendSystemMessage(text);
     }
 
     /**
@@ -42,6 +42,6 @@ public final class Msg {
      * {@code player.sendOverlayMessage(text)}.
      */
     public static void actionBar(Player player, Component text) {
-        player.displayClientMessage(text, true);
+        player.sendOverlayMessage(text);
     }
 }
