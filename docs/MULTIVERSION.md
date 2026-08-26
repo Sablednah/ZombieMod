@@ -158,11 +158,14 @@ exercises the path, so the list is usable rather than aspirational.
 | ~~**A boss, or a horde**~~ **✔ 26.2** | `Bars` — `ServerBossEvent` gained a leading `UUID`. A bar is addressed by it on the wire, so a wrong id shows up as bars merging or not appearing. | Confirmed 2026-08-26: Patient Zero's bar *and* a horde bar, which are separate call sites. |
 | ~~**A component-laden item**~~ **✔ 26.2** | The *full* `ItemSpec` form — id plus components. The corpse only proved the bare path. | Confirmed 2026-08-26: trims render, and the Vault Dweller's yellow-and-blue is right — which also clears `armor_color`, a separate path from components. |
 | ~~**Infection through to rising**~~ **✔ 26.2** | `Tags` — "is this already undead" is the guard that stops a zombie rising from a zombie, and it now answers through the registry holder. | Confirmed 2026-08-26: bitten by a `biter`, died infected, a zombie rose. The only test on this list whose failure would have been *silent*. |
-| **Conversion** | `Types` + `Tags` — the undead-counterpart map is all registry lookups now. | A `carrier` killing a villager should raise a zombie villager, not a plain zombie. |
-| **Lightning and projectiles** | `Types` — entity types created by registry rather than constant. | `stormcaller` (lightning), `spitfire` (arrows). |
-| **`seek_blocks`** | `BlockTypes` — tag tests on block state holders, on the hot path of every tick of that goal. | A `blight` on a mossy roof should strip it. |
+| ~~**Conversion**~~ **✔ 26.2** | `Types` + `Tags` — the undead-counterpart map is all registry lookups now. | Confirmed 2026-08-26. Note it declines *silently* for six reasons; `/zombiemod status` now counts them, after "the Carrier is not converting" turned out to be the crowding cap doing its job. |
+| ~~**Lightning and projectiles**~~ **✔ 26.2** | `Types` — entity types created by registry rather than constant. | Confirmed 2026-08-26: `stormcaller` and `spitfire` both. |
+| ~~**`seek_blocks`**~~ **✔ 26.2** | `BlockTypes` — tag tests on block state holders, on the hot path of every tick of that goal. | Confirmed 2026-08-26: Bramble lays moss, Blight seeks it out and removes it — which also clears `place_block`. |
 | **A bounty landing** | `Msg` — the action-bar half, which is a different call from chat. | Kill anything with a bounty and watch above the hotbar. |
-| **Day/night gating** | `Times` — the world clock accessor changed. | A `nightstalker` switches behaviour on it. |
+| ~~**Day/night gating**~~ **✔ 26.2** | `Times` — the world clock accessor changed. | Confirmed 2026-08-26: the Nightstalker rings away in daylight. |
+
+**Only the action-bar bounty is left unexercised on 26.2** (2026-08-26). Everything else on this
+table has been watched working.
 
 **One known gap worth checking deliberately: a world carried *across* versions.** The saved-data name
 is a bare string on 1.21.11 and an `Identifier` from 26.1, so a world moved between the two lines may
