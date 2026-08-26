@@ -31,8 +31,48 @@ public final class Conversions {
 
     private Conversions() {}
 
+    /**
+     * Why conversions did or did not happen, for {@code /zombiemod status}.
+     *
+     * <p>This exists for the same reason the proximity and claim counters do: <b>the feature's
+     * failures are silent and look identical to it being broken.</b> A Carrier that kills a sheep
+     * without raising it has done nothing visible, and every reason it might decline — already
+     * crowded, still cooling down, the victim not on its list — produces exactly the same nothing.
+     * Reported as "not infecting sheep, just killing them" (2026-08-26), where the code was correct
+     * and the crowding cap was doing its job invisibly.
+     */
+    public static final class Counters {
+        public int kills;
+        public int raised;
+        public int notListed;
+        public int alreadyUndead;
+        public int crowded;
+        public int coolingDown;
+        public int unlucky;
+        public int noGenus;
+
+        @Override
+        public String toString() {
+            return String.format(
+                    "%d eligible kills, %d raised (not listed %d, already undead %d, crowded %d, "
+                            + "cooling down %d, chance %d, no genus %d)",
+                    kills, raised, notListed, alreadyUndead, crowded, coolingDown, unlucky, noGenus);
+        }
+    }
+
+    public static final Counters COUNTERS = new Counters();
+
     public static boolean raise(ServerLevel level, Mob killer, LivingEntity victim, Convert convert) {
+        COUNTERS.kills++;
         if (!convert.accepts(victim)) {
+            // Split the two, because they mean very different things to a datapack author: one is
+            // "you did not list this mob", the other is "you cannot raise the risen".
+            if (com.sablednah.zombiemod.platform.Tags.is(victim.getType(),
+                    net.minecraft.tags.EntityTypeTags.UNDEAD)) {
+                COUNTERS.alreadyUndead++;
+            } else {
+                COUNTERS.notListed++;
+            }
             return false;
         }
         // Rate limit first, and cheapest. Independent of any world query, so it holds even when
@@ -42,6 +82,7 @@ public final class Conversions {
         // which passes a "< cooldown" test and silently blocks the first conversion forever.
         long last = killer.getPersistentData().getLongOr(Convert.COOLDOWN_TAG, -1L);
         if (last >= 0L && now - last < convert.cooldown()) {
+            COUNTERS.coolingDown++;
             return false;
         }
         // Never convert something that is already one of ours - that is the chain reaction.
@@ -49,6 +90,7 @@ public final class Conversions {
             return false;
         }
         if (killer.getRandom().nextFloat() >= convert.chance()) {
+            COUNTERS.unlucky++;
             return false;
         }
 
@@ -65,12 +107,14 @@ public final class Conversions {
         if (chosen.isEmpty()) {
             // No genus wants this shape. Better to leave a plain corpse than to raise something
             // arbitrary that the pack author never asked for.
+            COUNTERS.noGenus++;
             return false;
         }
         Holder.Reference<Genus> holder = chosen.get();
         EntityType<?> base = holder.value().base();
 
         if (tooMany(level, victim, base, convert)) {
+            COUNTERS.crowded++;
             return false;
         }
 
@@ -103,6 +147,7 @@ public final class Conversions {
         Convert.announce(level, victim);
         level.addFreshEntity(risen);
         killer.getPersistentData().putLong(Convert.COOLDOWN_TAG, now);
+        COUNTERS.raised++;
         return true;
     }
 
