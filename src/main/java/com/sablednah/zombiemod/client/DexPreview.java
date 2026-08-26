@@ -33,6 +33,10 @@ public final class DexPreview {
 
     private static final Map<Identifier, LivingEntity> CACHE = new HashMap<>();
 
+    /** Ids for dolls, kept out of the range vanilla assigns. See {@link #build}. */
+    private static final java.util.concurrent.atomic.AtomicInteger NEXT_DOLL_ID =
+            new java.util.concurrent.atomic.AtomicInteger(-1);
+
     private DexPreview() {}
 
     /** Null when the genus's base is not something that can be drawn as a living thing. */
@@ -78,6 +82,20 @@ public final class DexPreview {
         if (!(created instanceof LivingEntity living)) {
             return null;
         }
+
+        // Give the doll an entity id, or Minecraft 26.2 crashes the moment it draws one holding an
+        // item: ItemModelResolver.updateForLiving asks for getId(), and Entity.getId() now throws
+        // "Tried to access entity ID before ID assignment" rather than returning a default. A doll
+        // is created and never added to a level, so nothing ever assigned it one.
+        //
+        // This is the same trap as the scale note below, in its second form: *a bare entity is not
+        // a whole entity*. It has no dimensions refreshed and no id, and each missing piece surfaces
+        // somewhere different and late. 1.21.11 tolerated the missing id; 26.2 does not.
+        //
+        // Negative and descending, so it can never collide with a real entity: vanilla's counter
+        // starts at 0 and only climbs. The value itself is only ever a seed for item model variation
+        // here, so any stable number does.
+        living.setId(NEXT_DOLL_ID.getAndDecrement());
 
         // NO scale attribute, deliberately. renderEntityInInventoryFollowsAngle divides the render
         // state's boundingBoxHeight by its scale and then forces that scale to 1, so the attribute
