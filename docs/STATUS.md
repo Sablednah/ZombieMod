@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-08-25 (3.1.1).
+Last updated 2026-08-26 (3.1.1, plus the 26.x branches).
 
 **Counts here are now taken off the source, not off prose.** They had drifted — this file said 56
 genera, 12 goal types, 22 abilities, 12 conditions and 3 hordes, and every one of those was wrong.
@@ -359,6 +359,31 @@ only item ever on this list that was *stuck* rather than merely unbuilt — pay 
 Standards as of 3.1.0, and were **confirmed paying in play on 2026-08-25**. Nothing from the original
 plugin is missing, unbuilt or unverified. See *Left from the 1.8 plugin* above for why it was stuck
 and how Standards resolves it without ZombieMod having to pick an economy.
+
+## Minecraft 26.1 and 26.2
+
+**Both build the whole mod and run**, on branches `mc26.1` and `mc26.2`. **26.2 is confirmed in
+play** (2026-08-26) — "zombie a plenty, all seemed to work well". 26.1 has been built and run
+headlessly but not played.
+
+Everything that moved between versions is behind `com.sablednah.zombiemod.platform`, so a version
+branch edits one small class per concern rather than the call sites. The full account — the seam
+table, the two changes that were not renames, the 26.x GUI rename table, and how to add the next
+version in about an hour — is in [MULTIVERSION.md](MULTIVERSION.md). Read that before touching any
+of it.
+
+Two things from it worth knowing even if you never build for 26.x, because both changed `master`:
+
+- **Equipment is now deferred.** A genus slot holds a description rather than a built stack, because
+  an `ItemStack` cannot be constructed while a datapack registry is loading. A wrong item id is now
+  reported once, naming genus, item and slot, and the mob spawns without that slot instead of the
+  world refusing to load.
+- **Entity types are named through the registry**, not `EntityType`'s constants — which 26.2 removed
+  outright. That is the more correct code for a mod whose genera are datapack-defined.
+
+Not done: the client GUI code diverges in three places on 26.2 only, sitting in the two largest
+client files, so a `platform/Screens` seam is worth adding before the next dex change. Nothing is
+pushed; all three branches are local.
 
 ## Releases
 
