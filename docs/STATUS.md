@@ -314,6 +314,32 @@ waiting only for somebody to turn it on and judge it. **Nothing is outstanding.*
 
 ## Parked ideas
 
+- **Real-world date spawning — Halloween and holiday genera.** Sable's, 2026-08-27. A new
+  `zombiemod:date` spawn condition, after which it is pure JSON: a genus that only appears in the
+  last week of October, or between Christmas and New Year.
+
+  It fits the existing shape — `SpawnConditionTypes.register` is public, and conditions already
+  compose with `any_of` and `not`, so "Halloween *or* a full moon" costs nothing extra. Three
+  decisions are worth making deliberately, because each is easy to get wrong and hard to notice:
+
+  - **Whose clock?** The *server's* real-world date, not the player's. Everyone in a session should
+    meet the same October, whatever timezone they are in — a genus that appears for one player and
+    not the one standing next to them is a bug report, not a feature.
+  - **A month-day range, not named holidays.** `"from": "10-25", "to": "11-02"` recurs annually and
+    lets a pack author express anything; a `"halloween"` keyword cannot express Diwali, a server's
+    anniversary, or a two-week event. **The range must wrap the year end** — `12-20` to `01-05` is
+    exactly the case a naive `from <= today <= to` gets wrong, and it is the one people will write.
+  - **It must be testable out of season.** A date-gated genus is invisible for fifty-one weeks, which
+    is indistinguishable from broken. `/zombiemod status` should say today's date and which
+    date-gated genera are in season — the same reasoning as the claim and conversion counters, where
+    the whole effect of a feature is an absence. A config override for pretending it is October would
+    make it testable in one line rather than by changing the system clock.
+
+  Cheap: one condition type, and the roster additions are datapack files. The genera themselves are
+  the fun part and are entirely Sable's call — a pumpkin-headed thing in late October writes itself.
+
+
+
 - **An aquatic genus - a Drowned, but squiddier.** Sable's, 2026-08-13. Worth noting that it looks
   like pure JSON: `base: minecraft:drowned` (Bogman already uses it), `navigation: swim` or
   `amphibious`, `glow` for the glow-squid outline, `zombiemod:effect` with blindness plus
@@ -373,8 +399,7 @@ rather than a component and so a path of its own), and **infection through to ri
 player, and the whole herd chain: a Biter biting, ignoring the already-infected, victims turning on
 their own timer, and the infection spreading through a flock. That clears the undead guard `Tags`
 rewrote, and it was the one remaining test whose failure would have been silent rather than visible.
-**Only the action-bar bounty is now unexercised on 26.2**, and only because that instance has no
-economy mod and no scoreboard objective, so nothing pays and the message correctly never fires. That last one matters most — a
+**Bounties pay, and the action bar shows it** — confirmed 2026-08-27 on both lines: through Standards' economy on 1.21.11, and on 26.2 with a scoreboard objective, which is the other way to make a payment happen. That was the last unconfirmed path in the port. **Every rewritten path is now confirmed in play on every supported version.** That last one matters most — a
 corpse carries the dead player's equipment, so it is the sharpest available test of the deferred
 item build, which is the change 26.x forced. 26.1 has been built and run headlessly but not played.
 
