@@ -399,8 +399,11 @@ rather than a component and so a path of its own), and **infection through to ri
 player, and the whole herd chain: a Biter biting, ignoring the already-infected, victims turning on
 their own timer, and the infection spreading through a flock. That clears the undead guard `Tags`
 rewrote, and it was the one remaining test whose failure would have been silent rather than visible.
-**Only the action-bar bounty is now unexercised on 26.2**, and only because that instance has no
-economy mod and no scoreboard objective, so nothing pays and the message correctly never fires. That last one matters most — a
+**Bounties pay, and the action bar shows it** — confirmed 2026-08-27 in the Standards instance,
+which is the only one carrying an economy provider. That is on **1.21.11** though, and the action-bar
+call is one of the few seam methods with a different body per version (`displayClientMessage` there,
+`sendOverlayMessage` on 26.x), so it is the single line of the port still unconfirmed on the new
+versions. It needs an economy mod or a scoreboard objective on a 26.x instance before it can fire. That last one matters most — a
 corpse carries the dead player's equipment, so it is the sharpest available test of the deferred
 item build, which is the change 26.x forced. 26.1 has been built and run headlessly but not played.
 
