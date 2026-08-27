@@ -164,14 +164,16 @@ bounty, which needs an economy mod or a scoreboard objective before anything pay
 | ~~**Conversion**~~ **✔ 26.2** | `Types` + `Tags` — the undead-counterpart map is all registry lookups now. | Confirmed 2026-08-26. Note it declines *silently* for six reasons; `/zombiemod status` now counts them, after "the Carrier is not converting" turned out to be the crowding cap doing its job. |
 | ~~**Lightning and projectiles**~~ **✔ 26.2** | `Types` — entity types created by registry rather than constant. | Confirmed 2026-08-26: `stormcaller` and `spitfire` both. |
 | ~~**`seek_blocks`**~~ **✔ 26.2** | `BlockTypes` — tag tests on block state holders, on the hot path of every tick of that goal. | Confirmed 2026-08-26: Bramble lays moss, Blight seeks it out and removes it — which also clears `place_block`. |
-| **A bounty landing** | `Msg` — the action-bar half, which is a *different method per version*: `displayClientMessage(text, true)` on 1.21.11, `sendOverlayMessage(text)` on 26.x. | ~~1.21.11~~ **✔ confirmed 2026-08-27** in the Standards instance, where an economy provider is present so a payment actually happens. **Still unconfirmed on 26.x** — the 1.21.11 result does not carry, because it is a different call. Needs an economy mod or `/scoreboard objectives add zombiemod.bounty dummy` on a 26.x instance. |
+| ~~**A bounty landing**~~ **✔ all versions** | `Msg` — the action-bar half, which is a *different method per version*: `displayClientMessage(text, true)` on 1.21.11, `sendOverlayMessage(text)` on 26.x. | Confirmed 2026-08-27 on **both**: through Standards' economy on 1.21.11, and on 26.2 via `/scoreboard objectives add zombiemod.bounty dummy` — the tally counts as a payment, so the action bar fires with no economy mod present. |
 | ~~**Day/night gating**~~ **✔ 26.2** | `Times` — the world clock accessor changed. | Confirmed 2026-08-26: the Nightstalker rings away in daylight. |
 
-**Everything on this table has been watched working**, on 1.21.11 and on both 26.x versions — with
-one exception worth stating precisely: the **action-bar bounty is confirmed on 1.21.11 only**. That
-seam has a different body per version, so the result does not carry to 26.x. It is the last
-unconfirmed line of the whole port, and it needs an economy provider (or a scoreboard objective) on a
-26.x instance to fire at all.
+**Every row on this table has been watched working on every supported version** (2026-08-27).
+Nothing in the port is unconfirmed.
+
+Two of them needed a deliberate setup rather than just playing, which is worth remembering next time:
+a **bounty** pays nothing without an economy provider or a pre-existing scoreboard objective, so the
+action bar correctly never fires until one exists; and **`playerZombies` is off by default**, so no
+corpse rises until it is switched on.
 
 **One known gap worth checking deliberately: a world carried *across* versions.** The saved-data name
 is a bare string on 1.21.11 and an `Identifier` from 26.1, so a world moved between the two lines may
