@@ -1,6 +1,6 @@
 # The shipped roster
 
-59 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+60 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -68,6 +68,7 @@ switches the whole shipped roster off for servers running their own.
 | **Bogman** | 10 | A *drowned*, amphibious, swamp only. Inflicts Hunger. |
 | **Undertow** | 25 | A *drowned* that swims properly rather than walking the bottom. Blinds you with ink and drags you under. Any water, not just swamp. Wears Dagon's face. |
 | **Dust Stalker** | 10 | A *husk*, desert/badlands/savanna. Kicks up blinding dust. |
+| **Jack** | 22 | **Late October only.** A carved pumpkin for a head, gold outline, blinds you with Darkness. Drops pumpkin pie. |
 
 ## Armed and organised
 
