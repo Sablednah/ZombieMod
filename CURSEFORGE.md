@@ -2,7 +2,7 @@
 
 **Build your own undead.** ZombieMod turns zombie types into **datapack files** — health, size,
 colour, face, and above all **AI** — so a coward that flees on sight, a stalker that watches you from
-across the valley, and a climber that comes over the wall are all just JSON. It ships with **59 of
+across the valley, and a climber that comes over the wall are all just JSON. It ships with **61 of
 them** already written, drawn from the genre canon.
 
 A full **NeoForge rewrite** of the 2013 ZombieMod Bukkit plugin, rebuilt from the ground up for
@@ -96,7 +96,7 @@ That is the whole coward. What you have to work with:
 - **21 abilities** — effects, healing, lightning, explosions, creeper-style fuses, shockwaves,
   leaps, drags, summons, block-breaking, projectiles, cobwebs, infection, conversion, a real
   guardian beam, particle hitscan rays, adaptive resistance and teleport.
-- **14 spawn conditions** — biome, dimension, height, light, sky, depth below the local surface,
+- **15 spawn conditions** — biome, dimension, height, light, sky, depth below the local surface,
   time of day, moon phase, land claims and CityWorld districts — composable with `any_of` and `not`.
 - **Any vanilla mob as a base.** Husks, drowned, skeletons, zombie villagers, giants, iron golems.
 - **Attributes, equipment, faces, navigation swaps** — climbing, swimming, amphibious.
