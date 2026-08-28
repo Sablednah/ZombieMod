@@ -3,6 +3,7 @@ package com.sablednah.zombiemod.neoforge;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sablednah.zombiemod.compat.LandClaims;
 import com.sablednah.zombiemod.platform.Types;
 import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;
@@ -124,7 +125,7 @@ public final class ProximitySpawner {
 
         if (ZombieModConfig.CLAIM_PROTECTION.get()
                 && ZombieModConfig.CLAIM_SPAWNS.get() != ZombieModConfig.ClaimSpawns.ALLOW
-                && FtbChunks.isClaimed(level, at)) {
+                && LandClaims.isClaimed(level, at)) {
             COUNTERS.claimed++;
             return;
         }

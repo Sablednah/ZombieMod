@@ -395,7 +395,7 @@ public final class SpawnConditions {
 
         @Override
         public boolean test(Level level, BlockPos pos) {
-            return com.sablednah.zombiemod.compat.FtbChunks.isClaimed(level, pos) == value;
+            return com.sablednah.zombiemod.compat.LandClaims.isClaimed(level, pos) == value;
         }
     }
 

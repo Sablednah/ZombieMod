@@ -386,6 +386,36 @@ Standards as of 3.1.0, and were **confirmed paying in play on 2026-08-25**. Noth
 plugin is missing, unbuilt or unverified. See *Left from the 1.8 plugin* above for why it was stuck
 and how Standards resolves it without ZombieMod having to pick an economy.
 
+## Claims and combat through Standards
+
+**Griefing zombies respect any land model, not just FTB Chunks.** ZombieMod used to ask FTB directly,
+which quietly made it the only claims mod that could protect anything — a server running SableCraft
+Standards, with a faction mod behind it, got no protection and nothing said so. `compat/LandClaims`
+now asks both, and either answering "claimed" is enough: the union is the protective reading, and a
+server with both installed does not have to reason about which wins.
+
+Standards shipped **`Claims.griefAllowed(level, pos)`** on 2026-08-28 at ZombieMod's request — a
+positional, player-less question, because `mayModify` is player-shaped and a Breaker has no
+membership, trust list or admin bypass. Its default is `owner(chunk).isEmpty()`, so it agrees with
+the fallback and adopting it changed no behaviour.
+
+**It fails closed, unlike the rest of `Claims`** — a provider that throws means *no* griefing, where
+elsewhere a broken provider permits. Wrongly permitting a build can be undone; wrongly permitting a
+mob means a base is eaten while nobody watches. **So zombies that mysteriously refuse to break
+anything are the tell for a broken claims provider** — check the server log before suspecting
+ZombieMod.
+
+**Blindness can count as combat**, off by default (`blindnessIsCombat`). With it on, blindness or
+darkness landing on a player flags combat through Standards, so they cannot teleport out of a fight
+they cannot see — a Jack does no damage at all, so nothing else on the server has any reason to think
+anything is happening. It is off by default because it changes a rule about *players*, and installing
+a mob pack should not quietly rewrite how escaping works.
+
+Both are reflective and inert without Standards. That also supplies the version check for free:
+LegendQuest found `ModList.isLoaded` is not enough, because Standards can be present but older than
+the API you built against, and calling a missing method kills the server. A missing method here is a
+failed lookup and a disabled feature.
+
 ## Seasonal genera
 
 **Jack** (24 Oct – 2 Nov) and **Krampus** (18 Dec – 2 Jan), gated by a `zombiemod:date` spawn
