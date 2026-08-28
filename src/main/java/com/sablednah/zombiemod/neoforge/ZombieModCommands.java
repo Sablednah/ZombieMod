@@ -521,9 +521,10 @@ public final class ZombieModCommands {
                 + (ok ? " (loaded)" : " (NOT LOADED - no corpse will be raised)"))
                 .withStyle(ok ? ChatFormatting.GREEN : ChatFormatting.RED), false);
 
-        boolean ftb = com.sablednah.zombiemod.compat.FtbChunks.available();
+        boolean ftb = com.sablednah.zombiemod.compat.LandClaims.anyProvider();
         src.sendSuccess(() -> Component.empty()
-                .append(Component.literal("  FTB Chunks: " + (ftb ? "linked" : "not present"))
+                .append(Component.literal("  claims: "
+                        + com.sablednah.zombiemod.compat.LandClaims.providers())
                         .withStyle(ftb ? ChatFormatting.GREEN : ChatFormatting.GRAY))
                 .append(Component.literal(
                         "   respectClaims: " + ZombieModConfig.CLAIM_PROTECTION.get()
@@ -535,7 +536,7 @@ public final class ZombieModCommands {
                 && ZombieModConfig.CLAIM_SPAWNS.get() != ZombieModConfig.ClaimSpawns.ALLOW) {
             if (!ftb) {
                 src.sendSuccess(() -> Component.literal(
-                        "  note: inClaims does nothing without FTB Chunks installed")
+                        "  note: inClaims does nothing without a claims provider - FTB Chunks or Standards")
                         .withStyle(ChatFormatting.YELLOW), false);
             } else if (ZombieModEvents.CLAIMS.cancelled == 0
                     && ZombieModEvents.CLAIMS.keptVanilla == 0) {
