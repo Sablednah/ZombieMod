@@ -136,7 +136,9 @@ public final class ZombieModConfig {
                         "not quietly rewrite how escaping works on someone's server.",
                         "",
                         "With it on, blindness or darkness landing on a player flags combat through",
-                        "Standards, whatever caused it. The point is the fight a player cannot see:",
+                        "Standards as PvE combat, whatever caused it - so it obeys the server's own",
+                        "answer to whether the world may stop you teleporting. The point is the",
+                        "fight a player cannot see:",
                         "a Jack does no damage at all, so nothing else on the server has any reason",
                         "to think anything is happening. Inert without Standards installed.")
                 .define("blindnessIsCombat", false);
