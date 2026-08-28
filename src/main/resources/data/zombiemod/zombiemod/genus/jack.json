@@ -1,0 +1,99 @@
+{
+  "name": "&6Jack",
+  "description": "Somebody carved a face into it and set it on a shoulder, and the shoulder never put it down. It has been grinning ever since, and it has stopped being funny.",
+  "base": "minecraft:zombie",
+  "weight": 22,
+  "health": 22.0,
+  "damage": 4.0,
+  "speed": 1.0,
+  "follow_range": 24.0,
+  "glow": "gold",
+  "equipment": {
+    "head": "minecraft:carved_pumpkin",
+    "drop_chance": 0.0
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:date",
+        "from": "10-24",
+        "to": "11-02"
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {
+      "type": "zombiemod:float",
+      "priority": 0
+    },
+    {
+      "type": "zombiemod:melee_attack",
+      "priority": 3,
+      "speed": 1.0
+    },
+    {
+      "type": "zombiemod:random_stroll",
+      "priority": 7,
+      "speed": 0.9
+    },
+    {
+      "type": "zombiemod:look_at",
+      "priority": 8,
+      "target": "player",
+      "distance": 12.0
+    },
+    {
+      "type": "zombiemod:random_look",
+      "priority": 9
+    }
+  ],
+  "target_goals": [
+    {
+      "type": "zombiemod:hurt_by_target",
+      "priority": 1
+    },
+    {
+      "type": "zombiemod:nearest_target",
+      "priority": 2,
+      "target": "player"
+    }
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:effect",
+      "interval": 120,
+      "chance": 0.45,
+      "target": "nearby_players",
+      "effect": "minecraft:darkness",
+      "duration": 100,
+      "radius": 6.0
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 20,
+      "particle": "minecraft:flame",
+      "count": 2
+    },
+    {
+      "type": "zombiemod:sound",
+      "interval": 160,
+      "chance": 0.4,
+      "sound": "minecraft:entity.zombie.ambient",
+      "volume": 1.0,
+      "pitch": 0.5
+    }
+  ],
+  "bounty": 4.0,
+  "xp": 11,
+  "loot": {
+    "table": "zombiemod:entities/jack",
+    "replace": false
+  }
+}

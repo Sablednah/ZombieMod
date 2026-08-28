@@ -1,5 +1,7 @@
 package com.sablednah.zombiemod.core.spawn;
 
+import java.time.MonthDay;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -151,6 +153,83 @@ public final class SpawnConditions {
         @Override
         public boolean test(Level level, BlockPos pos) {
             return phases.contains(level.environmentAttributes().getValue(EnvironmentAttributes.MOON_PHASE, pos));
+        }
+    }
+
+    /**
+     * The real-world date, so a genus can belong to a season rather than to a place.
+     *
+     * <p>{@code {"type": "zombiemod:date", "from": "10-25", "to": "11-02"}} — month-day, inclusive,
+     * recurring every year. Composes like any other condition, so "in late October <em>and</em> at
+     * night" is an {@code any_of}/{@code not} away.
+     *
+     * <p><b>The server's date, not the player's.</b> Everyone in a session must meet the same
+     * October: a genus that appears for one player and not the one standing beside them is a bug
+     * report, not a feature. That means the server's timezone decides, which is the only clock all
+     * players share.
+     *
+     * <p><b>The range wraps the year.</b> {@code "from": "12-20", "to": "01-05"} is a fortnight over
+     * New Year, not an empty set — which is what a plain {@code from <= today <= to} would make it,
+     * and that is the first range anyone writing a Christmas genus will reach for.
+     *
+     * <p><b>Testable out of season.</b> A date-gated genus is invisible for fifty-one weeks, which is
+     * indistinguishable from broken, so {@code zombiemod-server.toml} has a {@code dateOverride} that
+     * pretends today is some other day. {@code /zombiemod status} prints the date in force and which
+     * date-gated genera are in season, because otherwise the only available conclusion is "the
+     * Halloween zombies do not work".
+     */
+    public record OnDate(MonthDay from, MonthDay to) implements SpawnCondition {
+
+        public static final Identifier TYPE = id("date");
+
+        /** {@code MM-DD}. Rejected at load if it is not a real day, so a typo fails loudly. */
+        private static final Codec<MonthDay> MONTH_DAY = Codec.STRING.comapFlatMap(
+                text -> {
+                    try {
+                        return com.mojang.serialization.DataResult.success(
+                                MonthDay.parse("--" + text));
+                    } catch (RuntimeException e) {
+                        return com.mojang.serialization.DataResult.error(
+                                () -> "Not a MM-DD date: " + text);
+                    }
+                },
+                md -> String.format("%02d-%02d", md.getMonthValue(), md.getDayOfMonth()));
+
+        public static final MapCodec<OnDate> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                MONTH_DAY.fieldOf("from").forGetter(OnDate::from),
+                MONTH_DAY.fieldOf("to").forGetter(OnDate::to))
+                .apply(i, OnDate::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        /** Today, or whatever {@code dateOverride} says it is. Public so status can report it. */
+        public static MonthDay today() {
+            String override = com.sablednah.zombiemod.ZombieModConfig.DATE_OVERRIDE.get();
+            if (!override.isBlank()) {
+                try {
+                    return MonthDay.parse("--" + override);
+                } catch (RuntimeException ignored) {
+                    // A bad override must not take the world with it; fall through to the real date.
+                }
+            }
+            return MonthDay.now();
+        }
+
+        public boolean inSeason() {
+            MonthDay today = today();
+            // Inclusive both ends. When from is after to the range crosses the year, and the test
+            // inverts: in season if we are past the start OR before the end, rather than both.
+            return from.compareTo(to) <= 0
+                    ? today.compareTo(from) >= 0 && today.compareTo(to) <= 0
+                    : today.compareTo(from) >= 0 || today.compareTo(to) <= 0;
+        }
+
+        @Override
+        public boolean test(Level level, BlockPos pos) {
+            return inSeason();
         }
     }
 

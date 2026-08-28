@@ -1,0 +1,77 @@
+{
+  "name": "&cKrampus",
+  "description": "It is still doing the rounds. It means you very little harm and it will not stop ringing, and everything that hears a bell in the dark comes to see what rang it.",
+  "base": "minecraft:zombie",
+  "weight": 20,
+  "health": 24.0,
+  "damage": 2.0,
+  "speed": 0.95,
+  "follow_range": 24.0,
+  "armor_color": 11743532,
+  "equipment": {
+    "chest": {
+      "id": "minecraft:leather_chestplate",
+      "components": {
+        "minecraft:dyed_color": 11743532,
+        "minecraft:trim": {
+          "pattern": "minecraft:ward",
+          "material": "minecraft:quartz"
+        }
+      }
+    },
+    "drop_chance": 0.0
+  },
+  "spawn": {
+    "conditions": [
+      {
+        "type": "zombiemod:dimension",
+        "dimensions": [
+          "minecraft:overworld"
+        ]
+      },
+      {
+        "type": "zombiemod:date",
+        "from": "12-18",
+        "to": "01-02"
+      }
+    ]
+  },
+  "clear_goals": true,
+  "goals": [
+    {"type": "zombiemod:float", "priority": 0},
+    {"type": "zombiemod:melee_attack", "priority": 3, "speed": 1.0},
+    {"type": "zombiemod:random_stroll", "priority": 7, "speed": 0.9},
+    {"type": "zombiemod:look_at", "priority": 8, "target": "player", "distance": 12.0},
+    {"type": "zombiemod:random_look", "priority": 9}
+  ],
+  "target_goals": [
+    {"type": "zombiemod:hurt_by_target", "priority": 1},
+    {"type": "zombiemod:nearest_target", "priority": 2, "target": "player"}
+  ],
+  "abilities": [
+    {
+      "type": "zombiemod:sound",
+      "interval": 90,
+      "chance": 0.85,
+      "sound": "minecraft:block.note_block.bell",
+      "volume": 1.6,
+      "pitch": 1.2
+    },
+    {
+      "type": "zombiemod:alert",
+      "interval": 90,
+      "radius": 22.0,
+      "who": "monster",
+      "max_alerted": 10
+    },
+    {
+      "type": "zombiemod:particles",
+      "interval": 15,
+      "particle": "minecraft:snowflake",
+      "count": 3
+    }
+  ],
+  "bounty": 4.0,
+  "xp": 12,
+  "loot": {"table": "zombiemod:entities/krampus", "replace": false}
+}

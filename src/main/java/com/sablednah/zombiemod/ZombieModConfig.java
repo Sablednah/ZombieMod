@@ -33,6 +33,7 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.BooleanValue PROXIMITY_UNSEEN;
     public static final ModConfigSpec.BooleanValue BOUNTY;
     public static final ModConfigSpec.ConfigValue<String> BOUNTY_OBJECTIVE;
+    public static final ModConfigSpec.ConfigValue<String> DATE_OVERRIDE;
     public static final ModConfigSpec.BooleanValue BOUNTY_ANNOUNCE;
     public static final ModConfigSpec.BooleanValue HORDES;
     public static final ModConfigSpec.IntValue HORDE_CHECK;
@@ -115,6 +116,16 @@ public final class ZombieModConfig {
 
         LOG_SPAWNS = b.comment("Log every genus spawn to the server console. Noisy; for tuning weights.")
                 .define("logSpawns", false);
+
+        DATE_OVERRIDE = b.comment(
+                        "Pretend it is a different day of the year, as MM-DD. Blank uses the real date.",
+                        "",
+                        "Seasonal genera use the server's real-world date, which makes them invisible",
+                        "for fifty-one weeks and impossible to tell apart from broken. Set this to",
+                        "10-31 to see what Halloween looks like in June. /zombiemod status always",
+                        "reports the date actually in force, so an override left set is never a",
+                        "mystery.")
+                .define("dateOverride", "");
 
         BUILTIN_GENERA = b.comment(
                         "Let the genera shipped with the mod claim spawns.",
