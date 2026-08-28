@@ -1,6 +1,6 @@
 # The shipped roster
 
-59 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
+61 genera, all in `src/main/resources/data/zombiemod/zombiemod/genus/`. They're ordinary datapack
 files — override any of them by putting a file with the same name in a higher-priority datapack, or
 delete the lot by shipping an empty override.
 
@@ -68,6 +68,8 @@ switches the whole shipped roster off for servers running their own.
 | **Bogman** | 10 | A *drowned*, amphibious, swamp only. Inflicts Hunger. |
 | **Undertow** | 25 | A *drowned* that swims properly rather than walking the bottom. Blinds you with ink and drags you under. Any water, not just swamp. Wears Dagon's face. |
 | **Dust Stalker** | 10 | A *husk*, desert/badlands/savanna. Kicks up blinding dust. |
+| **Jack** | 22 | **Late October only.** A carved pumpkin for a head, gold outline, blinds you with Darkness. Drops pumpkin pie. |
+| **Krampus** | 20 | **Christmas and New Year only.** Red and white, barely dangerous itself — but it rings, and the bell calls everything nearby to you. Drops a gift, or coal. |
 
 ## Armed and organised
 
@@ -145,6 +147,9 @@ He cannot hurt you. That's the point.
 Worth reading the files rather than just the table — between them they exercise every feature:
 
 - **Different base mobs** — Bogman and Undertow are drowned, Dust Stalker a husk. Anything vanilla works.
+- **Seasonal genera** — Jack and Krampus carry a `zombiemod:date` condition and only appear near
+  Halloween and Christmas. Set `dateOverride` in the server config to see them out of season;
+  `/zombiemod status` names the date in force and which of them are in.
 - **Navigation swaps** — Hunter and Crawler climb; Bogman is amphibious and Undertow swims.
   A swimmer needs `random_swim` rather than `random_stroll`, and must **not** be given `float`:
   `FloatGoal` pins a mob to the surface. Bogman keeps `float` because it walks the bottom.

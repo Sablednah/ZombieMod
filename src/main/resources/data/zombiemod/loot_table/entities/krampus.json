@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:entity",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        { "type": "minecraft:item", "name": "minecraft:cake", "weight": 3 },
+        { "type": "minecraft:item", "name": "minecraft:cookie", "weight": 8,
+          "functions": [{ "function": "minecraft:set_count", "count": { "min": 2.0, "max": 6.0 } }] },
+        { "type": "minecraft:item", "name": "minecraft:sweet_berries", "weight": 6,
+          "functions": [{ "function": "minecraft:set_count", "count": { "min": 2.0, "max": 5.0 } }] },
+        { "type": "minecraft:item", "name": "minecraft:snowball", "weight": 6,
+          "functions": [{ "function": "minecraft:set_count", "count": { "min": 4.0, "max": 8.0 } }] },
+        { "type": "minecraft:item", "name": "minecraft:bell", "weight": 2 },
+        { "type": "minecraft:item", "name": "minecraft:golden_apple", "weight": 1 },
+        { "type": "minecraft:item", "name": "minecraft:coal", "weight": 5,
+          "functions": [{ "function": "minecraft:set_count", "count": { "min": 1.0, "max": 2.0 } }] }
+      ]
+    }
+  ]
+}

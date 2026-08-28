@@ -32,6 +32,7 @@ public final class SpawnConditionTypes {
         register(SpawnConditions.Moon.TYPE, SpawnConditions.Moon.CODEC);
         register(SpawnConditions.Depth.TYPE, SpawnConditions.Depth.CODEC);
         register(SpawnConditions.TimeOfDay.TYPE, SpawnConditions.TimeOfDay.CODEC);
+        register(SpawnConditions.OnDate.TYPE, SpawnConditions.OnDate.CODEC);
         register(SpawnConditions.InClaim.TYPE, SpawnConditions.InClaim.CODEC);
         register(SpawnConditions.CityDistrict.TYPE, SpawnConditions.CityDistrict.CODEC);
         register(SpawnConditions.CityLot.TYPE, SpawnConditions.CityLot.CODEC);

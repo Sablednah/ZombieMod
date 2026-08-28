@@ -578,6 +578,28 @@ public final class ZombieModCommands {
                     .withStyle(ChatFormatting.YELLOW), false);
         }
 
+        // Seasonal genera are invisible for most of the year, which is indistinguishable from
+        // broken. Say what date is in force and what it lets through, or the only conclusion
+        // available in June is "the Halloween zombies do not work".
+        List<String> seasonal = new ArrayList<>();
+        for (var holder : lookup(source).listElements().toList()) {
+            for (var c : holder.value().spawn().conditions()) {
+                if (c instanceof com.sablednah.zombiemod.core.spawn.SpawnConditions.OnDate d) {
+                    seasonal.add(holder.key().identifier().getPath()
+                            + (d.inSeason() ? " (in season)" : " (out of season)"));
+                }
+            }
+        }
+        if (!seasonal.isEmpty()) {
+            String override = ZombieModConfig.DATE_OVERRIDE.get();
+            src.sendSuccess(() -> Component.literal("  date: "
+                    + com.sablednah.zombiemod.core.spawn.SpawnConditions.OnDate.today()
+                    + (override.isBlank() ? "" : "  (dateOverride=" + override + ")"))
+                    .withStyle(override.isBlank() ? ChatFormatting.GRAY : ChatFormatting.YELLOW), false);
+            src.sendSuccess(() -> Component.literal("  seasonal: " + String.join(", ", seasonal))
+                    .withStyle(ChatFormatting.GRAY), false);
+        }
+
         boolean prox = ZombieModConfig.PROXIMITY.get();
         src.sendSuccess(() -> Component.empty()
                 .append(Component.literal("  proximity: " + prox)
