@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import com.mojang.logging.LogUtils;
+import com.sablednah.zombiemod.compat.LandClaims;
 import com.sablednah.zombiemod.platform.Bars;
 import com.sablednah.zombiemod.platform.Msg;
 import com.sablednah.zombiemod.ZombieModConfig;
@@ -286,7 +287,7 @@ public final class HordeDirector {
             }
             if (ZombieModConfig.CLAIM_PROTECTION.get()
                     && ZombieModConfig.CLAIM_SPAWNS.get() != ZombieModConfig.ClaimSpawns.ALLOW
-                    && FtbChunks.isClaimed(level, at)) {
+                    && LandClaims.isClaimed(level, at)) {
                 continue;
             }
 

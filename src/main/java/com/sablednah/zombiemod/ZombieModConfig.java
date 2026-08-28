@@ -34,6 +34,7 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.BooleanValue BOUNTY;
     public static final ModConfigSpec.ConfigValue<String> BOUNTY_OBJECTIVE;
     public static final ModConfigSpec.ConfigValue<String> DATE_OVERRIDE;
+    public static final ModConfigSpec.BooleanValue BLINDNESS_IS_COMBAT;
     public static final ModConfigSpec.BooleanValue BOUNTY_ANNOUNCE;
     public static final ModConfigSpec.BooleanValue HORDES;
     public static final ModConfigSpec.IntValue HORDE_CHECK;
@@ -126,6 +127,19 @@ public final class ZombieModConfig {
                         "reports the date actually in force, so an override left set is never a",
                         "mystery.")
                 .define("dateOverride", "");
+
+        BLINDNESS_IS_COMBAT = b.comment(
+                        "Count being blinded as being in combat, via SableCraft Standards.",
+                        "",
+                        "Off by default, and deliberately: it changes a rule about *players* -",
+                        "chiefly that they cannot teleport out - and installing a mob pack should",
+                        "not quietly rewrite how escaping works on someone's server.",
+                        "",
+                        "With it on, blindness or darkness landing on a player flags combat through",
+                        "Standards, whatever caused it. The point is the fight a player cannot see:",
+                        "a Jack does no damage at all, so nothing else on the server has any reason",
+                        "to think anything is happening. Inert without Standards installed.")
+                .define("blindnessIsCombat", false);
 
         BUILTIN_GENERA = b.comment(
                         "Let the genera shipped with the mod claim spawns.",

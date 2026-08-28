@@ -171,7 +171,7 @@ public final class ZombieModEvents {
 
         if (ZombieModConfig.CLAIM_PROTECTION.get()
                 && ZombieModConfig.CLAIM_SPAWNS.get() != ZombieModConfig.ClaimSpawns.ALLOW
-                && com.sablednah.zombiemod.compat.FtbChunks.isClaimed(level, pos)) {
+                && com.sablednah.zombiemod.compat.LandClaims.isClaimed(level, pos)) {
             if (ZombieModConfig.CLAIM_SPAWNS.get() == ZombieModConfig.ClaimSpawns.NO_SPAWNS) {
                 event.setSpawnCancelled(true);
                 CLAIMS.cancelled++;
@@ -220,7 +220,7 @@ public final class ZombieModEvents {
         if (mob.getPersistentData().getString(GenusApplier.GENUS_TAG).isEmpty()) {
             return;
         }
-        if (com.sablednah.zombiemod.compat.FtbChunks.isClaimed(level, mob.blockPosition())) {
+        if (com.sablednah.zombiemod.compat.LandClaims.isClaimed(level, mob.blockPosition())) {
             event.setCanGrief(false);
         }
     }
@@ -285,6 +285,31 @@ public final class ZombieModEvents {
                 .map(net.minecraft.resources.Identifier::tryParse);
         com.sablednah.zombiemod.core.ability.Infect.clear(victim);
         Conversions.raiseInfected(level, victim, genusId);
+    }
+
+    /**
+     * Blindness as combat, if the server asked for it.
+     *
+     * <p>Listens for the effect landing rather than for the ability that caused it, because the
+     * setting says <em>blinded</em>, not <em>blinded by a zombie</em> — a player who cannot see
+     * should not be able to blink away regardless of what put them in the dark. That does mean
+     * ZombieMod reports combat for effects it did not cause, which is why the setting is off by
+     * default and says so.
+     *
+     * <p>Darkness counts as well as blindness. Mechanically they differ, but the reason for the rule
+     * is the same both times: the player cannot see the fight.
+     */
+    @SubscribeEvent
+    public void onEffectAdded(net.neoforged.neoforge.event.entity.living.MobEffectEvent.Added event) {
+        if (!ZombieModConfig.BLINDNESS_IS_COMBAT.get()
+                || !(event.getEntity() instanceof net.minecraft.server.level.ServerPlayer player)) {
+            return;
+        }
+        var effect = event.getEffectInstance().getEffect();
+        if (effect.is(net.minecraft.world.effect.MobEffects.BLINDNESS)
+                || effect.is(net.minecraft.world.effect.MobEffects.DARKNESS)) {
+            com.sablednah.zombiemod.compat.StandardsCombat.flag(player, "zombiemod:blinded");
+        }
     }
 
     /** Observer mode: cancel the damage, change nothing else about the player. */
