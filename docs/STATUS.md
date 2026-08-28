@@ -15,16 +15,16 @@ hand.
 
 | | |
 |---|---|
-| **Genera as datapacks** | 59 shipped; hot-reload with `/reload` |
+| **Genera as datapacks** | 61 shipped; hot-reload with `/reload` |
 | **AI from JSON** | 12 goal types, recombined per genus |
 | **Abilities** | 21 types |
-| **Spawn conditions** | 14 types (11 general + 3 CityWorld), composable with `any_of` / `not` |
+| **Spawn conditions** | 15 types (12 general + 3 CityWorld), composable with `any_of` / `not` |
 | **Weighted spawning** | Per base mob, with a configurable vanilla share. `vanillaWeight = 40` settled by play (2026-08-16) — measured at ~26% plain zombies on the surface, ~13% deep underground |
 | **Behaviours** | Goal sets that switch on a condition (day/night) |
 | **Bosses** | Boss bars, phases, loot tables, summon rituals with block patterns |
 | **Player zombies** | Corpse wearing the player's real skin, carrying their items, with an admin recovery ledger |
 | **Equipment** | Six slots, bare ids or full stacks with components |
-| **Player-head faces** | Custom embedded textures on 52 of 59 genera, plus name-resolved profiles and `ghost` borrowing a real player's |
+| **Player-head faces** | Custom embedded textures on 52 of 61 genera, plus name-resolved profiles and `ghost` borrowing a real player's |
 | **Climbing** | Navigation swap *plus* the goal that performs it |
 | **Guardian beam** | By parenting an invisible Guardian to the caster |
 | **Particle rays** | Hitscan with an audible, abortable charge-up |
@@ -386,6 +386,29 @@ Standards as of 3.1.0, and were **confirmed paying in play on 2026-08-25**. Noth
 plugin is missing, unbuilt or unverified. See *Left from the 1.8 plugin* above for why it was stuck
 and how Standards resolves it without ZombieMod having to pick an economy.
 
+## Seasonal genera
+
+**Jack** (24 Oct – 2 Nov) and **Krampus** (18 Dec – 2 Jan), gated by a `zombiemod:date` spawn
+condition. Confirmed in play 2026-08-28 on all three versions.
+
+Krampus is the one with a mechanic no other genus has: two damage, so he is no threat himself, but he
+rings every four and a half seconds and the bell `alert`s everything within 22 blocks onto you. That
+inverts the Coward — whose bounty lures *you* into danger — by bringing the danger to you instead,
+and the gift table is the reason to take the risk. Coal is one of the outcomes, deliberately.
+
+Three things about the date condition are worth not rediscovering:
+
+- **The server's date decides**, not the player's. Everyone in a session must meet the same October,
+  or a genus appears for one player and not the one beside them.
+- **The range wraps the year.** Krampus's `12-18` to `01-02` is the case a plain
+  `from <= today <= to` turns into the empty set, and it is the first range anyone writing a
+  Christmas genus reaches for. Verified from both sides of New Year, both inclusive ends, the days
+  either side, and midsummer.
+- **`dateOverride` in the server config** pretends it is another day, because a genus invisible for
+  fifty-one weeks is otherwise indistinguishable from broken. `/zombiemod status` reports the date in
+  force and which seasonal genera are in — the same reasoning as the claim and conversion counters,
+  where a feature's whole effect is an absence.
+
 ## Minecraft 26.1 and 26.2
 
 **Both build the whole mod and run**, on branches `mc26.1` and `mc26.2`, and **both are confirmed in
@@ -436,7 +459,7 @@ from it at build time, so never edit the generated file.
 | Version | Shipped | What it was |
 |---|---|---|
 | `3.0.0` | 2026-08-18 | First release of the NeoForge rewrite. 58 genera. |
-| `3.1.0` | 2026-08-24 | The Undertow (59 genera), bounties through Standards, the Rusted Warden's shockwave cadence, and section codes gone from command output. |
+| `3.1.0` | 2026-08-24 | The Undertow (61 genera), bounties through Standards, the Rusted Warden's shockwave cadence, and section codes gone from command output. |
 
 **Publishing to GitHub publishes to CurseForge**, via `.github/workflows/curseforge.yml`. Proven on
 both releases.

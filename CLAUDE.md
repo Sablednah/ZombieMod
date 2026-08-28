@@ -170,6 +170,38 @@ table of what moved is in [docs/MULTIVERSION.md](docs/MULTIVERSION.md). Three ru
   and compiles unchanged everywhere — and is the more correct code anyway, because entity types live
   in an open registry that datapacks extend. That shape costs the branches nothing.
 
+### Moving work between the version branches: sync files, do not cherry-pick
+
+Fixes go on `master` and forward to `mc26.1`/`mc26.2`. **`git cherry-pick -n` is a trap here.** It
+leaves the result staged, and switching branches with staged work silently discards it — the pick
+reports success, the branch looks fine, and the change is simply absent. That happened moving Jack
+and Krampus across (2026-08-28): `mc26.1` was left at 59 genera while claiming to have picked them,
+and nothing in the output said so.
+
+**Prefer an explicit file sync**, because the seam layer means you already know exactly which files
+are allowed to differ:
+
+```bash
+git checkout master -- <the shared paths>
+```
+
+Everything except `build.gradle`, `gradle.properties`, `platform/*` and the client GUI files should
+be **identical to master** on every branch. So the reliable move is to take the shared files from
+master outright rather than replay a commit and hope.
+
+**Verify with something countable, not with the exit code.** Counting genus files across branches is
+what actually caught it:
+
+```bash
+for b in master mc26.1 mc26.2; do
+  echo "$b $(git ls-tree -r --name-only $b -- src/main/resources/data/zombiemod/zombiemod/genus | wc -l)"
+done
+git diff --name-only master mc26.2      # every line should be a file that is *meant* to differ
+```
+
+That second command is the real health check for the branches: if anything outside the version-specific
+set appears, the branches have drifted and one of them is missing work.
+
 ### An ItemStack cannot be built while a datapack registry is loading
 
 Genus files are parsed on a worker thread before item data components are bound. On 26.x every

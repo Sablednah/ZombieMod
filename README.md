@@ -8,7 +8,7 @@
 
 **Build your own undead.** ZombieMod turns zombie types into **datapack files** — health, size,
 colour, face, and above all **AI** — so a coward that flees on sight, a stalker that watches you from
-across the valley, and a climber that comes over the wall are all just JSON. It ships with **59 of
+across the valley, and a climber that comes over the wall are all just JSON. It ships with **61 of
 them** already written.
 
 A modern **NeoForge** rewrite of the 2013 ZombieMod Bukkit plugin, in the same repository — the
@@ -22,7 +22,7 @@ original plugin's source was removed at this release and remains in the git hist
 | License | MIT |
 | Side | Install on the server. **Players do not need the mod** — a stock client can join and meet every genus. Installing it client-side too is optional and adds the ZombieDex screen. |
 
-> **3.1.0.** 59 genera, every ability from the 1.8 plugin rebuilt, and the great majority of it
+> **3.3.0.** 61 genera, every ability from the 1.8 plugin rebuilt, and the great majority of it
 > confirmed in play. New in this release: the **Undertow**, a drowned that blinds you and drags you
 > under, and **bounties paid into a real economy**. See [Status](#status) for what is verified and
 > what is waiting on a situation to arise, or [`CHANGELOG.md`](CHANGELOG.md) for the full list.
@@ -574,7 +574,7 @@ out of parts instead of waiting for that exact ability to exist.
 
 ## What's included
 
-**59 genera ship with the mod**, along with 4 horde events. See [`docs/ROSTER.md`](docs/ROSTER.md)
+**61 genera ship with the mod**, along with 4 horde events. See [`docs/ROSTER.md`](docs/ROSTER.md)
 for the full list, what each one is, and which feature it demonstrates, and
 [`docs/BALANCE.md`](docs/BALANCE.md) for the rules their numbers follow — the sensory tiers, and how
 `xp` and `bounty` are derived — if you're writing genera to sit alongside them.
@@ -1803,7 +1803,7 @@ already does the job.
 
 ## Status
 
-**3.1.1.** 59 genera, 12 goal types, 21 abilities, 14 spawn conditions and 4 horde
+**3.3.0.** 61 genera, 12 goal types, 21 abilities, 15 spawn conditions and 4 horde
 events; every ability from the 1.8 plugin rebuilt, and the great majority of it confirmed in play
 rather than merely compiled. See [`docs/STATUS.md`](docs/STATUS.md) for what's verified, what's
 waiting on a situation to arise. Bounty payouts — the last thing outstanding from the original, and

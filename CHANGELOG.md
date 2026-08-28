@@ -7,6 +7,36 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone.
 
+## 3.3.0
+
+*2026-08-28.* Zombies that only turn up at certain times of year.
+
+### Added
+
+- **Seasonal genera.** A new `zombiemod:date` spawn condition gates a genus to a range of the real
+  calendar, month-day and inclusive, recurring every year. It composes with the other conditions, so
+  "late October **and** at night" costs nothing extra.
+
+  Two ship with it:
+
+  - **Jack** (24 Oct – 2 Nov) — a carved pumpkin for a head, a gold outline, trailing flame, and
+    **Darkness** on anyone who comes close. Drops pumpkin pie.
+  - **Krampus** (18 Dec – 2 Jan) — red and white, and almost harmless: two damage. But he rings, and
+    every ring calls everything within 22 blocks to exactly where you are. The danger is what
+    arrives, not him. Kill him for a gift — or for coal.
+
+- **`dateOverride` in the server config**, which pretends today is some other day. A seasonal genus
+  is invisible for fifty-one weeks of the year, which looks exactly like a broken one; set this to
+  `10-31` to see Halloween in June. **`/zombiemod status`** reports the date in force and which
+  seasonal genera are in season.
+
+### Notes
+
+- **The date comes from the server, not the player.** Everyone in a session meets the same October,
+  whatever timezone they are in.
+- **Ranges may cross the new year.** `12-18` to `01-02` is a fortnight over Christmas, not an empty
+  set.
+
 ## 3.2.0
 
 *2026-08-26.* Minecraft 26.1 and 26.2, and a genus file that gets an item wrong no longer costs you

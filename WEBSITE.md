@@ -17,14 +17,14 @@ session did, for the record:
 - `/zombiemod-reforged/` and its five children exist as real WP pages (ids 129–134, children on
   `post_parent = 129`), each on its own theme template, sharing a `zombiemod-subnav.php` tab strip —
   the same shape as CityWorld's.
-- **Version facts are on the landing page only.** The hero tags are version-agnostic ("59 genera",
+- **Version facts are on the landing page only.** The hero tags are version-agnostic ("61 genera",
   "NeoForge", "MIT", "No client mod required"), as CityWorld's now are, so a release that does not
   change the support matrix needs no landing-page edit at all.
 - The three "careful to get right" points are all honoured: the page leads with *"your players do not
   need to install anything"* rather than "server-side only"; `/settings/` carries a callout that a
   claim is not a safe zone; and both `/settings/` and `/commands/` say the server config is per-world
   in singleplayer and point at `/zombiemod status`.
-- Counts were taken off the source, not off prose: 59 genera, 52 with a `head`, 12 goals, 21
+- Counts were taken off the source, not off prose: 61 genera, 52 with a `head`, 12 goals, 21
   abilities, 14 conditions, 4 hordes.
 - The roster write-ups are each genus's own `description` field, so that page cannot drift from the
   game. Genus/hordes/settings/commands were built from `README.md` and the CURSEFORGE docs; nothing
@@ -65,7 +65,7 @@ published.
 | Landing — what it is, requirements, feature overview | `CURSEFORGE.md` |
 | Settings reference | `CURSEFORGE-CONFIGURATION.md` |
 | Commands reference | `CURSEFORGE-COMMANDS.md` |
-| The roster — all 59 genera | `docs/ROSTER.md`, plus the `description` field in each `src/main/resources/data/zombiemod/zombiemod/genus/*.json` |
+| The roster — all 61 genera | `docs/ROSTER.md`, plus the `description` field in each `src/main/resources/data/zombiemod/zombiemod/genus/*.json` |
 | Writing a genus — fields, goals, abilities, conditions | `README.md` §§ *Writing a genus* → *Abilities* (lines ~42–566) |
 | Bosses, phases, loot, summon rituals | `README.md` §§ *Bosses* → *Summoning* |
 | Horde events | `README.md` § *Horde events* |
@@ -87,8 +87,8 @@ your own" are separate — almost nobody wants both on the same visit.
 | Path | For | Source |
 |---|---|---|
 | `/zombiemod-reforged/` | Landing. What it is, requirements, install, the highlights, links out. | `CURSEFORGE.md` |
-| `/zombiemod-reforged/roster/` | All 59 genera, grouped by family, with what each one does. | `docs/ROSTER.md` |
-| `/zombiemod-reforged/genus/` | **Build your own zombie.** Every field, all 12 goal types, all 21 abilities, all 14 spawn conditions, with worked examples. | `README.md` |
+| `/zombiemod-reforged/roster/` | All 61 genera, grouped by family, with what each one does. | `docs/ROSTER.md` |
+| `/zombiemod-reforged/genus/` | **Build your own zombie.** Every field, all 12 goal types, all 21 abilities, all 15 spawn conditions, with worked examples. | `README.md` |
 | `/zombiemod-reforged/hordes/` | **Build your own horde.** Wave events, and the boss layer — phases, boss bars, loot, summon rituals. | `README.md` |
 | `/zombiemod-reforged/settings/` | Every setting in `zombiemod-server.toml`. | `CURSEFORGE-CONFIGURATION.md` |
 | `/zombiemod-reforged/commands/` | Every command. | `CURSEFORGE-COMMANDS.md` |
@@ -148,7 +148,7 @@ Correct as of 2026-08-17, counted off the source:
 
 | | | Where it comes from |
 |---|---:|---|
-| Genera | **59** | `data/zombiemod/zombiemod/genus/*.json` |
+| Genera | **61** | `data/zombiemod/zombiemod/genus/*.json` |
 | Genera wearing a face | **51** | those files with a `head` field |
 | Goal types | **11** | `register(` lines in `GoalSpecTypes.java` |
 | Abilities | **21** | `AbilityTypes.java` |
