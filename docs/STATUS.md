@@ -405,11 +405,28 @@ mob means a base is eaten while nobody watches. **So zombies that mysteriously r
 anything are the tell for a broken claims provider** — check the server log before suspecting
 ZombieMod.
 
-**Blindness can count as combat**, off by default (`blindnessIsCombat`). With it on, blindness or
-darkness landing on a player flags combat through Standards, so they cannot teleport out of a fight
-they cannot see — a Jack does no damage at all, so nothing else on the server has any reason to think
-anything is happening. It is off by default because it changes a rule about *players*, and installing
-a mob pack should not quietly rewrite how escaping works.
+**Blindness counts as combat**, on by default (`blindnessIsCombat`) — and it costs nothing on a
+server that has not asked for it. Blindness or darkness landing on a player is reported as **PvE**
+combat, and Standards ships with PvE combat *not* blocking teleports, so out of the box this changes
+nothing. It only bites where an owner has already decided a fight with the world stops you leaving,
+and there darkness counting is the consistent answer.
+
+The point is the fight a player cannot see: a Jack does no damage at all, so nothing else on the
+server has any reason to think anything is happening, and a player can blink out of a fight that has
+already begun.
+
+**PvE rather than `SKILL` is load-bearing, and Standards caught it.** `skillBlocksTeleport` defaults
+*true* while `pveBlocksTeleport` defaults *false*, deliberately — a server leaving the PvE default
+alone has said the world must not be able to trap it. Tagging as `SKILL` would have overridden that
+silently, and the owner would have seen teleports blocked on a server where they had explicitly
+turned PvE blocking off. `SKILL` is the escape hatch for "another mod is the authority and Standards
+cannot know"; a mob in our own pack is something we can classify honestly.
+
+**The setting still earns its place** even though Standards has its own flag, because the two answer
+different questions: ours is *is blindness combat at all*, theirs is *what does combat cost*. Turn
+ours off to keep "being hit stops you leaving" while dropping "standing in the dark stops you
+leaving" — a distinction Standards cannot express, because by the time it looks the tag either exists
+or it does not.
 
 Both are reflective and inert without Standards. That also supplies the version check for free:
 LegendQuest found `ModList.isLoaded` is not enough, because Standards can be present but older than
