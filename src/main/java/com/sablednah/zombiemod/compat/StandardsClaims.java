@@ -123,7 +123,10 @@ public final class StandardsClaims {
                     }
                 }
             }
-            return ((Optional<?>) owner.invoke(null, server, new ChunkPos(pos))).isPresent();
+            // ChunkPos(BlockPos) is gone from 26.1 - ChunkPos became a record. The (int, int)
+            // constructor exists on every supported version, so shift rather than seam it.
+            ChunkPos chunk = new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);
+            return ((Optional<?>) owner.invoke(null, server, chunk)).isPresent();
         } catch (ReflectiveOperationException | RuntimeException e) {
             if (!warned) {
                 warned = true;
