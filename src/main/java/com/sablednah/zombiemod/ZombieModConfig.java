@@ -131,17 +131,23 @@ public final class ZombieModConfig {
         BLINDNESS_IS_COMBAT = b.comment(
                         "Count being blinded as being in combat, via SableCraft Standards.",
                         "",
-                        "Off by default, and deliberately: it changes a rule about *players* -",
-                        "chiefly that they cannot teleport out - and installing a mob pack should",
-                        "not quietly rewrite how escaping works on someone's server.",
+                        "On by default, and it costs nothing on a server that has not asked for it:",
+                        "blindness is reported as *PvE* combat, and Standards ships with PvE combat",
+                        "not blocking teleports. So out of the box this changes nothing at all. It",
+                        "only bites on a server that has already decided a fight with the world stops",
+                        "you leaving - and there, darkness counting is the consistent answer.",
                         "",
-                        "With it on, blindness or darkness landing on a player flags combat through",
-                        "Standards as PvE combat, whatever caused it - so it obeys the server's own",
-                        "answer to whether the world may stop you teleporting. The point is the",
-                        "fight a player cannot see:",
-                        "a Jack does no damage at all, so nothing else on the server has any reason",
-                        "to think anything is happening. Inert without Standards installed.")
-                .define("blindnessIsCombat", false);
+                        "The point is the fight a player cannot see. A Jack breathes Darkness and does",
+                        "no damage whatever, so nothing else on the server has any reason to think",
+                        "anything is happening, and a player can blink out of a fight that has already",
+                        "started.",
+                        "",
+                        "Turn it off to keep 'being hit stops you leaving' while dropping 'standing in",
+                        "the dark stops you leaving' - Standards' own flag cannot express that,",
+                        "because by the time it looks, the tag either exists or it does not.",
+                        "",
+                        "Blindness and darkness both count. Inert without Standards installed.")
+                .define("blindnessIsCombat", true);
 
         BUILTIN_GENERA = b.comment(
                         "Let the genera shipped with the mod claim spawns.",
