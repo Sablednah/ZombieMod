@@ -175,3 +175,46 @@ overstate it. `any_of` and `not` are among the 14 conditions but are combinators
 
 **⚠ Deployment is not visibility: Cloudflare must be purged** before changes reach real visitors.
 Do not conclude from a fetch that a deploy failed.
+
+## 3.3.0 (2026-08-28) — DONE, and cleared drift back to 3.1.0
+
+The site had gone stale across **three releases** (3.1.0, 3.2.0, 3.3.0), not just this one - the last
+site update was verified as of 2026-08-17, and nobody prompted an update between then and today. All
+of the following is now live and Cloudflare-purged:
+
+- **Counts recounted at HEAD, not trusted from any changelog prose**: genera 58→**61** (+Jack, +Krampus
+  from 3.3.0), goal types 11→**12** (`zombiemod:random_swim`, added 3.1.1 - this was *already* stale
+  before 3.3.0 shipped), spawn conditions 14→**15** (`zombiemod:date`, 3.3.0). Real-player-head-face
+  count **stayed at 51** - a fork initially claimed it went to 52, which was wrong; verified by parsing
+  each genus JSON's `head` field type (`dict` = real texture, `string` = an equipped item like Jack's
+  carved pumpkin, `absent` = no head at all). Abilities and hordes unchanged (21 / 4).
+- **ZombieMod now ships for 3 Minecraft versions** (1.21.11/26.1.2/26.2 - same NeoForge/Java matrix as
+  CityWorld and LegendQuest), shipped in **3.2.0 (2026-08-26)**. The hub's requirements table was still
+  a single 1.21.11 row - fixed to the 3-row pattern.
+- **Fixed a real backwards-instructions bug**: the settings and commands pages told server owners that
+  `config/zombiemod-server.toml` "does nothing" in singleplayer and that `saves/<world>/serverconfig/`
+  was the file to edit instead. That is backwards - `config/` is the file that always applies;
+  `serverconfig/` is an *optional per-world override*, per NeoForge's own mechanism. This was flagged
+  in this file's own "Two good hooks" section as still-open at the 2026-08-17 checkpoint and evidently
+  never made it onto the live pages - corrected now.
+- Added `dateOverride` to the `[spawning]` settings table, a new `zombiemod:date` spawn condition row
+  to `/genus/`, a "Seasonal" family (Jack, Krampus - descriptions pulled verbatim from their genus JSON
+  `description` field, not paraphrased) to `/roster/`, and expanded `/zombiemod status`'s description
+  on `/commands/` to cover conversion-decline reasons (3.2.0) and seasonal/date reporting (3.3.0).
+- Updated the `/settings/` bounty section to name SableCraft Standards as the (now real, not
+  hypothetical) economy adapter - that paragraph was written prospectively before Standards existed.
+- `/game-plugins/` card: genera count, goal/spawn-condition counts, and the version line all fixed to
+  match.
+- `/hordes/` and other untouched child pages left alone, per this file's own checklist.
+
+**Lesson for next time**: don't assume "last verified" means "still current" just because nobody asked
+in between. A three-release gap accumulated quietly, and two different real bugs (the multi-version
+table, the backwards config-file claim) sat live on the site the whole time. Worth a periodic check
+even without a prompt.
+
+**Follow-up, same day**: Darren shot a fresh full 61-portrait screenshot set (all genera, not just
+Jack/Krampus) and the roster carousel's `$portraits` array - a *second*, separate array from the
+`$families` text table above - had been missed in the first pass. Reprocessed all 61 into
+`assets/img/roster/` with one shared crop box/scale factor and added the two new entries. If a future
+genus needs a portrait, the raw shot needs the **same camera distance** as this batch or the whole set
+needs reprocessing together - see the site repo's `[[screenshot-relative-scale]]` memory.
