@@ -19,6 +19,7 @@ import com.sablednah.zombiemod.core.Genus;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceKeyArgument;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
@@ -214,11 +215,37 @@ public final class ZombieModCommands {
         root.then(Commands.literal("status")
                 .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)).executes(ctx -> status(ctx.getSource())));
 
+        // NO requirement on the `observe` literal, deliberately, and this is the one place in this
+        // tree where that matters. A requirement on a literal gates its whole subtree, so a bar here
+        // would take `off` with it - and that is exactly how a player got stranded: observer mode was
+        // switched on for them, they were then deopped, and the only command that could switch it
+        // back off now needed the permission they had just lost. They were invulnerable and could do
+        // nothing about it, and neither could they ask an op to fix it, because the command only ever
+        // acted on whoever typed it.
+        //
+        // So the bar goes on the things that GRANT something, and never on the way out:
+        //
+        //   observe            toggle self - guarded in code, because a node cannot bar one direction
+        //   observe on         op
+        //   observe on <who>   op
+        //   observe off        ANYONE, always. Turning your own invulnerability off is not a power.
+        //   observe off <who>  op
         root.then(Commands.literal("observe")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-                .executes(ctx -> setObserve(ctx.getSource(), !ObserverMode.isOn(ctx.getSource().getPlayerOrException())))
-                .then(Commands.literal("on").executes(ctx -> setObserve(ctx.getSource(), true)))
-                .then(Commands.literal("off").executes(ctx -> setObserve(ctx.getSource(), false))));
+                .executes(ctx -> toggleObserve(ctx.getSource()))
+                .then(Commands.literal("on")
+                        .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                        .executes(ctx -> setObserve(ctx.getSource(),
+                                ctx.getSource().getPlayerOrException(), true))
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .executes(ctx -> setObserve(ctx.getSource(),
+                                        EntityArgument.getPlayer(ctx, "player"), true))))
+                .then(Commands.literal("off")
+                        .executes(ctx -> setObserve(ctx.getSource(),
+                                ctx.getSource().getPlayerOrException(), false))
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .executes(ctx -> setObserve(ctx.getSource(),
+                                        EntityArgument.getPlayer(ctx, "player"), false)))));
 
         var registered = dispatcher.register(root);
 
@@ -773,13 +800,40 @@ public final class ZombieModCommands {
      * god mode: both make mobs stop targeting you, and watching what zombies do is the entire point
      * of testing this mod.
      */
-    private static int setObserve(CommandSourceStack source, boolean on) throws CommandSyntaxException {
-        ServerPlayer player = source.getPlayerOrException();
-        ObserverMode.set(player, on);
-        source.sendSuccess(() -> Component.literal(on
-                ? "Observer mode ON - mobs still hunt you, nothing hurts you."
-                : "Observer mode OFF."), false);
+    private static int setObserve(CommandSourceStack source, ServerPlayer target, boolean on)
+            throws CommandSyntaxException {
+        ObserverMode.set(target, on);
+        boolean self = source.getEntity() == target;
+        source.sendSuccess(() -> Component.literal(
+                (self ? "Observer mode " : target.getGameProfile().name() + ": observer mode ")
+                + (on ? "ON - mobs still hunt you, nothing hurts you." : "OFF.")), false);
+        // Tell the subject when somebody else flipped it. Being made invulnerable without being told
+        // is confusing; being made vulnerable without being told is worse.
+        if (!self) {
+            Msg.chat(target, Component.literal(on
+                    ? "You are in ZombieMod observer mode - nothing can hurt you."
+                    : "ZombieMod observer mode is off - you can be hurt again."));
+        }
         return 1;
+    }
+
+    /**
+     * Bare {@code /zombiemod observe}: flip your own.
+     *
+     * <p>Guarded here rather than on the node, because a Brigadier requirement gates a whole subtree
+     * and this one command can go in both directions. Turning it <em>on</em> is a grant and needs the
+     * bar; turning it <em>off</em> is giving something up and must never be barred, or a deopped
+     * player is stuck invulnerable — see the note at the registration.
+     */
+    private static int toggleObserve(CommandSourceStack source) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        boolean turningOn = !ObserverMode.isOn(player);
+        if (turningOn && !Commands.LEVEL_GAMEMASTERS.check(source.permissions())) {
+            source.sendFailure(Component.literal(
+                    "You do not have permission to turn observer mode on."));
+            return 0;
+        }
+        return setObserve(source, player, turningOn);
     }
 
     /** Full ids plus bare names, so both {@code coward} and {@code zombiemod:coward} tab-complete. */

@@ -9,8 +9,8 @@ There is deliberately **no `/zombiemod reload`**. Genera are datapack data, so v
 
 | Level | Commands |
 |---|---|
-| Everyone | `list`, `bestiary` |
-| Op (level 2) | `spawn`, `status`, `observe`, `corpse`, `horde` |
+| Everyone | `list`, `bestiary`, **`observe off`** |
+| Op (level 2) | `spawn`, `status`, `observe on`, `observe off <player>`, `corpse`, `horde` |
 | Admin (level 3) | `config` |
 
 `bestiary` and `list` are open on purpose — the checklist is a player feature, and a companion
@@ -194,9 +194,15 @@ because that is what those two genera do — they are mirrors, in the dex and he
 
 ## Testing
 
-### `/zombiemod observe [on|off]`
+### `/zombiemod observe [on|off] [player]`
 
 Take no damage while staying a **completely normal target**.
+
+**`observe off` is open to everyone, and that is deliberate.** Turning your own invulnerability off
+is giving something up, not taking something, so it must never need a permission — otherwise a player
+who is switched to observer and then deopped is stuck invulnerable with no way out, and no way to ask
+for one either. Ops can also switch it off *for* somebody: `observe off <player>`. Turning it on,
+for yourself or anyone else, still needs op.
 
 This exists because the usual ways to survive a test do not work here. Creative mode and every
 god-mode command set vanilla's invulnerable flag, and `LivingEntity.canBeSeenAsEnemy()` is
