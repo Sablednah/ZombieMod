@@ -35,7 +35,17 @@ iconBlur=false
 [[dependencies.${mod_id}]]
     modId="neoforge"
     type="required"
-    versionRange="[${neo_version},)"
+    # The range we RUN on, which is not the version we BUILD against.
+    #
+    # This used to be "[${neo_version},)" - the exact build as the floor, open-ended above - and it
+    # was wrong at both ends. It refused 21.11.41 over a patch that changed nothing we touch, and it
+    # simultaneously claimed to work on NeoForge 27, which does not exist yet and will not be
+    # compatible when it does. Locking the floor to a build number also means every routine bump of
+    # neo_version silently narrows what users may run.
+    #
+    # So: any NeoForge on the line this was built for, and nothing off it. NeoForge's major.minor
+    # tracks Minecraft's, which is what makes the line the right unit.
+    versionRange="${neo_version_range}"
     ordering="NONE"
     side="BOTH"
 
