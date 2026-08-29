@@ -237,6 +237,23 @@ hand.
 
 ## Fixed, worth remembering
 
+- **A deopped player was stranded in observer mode** (2026-08-29). Observer mode was switched on for
+  them, they were deopped, and the only command that could switch it back off now needed the
+  permission they had just lost. They were invulnerable and could do nothing about it — and could not
+  ask an op to fix it either, because the command only ever acted on whoever typed it.
+
+  The cause is a Brigadier detail worth remembering: **a requirement on a literal node gates its
+  entire subtree.** `observe` carried the op bar, so `off` inherited it. Barring the parent is the
+  obvious way to protect a command and it silently bars the escape hatch along with everything else.
+
+  The rule this leaves behind: **put the bar on what grants something, never on the way out.**
+  `observe on` needs op, `observe off` never does, and both now take an optional player so an op can
+  fix somebody else. The bare toggle is guarded in code rather than on the node, because a
+  requirement cannot gate one direction of a two-way command.
+
+  Verified by parsing each form against a source with `NO_PERMISSIONS` rather than by reasoning about
+  the tree.
+
 - **World creation deadlocked with CityWorld installed** (found and diagnosed by the LegendQuest
   session from a thread dump, 2026-08-16; fixed same day). CityWorld populates chunks from inside
   generation and routes through `EventHooks.finalizeMobSpawn` so other mods get their say —
