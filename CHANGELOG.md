@@ -7,6 +7,44 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone.
 
+## 3.4.0
+
+*2026-08-30.* Zombies respect whoever owns the land, and nobody gets stuck invulnerable.
+
+### Fixed
+
+- **A player switched to observer mode and then deopped was stranded.** The only command that could
+  switch it off needed the permission they had just lost — invulnerable, unable to fix it, and unable
+  to ask an op to fix it either, because the command only acted on whoever typed it.
+
+  **`/zombiemod observe off` now needs no permission at all.** Turning your own invulnerability off is
+  giving something up, not taking something. Ops can also switch it off for someone else with
+  `/zombiemod observe off <player>`, and the player is told when they do. Turning it *on* still needs
+  op, for yourself or anyone else.
+
+- **The mod refused to install on perfectly good NeoForge builds.** It demanded the exact build it was
+  compiled against or newer, so a server one patch behind was locked out over a change the mod does
+  not touch — while simultaneously claiming to work on far-future NeoForge versions that will not be
+  compatible at all. Each jar now accepts any NeoForge on the line it was built for, and nothing off
+  it. The 1.21.11 jar also accepts future 1.21.x releases rather than that one exact version.
+
+### Added
+
+- **Griefing zombies respect any land-claim mod, not just FTB Chunks.** ZombieMod asked FTB directly,
+  which quietly made it the only claims mod that could protect anything — a server running
+  [SableCraft Standards](https://github.com/Sablednah/SableCraft-Standards) with a faction mod behind
+  it got no protection, and nothing said so. Both are now asked, and either answering "claimed" is
+  enough. `/zombiemod status` names which provider answered.
+
+- **Being blinded can count as being in combat**, through Standards, so a player cannot teleport out
+  of a fight they cannot see. A Jack does no damage at all, so nothing else on a server has any reason
+  to think anything is happening.
+
+  On by default, and it costs nothing unless you have asked for it: blindness is reported as **PvE**
+  combat, and Standards ships with PvE combat not blocking teleports. It only does anything on a
+  server that has already decided a fight with the world stops you leaving. Turn `blindnessIsCombat`
+  off to keep "being hit stops you leaving" while dropping "standing in the dark stops you leaving".
+
 ## 3.3.0
 
 *2026-08-28.* Zombies that only turn up at certain times of year.
