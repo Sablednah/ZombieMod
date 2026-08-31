@@ -94,9 +94,16 @@ Requirements block to append to the release body:
 |---|---|
 | Summary | The one-liner (limit 256) |
 | Description | [`CURSEFORGE.md`](CURSEFORGE.md) |
-| Icon | **`docs/main-logo-icon.png`** — 512×512, 82 KB. *Not* `main-logo.png`: Modrinth's icon limit is 256 KiB and that one is 1.4 MB |
+| Icon | **`docs/modrinth-icon.png`** — 512×512, 44 KB, the slime banner padded square. *Not* the shield lockup; see below |
 | Licence | MIT |
 | Source / Issues / Wiki | as CurseForge above |
+
+**Modrinth's icon is not the same artwork as CurseForge's, and the reason matters.**
+Modrinth runs a **no-generative-AI policy** over uploaded art. The shield lockup —
+`docs/main-logo-icon.png`, the zombie head with spikes and chains — **tripped it**. The slime banner
+`docs/slime-logo.png` did not. So Modrinth gets `docs/modrinth-icon.png`: that banner scaled to fit
+and padded to a transparent 512×512 square, 44 KB. Do not "fix" it back to the shield to match
+CurseForge — it will be rejected again. Regenerate it with `scripts/make-modrinth-icon.py`.
 
 **Categories:** `mobs`, `adventure`, `game-mechanics`.
 **Environment — get this right, it is the field people filter on:**
@@ -150,7 +157,7 @@ Both were found the hard way rather than in advance. Sizes here are correct as o
 | Where | Limit | Use |
 |---|---|---|
 | CurseForge **description** images | **850px wide** | `docs/slime-logo-850.png` |
-| Modrinth **project icon** | **256 KiB** | `docs/main-logo-icon.png` (512×512, 82 KB) |
+| Modrinth **project icon** | **256 KiB**, square, **and no generative AI** | `docs/modrinth-icon.png` (512×512, 44 KB) |
 | CurseForge project icon | square | `docs/main-logo.png` (1035×1035) |
 | Gallery screenshots | no practical limit | `screenshots/*.png` at 1597×1075 |
 
@@ -227,25 +234,59 @@ unlike Modrinth it has no create-project endpoint. Make it on the website first.
   default, so they do not look rejected, they look like they never arrived. The authoritative view is
   always `https://authors.curseforge.com/#/projects/<id>/files`; the public Files tab lags it.
 
-### Modrinth — do the first one by hand
+### Modrinth — automated, like CurseForge
 
-`POST /v2/project` exists and works (multipart/form-data; a `data` JSON part plus an optional `icon`
-file; `Authorization: <token>` with **no** `Bearer` prefix; PAT scope `PROJECT_CREATE`). Required
-fields: `project_type`, `slug`, `title`, `description`, `body`, `categories`, `client_side`,
-`server_side`, `license_id`.
+`.github/workflows/modrinth.yml` drives three scripts. **The token stays a GitHub secret** — it is
+never needed on the dev box, which is the whole reason this is a workflow rather than a shell call.
 
-It is still not worth it for a one-off. Projects land as **drafts** needing manual review submission,
-so the API saves nothing on the first publish and gives you a multipart call to debug on release
-morning. Create it on the website; automate *versions* later, where the repetition is — the usual
-tool for a Gradle project is the **Minotaur** plugin, which uploads a version but cannot create a
-project either.
+| Script | Workflow action | What it does |
+|---|---|---|
+| `scripts/modrinth-create.sh` | `create-project` | Creates the project as a private **draft**, sets the icon, uploads the gallery |
+| `scripts/modrinth-upload.sh` | `upload-versions` | Attaches the jars from a GitHub release, one Modrinth version each |
+| `scripts/modrinth-submit.sh` | `submit-for-review` | **The step that makes it public.** Sends the draft to moderation |
 
-Two notes for when you do automate it: `client_side`/`server_side` are marked deprecated in favour of
-`environment`, but `environment` does not exist in v2 and the deprecated pair is still required — so
-on v2 you must send the old fields. **v3 is live**, and that is where this changes.
+Publishing a GitHub release fires `upload-versions` automatically, so from 3.5.0 onwards a release
+reaches both stores unattended. The other two are `workflow_dispatch` only — creating and publishing
+are things you should have to mean.
 
-Verified against the live API on 2026-08-18: `mobs`, `adventure` and `game-mechanics` are all real
-mod categories, `neoforge` is a valid loader, and `1.21.11` is a valid game version.
+**Setup, once:** a PAT at <https://modrinth.com/settings/pats> with **`PROJECT_CREATE`,
+`PROJECT_WRITE`, `VERSION_CREATE`**, added as the repository secret `MODRINTH_TOKEN`. Until it
+exists the workflow skips rather than fails. The slug defaults to `zombiemod-reforged`; override it
+with the repository variable `MODRINTH_SLUG`.
+
+**Create and upload are both re-runnable**, which is the property that makes this safe to iterate on.
+`create-project` on an existing project `PATCH`es the description from `CURSEFORGE.md` instead of
+failing, refreshes the icon, and skips gallery images already up — so fixing a typo is an edit and a
+re-run, not hand-editing the website. `upload-versions` is the exception: Modrinth version numbers are
+unique per project, so re-uploading the same one is a 400.
+
+**One Modrinth version per jar, not three files on one.** The version number carries the jar's own
+`+mc` suffix — `3.4.0+mc1.21.11`, `3.4.0+mc26.2` — which keeps them unique and lets the Minecraft
+version be read off the filename. Same reasoning as CurseForge: the workflow only checks out the
+tag's ref, so `gradle.properties` there describes one of the three and would mislabel the rest.
+
+**Four things worth knowing about the v2 API**, all verified against the live spec
+(<https://docs.modrinth.com/openapi.yaml>) on 2026-08-31:
+
+- **`Authorization: <token>` with no `Bearer` prefix.** A `Bearer` prefix gives a 401 that reads
+  like a wrong token.
+- **`environment` exists, but on the *version*, not the project.** The project still needs the
+  deprecated `client_side`/`server_side` pair, which are still required fields. So both go: the
+  project says `server_side: required` / `client_side: optional`, and each version says
+  `environment: server_only_client_optional`. *(This corrects an earlier note here that said
+  `environment` does not exist in v2 at all.)*
+- **`is_draft`, `initial_versions` and `gallery_items` on create are all deprecated.** Create the
+  project bare, then upload the icon, gallery and versions through their own endpoints — which is
+  also what makes the script re-runnable.
+- **Gallery captions are query parameters**, so they must be percent-encoded; several contain
+  colons and commas.
+
+The same `--form-string`-not-`-F` rule as CurseForge applies to both multipart calls: curl gives
+`;`, a leading `@` and a leading `<` special meaning inside an `-F` value, and both the description
+body and the changelog contain all three.
+
+**Minotaur** — the usual Gradle plugin — would have uploaded versions but could not create the
+project, so it would not have removed the one manual step that mattered.
 
 ---
 
@@ -253,13 +294,13 @@ mod categories, `neoforge` is a valid loader, and `1.21.11` is a valid game vers
 
 - [ ] `./gradlew build` and confirm the jars are `zombiemod-3.4.0+mc<version>.jar`, one per supported Minecraft version
 - [ ] Redeploy to the test instance if it still has the pre-balance jar
-- [ ] Create the CurseForge and Modrinth projects **on the websites**, and note the CurseForge
-      numeric project ID
+- [ ] Create the CurseForge project **on the website** and note its numeric project ID (its upload
+      API cannot create one). Modrinth's can: run the `modrinth.yml` workflow, `create-project`
 - [ ] Add `CURSEFORGE_TOKEN` (secret) and `CURSEFORGE_PROJECT_ID` (variable) to the repo
 - [ ] Push `master`, `mc26.1`, `mc26.2` and the `v3.4.0` tag
 - [ ] **GitHub release first** — it triggers the CurseForge upload, and the store pages link back to it
 - [ ] Check `https://authors.curseforge.com/#/projects/<id>/files`, not the public Files tab
-- [ ] Modrinth: create, upload the jar, submit for review
+- [ ] Modrinth: check the draft page reads right, then run `modrinth.yml` → `submit-for-review`
 - [ ] Upload the gallery in the order above
 - [ ] Hand `WEBSITE.md` to the sablecraft.co.uk session; **Cloudflare must be purged** before the
       pages are visible
