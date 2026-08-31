@@ -16,7 +16,9 @@ name: Publish to Modrinth
 # The three steps are deliberately separate:
 #   create-project    creates a private DRAFT, sets the icon, uploads the gallery. Re-runnable.
 #   upload-versions   attaches the jars from a release. Re-runnable per new version number.
-#   submit-for-review THE STEP THAT MAKES IT PUBLIC. Run it only when the draft reads right.
+#   submit-for-review Checks the draft is ready and points you at the website. Submission itself is
+#                     done there, because the form asks for an AI-use declaration that v2 does not
+#                     expose - see the header of scripts/modrinth-submit.sh.
 #
 # Until the secret exists this workflow skips rather than fails, so it will not redden a release.
 
@@ -128,7 +130,7 @@ jobs:
           done
           [ "$failed" -eq 0 ] || { echo "::error::At least one upload failed."; exit 1; }
 
-      - name: Submit for review
+      - name: Check the draft is ready to submit
         if: steps.guard.outputs.configured == 'true' && steps.what.outputs.action == 'submit-for-review'
         env:
           MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}

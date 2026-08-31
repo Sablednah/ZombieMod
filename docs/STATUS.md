@@ -540,17 +540,22 @@ both releases.
   authors list by default. The authoritative view is
   `https://authors.curseforge.com/#/projects/1658560/files`, not the public Files tab.
 
-**Modrinth is built but not yet fired** (2026-08-31). The project still does not exist; what exists
-now is the machinery to make it, as three scripts driven by `.github/workflows/modrinth.yml`:
+**Modrinth is live and awaiting first moderation** (2026-08-31). The project is
+[`zombiemod-reforged`](https://modrinth.com/mod/zombiemod-reforged), id **`PVD9M9Jj`**, carrying the
+icon, nine captioned gallery images and all three 3.4.0 jars as separate versions
+(`3.4.0+mc1.21.11`, `3.4.0+mc26.1.2`, `3.4.0+mc26.2`). Submitted from the website with an **AI-use
+declaration**, which the API cannot supply — see below. It stays private until moderation passes.
+
+The machinery is three scripts driven by `.github/workflows/modrinth.yml`:
 `create-project` (private draft + icon + gallery), `upload-versions` (a Modrinth version per jar,
-automatic on every GitHub release), and `submit-for-review`, which is the step that makes it public
-and is deliberately a separate manual action. The token lives only as the `MODRINTH_TOKEN` repository
+automatic on every GitHub release), and `submit-for-review`, which only *checks* the draft is ready
+and sends you to the website. The token lives only as the `MODRINTH_TOKEN` repository
 secret and is never needed on the dev box. Everything that could be checked without it has been —
 required fields, categories, licence, loader, all three game versions, the gallery captions and the
 icon size — against the live API and its published spec. Full notes in
 [`../RELEASE.md`](../RELEASE.md).
 
-Three things that were expensive to learn:
+Five things that were expensive to learn, three of them costing a workflow run each:
 
 - **Modrinth runs a no-generative-AI policy over artwork, and the shield lockup tripped it.** The
   slime banner did not. So Modrinth's icon is `docs/modrinth-icon.png` — the banner padded to a
@@ -560,6 +565,15 @@ Three things that were expensive to learn:
   (This corrects what this file said before.) Environment is Server **Required**, Client
   **Optional** — the field people filter on, and the costliest to get wrong.
 - **Modrinth caps icons at 256 KiB**, which is why no full-size lockup can ever be the icon.
+- **`initial_versions` and `is_draft` are marked deprecated and are still required on create.**
+  Omitting them gives a 400 that phrases a missing field as a JSON parse error. The published spec
+  is not authoritative on what the live endpoint demands.
+- **A version's `project_id` is the base62 id, not the slug** — `zombiemod-reforged` has a hyphen,
+  and the 400 names neither the field nor the slug. Every *path* takes `{id|slug}` interchangeably,
+  which is what makes the body field look safe.
+- **Submit for review on the website.** The form asks for an AI-use declaration that v2 does not
+  expose at all — zero mentions in the spec — so an API submission answers it with nothing, on the
+  platform that had already rejected our artwork under that policy.
 
 ### The materials, and what is deliberately not in them
 
@@ -610,8 +624,8 @@ history, so anyone who recovers it needs those terms. CLAUDE.md carries the
 
 1. **Watch the Undertow meet somebody.** It is the headline of 3.1.0, it has never been played, and
    its weight is a first guess.
-2. **Modrinth.** Run `modrinth.yml` → `create-project`, then `upload-versions` for `v3.4.0`, read
-   the draft page, then `submit-for-review`. The last unticked box on the release list.
+2. **Modrinth moderation.** Submitted 2026-08-31; nothing to do but wait. If it comes back on the
+   artwork, the fallback is a further-simplified wordmark — the shield is already known to fail.
 3. **Proximity in survival.** Enabled in Sable's instance; the cap semantics are settled ("quiet
    place top up is perfect" — 2026-08-15). What remains is a survival session on quiet ground
    watching it fire, and whether `nearbyCap = 8` feels like atmosphere.

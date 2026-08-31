@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
-# Submit the Modrinth project to moderation. THIS IS THE STEP THAT MAKES IT PUBLIC.
+# Check the Modrinth draft is ready, and point you at the website to submit it.
 #
 #   MODRINTH_TOKEN=xxx ./scripts/modrinth-submit.sh
 #
-# Kept out of the create and upload scripts on purpose: creating a draft and adding files is
-# reversible and private, and this is neither. Run it only when the page reads the way you want.
+# SUBMIT ON THE WEBSITE, NOT THROUGH THIS SCRIPT. Modrinth's submission form asks for an
+# **AI-use declaration**, and v2 does not expose it - there is no such field anywhere in the
+# published spec. A PATCH to `requested_status` therefore submits a project that has answered
+# nothing, on a platform whose no-generative-AI review had already rejected our shield logo. Not
+# worth it to save one click.
+#
+# So this prints what is about to be submitted and stops. The API path is still here behind
+# MODRINTH_ALLOW_API_SUBMIT=1, for a RE-submission on a project whose declaration already exists.
 #
 # Modrinth will not accept a project with no versions, so upload at least one jar first.
 set -euo pipefail
@@ -16,11 +22,12 @@ SLUG="${MODRINTH_SLUG:-zombiemod-reforged}"
 UA="Sablednah/ZombieMod (sablecraft.co.uk)"
 AUTH="Authorization: $MODRINTH_TOKEN"
 
-INFO="$(curl -sS -H "$AUTH" -H "User-Agent: $UA" "$API/project/$SLUG")"
+INFO="$(curl -sS --max-time 60 -H "$AUTH" -H "User-Agent: $UA" "$API/project/$SLUG")"
 python3 -c '
 import json, sys
 p = json.load(sys.stdin)
 print(">> %s (%s)" % (p.get("title"), p.get("slug")))
+print("   id:       %s" % p.get("id"))
 print("   status:   %s" % p.get("status"))
 print("   versions: %d" % len(p.get("versions") or []))
 print("   gallery:  %d" % len(p.get("gallery") or []))
@@ -30,7 +37,22 @@ if not p.get("versions"):
     sys.exit(1)
 ' <<<"$INFO"
 
-echo ">> Submitting for review"
+if [ -z "${MODRINTH_ALLOW_API_SUBMIT:-}" ]; then
+    cat <<MSG
+
+>> Ready. Submit it on the website, not from here:
+   https://modrinth.com/mod/$SLUG/settings
+
+   The submission form asks for an AI-use declaration that the v2 API does not expose, so
+   submitting through the API answers it with nothing. Given Modrinth's no-generative-AI review is
+   what rejected our shield logo, that is not a form to skip.
+
+   (Re-submitting a project whose declaration already exists? MODRINTH_ALLOW_API_SUBMIT=1.)
+MSG
+    exit 0
+fi
+
+echo ">> MODRINTH_ALLOW_API_SUBMIT set - submitting through the API"
 STATUS="$(curl -sS --max-time 120 -o /tmp/modrinth-submit.out -w '%{http_code}' \
     -X PATCH -H "$AUTH" -H "User-Agent: $UA" -H "Content-Type: application/json" \
     --data '{"requested_status":"approved"}' "$API/project/$SLUG")"

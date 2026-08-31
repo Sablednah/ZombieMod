@@ -257,11 +257,18 @@ never needed on the dev box, which is the whole reason this is a workflow rather
 |---|---|---|
 | `scripts/modrinth-create.sh` | `create-project` | Creates the project as a private **draft**, sets the icon, uploads the gallery |
 | `scripts/modrinth-upload.sh` | `upload-versions` | Attaches the jars from a GitHub release, one Modrinth version each |
-| `scripts/modrinth-submit.sh` | `submit-for-review` | **The step that makes it public.** Sends the draft to moderation |
+| `scripts/modrinth-submit.sh` | `submit-for-review` | Checks the draft is ready and prints it. **Submitting is done on the website** — see below |
 
 Publishing a GitHub release fires `upload-versions` automatically, so from 3.5.0 onwards a release
 reaches both stores unattended. The other two are `workflow_dispatch` only — creating and publishing
 are things you should have to mean.
+
+**Submit for review on the website, not through the API.** Modrinth's submission form asks for an
+**AI-use declaration**, and v2 does not expose it — there is no such field anywhere in the published
+spec. `PATCH`ing `requested_status` submits a project that has answered nothing, on the platform
+whose no-generative-AI review had already rejected our shield logo. `modrinth-submit.sh` therefore
+prints the draft's state and stops, with the API path behind `MODRINTH_ALLOW_API_SUBMIT=1` for a
+re-submission where the declaration already exists. This is how 3.4.0 went in, on 2026-08-31.
 
 **Setup, once:** a PAT at <https://modrinth.com/settings/pats> with **`PROJECT_CREATE`,
 `PROJECT_WRITE`, `VERSION_CREATE`**, added as the repository secret `MODRINTH_TOKEN`. Until it
