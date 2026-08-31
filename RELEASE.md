@@ -289,9 +289,13 @@ tag's ref, so `gradle.properties` there describes one of the three and would mis
   project says `server_side: required` / `client_side: optional`, and each version says
   `environment: server_only_client_optional`. *(This corrects an earlier note here that said
   `environment` does not exist in v2 at all.)*
-- **`is_draft`, `initial_versions` and `gallery_items` on create are all deprecated.** Create the
-  project bare, then upload the icon, gallery and versions through their own endpoints — which is
-  also what makes the script re-runnable.
+- **`is_draft` and `initial_versions` are marked deprecated and are still *required*.** Omitting
+  `initial_versions` gets `400 invalid_input`, *"Error while parsing JSON: missing field
+  `initial_versions`"* — which reads like malformed JSON rather than a missing field, and cost a
+  workflow run to find. Send them empty and add the versions afterwards through `/version`, which is
+  where the deprecation is pointing. `gallery_items` is deprecated too; the gallery endpoint is
+  better anyway, because it is what makes the script re-runnable. **The published spec is not
+  authoritative on what the live endpoint demands.**
 - **Gallery captions are query parameters**, so they must be percent-encoded; several contain
   colons and commas.
 

@@ -95,6 +95,13 @@ print(json.dumps({
   "issues_url": "https://github.com/Sablednah/ZombieMod/issues",
   "source_url": "https://github.com/Sablednah/ZombieMod",
   "wiki_url": "https://sablecraft.co.uk/zombiemod-reforged/",
+  # `initial_versions` and `is_draft` are marked DEPRECATED in the published spec, and the live v2
+  # endpoint still REQUIRES them: leaving initial_versions out gives
+  #   400 invalid_input "Error while parsing JSON: missing field `initial_versions`"
+  # which reads like malformed JSON rather than a missing field. Send them empty and upload the
+  # versions afterwards through /version, which is what the deprecation is steering you towards.
+  "initial_versions": [],
+  "is_draft": True,
 }))')"
 
 if [ "$EXISTING" = "200" ]; then
@@ -103,7 +110,9 @@ if [ "$EXISTING" = "200" ]; then
     PATCH_DATA="$(python3 -c '
 import json, sys
 d = json.load(sys.stdin)
-for k in ("slug", "project_type", "client_side", "server_side"):
+# Create-only fields: PATCH rejects them.
+for k in ("slug", "project_type", "client_side", "server_side",
+          "initial_versions", "is_draft", "gallery_items"):
     d.pop(k, None)
 print(json.dumps(d))' <<<"$DATA")"
     api PATCH "/project/$SLUG" -H "Content-Type: application/json" --data-binary "$PATCH_DATA" > /dev/null
