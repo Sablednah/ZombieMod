@@ -32,6 +32,14 @@ session did, for the record:
 - Artwork used: `docs/slime-logo-850.png` as the landing wordmark, `docs/main-logo.png` as the
   `/game-plugins/` card logo, and ten of `screenshots/` resized to 1200px JPEG.
 
+**New source file for the site: [`NODES.md`](NODES.md).** Permissions, written because there were no
+docs on this at all and an admin looking for `zombiemod.*` nodes found nothing. The headline is that
+**there are none** — everything is vanilla command permission levels — so the page has to say that
+plainly rather than list nodes that do not exist. It carries the full command/level tables, the two
+deliberate holes (`observe off` is open to everyone, and neither root carries a bar), the
+console-versus-player split, and the client-only `/zmdex` commands. Build a page from it the way the
+settings and commands pages are built.
+
 **One drift risk to know about:** the `/game-plugins/` card carries a version line, matching the
 other NeoForge cards on that page. It must name all three lines now — 1.21.11, 26.1.2 and 26.2 —
 not just the first.
