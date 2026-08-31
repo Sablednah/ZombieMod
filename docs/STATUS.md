@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-08-26 (3.1.1, plus the 26.x branches).
+Last updated 2026-08-31 (3.4.0, across three Minecraft versions).
 
 **Counts here are now taken off the source, not off prose.** They had drifted — this file said 56
 genera, 12 goal types, 22 abilities, 12 conditions and 3 hordes, and every one of those was wrong.
