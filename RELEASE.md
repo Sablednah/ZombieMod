@@ -62,9 +62,21 @@ per-platform edit. Do not fork it into a second file.
 
 Requirements block to append to the release body:
 
-> **Requirements:** Minecraft 1.21.11, NeoForge 21.11.42+, Java 21.
+> **Requirements** — there is a jar per Minecraft version, named for the one it was built against.
+> Take the one that matches your server.
+>
+> | Minecraft | NeoForge | Java |
+> |---|---|---|
+> | 1.21.11 | 21.11.42+ | 21 |
+> | 26.1.2 | 26.1.2.95+ | 25 |
+> | 26.2 | 26.2.0.59+ | 25 |
+>
 > Install on the server. Your players do not need the mod — a stock client can join and meet every
 > genus. Installing it client-side too is optional and adds the ZombieDex screen.
+
+Keep this table, `CURSEFORGE.md`'s and [`docs/MULTIVERSION.md`](docs/MULTIVERSION.md)'s in step —
+MULTIVERSION.md is the measured one, so it is the source. All three said 1.21.11 alone for two
+releases after the branches appeared.
 
 ---
 
@@ -84,7 +96,9 @@ Requirements block to append to the release body:
 | Wiki | `https://sablecraft.co.uk/zombiemod-reforged/` |
 
 **Categories:** Mobs, Server Utility, Adventure and RPG.
-**Game version:** 1.21.11 · **Modloader:** NeoForge · **Release type:** Release.
+**Modloader:** NeoForge · **Release type:** Release.
+**Game version:** not typed in — both upload scripts read it from each jar's `+mc` filename suffix,
+so a release carrying three jars is tagged for three Minecraft versions without anyone choosing.
 
 ---
 

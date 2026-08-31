@@ -32,8 +32,9 @@ session did, for the record:
 - Artwork used: `docs/slime-logo-850.png` as the landing wordmark, `docs/main-logo.png` as the
   `/game-plugins/` card logo, and ten of `screenshots/` resized to 1200px JPEG.
 
-**One drift risk to know about:** the `/game-plugins/` card carries a version line
-("Minecraft 1.21.11, NeoForge 21.11.42+, Java 21"), matching the other NeoForge cards on that page.
+**One drift risk to know about:** the `/game-plugins/` card carries a version line, matching the
+other NeoForge cards on that page. It must name all three lines now — 1.21.11, 26.1.2 and 26.2 —
+not just the first.
 That is the one place outside the landing page where a version number lives, and it is exactly the
 line that went stale for CityWorld once. Check it on any release that moves the matrix.
 
@@ -102,11 +103,13 @@ landing-page edit at all. Worth doing the same here from the start.
 
 Requirements for the landing page:
 
-> **Requirements**
+> **Requirements** — there is a jar per Minecraft version, named for the one it was built against.
 >
 > | Minecraft | NeoForge | Java |
 > |---|---|---|
 > | 1.21.11 | 21.11.42+ | 21 |
+> | 26.1.2 | 26.1.2.95+ | 25 |
+> | 26.2 | 26.2.0.59+ | 25 |
 >
 > Install on the server. Your players do not need the mod — they can join on a stock client from the
 > Mojang launcher. Installing it client-side too is optional and adds the ZombieDex screen; people

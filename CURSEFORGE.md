@@ -48,7 +48,7 @@ daylight and hunts you after dark.
 
 ## Faces
 
-Fifty-three of the sixty-one wear a **real face**, rendered on an unmodified client, because a genus
+Fifty-one of the sixty-one wear a **real face**, rendered on an unmodified client, because a genus
 can carry a player-head texture in its JSON. It is the single thing that makes a crowd read as a
 cast rather than a palette swap — you recognise a Clicker before you are close enough to be in
 trouble.
