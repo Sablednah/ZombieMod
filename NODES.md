@@ -135,12 +135,15 @@ A permissions mod that works *only* by named nodes has nothing of ZombieMod's to
 is nothing to name. This is worth stating plainly, since the alternative is an admin adding
 `zombiemod.*` to a config, seeing nothing happen, and reasonably concluding something is broken.
 
-Minecraft 1.21.11 did add a named-permission concept — `Permission.Atom`, an id like
-`minecraft:commands/entity_selectors` — alongside the old level checks. ZombieMod does not yet
-define any atoms of its own. **If per-command nodes would be useful on your server, that is a
-reasonable feature request**; open an issue at
-<https://github.com/Sablednah/ZombieMod/issues> saying which commands you want to split apart, since
-the useful shape depends on how you actually delegate.
+**Named nodes are planned.** NeoForge has a `PermissionAPI` that LuckPerms and
+[SableCraft Standards](https://github.com/Sablednah/SableCraft-Standards) both implement, and
+registering ZombieMod's commands as nodes there would let you delegate them per group — letting a
+moderator call a horde without also handing them `/zombiemod config`, for instance. It will not
+change any default: a server that grants nothing will behave exactly as this page describes.
+
+No date on it. If you have a view on **which commands are worth splitting apart**, that is the part
+worth hearing, because the useful shape depends on how a server actually delegates — say so at
+<https://github.com/Sablednah/ZombieMod/issues>.
 
 ## What is *not* permission-gated
 

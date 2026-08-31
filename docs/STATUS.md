@@ -625,12 +625,32 @@ history, so anyone who recovers it needs those terms. CLAUDE.md carries the
 
 1. **Watch the Undertow meet somebody.** It is the headline of 3.1.0, it has never been played, and
    its weight is a first guess.
-2. **Modrinth moderation.** Submitted 2026-08-31; nothing to do but wait. If it comes back on the
+2. **Permission nodes** — deferred on purpose 2026-08-31, to let 3.4.0 settle. The findings, so the
+   design is not re-derived wrong later:
+
+   - **This is not a `compat/Standards` integration, and building it as one would be a mistake.**
+     Standards is a *handler* for NeoForge's own `PermissionAPI`, and so is LuckPerms. ZombieMod
+     registers its nodes on `PermissionGatherEvent` — plain NeoForge, no dependency on anything —
+     and both managers then grant them, along with wildcards like `zombiemod.*`. The
+     reflective-and-inert rule in CLAUDE.md is for mods we *call*; here nobody calls anybody.
+   - **Boolean nodes only.** Standards' resolver passes integer, string and component nodes
+     straight through to their own resolver, deliberately. A numbered idiom is the way to express a
+     quantity — `standards.home.limit.5` is the precedent.
+   - **Every node's default resolver must reproduce today's behaviour**, so a server that switches a
+     manager on and grants nothing is unchanged. Standards asserts that property first in its own
+     self-test, and [`../NODES.md`](../NODES.md) is now the statement of what the defaults have to be.
+   - The interesting split is **not** one node per command. It is the delegation an owner actually
+     wants: a moderator who can call a horde and spawn a genus but cannot touch `config` or the
+     corpse ledger. Worth asking a server owner before designing it.
+
+   Standards' `PERMISSIONS.md` is the reference; read it before starting, not during.
+
+3. **Modrinth moderation.** Submitted 2026-08-31; nothing to do but wait. If it comes back on the
    artwork, the fallback is a further-simplified wordmark — the shield is already known to fail.
-3. **Proximity in survival.** Enabled in Sable's instance; the cap semantics are settled ("quiet
+4. **Proximity in survival.** Enabled in Sable's instance; the cap semantics are settled ("quiet
    place top up is perfect" — 2026-08-15). What remains is a survival session on quiet ground
    watching it fire, and whether `nearbyCap = 8` feels like atmosphere.
-4. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
+5. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
 
