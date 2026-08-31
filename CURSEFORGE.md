@@ -48,7 +48,7 @@ daylight and hunts you after dark.
 
 ## Faces
 
-Fifty-one of the fifty-eight wear a **real face**, rendered on an unmodified client, because a genus
+Fifty-three of the sixty-one wear a **real face**, rendered on an unmodified client, because a genus
 can carry a player-head texture in its JSON. It is the single thing that makes a crowd read as a
 cast rather than a palette swap — you recognise a Clicker before you are close enough to be in
 trouble.
@@ -148,9 +148,14 @@ take no damage while remaining a completely normal target, and `/zombiemod horde
 | Minecraft | NeoForge | Java |
 |---|---|---|
 | 1.21.11 | 21.11.42+ | 21 |
+| 26.1.2 | 26.1.2.95+ | 25 |
+| 26.2 | 26.2.0.59+ | 25 |
+
+There is **a jar per Minecraft version**, named for the one it was built against — take the one that
+matches your server.
 
 **Install on the server. That is all.** No dependencies, and nothing your players have to do —
-they can join on a stock client from the Mojang launcher and meet every one of the fifty-eight.
+they can join on a stock client from the Mojang launcher and meet every one of the sixty-one.
 Installing it client-side as well is optional and adds the ZombieDex screen; people with and without
 it play together on the same server.
 
