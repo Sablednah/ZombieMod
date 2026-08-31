@@ -64,10 +64,27 @@ print("!! Modrinth does not list Minecraft %r yet. Newest releases it knows: %s"
       % (mc, ", ".join(rel)), file=sys.stderr)
 sys.exit(1)'
 
+# `project_id` must be the project's base62 ID, NOT its slug. Passing the slug gives
+#   400 invalid_input "Error while parsing JSON: Invalid character '-' in base62 encoding"
+# because "zombiemod-reforged" contains a hyphen - a message that names neither the field nor the
+# slug, and points at a column deep inside the embedded changelog. Every other endpoint here takes
+# `{id|slug}` interchangeably; this body field does not.
+echo ">> Resolving the project ID for /$SLUG"
+LOOKUP="$(curl -sS --max-time 60 -w '\n%{http_code}' -H "$AUTH" -H "User-Agent: $UA" "$API/project/$SLUG")"
+LOOKUP_STATUS="$(tail -n1 <<<"$LOOKUP")"
+if [ "$LOOKUP_STATUS" != "200" ]; then
+    echo "!! Could not read the project at /$SLUG (HTTP $LOOKUP_STATUS)." >&2
+    [ "$LOOKUP_STATUS" = "404" ] && echo "!! A draft is invisible without authentication, so a 404 here means either the token is not authorised for it or scripts/modrinth-create.sh has not been run." >&2
+    exit 1
+fi
+PROJECT_ID="$(sed '$d' <<<"$LOOKUP" | python3 -c 'import json,sys; print(json.load(sys.stdin)["id"])')"
+[ -n "$PROJECT_ID" ] || { echo "!! The project lookup returned no id." >&2; exit 1; }
+echo "   $SLUG = $PROJECT_ID"
+
 # `environment` is a version field on v2 (the project-level pair is client_side/server_side).
 # server_only_client_optional is the exact truth: the mod does its work on the server, and a client
 # that has it also gets the ZombieDex screen.
-DATA="$(CHANGELOG="$CHANGELOG_FILE" SLUG="$SLUG" VN="$VERSION_NUMBER" MC="$MC_VERSION" \
+DATA="$(CHANGELOG="$CHANGELOG_FILE" PID="$PROJECT_ID" VN="$VERSION_NUMBER" MC="$MC_VERSION" \
         RTYPE="$RELEASE_TYPE" NAME="ZombieMod $VERSION_NUMBER" python3 -c '
 import json, os
 print(json.dumps({
@@ -80,7 +97,7 @@ print(json.dumps({
   "loaders": ["neoforge"],
   "featured": True,
   "environment": "server_only_client_optional",
-  "project_id": os.environ["SLUG"],
+  "project_id": os.environ["PID"],
   "file_parts": ["file"],
   "primary_file": "file",
 }))')"
@@ -117,6 +134,10 @@ echo "$BODY" >&2
 case "$STATUS" in
     401) echo "!! 401 is the token. Modrinth takes the raw token with NO 'Bearer ' prefix, and the PAT needs the VERSION_CREATE scope." >&2 ;;
     404) echo "!! 404 means no project at /$SLUG. Run scripts/modrinth-create.sh first - a version cannot be uploaded to a project that does not exist." >&2 ;;
-    400) echo "!! 400 with 'duplicate' in it means this version number is already up. Modrinth version numbers are unique per project, which is why the +mc suffix is part of ours." >&2 ;;
+    400) if grep -qi duplicate <<<"$BODY"; then
+             echo "!! This version number is already up. Modrinth version numbers are unique per project, which is why the +mc suffix is part of ours." >&2
+         else
+             echo "!! A 400 here is a rejected field. Note the column it names counts into the JSON, most of which is the embedded changelog, so it rarely points at the offending field. Re-run with MODRINTH_DEBUG=1 to print the metadata." >&2
+         fi ;;
 esac
 exit 1

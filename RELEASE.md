@@ -298,6 +298,12 @@ tag's ref, so `gradle.properties` there describes one of the three and would mis
   authoritative on what the live endpoint demands.**
 - **Gallery captions are query parameters**, so they must be percent-encoded; several contain
   colons and commas.
+- **`project_id` on a version is the base62 project ID, not the slug.** Every path here takes
+  `{id|slug}` interchangeably, so this is easy to get wrong; the slug gives
+  `400 invalid_input`, *"Invalid character '-' in base62 encoding"* — which names neither the field
+  nor the slug, and points at a column deep inside the embedded changelog. `modrinth-upload.sh`
+  looks the ID up from the slug on every run. **Read a 400's column number with suspicion**: it
+  counts into the whole JSON body, most of which is changelog.
 
 The same `--form-string`-not-`-F` rule as CurseForge applies to both multipart calls: curl gives
 `;`, a leading `@` and a leading `<` special meaning inside an `-F` value, and both the description
