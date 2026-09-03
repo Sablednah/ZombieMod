@@ -5,13 +5,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 **ZombieMod ReForged** — a NeoForge rewrite of ZombieMod, a 2013 Bukkit/Spigot plugin that added
-configurable custom zombie types. The port was built in place at the repo root. **Released as 3.0.0**
-(2026-08-17); the port is complete and the 1.8 reference tree has been removed — see *Reading the
-original Bukkit plugin* below for how to get it back when you need it.
+configurable custom zombie types. The port was built in place at the repo root. The port is
+complete and the 1.8 reference tree has been removed — see *Reading the original Bukkit plugin*
+below for how to get it back when you need it.
+
+**Shipping as 3.4.0** (2026-08-30): 61 genera, on GitHub and CurseForge, and on Modrinth as
+`zombiemod-reforged` (submitted 2026-08-31, awaiting first moderation). A jar per Minecraft version,
+three of them.
 
 This is the **fourth** Bukkit→NeoForge port in a series. `../MobHealth-Forge` is the canonical
 template and `../CityWorld-ReForged/PORTING.md` is the richest source of verified 1.21.11 API notes.
 Read those before inventing anything.
+
+**`master`'s targets** — the other two branches differ, see [docs/MULTIVERSION.md](docs/MULTIVERSION.md):
 
 | | |
 |---|---|
@@ -21,6 +27,25 @@ Read those before inventing anything.
 | Build | Gradle + ModDevGradle (`net.neoforged.moddev`) |
 | Licence | MIT (the 1.8 plugin was CC BY-NC-ND; same author relicensed, as with WoodDye) |
 | Mod id | `zombiemod`, package `com.sablednah.zombiemod` |
+
+### Where the documents are
+
+Code guidance is this file. Everything else has a home, and the rule is that a fact lives in exactly
+one of them:
+
+| Doc | What only it knows |
+|---|---|
+| [docs/MULTIVERSION.md](docs/MULTIVERSION.md) | **Read first for anything version-related.** The measured three-version matrix; the source when a requirements table disagrees |
+| [docs/STATUS.md](docs/STATUS.md) | Where the project actually is, and the backlog in the order to do it |
+| [docs/BALANCE.md](docs/BALANCE.md) | The balance model and its deliberate exceptions |
+| [RELEASE.md](RELEASE.md) | Every store field, the gallery order, and the publishing traps — CurseForge *and* Modrinth |
+| [CURSEFORGE.md](CURSEFORGE.md) | The store description. Used verbatim for both stores; **do not fork it** |
+| [NODES.md](NODES.md) | Permissions. See *Command permissions* below |
+| [WEBSITE.md](WEBSITE.md) | Handover to the sablecraft.co.uk session |
+
+**Publishing is automated from a GitHub release.** Publishing one uploads to CurseForge *and*
+Modrinth, each reading a jar's Minecraft version from its `+mc` filename suffix. Creating a new store
+project is the only manual part. See RELEASE.md before touching either workflow.
 
 ## Build & run
 
@@ -270,6 +295,31 @@ decodes the escape and the running mod emits one. Confirm every hit is a comment
 `GuiGraphics.drawString` on the client (where section codes *are* the correct mechanism), or a
 regex that strips them. Legitimate hits today are `client/DexScreen.java` (font rendering),
 `Bounties` (action bar) and `HordeDirector` (boss-bar name) — all client-rendered only.
+
+### Command permissions: levels, not nodes — and two Brigadier traps
+
+**There are no named permission nodes.** Every command is gated with
+`Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)` (level 2) or `LEVEL_ADMINS` (level 3), and the
+open ones carry no requirement at all. [`NODES.md`](NODES.md) is the public statement of exactly
+which command sits where — **it is documentation of behaviour, so changing a command's level means
+changing that file in the same commit.** It was written because an admin went looking for
+`zombiemod.*` nodes and found neither nodes nor an explanation.
+
+Two things about Brigadier that this tree has already been bitten by:
+
+- **A requirement on a literal gates its whole subtree**, and this stranded a real player. Observer
+  mode was switched on for them, they were deopped, and `observe off` — the only way out — now
+  needed the permission they had just lost. They were invulnerable and could not fix it, and neither
+  could an op, because the command only ever acts on whoever types it. **So the bar goes on the
+  things that grant something and never on the way out.** `observe off` is open to everyone
+  permanently, and the self-toggle checks the level *in code* because one node cannot bar a single
+  direction.
+- **A child's requirement is ANDed with its parent's**, so a restrictive root cannot be relaxed by a
+  permissive child. Neither `zombiemod` nor the `zm` redirect carries a bar; a level-2 root would
+  put the bestiary permanently out of a normal player's reach. Each subcommand carries its own.
+
+Permission level is also **not** the only thing deciding whether a command works from the console:
+several call `getPlayerOrException` because they act on whoever typed them. `NODES.md` has the split.
 
 ### Picking a face for a new genus
 
@@ -525,3 +575,14 @@ only CityWorld survives — and it's the same author's, being ported next door.
 number of the lot. Keep it **optional** — the 1.8
 plugin's real bug was calling Factions' `BoardColl` with no `hasFactions` guard, making a soft
 dependency mandatory in practice.
+
+**Permission managers are the exception to the `compat/` rule, and the exception matters.** When
+ZombieMod grows permission nodes, they get registered on NeoForge's `PermissionGatherEvent` and
+nothing goes in `compat/`. SableCraft Standards' permission system is a *handler* for NeoForge's own
+`PermissionAPI` — the same interface LuckPerms implements — and it grants any mod's boolean nodes,
+including ones it has never heard of. Both sides talk to NeoForge; nobody calls anybody, so there is
+nothing to guard and no dependency to make optional. Wrapping it in a reflective `compat/Standards`
+would be pure ceremony. Constraints when it is built: **boolean nodes only** (Standards passes typed
+nodes through to their own resolver on purpose — use the numbered `mod.thing.limit.5` idiom for
+quantities), and **every default resolver must reproduce `NODES.md`**, so a server that installs a
+manager and grants nothing behaves exactly as before. Read Standards' `PERMISSIONS.md` first.
