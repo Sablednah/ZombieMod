@@ -523,10 +523,14 @@ from it at build time, so never edit the generated file.
 | Version | Shipped | What it was |
 |---|---|---|
 | `3.0.0` | 2026-08-18 | First release of the NeoForge rewrite. 58 genera. |
-| `3.1.0` | 2026-08-24 | The Undertow (61 genera), bounties through Standards, the Rusted Warden's shockwave cadence, and section codes gone from command output. |
+| `3.1.0` | 2026-08-24 | The Undertow (59 genera), bounties through Standards, the Rusted Warden's shockwave cadence, and section codes gone from command output. |
+| `3.1.1` | 2026-08-25 | The Undertow actually swims. `float` pins a swimmer to the surface, and the new `random_swim` goal gave `navigation: swim` the half it had always been missing. |
+| `3.2.0` | 2026-08-26 | Minecraft 26.1.2 and 26.2 alongside 1.21.11, a jar each from one source tree. A wrong item id in a genus stopped taking the world down with it, and `/zombiemod status` began counting the six reasons a conversion declines. |
+| `3.3.0` | 2026-08-28 | Seasonal genera: a `zombiemod:date` spawn condition, Jack (24 Oct - 2 Nov) and Krampus (18 Dec - 2 Jan) — 61 genera — and `dateOverride` so they can be seen out of season. |
+| `3.4.0` | 2026-08-30 | Griefing asks *any* claims mod rather than FTB Chunks alone; `/zombiemod observe off` needs no permission, so a deopped observer is no longer stranded; each jar accepts any NeoForge on its own line; blindness counts as combat. |
 
 **Publishing to GitHub publishes to CurseForge**, via `.github/workflows/curseforge.yml`. Proven on
-both releases.
+every release so far.
 
 **Three things the automation does not do.** Each is manual, and each is invisible when forgotten:
 
@@ -545,6 +549,12 @@ both releases.
 icon, nine captioned gallery images and all three 3.4.0 jars as separate versions
 (`3.4.0+mc1.21.11`, `3.4.0+mc26.1.2`, `3.4.0+mc26.2`). Submitted from the website with an **AI-use
 declaration**, which the API cannot supply — see below. It stays private until moderation passes.
+
+**Still "Under review" on 2026-09-09**, nine days in, and so are CityWorld ReForged and MobHealth
+ReForged on the same account — so this is Modrinth's queue, not a second artwork rejection. The
+public API answers **404** for a project in this state, which is indistinguishable from a rejected
+or deleted one; the author dashboard at <https://modrinth.com/dashboard/projects> is the only place
+that says which. Do not read a 404 as a refusal.
 
 The machinery is three scripts driven by `.github/workflows/modrinth.yml`:
 `create-project` (private draft + icon + gallery), `upload-versions` (a Modrinth version per jar,
