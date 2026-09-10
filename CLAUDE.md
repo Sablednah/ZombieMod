@@ -92,6 +92,77 @@ export PATH="$JAVA_HOME/bin:$PATH"
 - Versions/metadata live in `gradle.properties` and expand into
   `src/main/templates/META-INF/neoforge.mods.toml` at build time. Never edit a generated mods.toml.
 
+### Which build is this? The stamp, and the four things holding it up
+
+Every jar records the commit it came from, and the mod says so in the line that always prints:
+
+```
+ZombieMod ReForged 3.4.0+mc1.21.11 (build 1946c37a on master, 2026-09-10T07:49:34Z) loaded - ...
+```
+
+The same string is a line of `/zombiemod status`, because that is what gets pasted into a bug
+report and an admin in game has no log to hand. **A version number answers "which release"; during
+development that is a different question from "which bytes"**, and it is sharper here than in the
+sibling mods — a release is three jars that differ only in a `+mc` suffix.
+
+Two carriers, for two readers. `/zombiemod/build.properties` is read by the running mod;
+`Build-Commit`/`Build-Branch`/`Build-Time` on the manifest are for inspecting a jar from a shell:
+
+```bash
+unzip -p build/libs/zombiemod-3.4.0+mc1.21.11.jar META-INF/MANIFEST.MF | grep Build
+```
+
+`-dirty` on the commit means the jar was built from uncommitted changes — worth seeing in
+somebody's log before spending an hour reproducing against a tag. The format is shared with the
+other SableCraft mods; **copied, not a common plugin**, on purpose.
+
+Four things are load-bearing and none of them announce themselves:
+
+- **`time` is the *commit's* timestamp, not the wall clock, and this is a caching decision.**
+  `new Date()` at configure time rewrites the generated resource on every invocation, so
+  `processResources` and `jar` can never be up to date — measured here at 3 of 5 tasks re-executed
+  and 42s for a rebuild with nothing changed, against 5 up-to-date in 11s after. Use `%ct` and not
+  `%cI`: `%cI` carries the committer machine's UTC offset, so one commit stamps differently on two
+  machines.
+- **`version` carries the `+mc` tag; `branch` must not be asked to.** `mod_version` is identical on
+  all three branches, so a bare version reads the same on 1.21.11 and 26.2. `branch` looks like it
+  distinguishes them only because it correlates here — it is empty in a source zip or a detached CI
+  checkout.
+- **`BuildInfo`'s `RESOURCE` must stay a compile-time constant.** `MOD_ID` is a constant
+  expression, so javac inlines it and `BuildInfo.class` ends up with no runtime reference to
+  `ZombieMod` or NeoForge — which is what lets the real compiled class be driven from `jshell` to
+  check its own fallbacks with no Minecraft at all. Reading the path from a field or the config
+  reintroduces the dependency with **no compile error** and the check silently stops working.
+- **The degrade is all-or-nothing because of where the assignments sit**, not because a comment says
+  so. `Properties.load` completes or throws before the first `getProperty`, so a half-parsed file
+  cannot leave a real-looking commit beside three `unknown`s — which would be worse than no stamp,
+  because it looks like an answer. Keep the assignments after `load()`, never interleaved.
+
+**Absence is the easy case; corruption is the one that bites.** A missing resource is a null
+stream, but `Properties.load` throws **`IllegalArgumentException`** — not `IOException` — on a
+malformed unicode escape, so the obvious `catch (IOException)` would compile, read correctly, pass
+review, and take the mod down at class-init as an `ExceptionInInitializerError`. Failing to load
+over a diagnostic. `catch (Exception)` is deliberate; it was right by luck in four repos before
+anyone tested it.
+
+Check the fallbacks by **running them**, against the real class rather than a copy:
+
+```bash
+run() { printf 'System.out.println(com.sablednah.zombiemod.BuildInfo.describe());\n/exit\n' \
+        | jshell --class-path "$1" -s -; }
+run build/libs/zombiemod-3.4.0+mc1.21.11.jar   # from a jar
+run build/classes/java/main                    # no stamp resource at all
+```
+
+Then the three that actually exercise the catch, each a directory holding
+`zombiemod/build.properties` appended to the classpath: a malformed unicode escape, 200 bytes of
+`/dev/urandom`, and — the one worth keeping — **three valid lines followed by a throwing one**,
+which is the partial-parse case. All must print `unknown (build unknown on unknown, unknown)`.
+
+**Do not write a unicode escape literally in a comment.** javac decodes them inside comments too,
+so the comment explaining this failed the build with `error: illegal unicode escape`. Say it in
+words.
+
 ## The one architectural decision everything follows from
 
 **ZombieMod registers no entity types of its own.** A vanilla client cannot render an entity type it

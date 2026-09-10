@@ -7,6 +7,35 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone.
 
+## Unreleased
+
+### Added
+
+- **Every jar says which build it is, and the mod says so at startup.** A version number answers
+  "which release"; during development that is a different question from "which bytes", and it is a
+  sharper one here than in most mods because a release ships three jars that differ only in a `+mc`
+  suffix. The startup line and `/zombiemod status` now both read like this:
+
+  ```
+  ZombieMod ReForged 3.4.0+mc1.21.11 (build 1946c37a on master, 2026-09-10T07:49:34Z)
+  ```
+
+  A `-dirty` suffix on the commit means that jar was built from uncommitted changes. The same four
+  values are on the jar manifest as `Build-Commit`, `Build-Branch` and `Build-Time`, so a jar can be
+  identified from a shell without loading it:
+
+  ```bash
+  unzip -p zombiemod-3.4.0+mc1.21.11.jar META-INF/MANIFEST.MF | grep Build
+  ```
+
+  **What it is for is bug reports.** A stamp inside a jar says what is on disk; the startup line
+  says what actually *ran*, which is the question a report needs answered and the one that could not
+  be answered before. The format is shared with the other SableCraft mods, so a server owner running
+  several of them reads the same line from each.
+
+  The stamp can never stop the mod loading: a missing or corrupt one degrades to `unknown`, and the
+  build tolerates git being absent, as in a source zip.
+
 ## 3.4.0
 
 *2026-08-30.* Zombies respect whoever owns the land, and nobody gets stuck invulnerable.
