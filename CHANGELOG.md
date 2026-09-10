@@ -21,6 +21,12 @@ world alone.
   and anything aimed at `nearby_players` — now treats a vanished player the way it already treated
   spectators and creative-mode players: present in the world, but not someone to react to.
 
+  **Proximity spawning and hordes do the same.** Neither will pick a vanished player: no crowd
+  quietly accumulates around staff standing in an empty field, and no horde starts on somebody
+  nobody can see. A horde already running when its player vanishes ends the way it does when they
+  log out — the bar comes down and nothing more is sent, while whatever had already spawned stays
+  in the world. Vanishing walks away from a fight rather than rewinding it.
+
   Nothing to configure, and nothing changes on a server without Standards installed.
 
 ### Added

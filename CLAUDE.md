@@ -660,6 +660,12 @@ joins spectators and creative players in the list of people who are present but 
 **Ask `StandardsVanish.anyVanished()` before asking about a player**: it is one field read on
 Standards' side and false on virtually every server, and this runs per ability per tick.
 
+Same rule anywhere else we single a player out: `ProximitySpawner` and `HordeDirector` both skip a
+vanished player exactly where they already skip spectators and creative ones, and a horde whose
+player vanishes mid-run goes down the existing `player.isRemoved()` path rather than a new one.
+**The test for whether something needs this is "does it pick a player out and act on them", not
+"does it damage them"** — the proximity crowd does no harm at all and still gives a vanish away.
+
 **Permission managers are the exception to the `compat/` rule, and the exception matters.** When
 ZombieMod grows permission nodes, they get registered on NeoForge's `PermissionGatherEvent` and
 nothing goes in `compat/`. SableCraft Standards' permission system is a *handler* for NeoForge's own
