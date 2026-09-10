@@ -9,6 +9,20 @@ world alone.
 
 ## Unreleased
 
+### Fixed
+
+- **Zombies no longer react to vanished players.** A Boomer was detonating beside staff who had
+  vanished through [SableCraft Standards](https://github.com/Sablednah/SableCraft-Standards) — and a
+  crater with no visible cause gives a hidden player away as completely as being seen would.
+
+  Standards already stops mobs *targeting* someone vanished, which is why this only showed up on a
+  few abilities. The Boomer's fuse never consults a target: it asks who is standing within its
+  trigger radius, and a vanished player was answering. Every ability that sweeps an area — the fuse,
+  and anything aimed at `nearby_players` — now treats a vanished player the way it already treated
+  spectators and creative-mode players: present in the world, but not someone to react to.
+
+  Nothing to configure, and nothing changes on a server without Standards installed.
+
 ### Added
 
 - **Every jar says which build it is, and the mod says so at startup.** A version number answers

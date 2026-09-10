@@ -647,6 +647,19 @@ number of the lot. Keep it **optional** — the 1.8
 plugin's real bug was calling Factions' `BoardColl` with no `hasFactions` guard, making a soft
 dependency mandatory in practice.
 
+**Vanish is the shape of a good `compat/` seam, and the division is the point.** Standards answers
+the one question it owns — *is this player hidden* — and each mod acts on it for the things that mod
+is responsible for. It already blocks mob **targeting** globally (a `LivingChangeTargetEvent` veto
+plus clearing existing targets when someone vanishes), so do **not** add our own: it is done, for
+every mob in the game, and duplicating it was drafted here and thrown away.
+
+What Standards cannot do is know that a Boomer's fuse is a **proximity sweep** with no target
+involved — it asks who is standing nearby, and a vanished admin was answering, so the thing exploded
+beside nobody. That is ours, and it lives in `Targets.nearbyPlayers`, where a vanished player now
+joins spectators and creative players in the list of people who are present but not participating.
+**Ask `StandardsVanish.anyVanished()` before asking about a player**: it is one field read on
+Standards' side and false on virtually every server, and this runs per ability per tick.
+
 **Permission managers are the exception to the `compat/` rule, and the exception matters.** When
 ZombieMod grows permission nodes, they get registered on NeoForge's `PermissionGatherEvent` and
 nothing goes in `compat/`. SableCraft Standards' permission system is a *handler* for NeoForge's own
