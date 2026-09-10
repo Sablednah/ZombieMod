@@ -33,7 +33,14 @@ public final class BuildInfo {
 
     /** Namespaced: a bare {@code /build.properties} would collide with every other mod doing the
      *  same thing on a shared classpath, and reading a sibling mod's stamp is worse than having
-     *  none — it would be confidently wrong. */
+     *  none — it would be confidently wrong.
+     *
+     *  <p><b>Keep this a compile-time constant.</b> {@code MOD_ID} is a constant expression, so
+     *  javac inlines it and this class ends up with no runtime reference to {@link ZombieMod} or
+     *  to NeoForge at all — which is what lets the real compiled class be driven straight from
+     *  {@code jshell} to check the fallbacks, no Minecraft needed. Reading the path from a field,
+     *  a method or the config would reintroduce that dependency silently, with no compile error
+     *  to say the standalone run had stopped working. */
     private static final String RESOURCE = "/" + ZombieMod.MOD_ID + "/build.properties";
 
     private static final String COMMIT;
