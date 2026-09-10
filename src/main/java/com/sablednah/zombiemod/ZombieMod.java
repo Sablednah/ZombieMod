@@ -63,7 +63,11 @@ public class ZombieMod {
         NeoForge.EVENT_BUS.register(new HordeDirector());
         NeoForge.EVENT_BUS.register(this);
 
-        LOG.info("ZombieMod ReForged loaded - genera come from datapacks (data/<pack>/zombiemod/genus/).");
+        // The build stamp goes in the line that always prints, not in a diagnostic command: a bug
+        // report arrives with a log, and this says what actually ran. Especially here, where a
+        // release is three jars that differ only in a filename suffix - the branch names which.
+        LOG.info("ZombieMod ReForged {} loaded - genera come from datapacks (data/<pack>/zombiemod/genus/).",
+                BuildInfo.describe());
     }
 
     @SubscribeEvent

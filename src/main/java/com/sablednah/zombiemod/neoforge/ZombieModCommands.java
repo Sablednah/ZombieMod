@@ -12,6 +12,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import com.sablednah.zombiemod.platform.Msg;
+import com.sablednah.zombiemod.BuildInfo;
 import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.core.Genus;
@@ -528,6 +529,10 @@ public final class ZombieModCommands {
         var src = source;
         src.sendSuccess(() -> Component.literal("ZombieMod status")
                 .withStyle(ChatFormatting.YELLOW), false);
+        // The same stamp the startup line carries. status is what gets pasted into a bug report,
+        // and an admin reading it in game has no log to hand.
+        src.sendSuccess(() -> Component.literal("  build: " + BuildInfo.describe())
+                .withStyle(ChatFormatting.GRAY), false);
         src.sendSuccess(() -> Component.literal("  enabled: " + ZombieModConfig.ENABLED.get()
                 + "   vanillaWeight: " + ZombieModConfig.VANILLA_WEIGHT.get()
                 + "   logSpawns: " + ZombieModConfig.LOG_SPAWNS.get()), false);
