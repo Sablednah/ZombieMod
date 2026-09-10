@@ -6,6 +6,7 @@ import java.util.List;
 import com.sablednah.zombiemod.compat.LandClaims;
 import com.sablednah.zombiemod.platform.Types;
 import com.sablednah.zombiemod.ZombieModConfig;
+import com.sablednah.zombiemod.compat.StandardsVanish;
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.compat.FtbChunks;
 import com.sablednah.zombiemod.core.Genus;
@@ -95,9 +96,18 @@ public final class ProximitySpawner {
         }
         ticks = 0;
 
+        // Hoisted out of the loop: one field read on Standards' side, false on virtually every
+        // server, and it decides whether the per-player question is worth asking at all.
+        boolean anyVanished = StandardsVanish.anyVanished();
+
         for (ServerLevel level : event.getServer().getAllLevels()) {
             for (ServerPlayer player : level.players()) {
-                if (player.isSpectator() || player.isCreative()) {
+                // A vanished player joins spectators and creative players here for the same reason
+                // they do everywhere else: present in the world, but not somebody to spawn a crowd
+                // around. This one is a quiet giveaway rather than a loud one - staff standing in an
+                // empty field slowly acquiring company, with nothing to point at.
+                if (player.isSpectator() || player.isCreative()
+                        || (anyVanished && StandardsVanish.isVanished(player))) {
                     continue;
                 }
                 if (level.getRandom().nextDouble() >= ZombieModConfig.PROXIMITY_CHANCE.get()) {
