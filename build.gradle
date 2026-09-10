@@ -100,6 +100,38 @@ dependencies {
     // (mod/library dependencies go here)
 }
 
+// ---------------------------------------------------------------------------
+// Build stamp. A version number answers "which release"; during development that is a different
+// question from "which bytes", and three separate sessions lost time to that in one day - a jar
+// rebuilt under an unchanged version, a dependency range admitting a jar it could not run
+// against, and an instance nobody could tell was stale from the filename.
+//
+// It matters more here than in the sibling mods: a release ships THREE jars that differ only in
+// a +mc filename suffix, so "which bytes" and "which line of the three" are the same question,
+// and the branch is the thing that answers it.
+//
+// So the jar records the commit it came from, and says so in the log at startup: the log line is
+// the half that matters when somebody reports a bug, because it says what actually RAN rather
+// than what is on disk now.
+//
+// Resolved at configure time, tolerant of git being absent (a source zip, a CI checkout without
+// history) - an unknown stamp must never fail a build.
+static String gitOut(File dir, String... args) {
+    try {
+        var proc = new ProcessBuilder(args).directory(dir).redirectErrorStream(true).start()
+        var out = proc.inputStream.text.trim()
+        return proc.waitFor() == 0 && !out.isEmpty() ? out : null
+    } catch (Exception ignored) {
+        return null
+    }
+}
+var buildCommit = gitOut(projectDir, "git", "rev-parse", "--short=8", "HEAD") ?: "unknown"
+var buildBranch = gitOut(projectDir, "git", "rev-parse", "--abbrev-ref", "HEAD") ?: "unknown"
+var buildDirty  = gitOut(projectDir, "git", "status", "--porcelain")
+if (buildDirty) buildCommit += "-dirty"   // built from uncommitted changes; say so
+var buildTime = new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'", TimeZone.getTimeZone("UTC"))
+logger.lifecycle("Build stamp: ${buildCommit} on ${buildBranch} at ${buildTime}")
+
 // Expand mod metadata properties into the generated neoforge.mods.toml.
 var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
     var replaceProperties = [
@@ -114,6 +146,9 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
             mod_version            : mod_version,
             mod_authors            : mod_authors,
             mod_description        : mod_description,
+            build_commit           : buildCommit,
+            build_branch           : buildBranch,
+            build_time             : buildTime,
     ]
     inputs.properties replaceProperties
     expand replaceProperties
@@ -122,6 +157,20 @@ var generateModMetadata = tasks.register("generateModMetadata", ProcessResources
 }
 sourceSets.main.resources.srcDir generateModMetadata
 neoForge.ideSyncTask generateModMetadata
+
+// The same four values on the manifest, for reading a jar from a shell without loading it.
+// BuildInfo reads the properties file instead, because a dev run has no jar and no manifest.
+tasks.named('jar', Jar) {
+    manifest {
+        attributes([
+                "Implementation-Title"  : mod_name,
+                "Implementation-Version": mod_version,
+                "Build-Commit"          : buildCommit,
+                "Build-Branch"          : buildBranch,
+                "Build-Time"            : buildTime,
+        ])
+    }
+}
 
 publishing {
     publications {
