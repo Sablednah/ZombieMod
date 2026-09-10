@@ -70,6 +70,9 @@ public final class BuildInfo {
         return BRANCH;
     }
 
+    /** The <b>commit's</b> timestamp, UTC, not when gradle was run — a wall clock here changes
+     *  the generated resource on every invocation and defeats Gradle's up-to-date checks. The
+     *  SHA already says which bytes these are, so this answers the one question left. */
     public static String time() {
         return TIME;
     }
