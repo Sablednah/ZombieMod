@@ -53,8 +53,17 @@ public final class BuildInfo {
                 version = p.getProperty("version", version);
             }
         } catch (Exception ignored) {
-            // A missing or unreadable stamp must never stop the mod loading: it is diagnostic
-            // information, not a dependency.
+            // catch (Exception) is deliberate, not defensive habit. Properties.load throws
+            // IllegalArgumentException on a malformed unicode escape - NOT IOException - so the
+            // obvious catch (IOException) would compile, read correctly, pass review, and take the mod
+            // down at class-init as an ExceptionInInitializerError. Failing to load over a
+            // diagnostic. Absence is a null stream and easy; corruption is a throw.
+            //
+            // The degrade is all-or-nothing, and that depends on the ORDER above rather than on
+            // anything said here: load() completes or throws before the first getProperty, so a
+            // half-parsed file cannot leave a real-looking commit beside three unknowns - which
+            // would be worse than no stamp, because it looks like an answer. Keep the
+            // assignments after load(), never interleaved with it.
         }
         COMMIT = commit;
         BRANCH = branch;
