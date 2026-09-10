@@ -14,6 +14,7 @@ import com.sablednah.zombiemod.compat.LandClaims;
 import com.sablednah.zombiemod.platform.Bars;
 import com.sablednah.zombiemod.platform.Msg;
 import com.sablednah.zombiemod.ZombieModConfig;
+import com.sablednah.zombiemod.compat.StandardsVanish;
 import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.compat.FtbChunks;
 import com.sablednah.zombiemod.core.Announce;
@@ -126,7 +127,8 @@ public final class HordeDirector {
     }
 
     private void maybeStart(ServerLevel level, ServerPlayer player) {
-        if (player.isSpectator() || player.isCreative() || RUNNING.containsKey(player.getUUID())) {
+        if (player.isSpectator() || player.isCreative() || RUNNING.containsKey(player.getUUID())
+                || (StandardsVanish.anyVanished() && StandardsVanish.isVanished(player))) {
             return;
         }
         long since = level.getGameTime()
@@ -203,6 +205,19 @@ public final class HordeDirector {
         ServerPlayer player = active.player;
         if (player.isRemoved() || !(player.level() instanceof ServerLevel level)) {
             finish(active, null, false);
+            return false;
+        }
+
+        // Vanishing mid-horde ends it, down the same path as the player leaving - which is what has
+        // effectively happened. Not starting one is only half the problem: a running horde keeps
+        // sending waves to wherever the player is standing, and a wave materialising around nobody
+        // is the loud version of this bug.
+        //
+        // finish(..., false) is deliberately not a victory: the bar comes down, no reward is paid,
+        // and whatever was already spawned stays in the world. Vanishing is walking away from a
+        // fight, not rewinding it - Standards' phrase for the same rule on its own side.
+        if (StandardsVanish.anyVanished() && StandardsVanish.isVanished(player)) {
+            finish(active, level, false);
             return false;
         }
 
