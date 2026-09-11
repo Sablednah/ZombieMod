@@ -364,6 +364,16 @@ waiting only for somebody to turn it on and judge it. **Nothing is outstanding.*
 
 ## Parked ideas
 
+- **A `persistent` field on a genus — deliberately left out** (Sable's call, 2026-09-11: "if someone
+  ever wants it they can ask and we'll revisit"). Easy to add, and the exact footgun the persistence
+  fix removed: on any genus with `weight` above 0 it recreates the cap-defeating ratchet for that
+  genus, since a persistent mob drops out of vanilla's count and never leaves.
+
+  If it is ever asked for, the shape worth building: honour it only on `weight: 0` genera (ritual,
+  command, summon), and **log a warning at load** when it is set on one that spawns naturally,
+  saying why it is being ignored. Until then, a genus that matters that much can be a boss, which is
+  kept already.
+
 - **Real-world date spawning — Halloween and holiday genera.** Sable's, 2026-08-27. A new
   `zombiemod:date` spawn condition, after which it is pure JSON: a genus that only appears in the
   last week of October, or between Christmas and New Year.
