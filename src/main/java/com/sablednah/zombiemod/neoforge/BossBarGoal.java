@@ -2,7 +2,10 @@ package com.sablednah.zombiemod.neoforge;
 
 import java.util.EnumSet;
 
+import com.mojang.logging.LogUtils;
 import com.sablednah.zombiemod.core.BossSpec;
+
+import org.slf4j.Logger;
 
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
@@ -17,11 +20,13 @@ import net.minecraft.world.entity.ai.goal.Goal;
  */
 final class BossBarGoal extends Goal {
 
+    private static final Logger LOG = LogUtils.getLogger();
     private static final int UPDATE_INTERVAL = 5;
 
     private final Mob mob;
     private final BossSpec spec;
     private int ticks;
+    private boolean warned;
 
     BossBarGoal(Mob mob, BossSpec spec) {
         this.mob = mob;
@@ -50,8 +55,21 @@ final class BossBarGoal extends Goal {
             return;
         }
         ticks = 0;
-        if (mob.isAlive()) {
+        if (!mob.isAlive()) {
+            return;
+        }
+        try {
             BossBars.update(mob, spec);
+        } catch (Exception e) {
+            // A boss bar is UI, and a bug in UI must not stop the server. An exception out of a goal
+            // tick is a "Ticking entity" crash that takes the whole world down - which is how 3.4.0's
+            // viewer-list bug ended a Borg Hive mid-fight. Same rule as AbilityGoal. Once per boss,
+            // not per tick: this runs four times a second and the first stack trace says everything.
+            if (!warned) {
+                warned = true;
+                LOG.error("ZombieMod: the boss bar for {} failed; the fight carries on without it.",
+                        mob.getName().getString(), e);
+            }
         }
     }
 }
