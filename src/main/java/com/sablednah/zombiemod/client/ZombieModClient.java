@@ -39,8 +39,12 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 @Mod(value = ZombieMod.MOD_ID, dist = Dist.CLIENT)
 public final class ZombieModClient {
 
+    // Z, not J. J is JourneyMap's full-screen map, and a mod that common wins any argument over a key:
+    // nobody should have to rebind a minimap to install a zombie pack. Vanilla binds nothing to Z.
+    // Only fresh installs see this - options.txt saves every binding, defaults included, so anyone
+    // who ran an earlier version keeps whatever they had until they rebind it in Controls.
     private static final KeyMapping OPEN_DEX = new KeyMapping(
-            "key.zombiemod.dex", InputConstants.Type.KEYSYM, InputConstants.KEY_J,
+            "key.zombiemod.dex", InputConstants.Type.KEYSYM, InputConstants.KEY_Z,
             KeyMapping.Category.MISC);
 
     public ZombieModClient(IEventBus modEventBus, ModContainer container) {
