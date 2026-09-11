@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-08-31 (3.4.0, across three Minecraft versions).
+Last updated 2026-09-11 (3.4.1, across three Minecraft versions).
 
 **Counts here are now taken off the source, not off prose.** They had drifted — this file said 56
 genera, 12 goal types, 22 abilities, 12 conditions and 3 hordes, and every one of those was wrong.
@@ -590,6 +590,7 @@ from it at build time, so never edit the generated file.
 | `3.2.0` | 2026-08-26 | Minecraft 26.1.2 and 26.2 alongside 1.21.11, a jar each from one source tree. A wrong item id in a genus stopped taking the world down with it, and `/zombiemod status` began counting the six reasons a conversion declines. |
 | `3.3.0` | 2026-08-28 | Seasonal genera: a `zombiemod:date` spawn condition, Jack (24 Oct - 2 Nov) and Krampus (18 Dec - 2 Jan) — 61 genera — and `dateOverride` so they can be seen out of season. |
 | `3.4.0` | 2026-08-30 | Griefing asks *any* claims mod rather than FTB Chunks alone; `/zombiemod observe off` needs no permission, so a deopped observer is no longer stranded; each jar accepts any NeoForge on its own line; blindness counts as combat. |
+| `3.4.1` | 2026-09-11 | Room to breathe: genera stop being persistent, so they despawn and count toward vanilla's mob cap again (one world had reached 2,000+). A boss bar no longer crashes the server when a player leaves a living boss's range. Abilities, proximity spawning and hordes ignore vanished players. Build stamps in the jar and the startup log. The ZombieDex key moves from J to Z, off JourneyMap's. |
 
 **Publishing to GitHub publishes to CurseForge**, via `.github/workflows/curseforge.yml`. Proven on
 every release so far.
