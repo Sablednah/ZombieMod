@@ -42,6 +42,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.event.PlayLevelSoundEvent;
+import net.neoforged.neoforge.event.entity.living.MobDespawnEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 /**
@@ -371,6 +372,35 @@ public final class HordeDirector {
      * no horde is running is one reference comparison on a map that is empty, which is why the
      * emptiness check comes first: this event fires for every sound in the level.
      */
+    /**
+     * A running horde's zombies do not despawn - and stop being special the moment it ends.
+     *
+     * <p>Without this, one despawning mid-horde would read as a kill, and the last one despawning
+     * would end the horde with nobody having won it. The persistence flag would fix that and cause
+     * something worse: it can never be switched off, so every survivor of every horde would stay in
+     * the world forever, outside the mob cap. Denying the despawn only while the roster still names
+     * the mob gives exactly "while it runs", and the mob counts toward the cap throughout.
+     *
+     * <p>By roster rather than by {@link #HORDE_TAG}, because a mutated member is a fresh entity that
+     * {@link #replaceMember} puts on the roster without carrying the tag across.
+     *
+     * <p>Fires for every mob in the world every tick, so the empty check comes first and is all that
+     * runs on the overwhelming majority of ticks - hordes are off by default and rare when on.
+     */
+    @SubscribeEvent
+    public void onDespawn(MobDespawnEvent event) {
+        if (RUNNING.isEmpty()) {
+            return;
+        }
+        UUID id = event.getEntity().getUUID();
+        for (Active active : RUNNING.values()) {
+            if (active.spawned.contains(id)) {
+                event.setResult(MobDespawnEvent.Result.DENY);
+                return;
+            }
+        }
+    }
+
     @SubscribeEvent
     public void onSound(PlayLevelSoundEvent.AtPosition event) {
         if (RUNNING.isEmpty() || !ZombieModConfig.HORDE_BELL.get()

@@ -221,16 +221,28 @@ public final class GenusApplier {
             var steed = type.create(serverLevel, net.minecraft.world.entity.EntitySpawnReason.JOCKEY);
             if (steed != null) {
                 steed.snapTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), 0.0F);
-                if (steed instanceof Mob steedMob) {
-                    steedMob.setPersistenceRequired();
-                }
+                // Not made persistent. The rider already is while mounted - vanilla's
+                // requiresCustomPersistence() is isPassenger() || isLeashed() - and vanilla's own
+                // ZombieHorse.removeWhenFarAway() returns true, so the pair leaves the way a vanilla
+                // zombie horseman does. Forcing it kept both forever and out of the mob cap.
                 serverLevel.addFreshEntity(steed);
                 mob.startRiding(steed, true, true);
             }
         });
 
-        // Something this distinctive shouldn't quietly despawn while the player walks away.
-        mob.setPersistenceRequired();
+        // Bosses only. Persistence does more than stop a despawn: vanilla's NaturalSpawner skips a
+        // persistent mob entirely when counting toward the mob cap, so every genus made persistent
+        // here left the count and vanilla spawned a replacement - which usually became a genus
+        // too. A ratchet with no top; one test world held over 2,000 when it was cleared.
+        //
+        // A boss is the exception because somebody summoned it on purpose, and there are only ever
+        // a handful. Corpses are kept too, but by PlayerZombies, where the ledger is written - it is
+        // the inventory that makes one worth keeping, not the genus. Anything that should be kept
+        // only for a while (a horde's members) uses MobDespawnEvent instead, because this flag can
+        // never be switched off again. See CLAUDE.md.
+        if (holder.value().boss().isPresent()) {
+            mob.setPersistenceRequired();
+        }
     }
 
     /**
