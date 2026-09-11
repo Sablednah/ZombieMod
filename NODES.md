@@ -8,7 +8,7 @@ What that means in practice: **op your staff, or map a group to op level 2, and 
 follows.** The genus list, the whole bestiary, and turning your own observer mode off need no
 permission at all, because they are player features rather than staff tools.
 
-Correct for **3.4.0**, and identical on all three supported Minecraft versions.
+Correct for **3.4.1**, and identical on all three supported Minecraft versions.
 
 ## The levels ZombieMod uses
 

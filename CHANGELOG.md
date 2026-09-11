@@ -7,7 +7,10 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone.
 
-## Unreleased
+## 3.4.1
+
+*2026-09-11.* Room to breathe: zombies leave again instead of piling up, a boss lets you walk
+away, and nothing reacts to a player who isn't there.
 
 ### Fixed
 
