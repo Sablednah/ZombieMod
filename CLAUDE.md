@@ -540,6 +540,38 @@ the entity's own ticking means no live-mob registry to maintain, no leak on remo
 non-ticking chunks, and per-mob timing is just a field. Ability implementations are stateless and
 shared; the timer lives in the goal.
 
+### Persistence takes a mob out of vanilla's cap — never set it by default
+
+**A persistent mob is invisible to the mob cap.** `NaturalSpawner.createState` skips any mob with
+`isPersistenceRequired()` or `requiresCustomPersistence()` when it counts toward the cap, on purpose:
+persistence normally means a player chose to keep this one. So `setPersistenceRequired()` does not
+only stop a despawn. It stops the mob counting, and vanilla fills the space it apparently left.
+
+Until the fix, `GenusApplier.assign` made every genus persistent ("something this distinctive
+shouldn't quietly despawn") and that became a ratchet. A vanilla zombie spawned and became a
+genus, left the count, and vanilla replaced it; the replacement became a genus in turn, and none of
+them ever despawned. One test world held **over 2,000** when a `/killall` finally cleared it. Our own
+proximity cap was fine the whole time, which is what made it hard to see: it counts by the genus tag
+and never asks vanilla.
+
+The rule now:
+
+- **Default: not persistent.** Genera despawn like vanilla zombies and count toward the cap like
+  vanilla zombies.
+- **Persistent only when losing the mob loses something real:** a player corpse (carries an
+  inventory; set in `PlayerZombies`) and a boss (`genus.boss()` present; every ritual summons one).
+- **"Keep it only while X" is `MobDespawnEvent`, never the flag.** The flag can only be switched
+  *on*: the field is private, nothing clears it, and it is saved with the mob. So a horde's zombies
+  are kept by answering `DENY` while their horde is running, and they revert to ordinary the moment it
+  ends. The event fires for every mob every tick, so check `RUNNING.isEmpty()` before anything else.
+  It keeps them counting toward the cap too, which the flag would not.
+- **A mutation inherits** the old mob's persistence rather than forcing it on.
+
+Two things vanilla does that look like our bug but aren't: a **rider** is persistent while mounted
+(`requiresCustomPersistence` is `isPassenger() || isLeashed()`), so the Outrider stays while it rides.
+Its zombie horse is no longer forced persistent, and vanilla's `ZombieHorse.removeWhenFarAway` returns
+true, so the pair leaves like a vanilla zombie horseman would.
+
 ### Changing the world
 
 Anything that breaks or places blocks must go through

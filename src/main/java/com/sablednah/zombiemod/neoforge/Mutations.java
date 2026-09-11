@@ -121,7 +121,11 @@ public final class Mutations {
             fresh.setTarget(victim);
         }
         fresh.setRemainingFireTicks(old.getRemainingFireTicks());
-        fresh.setPersistenceRequired();
+        // Inherited, not forced. A corpse or a boss that mutates stays kept; an ordinary genus that
+        // mutates stays ordinary, and keeps counting toward the mob cap.
+        if (old.isPersistenceRequired()) {
+            fresh.setPersistenceRequired();
+        }
         return fresh;
     }
 

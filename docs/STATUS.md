@@ -237,6 +237,39 @@ hand.
 
 ## Fixed, worth remembering
 
+- **Zombies piled up without limit until the server crawled** (2026-09-11). Found in play: a
+  MobHealth test instance went sluggish, a Standards `/killall 512 force` killed over 2,000 zombies,
+  and the lag went with them. Our proximity cap was working; vanilla's was being defeated.
+
+  **Persistence takes a mob out of vanilla's cap.** `NaturalSpawner.createState` skips persistent
+  mobs when counting, and `GenusApplier` had made every genus persistent since the first port commit.
+  So each zombie that became a genus left the count, vanilla spawned a replacement, the replacement
+  often became a genus too, and none ever despawned. Measured on a dev server (fixed seed, midnight
+  held, one idle player), same probe before and after:
+
+  | | unfixed | fixed |
+  |---|---|---|
+  | monsters, 30 s | 101 | 77 |
+  | monsters, 270 s | 186 | 78 |
+  | persistent genera | 24 → 121 and climbing | 0 throughout |
+  | counted by vanilla's cap | pinned at 70 | pinned at 70 |
+
+  The last row is the whole diagnosis: vanilla's cap held perfectly in both runs. It just could not
+  see the zombies we had made persistent. In the unfixed run a `/kill` of all of them regrew from 28 to
+  82 in two and a half minutes.
+
+  Genera are now ordinary for despawning and counting. **Kept on purpose:** corpses (inventory),
+  bosses, and a running horde's members, the last through `MobDespawnEvent` rather than the flag,
+  because the flag can never be switched off. CLAUDE.md has the rule. The CHANGELOG's how-to-clear was
+  run for real through the dispatcher: it removed a simulated 3.4.0 genus and left an ordinary genus
+  and a plain zombie standing.
+
+  Two probe traps worth keeping. **A 1.21.2+ dedicated server pauses after 60 s with nobody
+  connected, and a FakePlayer does not count**, so the first baseline measured one sample and then
+  nothing. Set `pause-when-empty-seconds=0` for any unattended probe. And **measure in a throwaway
+  world**: stopping a probe server saves it, so the first attempt left its persistent zombies in the
+  dev world.
+
 - **A deopped player was stranded in observer mode** (2026-08-29). Observer mode was switched on for
   them, they were deopped, and the only command that could switch it back off now needed the
   permission they had just lost. They were invulnerable and could do nothing about it — and could not

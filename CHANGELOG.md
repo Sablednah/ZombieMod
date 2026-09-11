@@ -11,6 +11,47 @@ world alone.
 
 ### Fixed
 
+- **Zombies piled up without limit, and the server slowed to a crawl.** One test world held over two
+  thousand when it was finally cleared. The mod's own spawning was capped; vanilla's was being
+  defeated.
+
+  Every ZombieMod zombie was marked *persistent* the moment it spawned, so it would never despawn.
+  But vanilla's mob cap **does not count persistent mobs** — it deliberately ignores them, because a
+  persistent mob is normally one a player has chosen to keep. So each zombie that became one of ours
+  vanished from the cap's count, vanilla saw room and spawned a replacement, that one became one of
+  ours as well, and none of them ever left. The world filled indefinitely.
+
+  They now despawn the way vanilla zombies do, and count toward the cap like vanilla zombies do.
+  **Still kept, deliberately:** player corpses, which carry someone's inventory; bosses; and a horde's
+  zombies while the horde is still running, since one despawning would end it early. Name-tag one to
+  keep it, exactly as in vanilla.
+
+  **Upgrading a world that already has them.** The old flag is saved into each zombie, so the ones
+  already out there stay until you clear them. Run these once as an op — they remove persistent mobs
+  of the five kinds ZombieMod zombies are built on:
+
+  ```
+  /kill @e[type=minecraft:zombie,nbt={PersistenceRequired:1b}]
+  /kill @e[type=minecraft:husk,nbt={PersistenceRequired:1b}]
+  /kill @e[type=minecraft:drowned,nbt={PersistenceRequired:1b}]
+  /kill @e[type=minecraft:zombie_villager,nbt={PersistenceRequired:1b}]
+  /kill @e[type=minecraft:skeleton,nbt={PersistenceRequired:1b}]
+  ```
+
+  A line that answers **"No entity was found"** is not an error — there were simply none of that
+  kind to clear. On a test world, zombies, drowned and skeletons all had some; husks and zombie
+  villagers had none.
+
+  Things to know before you do:
+
+  - **It only reaches loaded chunks.** Zombies in parts of the world nobody is near are untouched,
+    and will be back when those areas load. Run it again somewhere else, or ask players to.
+  - **It also catches player corpses.** A corpse killed this way drops what it was carrying where it
+    stands, rather than losing it — but that may be somewhere nobody is. Check
+    `/zombiemod corpse list` first; anything outstanding can be re-issued from the ledger.
+  - **It catches anything of those types that a player name-tagged**, and any boss a player summoned.
+    If your server has pets like that, add `distance=..128` and run it somewhere they are not.
+
 - **Zombies no longer react to vanished players.** A Boomer was detonating beside staff who had
   vanished through [SableCraft Standards](https://github.com/Sablednah/SableCraft-Standards) — and a
   crater with no visible cause gives a hidden player away as completely as being seen would.

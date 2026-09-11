@@ -118,6 +118,9 @@ public final class PlayerZombies {
         // made only on a clean death would have been no use in exactly those cases.
         UUID ledgerId = UUID.randomUUID();
         corpse.getPersistentData().putString(LEDGER_TAG, ledgerId.toString());
+        // Kept, unlike an ordinary genus: despawning a corpse would delete somebody's inventory.
+        // Here rather than in GenusApplier because the ledger, not the genus, is what makes it one.
+        corpse.setPersistenceRequired();
         CorpseLedger.get(level).record(new CorpseLedger.Entry(ledgerId, player.getUUID(),
                 player.getName().getString(), level.dimension().identifier().toString(),
                 player.blockPosition().getX(), player.blockPosition().getY(), player.blockPosition().getZ(),
@@ -215,6 +218,8 @@ public final class PlayerZombies {
     /** Re-attach a ledger entry's items to a rebuilt corpse, so recovery is a real second chance. */
     static void rebuild(ServerLevel level, Mob corpse, CorpseLedger.Entry entry) {
         corpse.getPersistentData().putString(LEDGER_TAG, entry.id().toString());
+        // A rebuilt corpse is carrying the same inventory, so it is kept for the same reason.
+        corpse.setPersistenceRequired();
         // The face and the armour, not just the pockets. A rebuilt corpse used to come back bald
         // and unarmoured while carrying everything, which reads as the wrong corpse - and the whole
         // point of the player zombie is that it is recognisably *you*. By uuid rather than name so
