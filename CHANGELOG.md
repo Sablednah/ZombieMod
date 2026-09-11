@@ -110,6 +110,15 @@ away, and nothing reacts to a player who isn't there.
   The stamp can never stop the mod loading: a missing or corrupt one degrades to `unknown`, and the
   build tolerates git being absent, as in a source zip.
 
+### Changed
+
+- **The ZombieDex opens with Z, not J.** J is JourneyMap's full-screen map, and a mod that common
+  should not have to be rebound to make room for a zombie pack. Vanilla binds nothing to Z.
+
+  **If you already had ZombieMod installed, you will still be on J.** Minecraft saves every key
+  binding, defaults included, so an existing install keeps what it had. Change it under
+  *Options → Controls → Key Binds → Open ZombieDex*.
+
 ## 3.4.0
 
 *2026-08-30.* Zombies respect whoever owns the land, and nobody gets stuck invulnerable.

@@ -1549,7 +1549,7 @@ and the sidebar are the feature, and both work on a vanilla client.
 
 ### The client half
 
-Built, in this jar, behind a `dist = Dist.CLIENT` entrypoint. Press **J** for a screen showing the
+Built, in this jar, behind a `dist = Dist.CLIENT` entrypoint. Press **Z** for a screen showing the
 same checklist the book does — a nicer window onto the same record, never a better one, so a modded
 player and a vanilla one are playing the same game.
 
