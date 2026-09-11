@@ -1,3 +1,5 @@
+![ZombieMod ReForged](https://media.forgecdn.net/attachments/description/1658560/description_499cb364-2bb2-4c5f-8fe9-b3aac8d92c3a.png)
+
 # ZombieMod — reforged for NeoForge
 
 **Build your own undead.** ZombieMod turns zombie types into **datapack files** — health, size,
