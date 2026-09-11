@@ -1,6 +1,6 @@
 package com.sablednah.zombiemod.neoforge;
 
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -44,12 +44,17 @@ final class BossBars {
 
         // Re-sync viewers every update so the bar follows players in and out of range. Cheap at the
         // rate this is called, and it means no separate bookkeeping when someone walks away.
+        //
+        // Over a COPY, never the list itself. getPlayers() is an unmodifiable *view* of the bar's own
+        // set, so removing through its iterator throws UnsupportedOperationException - and calling
+        // removePlayer while iterating it instead throws ConcurrentModificationException one step
+        // later, because the view is live. 3.4.0 shipped the first: it took a server down the first
+        // time anyone left the range of a boss that was still alive, which never happens while you
+        // are fighting one. Vanilla's own removeAllPlayers copies for exactly this reason.
         double rangeSqr = spec.range() * spec.range();
-        for (Iterator<ServerPlayer> it = bar.getPlayers().iterator(); it.hasNext();) {
-            ServerPlayer viewer = it.next();
+        for (ServerPlayer viewer : List.copyOf(bar.getPlayers())) {
             if (viewer.isRemoved() || viewer.level() != mob.level()
                     || viewer.distanceToSqr(mob) > rangeSqr) {
-                it.remove();
                 bar.removePlayer(viewer);
             }
         }

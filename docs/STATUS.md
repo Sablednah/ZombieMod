@@ -237,6 +237,25 @@ hand.
 
 ## Fixed, worth remembering
 
+- **A boss bar crashed the server when a player left its range** (2026-09-11). Found in play, and
+  only because the play was strange: flying, `tp` of every zombie to the player, and a Borg Queen
+  dropped far below mid-horde. The crash named `BossBars.update` with an
+  `UnsupportedOperationException`. Shipped in 3.4.0.
+
+  `ServerBossEvent.getPlayers()` is an unmodifiable **live view** of the bar's own set, and the viewer
+  prune removed through its iterator. That throws on the first removal, and the one path that
+  removes is a player leaving the range of a boss that is *still alive*, which never happens during
+  an ordinary fight. **Deleting the iterator remove alone would not have fixed it:** because the view
+  is live, `removePlayer` inside the loop throws `ConcurrentModificationException` one step later.
+  So the loop now runs over `List.copyOf(...)`, as vanilla's own `removeAllPlayers` does. And
+  `BossBarGoal` catches and logs once per boss, the same as `AbilityGoal`, because a failing health
+  bar is not a reason to stop a world.
+
+  Reproduced before it was fixed. A probe called the real `BossBars.update` with a Borg Queen and two
+  FakePlayers on its bar, then moved both 500 blocks away at once, so it would catch the second
+  exception too. Unfixed: *threw UnsupportedOperationException, viewers stuck at 2*. Fixed: *OK,
+  viewers 0*.
+
 - **Zombies piled up without limit until the server crawled** (2026-09-11). Found in play: a
   MobHealth test instance went sluggish, a Standards `/killall 512 force` killed over 2,000 zombies,
   and the lag went with them. Our proximity cap was working; vanilla's was being defeated.

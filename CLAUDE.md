@@ -482,8 +482,13 @@ dedicated server with nobody connected. It found the wave-delay bug — every wa
 previous wave's delay, so a three-wave horde fired in three ticks and no shipped horde's numbers had
 ever been experienced.
 
-Caveats: it has no connection, so anything that sends a packet to it will NPE. Build the spec you are
-testing without a `bar_color`, and don't rely on chat. `displayClientMessage` is already a no-op.
+**Packets to it are safe; nothing reaches a client.** NeoForge gives it a `FakePlayerNetHandler` over a
+dummy connection, so boss bars, chat and title packets go nowhere rather than throwing. Verified
+2026-09-11: two FakePlayers were put on a real boss bar and taken off it again without error. (This
+file used to say anything sending a packet would NPE, which led to probes avoiding `bar_color` for
+no reason.) What it genuinely cannot do is keep a dedicated server awake: it is not a connected
+player, so a 1.21.2+ server pauses 60 s after start. Set `pause-when-empty-seconds=0` for any
+probe that runs longer than that.
 
 ### Verifying changes headlessly
 

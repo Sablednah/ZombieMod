@@ -11,6 +11,16 @@ world alone.
 
 ### Fixed
 
+- **A boss could crash the server.** If a player moved out of range of a boss's health bar while
+  the boss was still alive, the server stopped with a *"Ticking entity"* crash naming
+  `BossBars.update`. It went unnoticed because it never happens during a fight: you stay near a boss
+  until one of you is dead. It took a flight, a mass teleport and a Borg Queen dropped far below the
+  player to find it. Running, flying or teleporting away from a living boss would all have done the
+  same, as would the boss falling or being knocked far away.
+
+  Fixed, and a boss bar that fails for any other reason now logs once and lets the fight carry on
+  without its bar, instead of taking the world down with it.
+
 - **Zombies piled up without limit, and the server slowed to a crawl.** One test world held over two
   thousand when it was finally cleared. The mod's own spawning was capped; vanilla's was being
   defeated.
