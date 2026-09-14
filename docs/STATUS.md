@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-09-14 (3.5.0, across three Minecraft versions).
+Last updated 2026-09-14 (3.5.1, across three Minecraft versions).
 
 **Counts here are now taken off the source, not off prose.** They had drifted — this file said 56
 genera, 12 goal types, 22 abilities, 12 conditions and 3 hordes, and every one of those was wrong.
@@ -588,6 +588,7 @@ from it at build time, so never edit the generated file.
 | `3.4.0` | 2026-08-30 | Griefing asks *any* claims mod rather than FTB Chunks alone; `/zombiemod observe off` needs no permission, so a deopped observer is no longer stranded; each jar accepts any NeoForge on its own line; blindness counts as combat. |
 | `3.4.1` | 2026-09-11 | Room to breathe: genera stop being persistent, so they despawn and count toward vanilla's mob cap again (one world had reached 2,000+). A boss bar no longer crashes the server when a player leaves a living boss's range. Abilities, proximity spawning and hordes ignore vanished players. Build stamps in the jar and the startup log. The ZombieDex key moves from J to Z, off JourneyMap's. |
 | `3.5.0` | 2026-09-14 | Handing over the keys: six `zombiemod.*` permission nodes through NeoForge's PermissionAPI, defaulting to the op levels the commands always needed, so a storyteller can be given hordes and spawning without `/stop`. A `zombiemod:in_water` spawn condition, and the Undertow carries it - it had been proximity-spawning on dry land. |
+| `3.5.1` | 2026-09-14 | Nobody on the other end: another mod's fake player (a grinder, a deployer) killing a genus crashed the server, because the ZombieDex update asked its dummy connection for a channel it never had. Fake players are skipped. Reported by Chronicler, which had the same fault. |
 
 **Publishing to GitHub publishes to CurseForge**, via `.github/workflows/curseforge.yml`. Proven on
 every release so far.
@@ -700,7 +701,13 @@ history, so anyone who recovers it needs those terms. CLAUDE.md carries the
 
 **3.5.0 shipped the same day**, on all three versions: GitHub release `v3.5.0`, CurseForge files
 8879014–8879016 accepted and into moderation, Modrinth versions uploaded into the still-private
-draft. The 1.21.11 jar is in Sable's test instance. Nothing is outstanding on the code side.
+draft. Nothing is outstanding on the code side.
+
+**3.5.1 followed that evening**, a one-fix patch: another mod's fake player killing a genus crashed
+the server through the ZombieDex update (see CLAUDE.md, *A FakePlayer makes player-driven systems
+testable*). Reported by Chronicler, reproduced and verified with a FakePlayer probe. GitHub release
+`v3.5.1`, CurseForge files 8882552–8882554, Modrinth versions `WcwZs9Qv`, `7lzrnNI0`, `RNxHJ70E`
+into the same draft. The 1.21.11 jar is in Sable's test instance.
 
 A month of play on 3.4.x closed most of the open list in one sitting:
 

@@ -230,6 +230,14 @@ Jack/Krampus) and the roster carousel's `$portraits` array - a *second*, separat
 genus needs a portrait, the raw shot needs the **same camera distance** as this batch or the whole set
 needs reprocessing together - see the site repo's `[[screenshot-relative-scale]]` memory.
 
+## 3.5.1 (2026-09-14) — for the site session: probably nothing to change
+
+A one-fix patch. Another mod's fake player (a mob grinder, a deployer) killing a genus crashed the
+server, because the ZombieDex update asked its dummy connection for a network channel it never had;
+fake players are now skipped. **Nothing player-facing changed**: no genus, goal type, ability, spawn
+condition, command, node or setting, and the requirements matrix is the same. If the site shows a
+current version number or a changelog, bump it to 3.5.1; otherwise leave the pages alone.
+
 ## 3.5.0 (2026-09-14) — DONE (site side), plus older roster drift fixed
 
 Deployed and verified from origin (cache-busted, grepped for the new text on every URL):

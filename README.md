@@ -22,9 +22,10 @@ original plugin's source was removed at this release and remains in the git hist
 | License | MIT |
 | Side | Install on the server. **Players do not need the mod** — a stock client can join and meet every genus. Installing it client-side too is optional and adds the ZombieDex screen. |
 
-> **3.5.0.** 61 genera, every ability from the 1.8 plugin rebuilt, and the great majority of it
-> confirmed in play. New in this release: **permission nodes**, so a storyteller can be handed
-> hordes and spawning without being made an op, and the **Undertow stays in the water**. See
+> **3.5.1.** 61 genera, every ability from the 1.8 plugin rebuilt, and the great majority of it
+> confirmed in play. New in 3.5: **permission nodes**, so a storyteller can be handed
+> hordes and spawning without being made an op, and the **Undertow stays in the water**; 3.5.1 stops
+> another mod's fake player crashing the server. See
 > [Status](#status) for what is verified and what is waiting on a situation to arise, or
 > [`CHANGELOG.md`](CHANGELOG.md) for the full list.
 
