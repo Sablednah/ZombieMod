@@ -10,7 +10,8 @@ complete and the 1.8 reference tree has been removed — see *Reading the origin
 below for how to get it back when you need it.
 
 **Shipping as 3.5.0** (2026-09-14): 61 genera, on GitHub and CurseForge, and on Modrinth as
-`zombiemod-reforged` (submitted 2026-08-31, still awaiting first moderation). A jar per Minecraft version,
+`zombiemod-reforged` (submitted 2026-08-31, still awaiting first moderation on 2026-09-14; the
+3.5.0 versions uploaded into the draft without complaint). A jar per Minecraft version,
 three of them.
 
 This is the **fourth** Bukkit→NeoForge port in a series. `../MobHealth-Forge` is the canonical
@@ -78,8 +79,12 @@ export PATH="$JAVA_HOME/bin:$PATH"
   CityWorld `runServer` or one of Sable's real test servers on 25565. **Kill the previous
   `runServer` before starting another** — a lingering one still holds the port and the clash
   surfaces as `bind(..) failed: Address already in use` → `Failed to initialize server` → a crash
-  report, which reads like a code fault and is not one. `pkill -f "gradlew runServer"`, then confirm
-  with `ss -ltn | grep 25567`.
+  report, which reads like a code fault and is not one. `pkill -f "[g]radlew runServer"`, then
+  confirm with `ss -ltn | grep 25567`. **The bracket is not decoration.** A bare
+  `pkill -f "gradlew runServer"` inside a longer Bash tool call matches the shell running that very
+  call, because its command line contains the pattern, and kills it — the whole call dies with exit
+  144 before anything after the `pkill` runs (2026-09-14). The `[g]` idiom matches the process and
+  not the pattern's own text.
 
 - **The first build after changing `accesstransformer.cfg` is slow (10+ minutes).** ModDevGradle
   re-runs the neoform runtime to recompile Minecraft with the AT applied, and that result is keyed
@@ -297,6 +302,23 @@ git diff --name-only master mc26.2      # every line should be a file that is *m
 
 That second command is the real health check for the branches: if anything outside the version-specific
 set appears, the branches have drifted and one of them is missing work.
+
+**They had, and it was the docs** (found 2026-09-14). The branches were in step on code and genera
+after 3.4.1 but three releases behind on `CHANGELOG.md`, `README.md`, `CLAUDE.md`, `NODES.md`, the
+Modrinth scripts and the Modrinth workflow — nobody had counted docs, because nothing player-facing
+depended on them. Before syncing, prove each differing file is merely *behind* rather than
+*deliberately different*, or the sync will overwrite a branch-specific edit:
+
+```bash
+h=$(git rev-parse mc26.2:CHANGELOG.md)
+git log master --format=%h --find-object=$h -- CHANGELOG.md   # non-empty: an old master version, safe to overwrite
+```
+
+A file absent from the branch is new on master and also safe. Anything that prints nothing is a
+real divergence and wants reading, not overwriting. The sync itself is the `git checkout master --`
+form above, run with the seam-layer exclusions as a `grep -v` on `git diff --name-only`, then a
+version bump in the branch's own `gradle.properties` — that file is *not* shared, so the version
+has to be bumped three times.
 
 ### An ItemStack cannot be built while a datapack registry is loading
 
@@ -530,6 +552,11 @@ Two things it is worth re-deriving if you touch that area, because nothing else 
   *logic*. If a probe duplicates the thing it is testing, it is testing the duplicate.
 - **Test conditions in both directions.** A filter that excludes everything looks identical to one
   that works. Prove a genus is admitted where it should be, not just excluded where it shouldn't.
+- **Permission gates want a player, and a `FakePlayer` is one.** `fake.createCommandSourceStack()`
+  goes through the node's resolver like a real player's would, and `server.getPlayerList().op(fake.nameAndId())`
+  then `deop` flips it between the two answers, so a gate can be proven refused, admitted, and
+  refused again in one run. The console source (`server.createCommandSourceStack()`) takes the
+  level fallback, so test that separately. Deop in a `finally`: `op` writes `run/ops.json`.
 - **Command parsing *and* execution.**
   `server.getCommands().getDispatcher().parse(cmd, server.createCommandSourceStack())`, check both
   `getExceptions()` and `getReader().canRead()`, then `execute(parsed)`. Parsing alone is not

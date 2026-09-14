@@ -587,6 +587,7 @@ from it at build time, so never edit the generated file.
 | `3.3.0` | 2026-08-28 | Seasonal genera: a `zombiemod:date` spawn condition, Jack (24 Oct - 2 Nov) and Krampus (18 Dec - 2 Jan) — 61 genera — and `dateOverride` so they can be seen out of season. |
 | `3.4.0` | 2026-08-30 | Griefing asks *any* claims mod rather than FTB Chunks alone; `/zombiemod observe off` needs no permission, so a deopped observer is no longer stranded; each jar accepts any NeoForge on its own line; blindness counts as combat. |
 | `3.4.1` | 2026-09-11 | Room to breathe: genera stop being persistent, so they despawn and count toward vanilla's mob cap again (one world had reached 2,000+). A boss bar no longer crashes the server when a player leaves a living boss's range. Abilities, proximity spawning and hordes ignore vanished players. Build stamps in the jar and the startup log. The ZombieDex key moves from J to Z, off JourneyMap's. |
+| `3.5.0` | 2026-09-14 | Handing over the keys: six `zombiemod.*` permission nodes through NeoForge's PermissionAPI, defaulting to the op levels the commands always needed, so a storyteller can be given hordes and spawning without `/stop`. A `zombiemod:in_water` spawn condition, and the Undertow carries it - it had been proximity-spawning on dry land. |
 
 **Publishing to GitHub publishes to CurseForge**, via `.github/workflows/curseforge.yml`. Proven on
 every release so far.
@@ -614,6 +615,11 @@ ReForged on the same account — so this is Modrinth's queue, not a second artwo
 public API answers **404** for a project in this state, which is indistinguishable from a rejected
 or deleted one; the author dashboard at <https://modrinth.com/dashboard/projects> is the only place
 that says which. Do not read a 404 as a refusal.
+
+**Still under review on 2026-09-14**, fourteen days in — confirmed on the dashboard, which showed
+"Under review" with the project touched "9 minutes ago" by the 3.5.0 upload. That run added all
+three jars to the draft as versions (`4oEru7u8`, `E2xFnW1X`, `ba7oqVfG`) without complaint, so the
+pipeline is proven end to end; only the human queue is outstanding.
 
 The machinery is three scripts driven by `.github/workflows/modrinth.yml`:
 `create-project` (private draft + icon + gallery), `upload-versions` (a Modrinth version per jar,
@@ -692,6 +698,10 @@ history, so anyone who recovers it needs those terms. CLAUDE.md carries the
 
 ## Where this stands, 2026-09-14
 
+**3.5.0 shipped the same day**, on all three versions: GitHub release `v3.5.0`, CurseForge files
+8879014–8879016 accepted and into moderation, Modrinth versions uploaded into the still-private
+draft. The 1.21.11 jar is in Sable's test instance. Nothing is outstanding on the code side.
+
 A month of play on 3.4.x closed most of the open list in one sitting:
 
 - ~~**Watch the Undertow meet somebody.**~~ "Undertow its good." What it found was not the weight
@@ -708,13 +718,17 @@ A month of play on 3.4.x closed most of the open list in one sitting:
 
 ## Next, in the order I'd do it
 
-1. **Ship 3.5.0.** `master` carries it; sync the shared files to `mc26.1` and `mc26.2` (file sync,
-   not cherry-pick — see CLAUDE.md), build all three, count genera on each branch, then tag. Then
-   hand a storyteller the nodes on Sable's server and watch them run a session — that is the test
-   the FakePlayer probe cannot do, because it proves the gates and not the experience.
-2. **Modrinth moderation.** Submitted 2026-08-31; nothing to do but wait. If it comes back on the
+1. **Hand a storyteller the nodes on Sable's server and watch them run a session.** That is the
+   test the FakePlayer probe cannot do, because it proves the gates and not the experience. Standards'
+   handler must be the selected one (`permissionHandler = "standards:permissions"` in
+   `neoforge-server.toml`) or `/rank` is absent; NODES.md has the five lines to type. Worth watching
+   for: whether `horde start` aimed at the storyteller themself is what a storyteller wants, or
+   whether they need to aim it at a player.
+2. ~~**The website.**~~ Done the same afternoon: the site session picked up `WEBSITE.md`'s 3.5.0
+   section unprompted, rebuilt the permissions page from NODES.md and verified it from origin.
+3. **Modrinth moderation.** Submitted 2026-08-31; nothing to do but wait. If it comes back on the
    artwork, the fallback is a further-simplified wordmark — the shield is already known to fail.
-3. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
+4. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
 
