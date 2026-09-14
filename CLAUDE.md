@@ -367,14 +367,19 @@ decodes the escape and the running mod emits one. Confirm every hit is a comment
 regex that strips them. Legitimate hits today are `client/DexScreen.java` (font rendering),
 `Bounties` (action bar) and `HordeDirector` (boss-bar name) — all client-rendered only.
 
-### Command permissions: levels, not nodes — and two Brigadier traps
+### Command permissions: nodes whose defaults are the levels — and two Brigadier traps
 
-**There are no named permission nodes.** Every command is gated with
-`Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)` (level 2) or `LEVEL_ADMINS` (level 3), and the
-open ones carry no requirement at all. [`NODES.md`](NODES.md) is the public statement of exactly
-which command sits where — **it is documentation of behaviour, so changing a command's level means
-changing that file in the same commit.** It was written because an admin went looking for
-`zombiemod.*` nodes and found neither nodes nor an explanation.
+**Six boolean nodes in `neoforge/ZombieModPermissions`, registered on NeoForge's
+`PermissionGatherEvent.Nodes`, and every default resolver is the op level the command needed
+before nodes existed** (2 for everything, 3 for `config`). That default is the load-bearing part:
+NeoForge's own handler answers every query with it, so a server with no permissions mod, or one
+that grants nothing, is unchanged, and `NODES.md` stays true. A command branch is gated with
+`.requires(ZombieModPermissions.gate(NODE))`, which asks the permission handler for a player and
+falls back to the level for the console and command blocks — a node is a question about a player,
+and a command block has nobody to grant to. Since 3.5.0 (2026-09-14), built for a storyteller who
+needed hordes and spawning without being handed `/stop`. [`NODES.md`](NODES.md) is the public
+statement of exactly which command sits behind which node — **it is documentation of behaviour, so
+changing a gate means changing that file in the same commit.**
 
 Two things about Brigadier that this tree has already been bitten by:
 
@@ -703,13 +708,17 @@ player vanishes mid-run goes down the existing `player.isRemoved()` path rather 
 **The test for whether something needs this is "does it pick a player out and act on them", not
 "does it damage them"** — the proximity crowd does no harm at all and still gives a vanish away.
 
-**Permission managers are the exception to the `compat/` rule, and the exception matters.** When
-ZombieMod grows permission nodes, they get registered on NeoForge's `PermissionGatherEvent` and
-nothing goes in `compat/`. SableCraft Standards' permission system is a *handler* for NeoForge's own
+**Permission managers are the exception to the `compat/` rule, and the exception matters.**
+ZombieMod's nodes are registered on NeoForge's `PermissionGatherEvent` and nothing lives in
+`compat/`. SableCraft Standards' permission system is a *handler* for NeoForge's own
 `PermissionAPI` — the same interface LuckPerms implements — and it grants any mod's boolean nodes,
 including ones it has never heard of. Both sides talk to NeoForge; nobody calls anybody, so there is
 nothing to guard and no dependency to make optional. Wrapping it in a reflective `compat/Standards`
-would be pure ceremony. Constraints when it is built: **boolean nodes only** (Standards passes typed
-nodes through to their own resolver on purpose — use the numbered `mod.thing.limit.5` idiom for
+would be pure ceremony. Constraints, kept: **boolean nodes only** (Standards passes typed nodes
+through to their own resolver on purpose — use the numbered `mod.thing.limit.5` idiom for
 quantities), and **every default resolver must reproduce `NODES.md`**, so a server that installs a
-manager and grants nothing behaves exactly as before. Read Standards' `PERMISSIONS.md` first.
+manager and grants nothing behaves exactly as before. Verified headlessly with a `FakePlayer`: a
+non-op is refused every gated branch and admitted to `bestiary`, `list` and `observe off`; opped
+with `PlayerList.op` it is admitted to all of them; deopped it is refused again; and the console
+source parses and executes `status`, `config` and `spawn <genus> <pos>` throughout. Both directions,
+because a gate that refuses everything looks identical to one that works.

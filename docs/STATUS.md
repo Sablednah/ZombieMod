@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-09-11 (3.4.1, across three Minecraft versions).
+Last updated 2026-09-14 (3.5.0 in progress on `master`; 3.4.1 shipped across three Minecraft versions).
 
 **Counts here are now taken off the source, not off prose.** They had drifted — this file said 56
 genera, 12 goal types, 22 abilities, 12 conditions and 3 hordes, and every one of those was wrong.
@@ -18,7 +18,7 @@ hand.
 | **Genera as datapacks** | 61 shipped; hot-reload with `/reload` |
 | **AI from JSON** | 12 goal types, recombined per genus |
 | **Abilities** | 21 types |
-| **Spawn conditions** | 15 types (12 general + 3 CityWorld), composable with `any_of` / `not` |
+| **Spawn conditions** | 16 types (13 general + 3 CityWorld), composable with `any_of` / `not` |
 | **Weighted spawning** | Per base mob, with a configurable vanilla share. `vanillaWeight = 40` settled by play (2026-08-16) — measured at ~26% plain zombies on the surface, ~13% deep underground |
 | **Behaviours** | Goal sets that switch on a condition (day/night) |
 | **Bosses** | Boss bars, phases, loot tables, summon rituals with block patterns |
@@ -71,6 +71,10 @@ hand.
   play: Nightstalker's head was "Masked Zombie", whose mask turns out to be a *surgical* one, which
   said nothing about hunting in the dark. Picking by catalogue name is how that happened; picks are
   now screened by rendering the face pixels and looking at them, dimmed as well as lit.
+
+  **Reclassified 2026-09-14: good until someone actively complains.** Sable's call after a month of
+  play — "so far the zombies have been quite identifiable". The public release has been out since
+  August with no complaint, which is the audience this was waiting on. Off the open list.
 - ~~Mutation's two damp triggers~~ — **confirmed in play** (2026-08-16): ice and water both fire.
 - ~~`alert`~~ — **confirmed in play** (2026-08-17), and reported "subtle", which is about right for a
   genus whose whole job is to make the fight someone else's problem.
@@ -237,6 +241,20 @@ hand.
 
 ## Fixed, worth remembering
 
+- **The Undertow was spawning on dry land** (2026-09-14). "I'm seeing them everywhere - and not in
+  water... they glow, so they are obvious when around." A drowned base is not a spawn rule: vanilla
+  only ever places a drowned in water, but `ProximitySpawner` picks a standable patch of ground
+  *before* it rolls a genus, and `EventHooks.checkSpawnPosition` runs the mob's instance
+  `checkSpawnRules`, not the type's `SpawnPlacements` rule — so the drowned's water requirement was
+  never consulted on that path. The Undertow's only condition was `dimension`, and at weight 25 it
+  was eligible on every proximity attempt in the overworld.
+
+  Fixed with a new `zombiemod:in_water` condition on the genus rather than by teaching the proximity
+  spawner about placement rules, because a condition on the genus holds on every spawn path and is
+  something a pack author can use. The general lesson: **a genus that belongs somewhere has to say
+  so; the base type's own habits do not carry over to proximity spawning.** Bogman is fine - it is
+  swamp-gated, and a bog is where it belongs on land or in water.
+
 - **A boss bar crashed the server when a player left its range** (2026-09-11). Found in play, and
   only because the play was strange: flying, `tp` of every zombie to the player, and a Borg Queen
   dropped far below mid-horde. The crash named `BossBars.update` with an
@@ -393,31 +411,9 @@ waiting only for somebody to turn it on and judge it. **Nothing is outstanding.*
   saying why it is being ignored. Until then, a genus that matters that much can be a boss, which is
   kept already.
 
-- **Real-world date spawning — Halloween and holiday genera.** Sable's, 2026-08-27. A new
-  `zombiemod:date` spawn condition, after which it is pure JSON: a genus that only appears in the
-  last week of October, or between Christmas and New Year.
-
-  It fits the existing shape — `SpawnConditionTypes.register` is public, and conditions already
-  compose with `any_of` and `not`, so "Halloween *or* a full moon" costs nothing extra. Three
-  decisions are worth making deliberately, because each is easy to get wrong and hard to notice:
-
-  - **Whose clock?** The *server's* real-world date, not the player's. Everyone in a session should
-    meet the same October, whatever timezone they are in — a genus that appears for one player and
-    not the one standing next to them is a bug report, not a feature.
-  - **A month-day range, not named holidays.** `"from": "10-25", "to": "11-02"` recurs annually and
-    lets a pack author express anything; a `"halloween"` keyword cannot express Diwali, a server's
-    anniversary, or a two-week event. **The range must wrap the year end** — `12-20` to `01-05` is
-    exactly the case a naive `from <= today <= to` gets wrong, and it is the one people will write.
-  - **It must be testable out of season.** A date-gated genus is invisible for fifty-one weeks, which
-    is indistinguishable from broken. `/zombiemod status` should say today's date and which
-    date-gated genera are in season — the same reasoning as the claim and conversion counters, where
-    the whole effect of a feature is an absence. A config override for pretending it is October would
-    make it testable in one line rather than by changing the system clock.
-
-  Cheap: one condition type, and the roster additions are datapack files. The genera themselves are
-  the fun part and are entirely Sable's call — a pumpkin-headed thing in late October writes itself.
-
-
+- ~~**Real-world date spawning — Halloween and holiday genera.**~~ Built: the `zombiemod:date`
+  condition, Jack and Krampus. See *Seasonal genera* below, which records the three decisions
+  (server clock, wrapping month-day ranges, `dateOverride`) that this entry used to propose.
 
 - **An aquatic genus - a Drowned, but squiddier.** Sable's, 2026-08-13. Worth noting that it looks
   like pure JSON: `base: minecraft:drowned` (Bogman already uses it), `navigation: swim` or
@@ -694,36 +690,31 @@ the removed tree was CC BY-NC-ND with third-party contributions and is still rea
 history, so anyone who recovers it needs those terms. CLAUDE.md carries the
 `git log --diff-filter=D` recipe for reading it again.
 
+## Where this stands, 2026-09-14
+
+A month of play on 3.4.x closed most of the open list in one sitting:
+
+- ~~**Watch the Undertow meet somebody.**~~ "Undertow its good." What it found was not the weight
+  but the habitat — see *Fixed, worth remembering* above. Weight 25 stands until play says otherwise.
+- ~~**Proximity in survival.**~~ "The proximity cap at 8 is fine - it reads well, especially now we
+  fixed the persistent issue." Closed; `nearbyCap = 8` is the shipped default.
+- ~~**Permission nodes.**~~ Built 2026-09-14 for 3.5.0, once a real use case arrived: LegendQuest
+  StoryTeller's storytellers needed every ZombieMod command without being opped, because op brings
+  `/stop`. Six boolean nodes in `neoforge/ZombieModPermissions`, defaults reproducing `NODES.md`,
+  verified headlessly with a `FakePlayer` in both directions (40 checks). The design notes that used
+  to sit here are now the class comment and CLAUDE.md's *Command permissions* section.
+- ~~**The faces.**~~ Reclassified as good until somebody actively complains — see the *Built, not
+  yet verified* entry.
+
 ## Next, in the order I'd do it
 
-1. **Watch the Undertow meet somebody.** It is the headline of 3.1.0, it has never been played, and
-   its weight is a first guess.
-2. **Permission nodes** — deferred on purpose 2026-08-31, to let 3.4.0 settle. The findings, so the
-   design is not re-derived wrong later:
-
-   - **This is not a `compat/Standards` integration, and building it as one would be a mistake.**
-     Standards is a *handler* for NeoForge's own `PermissionAPI`, and so is LuckPerms. ZombieMod
-     registers its nodes on `PermissionGatherEvent` — plain NeoForge, no dependency on anything —
-     and both managers then grant them, along with wildcards like `zombiemod.*`. The
-     reflective-and-inert rule in CLAUDE.md is for mods we *call*; here nobody calls anybody.
-   - **Boolean nodes only.** Standards' resolver passes integer, string and component nodes
-     straight through to their own resolver, deliberately. A numbered idiom is the way to express a
-     quantity — `standards.home.limit.5` is the precedent.
-   - **Every node's default resolver must reproduce today's behaviour**, so a server that switches a
-     manager on and grants nothing is unchanged. Standards asserts that property first in its own
-     self-test, and [`../NODES.md`](../NODES.md) is now the statement of what the defaults have to be.
-   - The interesting split is **not** one node per command. It is the delegation an owner actually
-     wants: a moderator who can call a horde and spawn a genus but cannot touch `config` or the
-     corpse ledger. Worth asking a server owner before designing it.
-
-   Standards' `PERMISSIONS.md` is the reference; read it before starting, not during.
-
-3. **Modrinth moderation.** Submitted 2026-08-31; nothing to do but wait. If it comes back on the
+1. **Ship 3.5.0.** `master` carries it; sync the shared files to `mc26.1` and `mc26.2` (file sync,
+   not cherry-pick — see CLAUDE.md), build all three, count genera on each branch, then tag. Then
+   hand a storyteller the nodes on Sable's server and watch them run a session — that is the test
+   the FakePlayer probe cannot do, because it proves the gates and not the experience.
+2. **Modrinth moderation.** Submitted 2026-08-31; nothing to do but wait. If it comes back on the
    artwork, the fallback is a further-simplified wordmark — the shield is already known to fail.
-4. **Proximity in survival.** Enabled in Sable's instance; the cap semantics are settled ("quiet
-   place top up is perfect" — 2026-08-15). What remains is a survival session on quiet ground
-   watching it fire, and whether `nearbyCap = 8` feels like atmosphere.
-5. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
+3. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
 

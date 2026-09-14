@@ -229,3 +229,31 @@ Jack/Krampus) and the roster carousel's `$portraits` array - a *second*, separat
 `assets/img/roster/` with one shared crop box/scale factor and added the two new entries. If a future
 genus needs a portrait, the raw shot needs the **same camera distance** as this batch or the whole set
 needs reprocessing together - see the site repo's `[[screenshot-relative-scale]]` memory.
+
+## 3.5.0 (2026-09-14) — permission nodes and the Undertow
+
+Two things for the site, neither large:
+
+- **Permission nodes exist now.** Six boolean nodes, `zombiemod.spawn` / `horde` / `corpse` /
+  `observe` / `status` / `config`, each defaulting to the op level the command always needed. Any
+  page that says "ZombieMod defines no permission nodes" or "op your staff and that is all there is"
+  is now wrong in the first half and still right in the second. `NODES.md` in the repo is the source
+  and is the page to mirror; the storyteller example in it is the reason it exists.
+- **A new spawn condition, `zombiemod:in_water`**, and the Undertow now carries it. The condition
+  count goes 15 → 16 (13 general + 3 CityWorld). The Undertow's own copy needs no change unless it
+  claims the sea - it always did, and is now telling the truth.
+
+## 3.4.1 (2026-09-13) — DONE, almost nothing to change
+
+3.4.1 is fixes (boss-bar crash, persistence/mob-cap pile-up, vanished players) plus the build stamp and
+the ZombieDex key moving from J to Z. **None of it contradicted anything on the site**: no page described
+zombies as persistent, and the ZombieDex keybind is not mentioned anywhere, so neither needed a
+correction.
+
+- Counts re-checked at HEAD and v3.4.0: 61 genera, 12 goal types, 21 abilities, 15 spawn conditions -
+  unchanged. ⚠ `grep -c 'register('` on `GoalSpecTypes`/`AbilityTypes`/`SpawnConditionTypes` reads
+  13/22/16 because it also matches the `register(` method definition; subtract one.
+- Only edit: the hub's NeoForge column now states the line (`21.11+` / `26.1+` / `26.2+`), since
+  `neo_version_range` is `[21.11,21.12)` etc. on all three branches.
+- Worth considering later: the `/kill @e[...PersistenceRequired...]` cleanup for worlds upgraded from
+  3.4.0 or earlier is server-owner-relevant and could earn a callout on `/settings/` if people ask.

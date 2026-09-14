@@ -29,6 +29,7 @@ public final class SpawnConditionTypes {
         register(SpawnConditions.Height.TYPE, SpawnConditions.Height.CODEC);
         register(SpawnConditions.Light.TYPE, SpawnConditions.Light.CODEC);
         register(SpawnConditions.SeeSky.TYPE, SpawnConditions.SeeSky.CODEC);
+        register(SpawnConditions.InWater.TYPE, SpawnConditions.InWater.CODEC);
         register(SpawnConditions.Moon.TYPE, SpawnConditions.Moon.CODEC);
         register(SpawnConditions.Depth.TYPE, SpawnConditions.Depth.CODEC);
         register(SpawnConditions.TimeOfDay.TYPE, SpawnConditions.TimeOfDay.CODEC);

@@ -18,6 +18,7 @@ import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.MoonPhase;
@@ -290,6 +291,36 @@ public final class SpawnConditions {
         @Override
         public boolean test(Level level, BlockPos pos) {
             return answerable(level, pos) && level.canSeeSky(pos) == value;
+        }
+    }
+
+    /**
+     * Is the spawn block itself water - or, with {@code value: false}, deliberately not.
+     *
+     * <p>This exists because a genus's base type is not a spawn rule. Vanilla only ever puts a
+     * drowned <em>in</em> water, so a drowned-based genus with no condition of its own looked
+     * confined to water and was not: proximity spawning picks a standable patch of ground before it
+     * picks a genus, and it never consults the base type's own placement rules. The Undertow, glowing
+     * and unmissable, turned up on dry land a long way from anything it could pull someone into. A
+     * condition on the genus holds on every spawn path; a rule on the base type only holds on
+     * vanilla's.
+     */
+    public record InWater(boolean value) implements SpawnCondition {
+
+        public static final Identifier TYPE = id("in_water");
+
+        public static final MapCodec<InWater> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
+                Codec.BOOL.optionalFieldOf("value", true).forGetter(InWater::value))
+                .apply(i, InWater::new));
+
+        @Override
+        public Identifier type() {
+            return TYPE;
+        }
+
+        @Override
+        public boolean test(Level level, BlockPos pos) {
+            return answerable(level, pos) && level.getFluidState(pos).is(FluidTags.WATER) == value;
         }
     }
 

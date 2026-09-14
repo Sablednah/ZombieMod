@@ -55,9 +55,9 @@ per-platform edit. Do not fork it into a second file.
 
 | Field | Value |
 |---|---|
-| Tag | `v3.4.1` |
-| Title | `3.4.1 — Room to breathe` |
-| Body | The `## 3.4.1` section of [`CHANGELOG.md`](CHANGELOG.md), plus the requirements table below |
+| Tag | `v3.5.0` |
+| Title | `3.5.0 — Handing over the keys` |
+| Body | The `## 3.5.0` section of [`CHANGELOG.md`](CHANGELOG.md), plus the requirements table below |
 | Attach | every `build/libs/zombiemod-<ver>+mc<mc>.jar`, one per supported version — the CurseForge upload reads the `+mc` suffix to label each |
 
 Requirements block to append to the release body:
@@ -86,7 +86,7 @@ releases after the branches appeared.
 |---|---|
 | Summary | The one-liner |
 | Description | [`CURSEFORGE.md`](CURSEFORGE.md) |
-| Changelog | The `## 3.4.1` section of [`CHANGELOG.md`](CHANGELOG.md) |
+| Changelog | The `## 3.5.0` section of [`CHANGELOG.md`](CHANGELOG.md) |
 | Project icon | `docs/main-logo.png` — 1035×1035, square |
 | Header/banner | `docs/slime-logo-850.png` — 850px wide, the description limit |
 | Licence | MIT |

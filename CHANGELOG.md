@@ -7,6 +7,33 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone.
 
+## 3.5.0
+
+*2026-09-14.* Handing over the keys: staff commands can be granted without op, and the Undertow
+stays in the water.
+
+### Added
+
+- **Permission nodes.** Six of them, through NeoForge's own permission API, so LuckPerms and
+  [SableCraft Standards](https://github.com/Sablednah/SableCraft-Standards) can both grant them:
+  `zombiemod.spawn`, `zombiemod.horde`, `zombiemod.corpse`, `zombiemod.observe`, `zombiemod.status`
+  and `zombiemod.config`. **Every one defaults to the op level the command always needed**, so a
+  server with no permissions mod — or one that grants nothing — behaves exactly as before. What they
+  add is delegation: a storyteller can now be given hordes and spawning for their sessions without
+  being made an op, which would hand them `/stop` as well. The console and command blocks pass on op
+  level as they always did. [`NODES.md`](NODES.md) is the full statement.
+
+- **A `zombiemod:in_water` spawn condition.** `value` defaults to `true`; `false` means dry land.
+
+### Fixed
+
+- **The Undertow turned up on dry land.** A drowned base is not a spawn rule: vanilla only puts a
+  drowned in water, but proximity spawning picks a patch of ground before it picks a genus, and a
+  glowing, ink-trailing thing that drags people under was appearing in fields with nothing to drag
+  anyone into. It now carries `in_water`, so it only ever spawns in the sea, a river, or an
+  underground lake — every spawn path, not only vanilla's. A drowned that has already chased you
+  onto the beach is still a drowned, and follows you out exactly as vanilla's do.
+
 ## 3.4.1
 
 *2026-09-11.* Room to breathe: zombies leave again instead of piling up, a boss lets you walk

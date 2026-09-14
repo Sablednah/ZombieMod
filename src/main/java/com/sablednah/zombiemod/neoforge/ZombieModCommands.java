@@ -99,7 +99,7 @@ public final class ZombieModCommands {
         // colon, so `zombiemod:coward` parsed as `zombiemod` plus trailing junk. This is the
         // argument type vanilla uses for datapack ids, and its suggestions come from the registry.
         root.then(Commands.literal("spawn")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .requires(ZombieModPermissions.gate(ZombieModPermissions.SPAWN))
                 .then(Commands.argument("genus", ResourceKeyArgument.key(ZombieModRegistries.GENUS))
                         // Replaces the argument type's own suggestions so the bare name is offered
                         // alongside the full id.
@@ -122,7 +122,7 @@ public final class ZombieModCommands {
         // working perfectly: "my corpse went missing" was the single most common complaint about
         // the 1.8 version, and an admin with no way to check had to guess.
         root.then(Commands.literal("corpse")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .requires(ZombieModPermissions.gate(ZombieModPermissions.CORPSE))
                 .then(Commands.literal("list")
                         .executes(ctx -> listCorpses(ctx.getSource(), Optional.empty()))
                         .then(Commands.argument("player", StringArgumentType.word())
@@ -166,7 +166,7 @@ public final class ZombieModCommands {
         // singleplayer, so editing the global config/ copy silently does nothing - and "I turned it
         // on and nothing happened" is indistinguishable from a bug without a way to look.
         root.then(Commands.literal("horde")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                .requires(ZombieModPermissions.gate(ZombieModPermissions.HORDE))
                 .then(Commands.literal("list").executes(ctx -> {
                     var lookup = ctx.getSource().registryAccess()
                             .lookupOrThrow(ZombieModRegistries.HORDE);
@@ -203,7 +203,7 @@ public final class ZombieModCommands {
         // Admin-only, unlike the rest of the tree: these change what the server does for everyone,
         // not just what happens in front of the person typing.
         var config = Commands.literal("config")
-                .requires(Commands.hasPermission(Commands.LEVEL_ADMINS))
+                .requires(ZombieModPermissions.gate(ZombieModPermissions.CONFIG))
                 .executes(ctx -> listToggles(ctx.getSource()));
         for (var entry : TOGGLES.entrySet()) {
             config.then(Commands.literal(entry.getKey())
@@ -214,7 +214,8 @@ public final class ZombieModCommands {
         root.then(config);
 
         root.then(Commands.literal("status")
-                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)).executes(ctx -> status(ctx.getSource())));
+                .requires(ZombieModPermissions.gate(ZombieModPermissions.STATUS))
+                .executes(ctx -> status(ctx.getSource())));
 
         // NO requirement on the `observe` literal, deliberately, and this is the one place in this
         // tree where that matters. A requirement on a literal gates its whole subtree, so a bar here
@@ -227,14 +228,14 @@ public final class ZombieModCommands {
         // So the bar goes on the things that GRANT something, and never on the way out:
         //
         //   observe            toggle self - guarded in code, because a node cannot bar one direction
-        //   observe on         op
-        //   observe on <who>   op
+        //   observe on         zombiemod.observe (op level 2 by default)
+        //   observe on <who>   zombiemod.observe
         //   observe off        ANYONE, always. Turning your own invulnerability off is not a power.
-        //   observe off <who>  op
+        //   observe off <who>  zombiemod.observe
         root.then(Commands.literal("observe")
                 .executes(ctx -> toggleObserve(ctx.getSource()))
                 .then(Commands.literal("on")
-                        .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                        .requires(ZombieModPermissions.gate(ZombieModPermissions.OBSERVE))
                         .executes(ctx -> setObserve(ctx.getSource(),
                                 ctx.getSource().getPlayerOrException(), true))
                         .then(Commands.argument("player", EntityArgument.player())
@@ -244,7 +245,7 @@ public final class ZombieModCommands {
                         .executes(ctx -> setObserve(ctx.getSource(),
                                 ctx.getSource().getPlayerOrException(), false))
                         .then(Commands.argument("player", EntityArgument.player())
-                                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+                                .requires(ZombieModPermissions.gate(ZombieModPermissions.OBSERVE))
                                 .executes(ctx -> setObserve(ctx.getSource(),
                                         EntityArgument.getPlayer(ctx, "player"), false)))));
 
@@ -833,7 +834,7 @@ public final class ZombieModCommands {
     private static int toggleObserve(CommandSourceStack source) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
         boolean turningOn = !ObserverMode.isOn(player);
-        if (turningOn && !Commands.LEVEL_GAMEMASTERS.check(source.permissions())) {
+        if (turningOn && !ZombieModPermissions.has(player, ZombieModPermissions.OBSERVE)) {
             source.sendFailure(Component.literal(
                     "You do not have permission to turn observer mode on."));
             return 0;

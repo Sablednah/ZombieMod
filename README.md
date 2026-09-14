@@ -251,9 +251,11 @@ horde of itself.
 | `zombiemod:height` | `min`, `max` — either may be omitted |
 | `zombiemod:light` | `min`, `max` — light at the spawn point, so it follows day/night outdoors |
 | `zombiemod:see_sky` | `value` (default `true`) — open sky above, or deliberately not |
+| `zombiemod:in_water` | `value` (default `true`) — the spawn block is water, or deliberately not. What keeps the Undertow in the sea: a drowned base does *not* confine a genus to water on its own, because proximity spawning picks ground before it picks a genus |
 | `zombiemod:depth` | `min`, `max` — blocks below the local surface. 0 in a field, a few under your own roof, hundreds in a cave |
 | `zombiemod:time` | `phase` (`day`/`night`), or `min`/`max` on the 24000-tick cycle |
 | `zombiemod:moon` | `phases` — any of vanilla's eight, e.g. `["full_moon"]` |
+| `zombiemod:date` | `from`, `to` as `MM-DD` — the server's real-world date, inclusive, and the range may wrap the year (`12-18` to `01-02`). `dateOverride` in the server config pretends it is another day, and `/zombiemod status` says which seasonal genera are in |
 | `zombiemod:in_claim` | `value` (default `true`) — inside an FTB Chunks claim. Always `false` without FTB. |
 | `zombiemod:city_district` | `districts` — CityWorld district types. Always fails without CityWorld. See [CityWorld districts](#cityworld-districts). |
 | `zombiemod:city_lot` | `lots` — CityWorld lot styles. Same. |
@@ -261,7 +263,7 @@ horde of itself.
 | `zombiemod:any_of` | `conditions` — passes if any nested condition passes |
 | `zombiemod:not` | `condition` — inverts one |
 
-Fourteen in all, of which `any_of` and `not` are combinators rather than places, and four
+Sixteen in all, of which `any_of` and `not` are combinators rather than places, and four
 (`in_claim` and the three `city_*`) come alive only when the mod they read is installed.
 
 Conditions are a **registry**, not a fixed list, so another mod can contribute its own types via
@@ -1087,8 +1089,9 @@ fight you're winning isn't the problem, and shouldn't be treated as one.
 ```
 
 `enabled`, `hordes`, `playerZombies`, `proximity`, `bestiary`, `perGenus` and `logSpawns`. **Admin
-only** — permission level 3, a step above the rest of the tree, because these change what the server
-does for everyone rather than what happens in front of whoever typed it.
+only** — `zombiemod.config`, defaulting to permission level 3, a step above the rest of the tree,
+because these change what the server does for everyone rather than what happens in front of whoever
+typed it.
 
 Deliberately not every config key: a command that can set anything is a second, worse config editor.
 These are the ones whose answer is yes or no and whose effect is immediate — the set you want to
@@ -1775,7 +1778,7 @@ in-game with `/zombiemod config`, which writes them to disk.
 | `/zombiemod horde list\|start <horde>\|stop` | Wave events. `start` overrides config, cooldown, time of day and moon phase. |
 | `/zombiemod bestiary [book]` | Your ZombieDex checklist, in chat or as a written book. |
 | `/zombiemod bestiary info <genus>` | The full write-up for one genus, as far as you've earned it. |
-| `/zombiemod config` | List the live toggles. **Admin only** (permission level 3). |
+| `/zombiemod config` | List the live toggles. **Admin only** (`zombiemod.config`, default level 3). |
 | `/zombiemod config <name> [on\|off]` | Flip one, and write it to disk. Omit `on`/`off` to toggle. |
 | `/zombiemod status` | What the mod believes its settings are, whether the corpse genus resolved, whether FTB Chunks linked, and running counters for proximity, claims and spawn rules. **Start here when something seems not to work.** |
 | `/zombiemod observe [on\|off]` | Take no damage while staying a completely normal target. |
@@ -1786,7 +1789,9 @@ in-game with `/zombiemod config`, which writes them to disk.
 | `/zm …` | Alias for the whole tree — a redirect onto the same node tree, so subcommands, suggestions and permissions are identical. |
 
 **`list` and `bestiary` are open to everyone**, under both names; the checklist is a player feature.
-Everything else needs permission level 2, and `config` needs 3.
+Everything else is behind a `zombiemod.*` permission node that defaults to op level 2, and `config`
+to 3 — so with no permissions mod, op is all it takes, and with one, a branch can be handed to a
+non-op. [`NODES.md`](NODES.md) has every node.
 
 **→ Every command with the reasoning behind it:
 [`CURSEFORGE-COMMANDS.md`](CURSEFORGE-COMMANDS.md).**
