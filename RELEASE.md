@@ -323,12 +323,12 @@ project, so it would not have removed the one manual step that mattered.
 
 ## Before you publish
 
-- [ ] `./gradlew build` and confirm the jars are `zombiemod-3.4.1+mc<version>.jar`, one per supported Minecraft version
+- [ ] `./gradlew build` and confirm the jars are `zombiemod-3.5.0+mc<version>.jar`, one per supported Minecraft version
 - [ ] Redeploy to the test instance if it still has the pre-balance jar
 - [ ] Create the CurseForge project **on the website** and note its numeric project ID (its upload
       API cannot create one). Modrinth's can: run the `modrinth.yml` workflow, `create-project`
 - [ ] Add `CURSEFORGE_TOKEN` (secret) and `CURSEFORGE_PROJECT_ID` (variable) to the repo
-- [ ] Push `master`, `mc26.1`, `mc26.2` and the `v3.4.1` tag
+- [ ] Push `master`, `mc26.1`, `mc26.2` and the `v3.5.0` tag
 - [ ] **GitHub release first** — it triggers the CurseForge upload, and the store pages link back to it
 - [ ] Check `https://authors.curseforge.com/#/projects/<id>/files`, not the public Files tab
 - [ ] Modrinth: check the draft page reads right, then run `modrinth.yml` → `submit-for-review`
