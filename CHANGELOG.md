@@ -7,6 +7,21 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone.
 
+## 3.5.1
+
+*2026-09-14.* Nobody on the other end: another mod's automation can no longer crash the server
+through ZombieMod.
+
+### Fixed
+
+- **A fake player could crash the server.** Mods that act through a fake player — mob grinders,
+  deployers, automated weapons — hand the game a player with no real network connection behind it.
+  When one of them killed a genus, ZombieMod went to update that "player's" ZombieDex, asked the
+  missing connection whether it could receive the update, and the question itself threw. Fake
+  players are now recognised and simply skipped, since there is no screen on the other end to
+  update. Real players, modded or vanilla clients, are unaffected. Reported by the Chronicler, whose
+  own mod had the same fault.
+
 ## 3.5.0
 
 *2026-09-14.* Handing over the keys: staff commands can be granted without op, and the Undertow
