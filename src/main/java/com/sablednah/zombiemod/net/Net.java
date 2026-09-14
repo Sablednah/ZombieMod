@@ -69,13 +69,24 @@ public final class Net {
     }
 
     /**
-     * Null-checks the connection as well as the channel.
+     * Refuses fake players before asking about the channel.
      *
-     * <p>A real player always has one by the time anything here runs, but fake players exist - other
-     * mods use them, and so do this repo's own probes - and an NPE from a cosmetic feature would take
-     * down whatever event it fired from, which is the failure this whole class exists to avoid.
+     * <p>A real player always has a connection by the time anything here runs, but fake players exist
+     * - other mods' automation uses them, and so do this repo's own probes - and an exception from a
+     * cosmetic feature would take down whatever event it fired from, which is the failure this whole
+     * class exists to avoid.
+     *
+     * <p><b>The null check alone does not cover them.</b> NeoForge's {@code FakePlayer} has a
+     * listener, over a dummy {@code Connection} that never went through {@code channelActive}, so its
+     * netty channel is null. {@code hasChannel} reads the payload setup off that channel and throws a
+     * {@code NullPointerException} (reported by Chronicler, whose self-test hit it at boot). So ask
+     * {@code isFakePlayer()} for NeoForge's, and {@code isConnected()} - which is exactly "the channel
+     * exists and is open" - for anyone else's hand-rolled one. Neither can hear a payload anyway.
      */
     private static boolean listening(ServerPlayer player, CustomPacketPayload.Type<?> type) {
-        return player.connection != null && player.connection.hasChannel(type);
+        return player.connection != null
+                && !player.isFakePlayer()
+                && player.connection.getConnection().isConnected()
+                && player.connection.hasChannel(type);
     }
 }

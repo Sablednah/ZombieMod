@@ -513,7 +513,12 @@ ever been experienced.
 dummy connection, so boss bars, chat and title packets go nowhere rather than throwing. Verified
 2026-09-11: two FakePlayers were put on a real boss bar and taken off it again without error. (This
 file used to say anything sending a packet would NPE, which led to probes avoiding `bar_color` for
-no reason.) What it genuinely cannot do is keep a dedicated server awake: it is not a connected
+no reason.) **Vanilla packets, not NeoForge's channel check.** Its dummy `Connection` never went
+through `channelActive`, so the netty channel is null: vanilla's `send` checks for that and drops the
+packet, but `connection.hasChannel(type)` reads the payload setup off the channel and throws an NPE.
+`Net.listening` refuses fake players before asking — found by Chronicler on 2026-09-14, whose
+self-test crashed at boot, and reachable here by another mod's fake-player killer earning a dex
+entry. What it genuinely cannot do is keep a dedicated server awake: it is not a connected
 player, so a 1.21.2+ server pauses 60 s after start. Set `pause-when-empty-seconds=0` for any
 probe that runs longer than that.
 

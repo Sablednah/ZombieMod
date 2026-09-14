@@ -55,9 +55,9 @@ per-platform edit. Do not fork it into a second file.
 
 | Field | Value |
 |---|---|
-| Tag | `v3.5.0` |
-| Title | `3.5.0 — Handing over the keys` |
-| Body | The `## 3.5.0` section of [`CHANGELOG.md`](CHANGELOG.md), plus the requirements table below |
+| Tag | `v3.5.1` |
+| Title | `3.5.1 — Nobody on the other end` |
+| Body | The `## 3.5.1` section of [`CHANGELOG.md`](CHANGELOG.md), plus the requirements table below |
 | Attach | every `build/libs/zombiemod-<ver>+mc<mc>.jar`, one per supported version — the CurseForge upload reads the `+mc` suffix to label each |
 
 Requirements block to append to the release body:
@@ -86,7 +86,7 @@ releases after the branches appeared.
 |---|---|
 | Summary | The one-liner |
 | Description | [`CURSEFORGE.md`](CURSEFORGE.md) |
-| Changelog | The `## 3.5.0` section of [`CHANGELOG.md`](CHANGELOG.md) |
+| Changelog | The `## 3.5.1` section of [`CHANGELOG.md`](CHANGELOG.md) |
 | Project icon | `docs/main-logo.png` — 1035×1035, square |
 | Header/banner | `docs/slime-logo-850.png` — 850px wide, the description limit |
 | Licence | MIT |
@@ -323,12 +323,12 @@ project, so it would not have removed the one manual step that mattered.
 
 ## Before you publish
 
-- [ ] `./gradlew build` and confirm the jars are `zombiemod-3.5.0+mc<version>.jar`, one per supported Minecraft version
+- [ ] `./gradlew build` and confirm the jars are `zombiemod-3.5.1+mc<version>.jar`, one per supported Minecraft version
 - [ ] Redeploy to the test instance if it still has the pre-balance jar
 - [ ] Create the CurseForge project **on the website** and note its numeric project ID (its upload
       API cannot create one). Modrinth's can: run the `modrinth.yml` workflow, `create-project`
 - [ ] Add `CURSEFORGE_TOKEN` (secret) and `CURSEFORGE_PROJECT_ID` (variable) to the repo
-- [ ] Push `master`, `mc26.1`, `mc26.2` and the `v3.5.0` tag
+- [ ] Push `master`, `mc26.1`, `mc26.2` and the `v3.5.1` tag
 - [ ] **GitHub release first** — it triggers the CurseForge upload, and the store pages link back to it
 - [ ] Check `https://authors.curseforge.com/#/projects/<id>/files`, not the public Files tab
 - [ ] Modrinth: check the draft page reads right, then run `modrinth.yml` → `submit-for-review`
