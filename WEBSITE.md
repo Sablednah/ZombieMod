@@ -230,7 +230,33 @@ Jack/Krampus) and the roster carousel's `$portraits` array - a *second*, separat
 genus needs a portrait, the raw shot needs the **same camera distance** as this batch or the whole set
 needs reprocessing together - see the site repo's `[[screenshot-relative-scale]]` memory.
 
-## 3.5.0 (2026-09-14) — permission nodes and the Undertow
+## 3.5.0 (2026-09-14) — DONE (site side), plus older roster drift fixed
+
+Deployed and verified from origin (cache-busted, grepped for the new text on every URL):
+
+- **New page `/zombiemod-reforged/permissions/`** (WP page 218, `template-zombiemod-permissions.php`, new
+  `permissions` tab in `zombiemod-subnav.php`). Mirrors `NODES.md`: the six nodes and defaults, how the
+  defaults behave with and without a permissions mod, the storyteller `/rank` example (linked to the
+  StoryTeller hub), every command by node, the two deliberate holes, console vs needs-a-player, client
+  commands, and what is not gated. Node names and defaults were re-checked against
+  `ZombieModPermissions.java` (`config` is `LEVEL_ADMINS`, the rest `LEVEL_GAMEMASTERS`).
+- **`/commands/`**: the "defines no permission nodes" callout is gone; the levels table is now a node table;
+  each command card's badge names its node; observe/config wording updated.
+- **`/settings/`**: the "no permission nodes" callout rewritten - "no permissions mod needed" stays true.
+- **Spawn conditions 15 -> 16** for `zombiemod:in_water`: `/genus/` heading, an `in_water` row, "Of the
+  sixteen"; the hub's feature bullet and Dig deeper card; the `/game-plugins/` card. Counted at HEAD vs v3.4.1
+  (`register(` 17 vs 16, minus the method definition).
+- **Older drift, not caused by 3.5.0: the Undertow was missing from `/roster/`.** The page said "all 61" but had
+  60 `$families` rows and 60 `$portraits` entries. The Undertow shipped in **3.1.0** and its portrait
+  (`assets/img/roster/undertow.png`) was made in the 28 Aug batch and deployed, but never wired in. Added to the
+  elemental family (write-up is its genus `description` verbatim, plus a one-line mechanical note), the
+  non-zombie base map and the carousel. Both arrays now match the genus directory exactly.
+
+**Add to the checklist:** diff the genus id list against `$portraits` keys and `$families` rows on every
+update - `ls src/main/resources/data/zombiemod/zombiemod/genus/ | sed 's/.json//'`. The prose count was right
+while a row was missing, so the count alone does not catch it.
+
+### The original brief
 
 Two things for the site, neither large:
 
