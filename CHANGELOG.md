@@ -7,6 +7,145 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone.
 
+## 3.5.0
+
+*2026-09-14.* Handing over the keys: staff commands can be granted without op, and the Undertow
+stays in the water.
+
+### Added
+
+- **Permission nodes.** Six of them, through NeoForge's own permission API, so LuckPerms and
+  [SableCraft Standards](https://github.com/Sablednah/SableCraft-Standards) can both grant them:
+  `zombiemod.spawn`, `zombiemod.horde`, `zombiemod.corpse`, `zombiemod.observe`, `zombiemod.status`
+  and `zombiemod.config`. **Every one defaults to the op level the command always needed**, so a
+  server with no permissions mod — or one that grants nothing — behaves exactly as before. What they
+  add is delegation: a storyteller can now be given hordes and spawning for their sessions without
+  being made an op, which would hand them `/stop` as well. The console and command blocks pass on op
+  level as they always did. [`NODES.md`](NODES.md) is the full statement.
+
+- **A `zombiemod:in_water` spawn condition.** `value` defaults to `true`; `false` means dry land.
+
+### Fixed
+
+- **The Undertow turned up on dry land.** A drowned base is not a spawn rule: vanilla only puts a
+  drowned in water, but proximity spawning picks a patch of ground before it picks a genus, and a
+  glowing, ink-trailing thing that drags people under was appearing in fields with nothing to drag
+  anyone into. It now carries `in_water`, so it only ever spawns in the sea, a river, or an
+  underground lake — every spawn path, not only vanilla's. A drowned that has already chased you
+  onto the beach is still a drowned, and follows you out exactly as vanilla's do.
+
+## 3.4.1
+
+*2026-09-11.* Room to breathe: zombies leave again instead of piling up, a boss lets you walk
+away, and nothing reacts to a player who isn't there.
+
+### Fixed
+
+- **A boss could crash the server.** If a player moved out of range of a boss's health bar while
+  the boss was still alive, the server stopped with a *"Ticking entity"* crash naming
+  `BossBars.update`. It went unnoticed because it never happens during a fight: you stay near a boss
+  until one of you is dead. It took a flight, a mass teleport and a Borg Queen dropped far below the
+  player to find it. Running, flying or teleporting away from a living boss would all have done the
+  same, as would the boss falling or being knocked far away.
+
+  Fixed, and a boss bar that fails for any other reason now logs once and lets the fight carry on
+  without its bar, instead of taking the world down with it.
+
+- **Zombies piled up without limit, and the server slowed to a crawl.** One test world held over two
+  thousand when it was finally cleared. The mod's own spawning was capped; vanilla's was being
+  defeated.
+
+  Every ZombieMod zombie was marked *persistent* the moment it spawned, so it would never despawn.
+  But vanilla's mob cap **does not count persistent mobs** — it deliberately ignores them, because a
+  persistent mob is normally one a player has chosen to keep. So each zombie that became one of ours
+  vanished from the cap's count, vanilla saw room and spawned a replacement, that one became one of
+  ours as well, and none of them ever left. The world filled indefinitely.
+
+  They now despawn the way vanilla zombies do, and count toward the cap like vanilla zombies do.
+  **Still kept, deliberately:** player corpses, which carry someone's inventory; bosses; and a horde's
+  zombies while the horde is still running, since one despawning would end it early. Name-tag one to
+  keep it, exactly as in vanilla.
+
+  **Upgrading a world that already has them.** The old flag is saved into each zombie, so the ones
+  already out there stay until you clear them. Run these once as an op — they remove persistent mobs
+  of the five kinds ZombieMod zombies are built on:
+
+  ```
+  /kill @e[type=minecraft:zombie,nbt={PersistenceRequired:1b}]
+  /kill @e[type=minecraft:husk,nbt={PersistenceRequired:1b}]
+  /kill @e[type=minecraft:drowned,nbt={PersistenceRequired:1b}]
+  /kill @e[type=minecraft:zombie_villager,nbt={PersistenceRequired:1b}]
+  /kill @e[type=minecraft:skeleton,nbt={PersistenceRequired:1b}]
+  ```
+
+  A line that answers **"No entity was found"** is not an error — there were simply none of that
+  kind to clear. On a test world, zombies, drowned and skeletons all had some; husks and zombie
+  villagers had none.
+
+  Things to know before you do:
+
+  - **It only reaches loaded chunks.** Zombies in parts of the world nobody is near are untouched,
+    and will be back when those areas load. Run it again somewhere else, or ask players to.
+  - **It also catches player corpses.** A corpse killed this way drops what it was carrying where it
+    stands, rather than losing it — but that may be somewhere nobody is. Check
+    `/zombiemod corpse list` first; anything outstanding can be re-issued from the ledger.
+  - **It catches anything of those types that a player name-tagged**, and any boss a player summoned.
+    If your server has pets like that, add `distance=..128` and run it somewhere they are not.
+
+- **Zombies no longer react to vanished players.** A Boomer was detonating beside staff who had
+  vanished through [SableCraft Standards](https://github.com/Sablednah/SableCraft-Standards) — and a
+  crater with no visible cause gives a hidden player away as completely as being seen would.
+
+  Standards already stops mobs *targeting* someone vanished, which is why this only showed up on a
+  few abilities. The Boomer's fuse never consults a target: it asks who is standing within its
+  trigger radius, and a vanished player was answering. Every ability that sweeps an area — the fuse,
+  and anything aimed at `nearby_players` — now treats a vanished player the way it already treated
+  spectators and creative-mode players: present in the world, but not someone to react to.
+
+  **Proximity spawning and hordes do the same.** Neither will pick a vanished player: no crowd
+  quietly accumulates around staff standing in an empty field, and no horde starts on somebody
+  nobody can see. A horde already running when its player vanishes ends the way it does when they
+  log out — the bar comes down and nothing more is sent, while whatever had already spawned stays
+  in the world. Vanishing walks away from a fight rather than rewinding it.
+
+  Nothing to configure, and nothing changes on a server without Standards installed.
+
+### Added
+
+- **Every jar says which build it is, and the mod says so at startup.** A version number answers
+  "which release"; during development that is a different question from "which bytes", and it is a
+  sharper one here than in most mods because a release ships three jars that differ only in a `+mc`
+  suffix. The startup line and `/zombiemod status` now both read like this:
+
+  ```
+  ZombieMod ReForged 3.4.0+mc1.21.11 (build 1946c37a on master, 2026-09-10T07:49:34Z)
+  ```
+
+  A `-dirty` suffix on the commit means that jar was built from uncommitted changes. The same four
+  values are on the jar manifest as `Build-Commit`, `Build-Branch` and `Build-Time`, so a jar can be
+  identified from a shell without loading it:
+
+  ```bash
+  unzip -p zombiemod-3.4.0+mc1.21.11.jar META-INF/MANIFEST.MF | grep Build
+  ```
+
+  **What it is for is bug reports.** A stamp inside a jar says what is on disk; the startup line
+  says what actually *ran*, which is the question a report needs answered and the one that could not
+  be answered before. The format is shared with the other SableCraft mods, so a server owner running
+  several of them reads the same line from each.
+
+  The stamp can never stop the mod loading: a missing or corrupt one degrades to `unknown`, and the
+  build tolerates git being absent, as in a source zip.
+
+### Changed
+
+- **The ZombieDex opens with Z, not J.** J is JourneyMap's full-screen map, and a mod that common
+  should not have to be rebound to make room for a zombie pack. Vanilla binds nothing to Z.
+
+  **If you already had ZombieMod installed, you will still be on J.** Minecraft saves every key
+  binding, defaults included, so an existing install keeps what it had. Change it under
+  *Options → Controls → Key Binds → Open ZombieDex*.
+
 ## 3.4.0
 
 *2026-08-30.* Zombies respect whoever owns the land, and nobody gets stuck invulnerable.

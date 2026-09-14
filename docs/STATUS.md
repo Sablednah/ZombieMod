@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-08-31 (3.4.0, across three Minecraft versions).
+Last updated 2026-09-14 (3.5.0 in progress on `master`; 3.4.1 shipped across three Minecraft versions).
 
 **Counts here are now taken off the source, not off prose.** They had drifted — this file said 56
 genera, 12 goal types, 22 abilities, 12 conditions and 3 hordes, and every one of those was wrong.
@@ -18,7 +18,7 @@ hand.
 | **Genera as datapacks** | 61 shipped; hot-reload with `/reload` |
 | **AI from JSON** | 12 goal types, recombined per genus |
 | **Abilities** | 21 types |
-| **Spawn conditions** | 15 types (12 general + 3 CityWorld), composable with `any_of` / `not` |
+| **Spawn conditions** | 16 types (13 general + 3 CityWorld), composable with `any_of` / `not` |
 | **Weighted spawning** | Per base mob, with a configurable vanilla share. `vanillaWeight = 40` settled by play (2026-08-16) — measured at ~26% plain zombies on the surface, ~13% deep underground |
 | **Behaviours** | Goal sets that switch on a condition (day/night) |
 | **Bosses** | Boss bars, phases, loot tables, summon rituals with block patterns |
@@ -71,6 +71,10 @@ hand.
   play: Nightstalker's head was "Masked Zombie", whose mask turns out to be a *surgical* one, which
   said nothing about hunting in the dark. Picking by catalogue name is how that happened; picks are
   now screened by rendering the face pixels and looking at them, dimmed as well as lit.
+
+  **Reclassified 2026-09-14: good until someone actively complains.** Sable's call after a month of
+  play — "so far the zombies have been quite identifiable". The public release has been out since
+  August with no complaint, which is the audience this was waiting on. Off the open list.
 - ~~Mutation's two damp triggers~~ — **confirmed in play** (2026-08-16): ice and water both fire.
 - ~~`alert`~~ — **confirmed in play** (2026-08-17), and reported "subtle", which is about right for a
   genus whose whole job is to make the fight someone else's problem.
@@ -237,6 +241,72 @@ hand.
 
 ## Fixed, worth remembering
 
+- **The Undertow was spawning on dry land** (2026-09-14). "I'm seeing them everywhere - and not in
+  water... they glow, so they are obvious when around." A drowned base is not a spawn rule: vanilla
+  only ever places a drowned in water, but `ProximitySpawner` picks a standable patch of ground
+  *before* it rolls a genus, and `EventHooks.checkSpawnPosition` runs the mob's instance
+  `checkSpawnRules`, not the type's `SpawnPlacements` rule — so the drowned's water requirement was
+  never consulted on that path. The Undertow's only condition was `dimension`, and at weight 25 it
+  was eligible on every proximity attempt in the overworld.
+
+  Fixed with a new `zombiemod:in_water` condition on the genus rather than by teaching the proximity
+  spawner about placement rules, because a condition on the genus holds on every spawn path and is
+  something a pack author can use. The general lesson: **a genus that belongs somewhere has to say
+  so; the base type's own habits do not carry over to proximity spawning.** Bogman is fine - it is
+  swamp-gated, and a bog is where it belongs on land or in water.
+
+- **A boss bar crashed the server when a player left its range** (2026-09-11). Found in play, and
+  only because the play was strange: flying, `tp` of every zombie to the player, and a Borg Queen
+  dropped far below mid-horde. The crash named `BossBars.update` with an
+  `UnsupportedOperationException`. Shipped in 3.4.0.
+
+  `ServerBossEvent.getPlayers()` is an unmodifiable **live view** of the bar's own set, and the viewer
+  prune removed through its iterator. That throws on the first removal, and the one path that
+  removes is a player leaving the range of a boss that is *still alive*, which never happens during
+  an ordinary fight. **Deleting the iterator remove alone would not have fixed it:** because the view
+  is live, `removePlayer` inside the loop throws `ConcurrentModificationException` one step later.
+  So the loop now runs over `List.copyOf(...)`, as vanilla's own `removeAllPlayers` does. And
+  `BossBarGoal` catches and logs once per boss, the same as `AbilityGoal`, because a failing health
+  bar is not a reason to stop a world.
+
+  Reproduced before it was fixed. A probe called the real `BossBars.update` with a Borg Queen and two
+  FakePlayers on its bar, then moved both 500 blocks away at once, so it would catch the second
+  exception too. Unfixed: *threw UnsupportedOperationException, viewers stuck at 2*. Fixed: *OK,
+  viewers 0*.
+
+- **Zombies piled up without limit until the server crawled** (2026-09-11). Found in play: a
+  MobHealth test instance went sluggish, a Standards `/killall 512 force` killed over 2,000 zombies,
+  and the lag went with them. Our proximity cap was working; vanilla's was being defeated.
+
+  **Persistence takes a mob out of vanilla's cap.** `NaturalSpawner.createState` skips persistent
+  mobs when counting, and `GenusApplier` had made every genus persistent since the first port commit.
+  So each zombie that became a genus left the count, vanilla spawned a replacement, the replacement
+  often became a genus too, and none ever despawned. Measured on a dev server (fixed seed, midnight
+  held, one idle player), same probe before and after:
+
+  | | unfixed | fixed |
+  |---|---|---|
+  | monsters, 30 s | 101 | 77 |
+  | monsters, 270 s | 186 | 78 |
+  | persistent genera | 24 → 121 and climbing | 0 throughout |
+  | counted by vanilla's cap | pinned at 70 | pinned at 70 |
+
+  The last row is the whole diagnosis: vanilla's cap held perfectly in both runs. It just could not
+  see the zombies we had made persistent. In the unfixed run a `/kill` of all of them regrew from 28 to
+  82 in two and a half minutes.
+
+  Genera are now ordinary for despawning and counting. **Kept on purpose:** corpses (inventory),
+  bosses, and a running horde's members, the last through `MobDespawnEvent` rather than the flag,
+  because the flag can never be switched off. CLAUDE.md has the rule. The CHANGELOG's how-to-clear was
+  run for real through the dispatcher: it removed a simulated 3.4.0 genus and left an ordinary genus
+  and a plain zombie standing.
+
+  Two probe traps worth keeping. **A 1.21.2+ dedicated server pauses after 60 s with nobody
+  connected, and a FakePlayer does not count**, so the first baseline measured one sample and then
+  nothing. Set `pause-when-empty-seconds=0` for any unattended probe. And **measure in a throwaway
+  world**: stopping a probe server saves it, so the first attempt left its persistent zombies in the
+  dev world.
+
 - **A deopped player was stranded in observer mode** (2026-08-29). Observer mode was switched on for
   them, they were deopped, and the only command that could switch it back off now needed the
   permission they had just lost. They were invulnerable and could do nothing about it — and could not
@@ -331,31 +401,19 @@ waiting only for somebody to turn it on and judge it. **Nothing is outstanding.*
 
 ## Parked ideas
 
-- **Real-world date spawning — Halloween and holiday genera.** Sable's, 2026-08-27. A new
-  `zombiemod:date` spawn condition, after which it is pure JSON: a genus that only appears in the
-  last week of October, or between Christmas and New Year.
+- **A `persistent` field on a genus — deliberately left out** (Sable's call, 2026-09-11: "if someone
+  ever wants it they can ask and we'll revisit"). Easy to add, and the exact footgun the persistence
+  fix removed: on any genus with `weight` above 0 it recreates the cap-defeating ratchet for that
+  genus, since a persistent mob drops out of vanilla's count and never leaves.
 
-  It fits the existing shape — `SpawnConditionTypes.register` is public, and conditions already
-  compose with `any_of` and `not`, so "Halloween *or* a full moon" costs nothing extra. Three
-  decisions are worth making deliberately, because each is easy to get wrong and hard to notice:
+  If it is ever asked for, the shape worth building: honour it only on `weight: 0` genera (ritual,
+  command, summon), and **log a warning at load** when it is set on one that spawns naturally,
+  saying why it is being ignored. Until then, a genus that matters that much can be a boss, which is
+  kept already.
 
-  - **Whose clock?** The *server's* real-world date, not the player's. Everyone in a session should
-    meet the same October, whatever timezone they are in — a genus that appears for one player and
-    not the one standing next to them is a bug report, not a feature.
-  - **A month-day range, not named holidays.** `"from": "10-25", "to": "11-02"` recurs annually and
-    lets a pack author express anything; a `"halloween"` keyword cannot express Diwali, a server's
-    anniversary, or a two-week event. **The range must wrap the year end** — `12-20` to `01-05` is
-    exactly the case a naive `from <= today <= to` gets wrong, and it is the one people will write.
-  - **It must be testable out of season.** A date-gated genus is invisible for fifty-one weeks, which
-    is indistinguishable from broken. `/zombiemod status` should say today's date and which
-    date-gated genera are in season — the same reasoning as the claim and conversion counters, where
-    the whole effect of a feature is an absence. A config override for pretending it is October would
-    make it testable in one line rather than by changing the system clock.
-
-  Cheap: one condition type, and the roster additions are datapack files. The genera themselves are
-  the fun part and are entirely Sable's call — a pumpkin-headed thing in late October writes itself.
-
-
+- ~~**Real-world date spawning — Halloween and holiday genera.**~~ Built: the `zombiemod:date`
+  condition, Jack and Krampus. See *Seasonal genera* below, which records the three decisions
+  (server clock, wrapping month-day ranges, `dateOverride`) that this entry used to propose.
 
 - **An aquatic genus - a Drowned, but squiddier.** Sable's, 2026-08-13. Worth noting that it looks
   like pure JSON: `base: minecraft:drowned` (Bogman already uses it), `navigation: swim` or
@@ -523,10 +581,15 @@ from it at build time, so never edit the generated file.
 | Version | Shipped | What it was |
 |---|---|---|
 | `3.0.0` | 2026-08-18 | First release of the NeoForge rewrite. 58 genera. |
-| `3.1.0` | 2026-08-24 | The Undertow (61 genera), bounties through Standards, the Rusted Warden's shockwave cadence, and section codes gone from command output. |
+| `3.1.0` | 2026-08-24 | The Undertow (59 genera), bounties through Standards, the Rusted Warden's shockwave cadence, and section codes gone from command output. |
+| `3.1.1` | 2026-08-25 | The Undertow actually swims. `float` pins a swimmer to the surface, and the new `random_swim` goal gave `navigation: swim` the half it had always been missing. |
+| `3.2.0` | 2026-08-26 | Minecraft 26.1.2 and 26.2 alongside 1.21.11, a jar each from one source tree. A wrong item id in a genus stopped taking the world down with it, and `/zombiemod status` began counting the six reasons a conversion declines. |
+| `3.3.0` | 2026-08-28 | Seasonal genera: a `zombiemod:date` spawn condition, Jack (24 Oct - 2 Nov) and Krampus (18 Dec - 2 Jan) — 61 genera — and `dateOverride` so they can be seen out of season. |
+| `3.4.0` | 2026-08-30 | Griefing asks *any* claims mod rather than FTB Chunks alone; `/zombiemod observe off` needs no permission, so a deopped observer is no longer stranded; each jar accepts any NeoForge on its own line; blindness counts as combat. |
+| `3.4.1` | 2026-09-11 | Room to breathe: genera stop being persistent, so they despawn and count toward vanilla's mob cap again (one world had reached 2,000+). A boss bar no longer crashes the server when a player leaves a living boss's range. Abilities, proximity spawning and hordes ignore vanished players. Build stamps in the jar and the startup log. The ZombieDex key moves from J to Z, off JourneyMap's. |
 
 **Publishing to GitHub publishes to CurseForge**, via `.github/workflows/curseforge.yml`. Proven on
-both releases.
+every release so far.
 
 **Three things the automation does not do.** Each is manual, and each is invisible when forgotten:
 
@@ -540,13 +603,46 @@ both releases.
   authors list by default. The authoritative view is
   `https://authors.curseforge.com/#/projects/1658560/files`, not the public Files tab.
 
-**The one store still missing is Modrinth** — checked 2026-08-24; the project does not exist (API
-404, no search hits). The recipe and its two expensive traps are in [`../RELEASE.md`](../RELEASE.md):
-the icon must be `docs/main-logo-icon.png`, because Modrinth caps icons at 256 KiB and the lockup is
-1.4 MB; and `client_side`/`server_side` are marked deprecated in favour of an `environment` field
-that **does not exist on v2**, so the deprecated pair is still what you must send. Environment is
-Server **Required**, Client **Optional** — the field people filter on, and the costliest to get
-wrong.
+**Modrinth is live and awaiting first moderation** (2026-08-31). The project is
+[`zombiemod-reforged`](https://modrinth.com/mod/zombiemod-reforged), id **`PVD9M9Jj`**, carrying the
+icon, nine captioned gallery images and all three 3.4.0 jars as separate versions
+(`3.4.0+mc1.21.11`, `3.4.0+mc26.1.2`, `3.4.0+mc26.2`). Submitted from the website with an **AI-use
+declaration**, which the API cannot supply — see below. It stays private until moderation passes.
+
+**Still "Under review" on 2026-09-09**, nine days in, and so are CityWorld ReForged and MobHealth
+ReForged on the same account — so this is Modrinth's queue, not a second artwork rejection. The
+public API answers **404** for a project in this state, which is indistinguishable from a rejected
+or deleted one; the author dashboard at <https://modrinth.com/dashboard/projects> is the only place
+that says which. Do not read a 404 as a refusal.
+
+The machinery is three scripts driven by `.github/workflows/modrinth.yml`:
+`create-project` (private draft + icon + gallery), `upload-versions` (a Modrinth version per jar,
+automatic on every GitHub release), and `submit-for-review`, which only *checks* the draft is ready
+and sends you to the website. The token lives only as the `MODRINTH_TOKEN` repository
+secret and is never needed on the dev box. Everything that could be checked without it has been —
+required fields, categories, licence, loader, all three game versions, the gallery captions and the
+icon size — against the live API and its published spec. Full notes in
+[`../RELEASE.md`](../RELEASE.md).
+
+Five things that were expensive to learn, three of them costing a workflow run each:
+
+- **Modrinth runs a no-generative-AI policy over artwork, and the shield lockup tripped it.** The
+  slime banner did not. So Modrinth's icon is `docs/modrinth-icon.png` — the banner padded to a
+  512×512 square, 44 KB — and *not* the shield that CurseForge uses. Do not unify them.
+- **`environment` does exist on v2, but on the *version*, not the project.** The project still needs
+  the deprecated `client_side`/`server_side` pair, which are still required fields, so both go.
+  (This corrects what this file said before.) Environment is Server **Required**, Client
+  **Optional** — the field people filter on, and the costliest to get wrong.
+- **Modrinth caps icons at 256 KiB**, which is why no full-size lockup can ever be the icon.
+- **`initial_versions` and `is_draft` are marked deprecated and are still required on create.**
+  Omitting them gives a 400 that phrases a missing field as a JSON parse error. The published spec
+  is not authoritative on what the live endpoint demands.
+- **A version's `project_id` is the base62 id, not the slug** — `zombiemod-reforged` has a hyphen,
+  and the 400 names neither the field nor the slug. Every *path* takes `{id|slug}` interchangeably,
+  which is what makes the body field look safe.
+- **Submit for review on the website.** The form asks for an AI-use declaration that v2 does not
+  expose at all — zero mentions in the spec — so an API submission answers it with nothing, on the
+  platform that had already rejected our artwork under that policy.
 
 ### The materials, and what is deliberately not in them
 
@@ -557,6 +653,7 @@ Four files in the **repo root**, matching `../CityWorld-ReForged`:
 | `CURSEFORGE.md` | The store description — covers everything, links out for depth. Used for Modrinth too; do not fork it. |
 | `CURSEFORGE-CONFIGURATION.md` | Every setting in all nine config sections. |
 | `CURSEFORGE-COMMANDS.md` | Every command. |
+| `NODES.md` | Permissions. The answer is that there are no named nodes — only vanilla command levels — which is exactly why it needed writing down. |
 | `RELEASE.md` | Every store field, the gallery order, and the publishing traps. |
 | `WEBSITE.md` | Handover to the sablecraft.co.uk session. |
 
@@ -575,8 +672,10 @@ and must not be normalised), and the near-miss where Colossus and Rusted Warden 
 ### Artwork
 
 `docs/main-logo.png` is the square CurseForge icon (1035×1035), `docs/slime-logo-850.png` the banner
-at CurseForge's 850px description-image limit, `docs/main-logo-icon.png` the 82 KB Modrinth-legal
-icon, and `night-`/`Stone-`/`survival-logo.png` are variants held back for updates and themed events.
+at CurseForge's 850px description-image limit, `docs/modrinth-icon.png` the 44 KB Modrinth icon
+(regenerated by `scripts/make-modrinth-icon.py`), and `night-`/`Stone-`/`survival-logo.png` are
+variants held back for updates and themed events. `docs/main-logo-icon.png` is the shield lockup
+squared to 512×512 — kept, but **unusable on Modrinth**, whose no-generative-AI review rejected it.
 
 All of them arrived with a **magenta chroma-key background rather than alpha**, which would have
 shown as a solid magenta square wherever they were used. Keyed out on the magenta-ness axis
@@ -591,15 +690,31 @@ the removed tree was CC BY-NC-ND with third-party contributions and is still rea
 history, so anyone who recovers it needs those terms. CLAUDE.md carries the
 `git log --diff-filter=D` recipe for reading it again.
 
+## Where this stands, 2026-09-14
+
+A month of play on 3.4.x closed most of the open list in one sitting:
+
+- ~~**Watch the Undertow meet somebody.**~~ "Undertow its good." What it found was not the weight
+  but the habitat — see *Fixed, worth remembering* above. Weight 25 stands until play says otherwise.
+- ~~**Proximity in survival.**~~ "The proximity cap at 8 is fine - it reads well, especially now we
+  fixed the persistent issue." Closed; `nearbyCap = 8` is the shipped default.
+- ~~**Permission nodes.**~~ Built 2026-09-14 for 3.5.0, once a real use case arrived: LegendQuest
+  StoryTeller's storytellers needed every ZombieMod command without being opped, because op brings
+  `/stop`. Six boolean nodes in `neoforge/ZombieModPermissions`, defaults reproducing `NODES.md`,
+  verified headlessly with a `FakePlayer` in both directions (40 checks). The design notes that used
+  to sit here are now the class comment and CLAUDE.md's *Command permissions* section.
+- ~~**The faces.**~~ Reclassified as good until somebody actively complains — see the *Built, not
+  yet verified* entry.
+
 ## Next, in the order I'd do it
 
-1. **Watch the Undertow meet somebody.** It is the headline of 3.1.0, it has never been played, and
-   its weight is a first guess.
-2. **Modrinth.** The last unticked box on the release list.
-3. **Proximity in survival.** Enabled in Sable's instance; the cap semantics are settled ("quiet
-   place top up is perfect" — 2026-08-15). What remains is a survival session on quiet ground
-   watching it fire, and whether `nearbyCap = 8` feels like atmosphere.
-4. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
+1. **Ship 3.5.0.** `master` carries it; sync the shared files to `mc26.1` and `mc26.2` (file sync,
+   not cherry-pick — see CLAUDE.md), build all three, count genera on each branch, then tag. Then
+   hand a storyteller the nodes on Sable's server and watch them run a session — that is the test
+   the FakePlayer probe cannot do, because it proves the gates and not the experience.
+2. **Modrinth moderation.** Submitted 2026-08-31; nothing to do but wait. If it comes back on the
+   artwork, the fallback is a further-simplified wordmark — the shield is already known to fail.
+3. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
 
