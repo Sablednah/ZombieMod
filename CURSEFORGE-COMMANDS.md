@@ -7,15 +7,23 @@ There is deliberately **no `/zombiemod reload`**. Genera are datapack data, so v
 
 ## Permissions
 
-| Level | Commands |
-|---|---|
-| Everyone | `list`, `bestiary`, **`observe off`** |
-| Op (level 2) | `spawn`, `status`, `observe on`, `observe off <player>`, `corpse`, `horde` |
-| Admin (level 3) | `config` |
+| Node | Commands | Default |
+|---|---|---|
+| — | `list`, `bestiary`, **`observe off`** | everyone |
+| `zombiemod.spawn` | `spawn` | op (level 2) |
+| `zombiemod.horde` | `horde list`, `start`, `stop` | op (level 2) |
+| `zombiemod.corpse` | `corpse list`, `give`, `respawn`, `forget` | op (level 2) |
+| `zombiemod.observe` | `observe on`, `observe off <player>` | op (level 2) |
+| `zombiemod.status` | `status` | op (level 2) |
+| `zombiemod.config` | `config` | admin (level 3) |
 
-`bestiary` and `list` are open on purpose — the checklist is a player feature, and a companion
-client mod should only ever be a nicer window onto it. `/zm` carries no bar of its own, so the alias
-is exactly as restricted as the full name and no more.
+**Without a permissions mod, the default column is the whole story** — op your staff and everything
+follows. With one (LuckPerms, or SableCraft Standards' handler), a node can be granted to somebody
+who is not an op: a storyteller who calls hordes without being handed `/stop`. The console and
+command blocks pass on op level as they always did. `bestiary` and `list` are open on purpose — the
+checklist is a player feature, and a companion client mod should only ever be a nicer window onto
+it. `/zm` carries no bar of its own, so the alias is exactly as restricted as the full name and no
+more. The full statement is [`NODES.md`](NODES.md).
 
 ---
 

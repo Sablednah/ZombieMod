@@ -5,13 +5,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 **ZombieMod ReForged** — a NeoForge rewrite of ZombieMod, a 2013 Bukkit/Spigot plugin that added
-configurable custom zombie types. The port was built in place at the repo root. **Released as 3.0.0**
-(2026-08-17); the port is complete and the 1.8 reference tree has been removed — see *Reading the
-original Bukkit plugin* below for how to get it back when you need it.
+configurable custom zombie types. The port was built in place at the repo root. The port is
+complete and the 1.8 reference tree has been removed — see *Reading the original Bukkit plugin*
+below for how to get it back when you need it.
+
+**Shipping as 3.4.1** (2026-09-11): 61 genera, on GitHub and CurseForge, and on Modrinth as
+`zombiemod-reforged` (submitted 2026-08-31, still awaiting first moderation). A jar per Minecraft version,
+three of them.
 
 This is the **fourth** Bukkit→NeoForge port in a series. `../MobHealth-Forge` is the canonical
 template and `../CityWorld-ReForged/PORTING.md` is the richest source of verified 1.21.11 API notes.
 Read those before inventing anything.
+
+**`master`'s targets** — the other two branches differ, see [docs/MULTIVERSION.md](docs/MULTIVERSION.md):
 
 | | |
 |---|---|
@@ -21,6 +27,25 @@ Read those before inventing anything.
 | Build | Gradle + ModDevGradle (`net.neoforged.moddev`) |
 | Licence | MIT (the 1.8 plugin was CC BY-NC-ND; same author relicensed, as with WoodDye) |
 | Mod id | `zombiemod`, package `com.sablednah.zombiemod` |
+
+### Where the documents are
+
+Code guidance is this file. Everything else has a home, and the rule is that a fact lives in exactly
+one of them:
+
+| Doc | What only it knows |
+|---|---|
+| [docs/MULTIVERSION.md](docs/MULTIVERSION.md) | **Read first for anything version-related.** The measured three-version matrix; the source when a requirements table disagrees |
+| [docs/STATUS.md](docs/STATUS.md) | Where the project actually is, and the backlog in the order to do it |
+| [docs/BALANCE.md](docs/BALANCE.md) | The balance model and its deliberate exceptions |
+| [RELEASE.md](RELEASE.md) | Every store field, the gallery order, and the publishing traps — CurseForge *and* Modrinth |
+| [CURSEFORGE.md](CURSEFORGE.md) | The store description. Used verbatim for both stores; **do not fork it** |
+| [NODES.md](NODES.md) | Permissions. See *Command permissions* below |
+| [WEBSITE.md](WEBSITE.md) | Handover to the sablecraft.co.uk session |
+
+**Publishing is automated from a GitHub release.** Publishing one uploads to CurseForge *and*
+Modrinth, each reading a jar's Minecraft version from its `+mc` filename suffix. Creating a new store
+project is the only manual part. See RELEASE.md before touching either workflow.
 
 ## Build & run
 
@@ -66,6 +91,77 @@ export PATH="$JAVA_HOME/bin:$PATH"
   the replace, and you end up testing a stale jar. `deploy.sh` checks and fails loudly.
 - Versions/metadata live in `gradle.properties` and expand into
   `src/main/templates/META-INF/neoforge.mods.toml` at build time. Never edit a generated mods.toml.
+
+### Which build is this? The stamp, and the four things holding it up
+
+Every jar records the commit it came from, and the mod says so in the line that always prints:
+
+```
+ZombieMod ReForged 3.4.0+mc1.21.11 (build 1946c37a on master, 2026-09-10T07:49:34Z) loaded - ...
+```
+
+The same string is a line of `/zombiemod status`, because that is what gets pasted into a bug
+report and an admin in game has no log to hand. **A version number answers "which release"; during
+development that is a different question from "which bytes"**, and it is sharper here than in the
+sibling mods — a release is three jars that differ only in a `+mc` suffix.
+
+Two carriers, for two readers. `/zombiemod/build.properties` is read by the running mod;
+`Build-Commit`/`Build-Branch`/`Build-Time` on the manifest are for inspecting a jar from a shell:
+
+```bash
+unzip -p build/libs/zombiemod-3.4.0+mc1.21.11.jar META-INF/MANIFEST.MF | grep Build
+```
+
+`-dirty` on the commit means the jar was built from uncommitted changes — worth seeing in
+somebody's log before spending an hour reproducing against a tag. The format is shared with the
+other SableCraft mods; **copied, not a common plugin**, on purpose.
+
+Four things are load-bearing and none of them announce themselves:
+
+- **`time` is the *commit's* timestamp, not the wall clock, and this is a caching decision.**
+  `new Date()` at configure time rewrites the generated resource on every invocation, so
+  `processResources` and `jar` can never be up to date — measured here at 3 of 5 tasks re-executed
+  and 42s for a rebuild with nothing changed, against 5 up-to-date in 11s after. Use `%ct` and not
+  `%cI`: `%cI` carries the committer machine's UTC offset, so one commit stamps differently on two
+  machines.
+- **`version` carries the `+mc` tag; `branch` must not be asked to.** `mod_version` is identical on
+  all three branches, so a bare version reads the same on 1.21.11 and 26.2. `branch` looks like it
+  distinguishes them only because it correlates here — it is empty in a source zip or a detached CI
+  checkout.
+- **`BuildInfo`'s `RESOURCE` must stay a compile-time constant.** `MOD_ID` is a constant
+  expression, so javac inlines it and `BuildInfo.class` ends up with no runtime reference to
+  `ZombieMod` or NeoForge — which is what lets the real compiled class be driven from `jshell` to
+  check its own fallbacks with no Minecraft at all. Reading the path from a field or the config
+  reintroduces the dependency with **no compile error** and the check silently stops working.
+- **The degrade is all-or-nothing because of where the assignments sit**, not because a comment says
+  so. `Properties.load` completes or throws before the first `getProperty`, so a half-parsed file
+  cannot leave a real-looking commit beside three `unknown`s — which would be worse than no stamp,
+  because it looks like an answer. Keep the assignments after `load()`, never interleaved.
+
+**Absence is the easy case; corruption is the one that bites.** A missing resource is a null
+stream, but `Properties.load` throws **`IllegalArgumentException`** — not `IOException` — on a
+malformed unicode escape, so the obvious `catch (IOException)` would compile, read correctly, pass
+review, and take the mod down at class-init as an `ExceptionInInitializerError`. Failing to load
+over a diagnostic. `catch (Exception)` is deliberate; it was right by luck in four repos before
+anyone tested it.
+
+Check the fallbacks by **running them**, against the real class rather than a copy:
+
+```bash
+run() { printf 'System.out.println(com.sablednah.zombiemod.BuildInfo.describe());\n/exit\n' \
+        | jshell --class-path "$1" -s -; }
+run build/libs/zombiemod-3.4.0+mc1.21.11.jar   # from a jar
+run build/classes/java/main                    # no stamp resource at all
+```
+
+Then the three that actually exercise the catch, each a directory holding
+`zombiemod/build.properties` appended to the classpath: a malformed unicode escape, 200 bytes of
+`/dev/urandom`, and — the one worth keeping — **three valid lines followed by a throwing one**,
+which is the partial-parse case. All must print `unknown (build unknown on unknown, unknown)`.
+
+**Do not write a unicode escape literally in a comment.** javac decodes them inside comments too,
+so the comment explaining this failed the build with `error: illegal unicode escape`. Say it in
+words.
 
 ## The one architectural decision everything follows from
 
@@ -271,6 +367,36 @@ decodes the escape and the running mod emits one. Confirm every hit is a comment
 regex that strips them. Legitimate hits today are `client/DexScreen.java` (font rendering),
 `Bounties` (action bar) and `HordeDirector` (boss-bar name) — all client-rendered only.
 
+### Command permissions: nodes whose defaults are the levels — and two Brigadier traps
+
+**Six boolean nodes in `neoforge/ZombieModPermissions`, registered on NeoForge's
+`PermissionGatherEvent.Nodes`, and every default resolver is the op level the command needed
+before nodes existed** (2 for everything, 3 for `config`). That default is the load-bearing part:
+NeoForge's own handler answers every query with it, so a server with no permissions mod, or one
+that grants nothing, is unchanged, and `NODES.md` stays true. A command branch is gated with
+`.requires(ZombieModPermissions.gate(NODE))`, which asks the permission handler for a player and
+falls back to the level for the console and command blocks — a node is a question about a player,
+and a command block has nobody to grant to. Since 3.5.0 (2026-09-14), built for a storyteller who
+needed hordes and spawning without being handed `/stop`. [`NODES.md`](NODES.md) is the public
+statement of exactly which command sits behind which node — **it is documentation of behaviour, so
+changing a gate means changing that file in the same commit.**
+
+Two things about Brigadier that this tree has already been bitten by:
+
+- **A requirement on a literal gates its whole subtree**, and this stranded a real player. Observer
+  mode was switched on for them, they were deopped, and `observe off` — the only way out — now
+  needed the permission they had just lost. They were invulnerable and could not fix it, and neither
+  could an op, because the command only ever acts on whoever types it. **So the bar goes on the
+  things that grant something and never on the way out.** `observe off` is open to everyone
+  permanently, and the self-toggle checks the level *in code* because one node cannot bar a single
+  direction.
+- **A child's requirement is ANDed with its parent's**, so a restrictive root cannot be relaxed by a
+  permissive child. Neither `zombiemod` nor the `zm` redirect carries a bar; a level-2 root would
+  put the bestiary permanently out of a normal player's reach. Each subcommand carries its own.
+
+Permission level is also **not** the only thing deciding whether a command works from the console:
+several call `getPlayerOrException` because they act on whoever typed them. `NODES.md` has the split.
+
 ### Picking a face for a new genus
 
 Faces come from **minecraft-heads.com**, and the catalogue is fetchable rather than scrapeable:
@@ -361,8 +487,13 @@ dedicated server with nobody connected. It found the wave-delay bug — every wa
 previous wave's delay, so a three-wave horde fired in three ticks and no shipped horde's numbers had
 ever been experienced.
 
-Caveats: it has no connection, so anything that sends a packet to it will NPE. Build the spec you are
-testing without a `bar_color`, and don't rely on chat. `displayClientMessage` is already a no-op.
+**Packets to it are safe; nothing reaches a client.** NeoForge gives it a `FakePlayerNetHandler` over a
+dummy connection, so boss bars, chat and title packets go nowhere rather than throwing. Verified
+2026-09-11: two FakePlayers were put on a real boss bar and taken off it again without error. (This
+file used to say anything sending a packet would NPE, which led to probes avoiding `bar_color` for
+no reason.) What it genuinely cannot do is keep a dedicated server awake: it is not a connected
+player, so a 1.21.2+ server pauses 60 s after start. Set `pause-when-empty-seconds=0` for any
+probe that runs longer than that.
 
 ### Verifying changes headlessly
 
@@ -418,6 +549,38 @@ This replaces the 1.8 plugin's global per-tick sweep (`Animations` + an `interva
 the entity's own ticking means no live-mob registry to maintain, no leak on removal, no cost for
 non-ticking chunks, and per-mob timing is just a field. Ability implementations are stateless and
 shared; the timer lives in the goal.
+
+### Persistence takes a mob out of vanilla's cap — never set it by default
+
+**A persistent mob is invisible to the mob cap.** `NaturalSpawner.createState` skips any mob with
+`isPersistenceRequired()` or `requiresCustomPersistence()` when it counts toward the cap, on purpose:
+persistence normally means a player chose to keep this one. So `setPersistenceRequired()` does not
+only stop a despawn. It stops the mob counting, and vanilla fills the space it apparently left.
+
+Until the fix, `GenusApplier.assign` made every genus persistent ("something this distinctive
+shouldn't quietly despawn") and that became a ratchet. A vanilla zombie spawned and became a
+genus, left the count, and vanilla replaced it; the replacement became a genus in turn, and none of
+them ever despawned. One test world held **over 2,000** when a `/killall` finally cleared it. Our own
+proximity cap was fine the whole time, which is what made it hard to see: it counts by the genus tag
+and never asks vanilla.
+
+The rule now:
+
+- **Default: not persistent.** Genera despawn like vanilla zombies and count toward the cap like
+  vanilla zombies.
+- **Persistent only when losing the mob loses something real:** a player corpse (carries an
+  inventory; set in `PlayerZombies`) and a boss (`genus.boss()` present; every ritual summons one).
+- **"Keep it only while X" is `MobDespawnEvent`, never the flag.** The flag can only be switched
+  *on*: the field is private, nothing clears it, and it is saved with the mob. So a horde's zombies
+  are kept by answering `DENY` while their horde is running, and they revert to ordinary the moment it
+  ends. The event fires for every mob every tick, so check `RUNNING.isEmpty()` before anything else.
+  It keeps them counting toward the cap too, which the flag would not.
+- **A mutation inherits** the old mob's persistence rather than forcing it on.
+
+Two things vanilla does that look like our bug but aren't: a **rider** is persistent while mounted
+(`requiresCustomPersistence` is `isPassenger() || isLeashed()`), so the Outrider stays while it rides.
+Its zombie horse is no longer forced persistent, and vanilla's `ZombieHorse.removeWhenFarAway` returns
+true, so the pair leaves like a vanilla zombie horseman would.
 
 ### Changing the world
 
@@ -525,3 +688,37 @@ only CityWorld survives — and it's the same author's, being ported next door.
 number of the lot. Keep it **optional** — the 1.8
 plugin's real bug was calling Factions' `BoardColl` with no `hasFactions` guard, making a soft
 dependency mandatory in practice.
+
+**Vanish is the shape of a good `compat/` seam, and the division is the point.** Standards answers
+the one question it owns — *is this player hidden* — and each mod acts on it for the things that mod
+is responsible for. It already blocks mob **targeting** globally (a `LivingChangeTargetEvent` veto
+plus clearing existing targets when someone vanishes), so do **not** add our own: it is done, for
+every mob in the game, and duplicating it was drafted here and thrown away.
+
+What Standards cannot do is know that a Boomer's fuse is a **proximity sweep** with no target
+involved — it asks who is standing nearby, and a vanished admin was answering, so the thing exploded
+beside nobody. That is ours, and it lives in `Targets.nearbyPlayers`, where a vanished player now
+joins spectators and creative players in the list of people who are present but not participating.
+**Ask `StandardsVanish.anyVanished()` before asking about a player**: it is one field read on
+Standards' side and false on virtually every server, and this runs per ability per tick.
+
+Same rule anywhere else we single a player out: `ProximitySpawner` and `HordeDirector` both skip a
+vanished player exactly where they already skip spectators and creative ones, and a horde whose
+player vanishes mid-run goes down the existing `player.isRemoved()` path rather than a new one.
+**The test for whether something needs this is "does it pick a player out and act on them", not
+"does it damage them"** — the proximity crowd does no harm at all and still gives a vanish away.
+
+**Permission managers are the exception to the `compat/` rule, and the exception matters.**
+ZombieMod's nodes are registered on NeoForge's `PermissionGatherEvent` and nothing lives in
+`compat/`. SableCraft Standards' permission system is a *handler* for NeoForge's own
+`PermissionAPI` — the same interface LuckPerms implements — and it grants any mod's boolean nodes,
+including ones it has never heard of. Both sides talk to NeoForge; nobody calls anybody, so there is
+nothing to guard and no dependency to make optional. Wrapping it in a reflective `compat/Standards`
+would be pure ceremony. Constraints, kept: **boolean nodes only** (Standards passes typed nodes
+through to their own resolver on purpose — use the numbered `mod.thing.limit.5` idiom for
+quantities), and **every default resolver must reproduce `NODES.md`**, so a server that installs a
+manager and grants nothing behaves exactly as before. Verified headlessly with a `FakePlayer`: a
+non-op is refused every gated branch and admitted to `bestiary`, `list` and `observe off`; opped
+with `PlayerList.op` it is admitted to all of them; deopped it is refused again; and the console
+source parses and executes `status`, `config` and `spawn <genus> <pos>` throughout. Both directions,
+because a gate that refuses everything looks identical to one that works.

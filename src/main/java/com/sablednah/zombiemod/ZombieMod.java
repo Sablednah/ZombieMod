@@ -8,6 +8,7 @@ import com.sablednah.zombiemod.neoforge.ProximitySpawner;
 import com.sablednah.zombiemod.neoforge.RitualHandler;
 import com.sablednah.zombiemod.neoforge.ZombieModCommands;
 import com.sablednah.zombiemod.neoforge.ZombieModEvents;
+import com.sablednah.zombiemod.neoforge.ZombieModPermissions;
 
 import org.slf4j.Logger;
 
@@ -61,6 +62,9 @@ public class ZombieMod {
         NeoForge.EVENT_BUS.register(new PlayerZombies());
         NeoForge.EVENT_BUS.register(new ProximitySpawner());
         NeoForge.EVENT_BUS.register(new HordeDirector());
+        // Permission nodes. Plain NeoForge, not a compat seam: LuckPerms and Standards are both
+        // handlers for this same API, so registering here is all either of them needs.
+        NeoForge.EVENT_BUS.addListener(ZombieModPermissions::onGatherNodes);
         NeoForge.EVENT_BUS.register(this);
 
         // The build stamp goes in the line that always prints, not in a diagnostic command: a bug

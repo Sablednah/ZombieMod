@@ -32,8 +32,17 @@ session did, for the record:
 - Artwork used: `docs/slime-logo-850.png` as the landing wordmark, `docs/main-logo.png` as the
   `/game-plugins/` card logo, and ten of `screenshots/` resized to 1200px JPEG.
 
-**One drift risk to know about:** the `/game-plugins/` card carries a version line
-("Minecraft 1.21.11, NeoForge 21.11.42+, Java 21"), matching the other NeoForge cards on that page.
+**New source file for the site: [`NODES.md`](NODES.md).** Permissions, written because there were no
+docs on this at all and an admin looking for `zombiemod.*` nodes found nothing. The headline is that
+**there are none** — everything is vanilla command permission levels — so the page has to say that
+plainly rather than list nodes that do not exist. It carries the full command/level tables, the two
+deliberate holes (`observe off` is open to everyone, and neither root carries a bar), the
+console-versus-player split, and the client-only `/zmdex` commands. Build a page from it the way the
+settings and commands pages are built.
+
+**One drift risk to know about:** the `/game-plugins/` card carries a version line, matching the
+other NeoForge cards on that page. It must name all three lines now — 1.21.11, 26.1.2 and 26.2 —
+not just the first.
 That is the one place outside the landing page where a version number lives, and it is exactly the
 line that went stale for CityWorld once. Check it on any release that moves the matrix.
 
@@ -102,11 +111,13 @@ landing-page edit at all. Worth doing the same here from the start.
 
 Requirements for the landing page:
 
-> **Requirements**
+> **Requirements** — there is a jar per Minecraft version, named for the one it was built against.
 >
 > | Minecraft | NeoForge | Java |
 > |---|---|---|
 > | 1.21.11 | 21.11.42+ | 21 |
+> | 26.1.2 | 26.1.2.95+ | 25 |
+> | 26.2 | 26.2.0.59+ | 25 |
 >
 > Install on the server. Your players do not need the mod — they can join on a stock client from the
 > Mojang launcher. Installing it client-side too is optional and adds the ZombieDex screen; people
@@ -218,3 +229,31 @@ Jack/Krampus) and the roster carousel's `$portraits` array - a *second*, separat
 `assets/img/roster/` with one shared crop box/scale factor and added the two new entries. If a future
 genus needs a portrait, the raw shot needs the **same camera distance** as this batch or the whole set
 needs reprocessing together - see the site repo's `[[screenshot-relative-scale]]` memory.
+
+## 3.5.0 (2026-09-14) — permission nodes and the Undertow
+
+Two things for the site, neither large:
+
+- **Permission nodes exist now.** Six boolean nodes, `zombiemod.spawn` / `horde` / `corpse` /
+  `observe` / `status` / `config`, each defaulting to the op level the command always needed. Any
+  page that says "ZombieMod defines no permission nodes" or "op your staff and that is all there is"
+  is now wrong in the first half and still right in the second. `NODES.md` in the repo is the source
+  and is the page to mirror; the storyteller example in it is the reason it exists.
+- **A new spawn condition, `zombiemod:in_water`**, and the Undertow now carries it. The condition
+  count goes 15 → 16 (13 general + 3 CityWorld). The Undertow's own copy needs no change unless it
+  claims the sea - it always did, and is now telling the truth.
+
+## 3.4.1 (2026-09-13) — DONE, almost nothing to change
+
+3.4.1 is fixes (boss-bar crash, persistence/mob-cap pile-up, vanished players) plus the build stamp and
+the ZombieDex key moving from J to Z. **None of it contradicted anything on the site**: no page described
+zombies as persistent, and the ZombieDex keybind is not mentioned anywhere, so neither needed a
+correction.
+
+- Counts re-checked at HEAD and v3.4.0: 61 genera, 12 goal types, 21 abilities, 15 spawn conditions -
+  unchanged. ⚠ `grep -c 'register('` on `GoalSpecTypes`/`AbilityTypes`/`SpawnConditionTypes` reads
+  13/22/16 because it also matches the `register(` method definition; subtract one.
+- Only edit: the hub's NeoForge column now states the line (`21.11+` / `26.1+` / `26.2+`), since
+  `neo_version_range` is `[21.11,21.12)` etc. on all three branches.
+- Worth considering later: the `/kill @e[...PersistenceRequired...]` cleanup for worlds upgraded from
+  3.4.0 or earlier is server-owner-relevant and could earn a callout on `/settings/` if people ask.
