@@ -1,0 +1,29 @@
+{
+  "parent": "zombiemod:root",
+  "display": {
+    "icon": {
+      "id": "minecraft:wither_rose"
+    },
+    "title": {
+      "text": "Do Not Read From the Book"
+    },
+    "description": {
+      "text": "Complete a summoning ritual. Whatever answers is your problem now."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": true
+  },
+  "criteria": {
+    "zombiemod:ritual": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "zombiemod:ritual"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

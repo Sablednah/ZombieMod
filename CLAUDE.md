@@ -419,6 +419,36 @@ Two things about Brigadier that this tree has already been bitten by:
 Permission level is also **not** the only thing deciding whether a command works from the console:
 several call `getPlayerOrException` because they act on whoever typed them. `NODES.md` has the split.
 
+### Advancements are granted by criterion name, and there is no trigger type
+
+`neoforge/Feats`. The shipped advancements are data under `data/zombiemod/advancement/`, every
+criterion is vanilla's `minecraft:impossible`, and the mod awards any criterion whose **name**
+starts `zombiemod:` (`zombiemod:kill/<genus>`, `zombiemod:met_count/<n>`, ... - the README has the
+table, and it is public API for pack authors now, so renaming one breaks other people's datapacks).
+**Do not "improve" this into a registered trigger.** A trigger type is a registry entry, and the
+whole point is that a vanilla client is never asked about anything of ours. The index of names is
+rebuilt when `server.getAdvancements().tree()` changes identity, which is what `/reload` does to it,
+so there is no reload listener to rename on the next Minecraft version.
+
+Titles and descriptions are **literal text**, not translation keys: a vanilla client has no language
+file of ours and would show the key. Icons are vanilla items; a genus's face is a `player_head` with
+the genus file's own `head` as its `minecraft:profile`, copied by `scripts/make-advancements.py`.
+**Regenerate rather than hand-edit**, and re-run it when a genus changes its face.
+
+Two traps from proving it:
+
+- **`PlayerAdvancements.award` refuses anything `instanceof FakePlayer`** - a NeoForge patch, and it
+  returns false without a word. Overriding `isFakePlayer()` does not help, because the check is on
+  the class. A probe needs a genuine `ServerPlayer`: construct one, then build a
+  `ServerGamePacketListenerImpl` over a channel-less `Connection` exactly as `FakePlayer` does for
+  itself (its constructor assigns `player.connection`), and override `tick()` to nothing. The first
+  probe reported "nothing granted" for a feature that worked.
+- **An ability's state lives in a goal and cannot be seen from an event.** *Bomb Disposal* needs
+  "was the fuse lit when it died", so `FuseState` mirrors that one fact into persistent data
+  (`Abilities.FUSE_LIT`), written on the two edges only. The tag is saved and the state is not, so
+  the state takes the tag's word on its first tick and then corrects it - otherwise a server stopped
+  mid-fuse leaves a mob that reads as lit for life. Same shape for the next ability-dependent feat.
+
 ### Picking a face for a new genus
 
 Faces come from **minecraft-heads.com**, and the catalogue is fetchable rather than scrapeable:

@@ -142,5 +142,6 @@ public final class RitualHandler {
             GenusApplier.assign(mob, holder);
             level.addFreshEntity(mob);
         }
+        Feats.fire(player, "ritual", ritualId);
     }
 }

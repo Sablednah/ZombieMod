@@ -317,6 +317,19 @@ public final class PlayerZombies {
         return null;
     }
 
+    /** Whose corpse this is, if it is one. The ledger is the only place that is written down. */
+    static java.util.Optional<UUID> ownerOf(ServerLevel level, Mob mob) {
+        return mob.getPersistentData().getString(LEDGER_TAG)
+                .flatMap(id -> {
+                    try {
+                        return CorpseLedger.get(level).byId(UUID.fromString(id));
+                    } catch (IllegalArgumentException e) {
+                        return java.util.Optional.empty();
+                    }
+                })
+                .map(CorpseLedger.Entry::player);
+    }
+
     /** Re-attach a ledger entry's items to a rebuilt corpse, so recovery is a real second chance. */
     static void rebuild(ServerLevel level, Mob corpse, CorpseLedger.Entry entry) {
         corpse.getPersistentData().putString(LEDGER_TAG, entry.id().toString());

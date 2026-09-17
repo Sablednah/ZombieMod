@@ -1,0 +1,29 @@
+{
+  "parent": "zombiemod:root",
+  "display": {
+    "icon": {
+      "id": "minecraft:writable_book"
+    },
+    "title": {
+      "text": "Field Notes"
+    },
+    "description": {
+      "text": "Meet 10 different genera. Hitting one counts. So does being hit."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "zombiemod:met_count/10": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "zombiemod:met_count/10"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

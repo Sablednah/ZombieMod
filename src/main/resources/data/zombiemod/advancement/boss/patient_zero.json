@@ -1,0 +1,41 @@
+{
+  "parent": "zombiemod:boss/ritual",
+  "display": {
+    "icon": {
+      "id": "minecraft:player_head",
+      "components": {
+        "minecraft:profile": {
+          "properties": {
+            "textures": [
+              "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjRlMDJhMzA5MzVlMTEzM2Y5ODdkNWI3NDYzZWFjNmU5NGVlMDFmMDFlMjA3OTFmMjRiMjM4NTg4NzlkNjRiYiJ9fX0="
+            ]
+          }
+        }
+      }
+    },
+    "title": {
+      "text": "Ground Zero"
+    },
+    "description": {
+      "text": "Kill Patient Zero, where all of this started."
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "zombiemod:kill/zombiemod:patient_zero": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "zombiemod:kill/zombiemod:patient_zero"
+    ]
+  ],
+  "rewards": {
+    "experience": 100
+  },
+  "sends_telemetry_event": false
+}
