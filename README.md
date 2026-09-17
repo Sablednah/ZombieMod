@@ -1624,7 +1624,7 @@ lily pads, Sleeper a serious pile of iron and sometimes a golden apple.
 
 ## Advancements
 
-ZombieMod has its own tab in the advancements screen: 25 advancements for filling the ZombieDex,
+ZombieMod has its own tab in the advancements screen: 23 advancements for filling the ZombieDex,
 killing the bosses, and the things that are only worth doing for the telling — killing a Boomer
 after its fuse is lit and before it goes off, running down a Coward, putting your own corpse back in
 the ground, *Removed Herobrine*.
@@ -1635,6 +1635,13 @@ them. Screen replacements such as [Better Advancements](https://modrinth.com/mod
 are client-side and simply display whatever the server has, these included. The tab stays hidden
 until a player meets their first genus, and the ones that would spoil a discovery (rituals, the Borg
 Queen, Herobrine, the Weeping Zombie, the Colossus) stay hidden until earned.
+
+**Nothing in the tab needs a particular week of the year.** Seasonal genera — anything whose spawn
+rules carry a `zombiemod:date` condition, which today means Jack and Krampus — have no advancement of
+their own and are left out of what *Seen It All* and *Extinction Event* are measured against, so
+finishing the set never means being online at Christmas. That is read off each genus's own spawn
+rules, so a datapack's Easter zombie is excused without anybody listing it. Meeting one still counts
+toward the numbered steps, because that can only help.
 
 Progress already in a player's ZombieDex is **caught up at login**, so somebody forty genera in when
 this arrived is not asked to start again.
@@ -1658,7 +1665,7 @@ namespace, a criterion using vanilla's do-nothing trigger and one of these names
 | `zombiemod:meet/<genus>` | meets that genus — damage passed either way, as in the dex |
 | `zombiemod:kill/<genus>` | kills one |
 | `zombiemod:met_count/<n>`, `zombiemod:killed_count/<n>` | has met / killed `n` *different* genera |
-| `zombiemod:met_all`, `zombiemod:killed_all` | has met / killed every genus in their dex. A genus the server conceals is not counted against them |
+| `zombiemod:met_all`, `zombiemod:killed_all` | has met / killed every **year-round** genus in their dex. A genus the server conceals is not counted against them, and nor is a seasonal one |
 | `zombiemod:defuse/<genus>` | kills something with a `fuse` ability while it is burning, before it explodes |
 | `zombiemod:corpse/own`, `zombiemod:corpse/other` | kills a player zombie — their own, or somebody else's |
 | `zombiemod:ritual/<ritual>` | completes a summoning ritual |
@@ -1668,6 +1675,8 @@ namespace, a criterion using vanilla's do-nothing trigger and one of these names
 Every name with a `/<subject>` also works bare — `zombiemod:kill`, `zombiemod:ritual`,
 `zombiemod:defuse` — for "any of them". One advancement can carry several criteria, which is how
 *Apex Predator* asks for all three bosses. Ids are written in full, `zombiemod:boomer` not `boomer`.
+`zombiemod:kill/<genus>` works for a seasonal genus like any other if your pack wants one — the
+shipped set simply declines to, and its generator refuses to build if one is added.
 
 The `meet` and counting names read the ZombieDex, so they need `bestiary.enabled`. Kills, defusals,
 corpses, rituals, hordes and cures do not. `advancements.enabled = false` stops every grant, and with

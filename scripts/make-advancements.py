@@ -26,6 +26,12 @@ def face(genus, fallback="minecraft:zombie_head"):
     return {"id": fallback}
 
 
+def seasonal(genus):
+    """Gated on the real-world calendar? Mirrors SpawnRules.seasonal() closely enough for a guard."""
+    spawn = json.loads((GENERA / f"{genus}.json").read_text()).get("spawn", {})
+    return any(c.get("type") == "zombiemod:date" for c in spawn.get("conditions", []))
+
+
 def item(name):
     return {"id": f"minecraft:{name}"}
 
@@ -101,17 +107,18 @@ add("niche/weeping", "root", face("weeping"), "Don't Blink",
 add("niche/colossus", "dex/killed_10", item("iron_block"), "David",
     "Kill a Colossus.", ["kill/zombiemod:colossus"], frame="challenge", hidden=True, xp=100)
 
-# ---- seasonal
-add("seasonal/jack", "dex/killed_1", item("jack_o_lantern"), "Trick",
-    "Kill Jack. He is only about near Halloween.", ["kill/zombiemod:jack"])
-add("seasonal/krampus", "dex/killed_1", item("coal"), "Naughty List",
-    "Kill Krampus. He is only about near Christmas.", ["kill/zombiemod:krampus"])
-
 
 def main():
     if OUT.exists():
         shutil.rmtree(OUT)
     paths = {a[0] for a in A}
+    # Nothing shipped may need a particular week of the year. The completion advancements leave
+    # seasonal genera out of their roster in code; this is the same rule for the named ones, so
+    # the tab itself can always be finished.
+    for a in A:
+        for criterion in a[6]:
+            genus = criterion.rpartition("zombiemod:")[2] if "/zombiemod:" in criterion else None
+            assert not (genus and seasonal(genus)), f"{a[0]}: {genus} is seasonal - not in the shipped set"
     for path, parent, icon, frame, title, description, criteria, hidden, xp in A:
         assert parent is None or parent in paths, f"{path}: no such parent {parent}"
         display = {
