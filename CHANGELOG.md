@@ -11,14 +11,16 @@ world alone.
 
 ### Added
 
-- **Advancements.** ZombieMod has its own tab in the advancements screen, 25 of them: filling the
+- **Advancements.** ZombieMod has its own tab in the advancements screen, 23 of them: filling the
   ZombieDex by meeting and by killing, the three bosses and *Apex Predator* for all of them, and the
   niche ones — *Bomb Disposal* for killing a Boomer or Bloater after its fuse is lit and before it
   goes off, *It Was Bait* for running down a Coward, *Pull Yourself Together* for killing your own
-  corpse, *Got Milk?*, *Last One Standing*, two seasonal ones, and a few that stay hidden until you
+  corpse, *Got Milk?*, *Last One Standing*, and a few that stay hidden until you
   earn them. **They are plain vanilla advancements**, so they work on an unmodded client and show up
   in Better Advancements. The tab appears when you meet your first genus, and progress already in
-  your ZombieDex is caught up at login. Datapacks can add their own for any genus with no code — see
+  your ZombieDex is caught up at login. **Nothing in the tab needs a particular week of the year**:
+  seasonal genera such as Jack and Krampus have no advancement of their own and do not count toward
+  *Seen It All* or *Extinction Event*, so the set can always be finished. Datapacks can add their own for any genus with no code — see
   *Advancements* in the README. `advancements.enabled = false` switches the lot off.
 
 - **Works with the Corpse mod.** If [Corpse](https://modrinth.com/mod/corpse) is installed alongside

@@ -202,6 +202,11 @@ public final class SpawnConditions {
                 .apply(i, OnDate::new));
 
         @Override
+        public boolean seasonal() {
+            return true;
+        }
+
+        @Override
         public Identifier type() {
             return TYPE;
         }
@@ -337,6 +342,15 @@ public final class SpawnConditions {
         public static final MapCodec<AnyOf> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
                 SpawnCondition.CODEC.listOf().fieldOf("conditions").forGetter(AnyOf::conditions))
                 .apply(i, AnyOf::new));
+
+        /**
+         * Only when every way in is. "Near Halloween, or in the Nether" can be met in July. And
+         * {@link Not} is deliberately never seasonal: "except in December" is most of the year.
+         */
+        @Override
+        public boolean seasonal() {
+            return !conditions.isEmpty() && conditions.stream().allMatch(SpawnCondition::seasonal);
+        }
 
         @Override
         public Identifier type() {

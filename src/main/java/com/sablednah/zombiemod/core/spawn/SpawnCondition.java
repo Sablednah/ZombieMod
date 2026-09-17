@@ -35,4 +35,15 @@ public interface SpawnCondition {
      * @return whether this condition holds there
      */
     boolean test(Level level, BlockPos pos);
+
+    /**
+     * Whether this condition can only hold at some times of the real-world year.
+     *
+     * <p>Not a spawning question at all - it is asked by the things that judge <em>completeness</em>.
+     * "Meet every genus" must not quietly mean "and be playing at Christmas", so anything gated on
+     * the calendar is left out of the roster a completion advancement is measured against.
+     */
+    default boolean seasonal() {
+        return false;
+    }
 }
