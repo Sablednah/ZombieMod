@@ -93,12 +93,18 @@ behalf just because they installed a mob pack.
 | `genus` | `zombiemod:player_zombie` | Which genus a corpse uses as its template. |
 | `name` | `Corpse %P` | Corpse name. `%P` is the player's name. |
 | `infectionAlsoRaises` | `true` | A player who dies infected raises **both**: the corpse with their face and belongings, and a second zombie from the infection itself. |
+| `corpseMod` | `true` | Work with the [Corpse](https://modrinth.com/mod/corpse) mod if it is installed; does nothing without it. A slain corpse leaves a Corpse body holding what it carried instead of a pile of items, and the empty body Corpse would leave at the death spot is removed. |
 
 `infectionAlsoRaises` is a decoy mechanic — only the corpse has the loot, so killing the wrong one
 gets you nothing. Set it false if you would rather one death meant one zombie.
 
 Admins can recover a corpse's items with `/zombiemod corpse` when it falls in lava or the void; the
 ledger records why an entry is still outstanding.
+
+With the Corpse mod installed, the body a slain corpse leaves does not despawn, cannot be emptied by
+a hopper, honours Corpse's `only_owner` setting, and survives lava unless Corpse's own `lava_damage`
+is on. It needs `takeItems` on: with it off the zombie carries nothing, and Corpse keeps the items at
+the death spot as it would alone.
 
 ---
 

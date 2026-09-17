@@ -756,6 +756,7 @@ installed a mob pack.
     takeItems = true                     # corpse carries your drops; kill it to get them back
     genus = "zombiemod:player_zombie"    # the template it's built from
     name = "Corpse %P"
+    corpseMod = true                     # work with the Corpse mod, if installed - see below
 ```
 
 The corpse is an ordinary genus, so edit `player_zombie.json` to change how it behaves. It doesn't
@@ -788,6 +789,39 @@ had been handed back when it had been incinerated. Only deaths decided by *place
 way: lava, a fire block, and the void. Burning to death on grass is not one of them, because those
 drops land on that same unburning grass intact — and a mob grinder is undecidable, since a hopper may
 have taken them. That one stays an admin's judgement call.
+
+### With the Corpse mod
+
+[Corpse](https://modrinth.com/mod/corpse) leaves a body where a player died, holding their items.
+Player zombies are that same body getting up, so with both installed they become two stages of one
+death rather than two mods arguing over the drops:
+
+1. **You die.** Your corpse gets up and walks off with your things, as usual. Corpse's body is *not*
+   left at the death spot — it would be empty, since the zombie has the items, and an empty body
+   lying beside a walking one reads as two deaths.
+2. **Somebody kills the zombie.** Instead of bursting into a pile of loose items, it goes down as a
+   Corpse body, named for you, holding everything it carried. Armour sits in the armour slots and a
+   shield in the off hand, so Corpse's transfer button puts them straight back on; the rest fills the
+   inventory in its old order, hotbar first.
+
+That is strictly better than the drop. A body does not despawn after five minutes, a passing hopper
+cannot empty it, and Corpse's `only_owner` setting is honoured because the body carries your uuid.
+It also **survives lava**: a Corpse body floats and does not burn unless Corpse's own `lava_damage`
+is on, so a corpse killed in lava settles its ledger entry instead of being recorded as destroyed.
+The void still counts as lost.
+
+It needs `takeItems` on to mean anything. With it off the zombie carries nothing, and Corpse keeps
+your items at the death spot exactly as it would alone. `corpseMod = false` makes ZombieMod ignore
+Corpse entirely. `/zombiemod status` shows the link and counts bodies laid.
+
+Two things to know. Corpse's `/deathhistory` records the *death*, and at that moment the items were
+already inside the zombie — so its history entry for a player-zombie death is empty, and
+`/zombiemod corpse list` is the record that knows what was carried. The Corpse body is given the
+ledger entry's id, so the two can be matched. And Corpse adds an entity of its own, so a server
+running it needs Corpse on every client regardless of anything ZombieMod does.
+
+Linked by reflection against Corpse 1.1.16 (Minecraft 1.21.11 and 26.1.2) and 1.1.19 (26.2), and
+completely inert without it. If Corpse ever changes shape, the zombie goes back to dropping items.
 
 ## Faces
 

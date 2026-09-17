@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.mojang.logging.LogUtils;
 import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;
+import com.sablednah.zombiemod.compat.CorpseMod;
 import com.sablednah.zombiemod.core.Genus;
 
 import org.slf4j.Logger;
@@ -31,6 +32,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 
 /**
@@ -51,6 +53,10 @@ import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
  *
  * <p>Carried items are stored on the corpse and re-dropped when it dies, so your things are
  * recoverable — the point is to make death a fight, not a loss.
+ *
+ * <p>With the Corpse mod installed the two are stages of one death: no body is left where the
+ * player fell, because it got up, and a slain corpse leaves a Corpse body instead of loose items.
+ * See {@link CorpseMod}, which also explains why that class says "body".
  */
 public final class PlayerZombies {
 
@@ -58,6 +64,32 @@ public final class PlayerZombies {
     private static final String ITEMS_TAG = "zombiemod:corpse_items";
     /** Links a live corpse back to its ledger entry, so a normal death can settle the record. */
     private static final String LEDGER_TAG = "zombiemod:corpse_id";
+    private static final String VOID = "the void";
+
+    /**
+     * What happened between us and the Corpse mod, for {@code /zombiemod status}. Both halves of
+     * this produce an absence when they fail - a body that is not there, items on the floor where
+     * a body should be - and an absence does not say which mod declined.
+     */
+    public static final class Bodies {
+        public int laid;
+        public int emptiesRemoved;
+        public int noOwner;
+        public int failed;
+
+        @Override
+        public String toString() {
+            return String.format("%d bodies laid, %d empty bodies removed at the death spot "
+                    + "(dropped as items instead: %d no ledger entry, %d failed)",
+                    laid, emptiesRemoved, noOwner, failed);
+        }
+    }
+
+    public static final Bodies BODIES = new Bodies();
+
+    /** Whose empty Corpse body we are about to be handed, and the tick it has to arrive in. */
+    private UUID expectingBodyOf;
+    private long expectingAt;
 
     @SubscribeEvent
     public void onDrops(LivingDropsEvent event) {
@@ -111,6 +143,13 @@ public final class PlayerZombies {
             // Taken, not copied - the whole point is that you have to go and get them.
             event.getDrops().clear();
             wearVisibleArmour(corpse, carried);
+
+            // Corpse hears about these drops after us, finds none, and lays a body regardless.
+            // It is still inside this same event dispatch, so the body arrives this tick or never.
+            if (ZombieModConfig.PLAYER_ZOMBIE_CORPSE_MOD.get() && CorpseMod.available()) {
+                expectingBodyOf = player.getUUID();
+                expectingAt = level.getGameTime();
+            }
         }
 
         // Write it down before the corpse exists in the world. Everything that went wrong with the
@@ -129,6 +168,30 @@ public final class PlayerZombies {
         level.addFreshEntity(corpse);
         LOG.info("ZombieMod: {} rose at {} {} {}", corpse.getName().getString(),
                 (int) player.getX(), (int) player.getY(), (int) player.getZ());
+    }
+
+    /**
+     * Refuse the empty body Corpse leaves at the death spot. It got up; there is nothing to lie
+     * there, and an empty body beside a walking one reads as two deaths.
+     *
+     * <p>Cancelled on the way in rather than discarded afterwards, because Corpse's {@code remove}
+     * sends a puff of smoke to everyone nearby, and a body that was never seen should not be seen
+     * leaving. Every entity in the game passes through here, so the null check goes first.
+     */
+    @SubscribeEvent
+    public void onBodyJoins(EntityJoinLevelEvent event) {
+        if (expectingBodyOf == null || event.loadedFromDisk()) {
+            return;
+        }
+        if (event.getLevel().getGameTime() != expectingAt) {
+            expectingBodyOf = null;
+            return;
+        }
+        if (CorpseMod.isEmptyBodyOf(event.getEntity(), expectingBodyOf)) {
+            event.setCanceled(true);
+            expectingBodyOf = null;
+            BODIES.emptiesRemoved++;
+        }
     }
 
     /**
@@ -151,6 +214,32 @@ public final class PlayerZombies {
     // ------------------------------------------------------------------ the corpse dies
 
     private void dropCarried(ServerLevel level, Mob mob, LivingDropsEvent event) {
+        UUID ledgerId = mob.getPersistentData().getString(LEDGER_TAG)
+                .map(id -> {
+                    try {
+                        return UUID.fromString(id);
+                    } catch (IllegalArgumentException e) {
+                        return null;
+                    }
+                })
+                .orElse(null);
+
+        List<ItemStack> carried = read(level, mob);
+        boolean laid = false;
+        if (!carried.isEmpty()) {
+            laid = layBody(level, mob, ledgerId, carried);
+            if (!laid) {
+                for (ItemStack stack : carried) {
+                    event.getDrops().add(
+                            new ItemEntity(level, mob.getX(), mob.getY() + 0.5D, mob.getZ(), stack));
+                }
+            }
+            mob.getPersistentData().remove(ITEMS_TAG);
+        }
+
+        if (ledgerId == null) {
+            return;
+        }
         // Settle the ledger whether or not it was carrying anything - a corpse that died properly
         // owes nothing, and leaving it listed would have admins handing out duplicates.
         //
@@ -160,30 +249,43 @@ public final class PlayerZombies {
         // records why, which is the difference between an admin re-issuing an inventory and telling
         // a player it was already handed back.
         String destroyer = destroys(event.getSource());
-        mob.getPersistentData().getString(LEDGER_TAG)
-                .map(id -> {
-                    try {
-                        return UUID.fromString(id);
-                    } catch (IllegalArgumentException e) {
-                        return null;
-                    }
-                })
-                .ifPresent(id -> {
-                    if (destroyer == null) {
-                        CorpseLedger.get(level).claim(id);
-                    } else {
-                        CorpseLedger.get(level).lost(id, destroyer);
-                    }
-                });
+        // A Corpse body is not a dropped item: it floats in lava and does not burn, unless Corpse
+        // has been told otherwise. The void still takes it - Corpse parks a body at the bottom of
+        // the world rather than lose it, which in the overworld is underneath the bedrock.
+        if (laid && destroyer != null && !destroyer.equals(VOID) && CorpseMod.bodiesSurviveFire()) {
+            destroyer = null;
+        }
+        if (destroyer == null) {
+            CorpseLedger.get(level).claim(ledgerId);
+        } else {
+            CorpseLedger.get(level).lost(ledgerId, destroyer);
+        }
+    }
 
-        List<ItemStack> carried = read(level, mob);
-        if (carried.isEmpty()) {
-            return;
+    /**
+     * Hand the carried items to the Corpse mod as a body. False means they are still ours to drop.
+     *
+     * <p>The owner comes from the ledger, which is the only place a corpse's player is written
+     * down. A corpse whose entry an admin has since forgotten has no owner to give Corpse, and an
+     * ownerless body would be unopenable under {@code only_owner} - so that one drops as items.
+     */
+    private static boolean layBody(ServerLevel level, Mob mob, UUID ledgerId, List<ItemStack> carried) {
+        if (!ZombieModConfig.PLAYER_ZOMBIE_CORPSE_MOD.get() || !CorpseMod.available()) {
+            return false;
         }
-        for (ItemStack stack : carried) {
-            event.getDrops().add(new ItemEntity(level, mob.getX(), mob.getY() + 0.5D, mob.getZ(), stack));
+        CorpseLedger.Entry owner = ledgerId == null
+                ? null : CorpseLedger.get(level).byId(ledgerId).orElse(null);
+        if (owner == null) {
+            BODIES.noOwner++;
+            return false;
         }
-        mob.getPersistentData().remove(ITEMS_TAG);
+        boolean laid = CorpseMod.layBody(level, mob, ledgerId, owner.player(), owner.playerName(), carried);
+        if (laid) {
+            BODIES.laid++;
+        } else {
+            BODIES.failed++;
+        }
+        return laid;
     }
 
     /**
@@ -210,7 +312,7 @@ public final class PlayerZombies {
             return "fire";
         }
         if (source.is(net.minecraft.world.damagesource.DamageTypes.FELL_OUT_OF_WORLD)) {
-            return "the void";
+            return VOID;
         }
         return null;
     }

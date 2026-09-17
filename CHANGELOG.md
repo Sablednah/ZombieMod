@@ -7,6 +7,26 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone.
 
+## Unreleased
+
+### Added
+
+- **Works with the Corpse mod.** If [Corpse](https://modrinth.com/mod/corpse) is installed alongside
+  player zombies, the two become stages of one death. Your body gets up and walks off with your
+  things, so Corpse no longer leaves an empty body lying at the death spot; and when somebody kills
+  the zombie it goes down as a Corpse body holding everything it carried, rather than scattering
+  loose items. Armour and shield go back in their slots, so Corpse's transfer button re-equips them.
+  A body does not despawn after five minutes, cannot be emptied by a hopper, honours Corpse's
+  `only_owner` setting, and floats in lava — so a corpse killed in lava is no longer a lost
+  inventory. On by default and does nothing without Corpse; `playerZombies.corpseMod = false`
+  switches it off. `/zombiemod status` shows the link and counts bodies laid.
+
+### Fixed
+
+- **Corpse and player zombies used to collide.** With both installed, Corpse left an empty body
+  wearing your armour where you died while the zombie carried the real items away — which looked
+  like a body you could loot and was not. Covered by the change above.
+
 ## 3.5.1
 
 *2026-09-14.* Nobody on the other end: another mod's automation can no longer crash the server
