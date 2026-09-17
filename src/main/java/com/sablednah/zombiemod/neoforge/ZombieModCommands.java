@@ -373,6 +373,7 @@ public final class ZombieModCommands {
         TOGGLES.put("playerZombies", ZombieModConfig.PLAYER_ZOMBIES);
         TOGGLES.put("proximity", ZombieModConfig.PROXIMITY);
         TOGGLES.put("bestiary", ZombieModConfig.BESTIARY);
+        TOGGLES.put("advancements", ZombieModConfig.ADVANCEMENTS);
         TOGGLES.put("perGenus", ZombieModConfig.BESTIARY_PER_GENUS);
         TOGGLES.put("hideUnspawnable", ZombieModConfig.BESTIARY_HIDE_UNSPAWNABLE);
         TOGGLES.put("unspawnableRevealedWhenMet", ZombieModConfig.BESTIARY_UNSPAWNABLE_MET);
@@ -553,6 +554,14 @@ public final class ZombieModCommands {
         src.sendSuccess(() -> Component.literal("  corpse genus: " + genusId
                 + (ok ? " (loaded)" : " (NOT LOADED - no corpse will be raised)"))
                 .withStyle(ok ? ChatFormatting.GREEN : ChatFormatting.RED), false);
+
+        // "Nothing was granted" has three causes that look alike: switched off, no datapack file
+        // listening for the criterion, or the thing simply has not happened yet.
+        boolean feats = ZombieModConfig.ADVANCEMENTS.get();
+        src.sendSuccess(() -> Component.empty()
+                .append(Component.literal("  advancements: " + feats)
+                        .withStyle(feats ? ChatFormatting.GREEN : ChatFormatting.GRAY))
+                .append(Component.literal("   " + Feats.COUNTERS)), false);
 
         // Only when Corpse is here: on every other server this line would be noise about a mod
         // they have never heard of.

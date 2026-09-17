@@ -1,0 +1,29 @@
+{
+  "display": {
+    "icon": {
+      "id": "minecraft:zombie_head"
+    },
+    "title": {
+      "text": "ZombieMod"
+    },
+    "description": {
+      "text": "Something is wrong with the zombies. Trade blows with one that is not a zombie any more."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": false,
+    "hidden": false,
+    "background": "minecraft:gui/advancements/backgrounds/stone"
+  },
+  "criteria": {
+    "zombiemod:met_count/1": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "zombiemod:met_count/1"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

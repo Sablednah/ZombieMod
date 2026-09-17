@@ -1,0 +1,38 @@
+{
+  "parent": "zombiemod:dex/killed_1",
+  "display": {
+    "icon": {
+      "id": "minecraft:player_head",
+      "components": {
+        "minecraft:profile": {
+          "properties": {
+            "textures": [
+              "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmVmYmU2ZjdhYWVkNjNmNTVmMzNlMTU5ZDA0ZTQ4NTdiYWNjMjNlMmFjMGVlYzVhZGQwNzkxMjg4YmJmNDAyZCJ9fX0="
+            ]
+          }
+        }
+      }
+    },
+    "title": {
+      "text": "Bomb Disposal"
+    },
+    "description": {
+      "text": "Kill a Boomer or a Bloater after its fuse is lit and before it goes off."
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "zombiemod:defuse": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "zombiemod:defuse"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

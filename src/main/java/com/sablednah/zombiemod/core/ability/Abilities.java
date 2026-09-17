@@ -306,11 +306,20 @@ public final class Abilities {
         }
     }
 
+    /**
+     * Set on a mob for exactly as long as its fuse is burning. The burn-down itself lives in a goal
+     * and nothing outside can see it, but "was it lit when it died" is a fair question to ask from
+     * a death event - it is what separates killing a Boomer from killing one in time.
+     */
+    public static final String FUSE_LIT = "zombiemod:fuse_lit";
+
     /** The burn-down for one {@link Fuse} on one mob. */
     private static final class FuseState implements Ability.State {
 
         private final Fuse fuse;
         private int burning;
+        /** What the tag says, so it is written on the two edges and not twenty times a second. */
+        private Boolean marked;
         private double baseScale = Double.NaN;
 
         FuseState(Fuse fuse) {
@@ -340,8 +349,11 @@ public final class Abilities {
             } else if (burning > 0) {
                 burning = Math.max(0, burning - 2);
             } else {
+                // Idle. Still worth a look, once: this is where a tag left by a save gets settled.
+                mark(mob);
                 return;
             }
+            mark(mob);
 
             float progress = Math.min(1.0F, (float) burning / Math.max(1, fuse.fuseTicks()));
             if (scale != null && !Double.isNaN(baseScale)) {
@@ -362,6 +374,27 @@ public final class Abilities {
                     if (scale != null && !Double.isNaN(baseScale)) {
                         scale.setBaseValue(baseScale);
                     }
+                    mark(mob);
+                }
+            }
+        }
+
+        /**
+         * Keep {@link #FUSE_LIT} in step with the burn. The tag is saved with the mob and this state
+         * is not, so the first look takes the tag's word for it and then corrects it - otherwise a
+         * server stopped mid-fuse would leave a mob that reads as lit for the rest of its life.
+         */
+        private void mark(Mob mob) {
+            if (marked == null) {
+                marked = mob.getPersistentData().contains(FUSE_LIT);
+            }
+            boolean lit = burning > 0;
+            if (lit != marked) {
+                marked = lit;
+                if (lit) {
+                    mob.getPersistentData().putBoolean(FUSE_LIT, true);
+                } else {
+                    mob.getPersistentData().remove(FUSE_LIT);
                 }
             }
         }

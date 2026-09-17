@@ -1,0 +1,29 @@
+{
+  "parent": "zombiemod:dex/killed_10",
+  "display": {
+    "icon": {
+      "id": "minecraft:netherite_sword"
+    },
+    "title": {
+      "text": "Pest Control"
+    },
+    "description": {
+      "text": "Kill 25 different genera."
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "zombiemod:killed_count/25": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "zombiemod:killed_count/25"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

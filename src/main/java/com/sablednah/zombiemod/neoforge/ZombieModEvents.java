@@ -509,6 +509,10 @@ public final class ZombieModEvents {
         }
 
         com.sablednah.zombiemod.core.ability.Infect.cure(target);
+        if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer healer) {
+            Feats.fire(healer, "cured", net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE
+                    .getKey(target.getType()).toString());
+        }
         level.sendParticles(net.minecraft.core.particles.ParticleTypes.HAPPY_VILLAGER,
                 target.getX(), target.getY() + target.getBbHeight() * 0.6D, target.getZ(),
                 12, 0.3D, 0.4D, 0.3D, 0.02D);

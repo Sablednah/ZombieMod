@@ -1,0 +1,38 @@
+{
+  "parent": "zombiemod:dex/killed_1",
+  "display": {
+    "icon": {
+      "id": "minecraft:player_head",
+      "components": {
+        "minecraft:profile": {
+          "properties": {
+            "textures": [
+              "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzlhYjA0YmY4NDk2YTNiMDUxZWFlZDgwNzc2MDZhMjc0ZmYwODY3MzA4NjE1NmQ4NzE2ZTZjZWJhYzkwOTMwOCJ9fX0="
+            ]
+          }
+        }
+      }
+    },
+    "title": {
+      "text": "It Was Bait"
+    },
+    "description": {
+      "text": "Run down a Coward. Then look behind you."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "zombiemod:kill/zombiemod:coward": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "zombiemod:kill/zombiemod:coward"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

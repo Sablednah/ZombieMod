@@ -1,0 +1,29 @@
+{
+  "parent": "zombiemod:root",
+  "display": {
+    "icon": {
+      "id": "minecraft:milk_bucket"
+    },
+    "title": {
+      "text": "Got Milk?"
+    },
+    "description": {
+      "text": "Cure an infection with a bucket of milk, before it finishes what it started."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "zombiemod:cured": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "zombiemod:cured"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

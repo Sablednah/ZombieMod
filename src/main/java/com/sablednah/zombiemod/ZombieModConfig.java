@@ -59,6 +59,7 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.EnumValue<DexInfo> BESTIARY_INFO;
     public static final ModConfigSpec.BooleanValue BESTIARY_HIDE_UNSPAWNABLE;
     public static final ModConfigSpec.BooleanValue BESTIARY_UNSPAWNABLE_MET;
+    public static final ModConfigSpec.BooleanValue ADVANCEMENTS;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> BESTIARY_HIDDEN;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> BESTIARY_HIDDEN_MET;
 
@@ -438,6 +439,22 @@ public final class ZombieModConfig {
                         "listed here never shows in the dex at all, met or not - a true secret,",
                         "which is a strong choice: a player can kill it and find no record.")
                 .defineList("hiddenRevealedWhenMet", List.of(), () -> "", o -> o instanceof String);
+
+        b.pop();
+
+        b.comment("Advancements: a ZombieMod tab in the vanilla advancements screen.",
+                "",
+                "These are ordinary vanilla advancements - datapack files, shown by an unmodded",
+                "client, and by screen replacements such as Better Advancements. The tab stays",
+                "hidden from a player until they meet their first genus.",
+                "",
+                "The shipped ones are files under data/zombiemod/advancement/ and a datapack can",
+                "override any of them, or add its own: any advancement with a criterion NAMED",
+                "zombiemod:kill/<genus>, zombiemod:met_count/<n> and so on is granted by this mod.",
+                "See the README for the list of names. The counting ones need the bestiary on.").push("advancements");
+
+        ADVANCEMENTS = b.comment("Grant them at all. Off, and nothing is granted and the tab never appears.")
+                .define("enabled", true);
 
         b.pop();
 

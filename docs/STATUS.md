@@ -51,7 +51,17 @@ hand.
 
 ## Built, not yet verified in game
 
-- **The Corpse mod integration** (2026-09-17, unreleased). A slain player zombie lays a
+- **Advancements** (2026-09-17, unreleased). 25 shipped under `data/zombiemod/advancement/`, granted
+  by criterion *name* through `neoforge/Feats` - no trigger type of our own. **Proven headlessly on
+  1.21.11 and on 26.2**, through the real handlers with a genuine `ServerPlayer`: all 25 files load
+  on both (player-head icons included, which was the 26.x worry); the root on the first hit; kill
+  grants; *Bomb Disposal* granted for a lit Boomer and **not** for an unlit one; `met_count/10`
+  false at nine and true at ten; login catch-up restoring two revoked advancements; a fake player
+  and `enabled = false` both granting nothing. **Not yet seen by a human, and that is most of it**:
+  the tab, its layout, the icons, the toasts, the wording, Better Advancements. Never exercised at
+  all: `corpse/own|other`, `ritual`, `horde_cleared` and `cured` - each is one line at a site that
+  was already known to run, but none has been watched granting anything.
+- ~~The Corpse mod integration~~ (2026-09-17, unreleased) — **confirmed in play**, see the end of this entry. A slain player zombie lays a
   Corpse body instead of dropping items, and the empty body Corpse leaves at the death spot is
   refused entry. **Proven headlessly against the real `corpse-neoforge-1.21.11-1.1.16` jar**, with a
   `FakePlayer` subclass running the real death path so both mods' own handlers fired: empty body
@@ -59,9 +69,11 @@ hand.
   in its slot / shield in the off hand / the overflow page used; nothing of the player's left as
   loose items; ledger settled, including for a lava kill; the body's death id equal to the ledger
   id; and the bodies read back intact **after a real server restart**. Compiles unchanged on 26.2.
-  **Not yet seen by a human:** the body's look, opening its screen, the transfer button, and
-  `only_owner`. Not run at all: the 26.x Corpse jars - their signatures were diffed and are identical,
-  which is evidence and not a test - and an actual lava pool, where floating is Corpse's own code.
+  **Confirmed in play 2026-09-17** on the `26.2` instance with `corpse-neoforge-1.1.19+26.2`, build
+  `57c512d1`: "all worked". That was also the first time a 26.x Corpse jar had been run against it
+  at all - until then the evidence for 26.x was a signature diff. Still unexercised, because they
+  need a situation rather than a look: `only_owner` with a second player, and a real lava pool,
+  where floating is Corpse's own code.
 - ~~`NO_SPAWNS` claim mode~~ — **confirmed in play** (2026-08-17), in both directions, which is the
   only version of this test that means anything: a claimed nine-chunk grid stayed empty while
   unclaimed land beside it kept spawning. Confirmed too that mobs spawn outside a claim and then walk

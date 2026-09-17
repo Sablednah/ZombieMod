@@ -1,0 +1,44 @@
+{
+  "parent": "zombiemod:boss/patient_zero",
+  "display": {
+    "icon": {
+      "id": "minecraft:nether_star"
+    },
+    "title": {
+      "text": "Apex Predator"
+    },
+    "description": {
+      "text": "Kill the Butcher, Patient Zero and the Borg Queen."
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": true
+  },
+  "criteria": {
+    "zombiemod:kill/zombiemod:butcher": {
+      "trigger": "minecraft:impossible"
+    },
+    "zombiemod:kill/zombiemod:patient_zero": {
+      "trigger": "minecraft:impossible"
+    },
+    "zombiemod:kill/zombiemod:borg_queen": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "zombiemod:kill/zombiemod:butcher"
+    ],
+    [
+      "zombiemod:kill/zombiemod:patient_zero"
+    ],
+    [
+      "zombiemod:kill/zombiemod:borg_queen"
+    ]
+  ],
+  "rewards": {
+    "experience": 250
+  },
+  "sends_telemetry_event": false
+}
