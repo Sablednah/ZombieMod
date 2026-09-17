@@ -132,6 +132,9 @@ Raise it for a mostly-vanilla world, drop it to 0 and a genus claims every eligi
   break blocks inside one. (Worth knowing: FTB Chunks itself does not cover general mob
   block-breaking, so a claim does nothing against a Breaker until ZombieMod closes it from this
   side.) Linked by reflection, completely inert without it.
+- **Corpse** — with player zombies on, the body gets up instead of lying there, and when somebody
+  kills it, it goes down as a proper Corpse body holding everything it carried — no five-minute
+  despawn, safe from lava and hoppers. Optional, and inert without it.
 - **CityWorld** — genera that key off districts, lots and wildness, so Commuters haunt the high
   streets and Harvesters work the farms. Also optional, also inert without it.
 

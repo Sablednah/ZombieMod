@@ -554,7 +554,24 @@ public final class ZombieModCommands {
                 + (ok ? " (loaded)" : " (NOT LOADED - no corpse will be raised)"))
                 .withStyle(ok ? ChatFormatting.GREEN : ChatFormatting.RED), false);
 
-        boolean ftb = com.sablednah.zombiemod.compat.LandClaims.anyProvider();
+        // Only when Corpse is here: on every other server this line would be noise about a mod
+        // they have never heard of.
+        boolean corpseMod = com.sablednah.zombiemod.compat.CorpseMod.available();
+        if (corpseMod) {
+            boolean on = ZombieModConfig.PLAYER_ZOMBIE_CORPSE_MOD.get();
+            src.sendSuccess(() -> Component.empty()
+                    .append(Component.literal("  Corpse mod: linked   corpseMod: " + on)
+                            .withStyle(on ? ChatFormatting.GREEN : ChatFormatting.GRAY))
+                    .append(Component.literal("   " + PlayerZombies.BODIES)), false);
+            if (on && pz && !ZombieModConfig.PLAYER_ZOMBIE_TAKES_ITEMS.get()) {
+                src.sendSuccess(() -> Component.literal(
+                        "  note: takeItems is off, so the zombie carries nothing and Corpse keeps"
+                        + " the items at the death spot - no body will be laid when it is killed")
+                        .withStyle(ChatFormatting.YELLOW), false);
+            }
+        }
+
+        boolean ftb =com.sablednah.zombiemod.compat.LandClaims.anyProvider();
         src.sendSuccess(() -> Component.empty()
                 .append(Component.literal("  claims: "
                         + com.sablednah.zombiemod.compat.LandClaims.providers())
