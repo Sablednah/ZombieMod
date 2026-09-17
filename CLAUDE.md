@@ -721,6 +721,29 @@ number of the lot. Keep it **optional** — the 1.8
 plugin's real bug was calling Factions' `BoardColl` with no `hasFactions` guard, making a soft
 dependency mandatory in practice.
 
+**The Corpse mod (`compat/CorpseMod`) is the one integration that builds another mod's entity**,
+and the vocabulary matters: *our* corpse is the zombie, *Corpse's* corpse is called a **body**
+everywhere in the code. With player zombies on, the body Corpse would leave at the death spot is
+refused (`EntityJoinLevelEvent`, cancelled — it is empty because we took the drops at default
+priority and Corpse listens at `LOWEST`), and a slain zombie lays a body instead of dropping items.
+Three things that were not obvious:
+
+- **Do not use `CorpseEntity.createFromDeath`.** It wants the `Player` for level and facing, and
+  ours may be offline or in another dimension. Build the entity from its public constructor and
+  setters; `Death.Builder` is public for the same reason.
+- **Cancel the join; do not discard afterwards.** Corpse's `remove()` drops the body's contents and
+  puffs smoke at everyone nearby, for *every* removal reason. Only ever refuse a body that
+  `isEmpty()`, or the tidy-up becomes the item loss this feature exists to prevent.
+- **A `FakePlayer` cannot die** — NeoForge overrides `die` to nothing. The probe that proved this
+  subclassed it to call `CommonHooks.onLivingDeath` then the protected `dropAllDeathLoot`, which is
+  the part of `ServerPlayer.die` that matters and makes both mods' real handlers fire. Corpse's jar
+  goes in `run/mods/` for that and **comes back out afterwards**; Modrinth's API lists the jar per
+  Minecraft version (`/v2/project/corpse/version`).
+
+Corpse's death *history* still records an empty death for a player-zombie kill, since the items were
+already in the zombie when it looked. Left alone deliberately: our ledger is the record of what was
+carried, and the body carries the ledger id so the two can be matched.
+
 **Vanish is the shape of a good `compat/` seam, and the division is the point.** Standards answers
 the one question it owns — *is this player hidden* — and each mod acts on it for the things that mod
 is responsible for. It already blocks mob **targeting** globally (a `LivingChangeTargetEvent` veto

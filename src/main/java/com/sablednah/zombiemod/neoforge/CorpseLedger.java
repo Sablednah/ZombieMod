@@ -127,6 +127,11 @@ public final class CorpseLedger extends SavedData {
         }
     }
 
+    /** One entry, settled or not. Who a live corpse belongs to is written here and nowhere else. */
+    public Optional<Entry> byId(UUID id) {
+        return entries.stream().filter(e -> e.id().equals(id)).findFirst();
+    }
+
     public boolean forget(UUID id) {
         boolean removed = entries.removeIf(e -> e.id().equals(id));
         if (removed) {

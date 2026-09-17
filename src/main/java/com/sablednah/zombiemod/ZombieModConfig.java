@@ -21,6 +21,7 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.ConfigValue<String> PLAYER_ZOMBIE_GENUS;
     public static final ModConfigSpec.ConfigValue<String> PLAYER_ZOMBIE_NAME;
     public static final ModConfigSpec.BooleanValue PLAYER_ZOMBIE_INFECTED_TOO;
+    public static final ModConfigSpec.BooleanValue PLAYER_ZOMBIE_CORPSE_MOD;
     public static final ModConfigSpec.BooleanValue CLAIM_PROTECTION;
     public static final ModConfigSpec.BooleanValue CLAIM_NO_GRIEFING;
     public static final ModConfigSpec.EnumValue<ClaimSpawns> CLAIM_SPAWNS;
@@ -196,6 +197,19 @@ public final class ZombieModConfig {
                         "wrong one gets you nothing. Set false if you would rather one death meant",
                         "one zombie.")
                 .define("infectionAlsoRaises", true);
+
+        PLAYER_ZOMBIE_CORPSE_MOD = b.comment(
+                        "Work with the Corpse mod, if it is installed. Does nothing without it.",
+                        "",
+                        "A slain corpse then leaves a Corpse body holding what it carried, rather",
+                        "than a pile of items: it does not despawn in five minutes, survives lava",
+                        "unless Corpse's own lava_damage says otherwise, and honours Corpse's",
+                        "only_owner setting. The empty body Corpse would otherwise leave at the",
+                        "death spot is removed - that body got up and walked away.",
+                        "",
+                        "Only matters with takeItems on. With it off the zombie carries nothing,",
+                        "and Corpse keeps the items at the death spot exactly as it would alone.")
+                .define("corpseMod", true);
 
         b.pop();
 
