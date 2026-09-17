@@ -157,8 +157,7 @@ public final class DexScreen extends Screen {
 
         // Footer tally, centred in the binding.
         var entries = DexState.entries();
-        g.drawCenteredString(font, "§8✦ §7" + DexState.slain() + "§8/§7" + entries.size()
-                        + " slain §8· §7" + DexState.met() + " met §8✦",
+        g.drawCenteredString(font, DexState.summary(),
                 x + w / 2, y + h - 13, 0xFFFFFFFF);
 
         drawList(g, mouseX, mouseY, entries);
@@ -198,7 +197,7 @@ public final class DexScreen extends Screen {
             }
             // The mark is the progress, the colour is the affordance: gold when open, warm when
             // clickable, receding into the page when not yet earned.
-            String mark = e.kills() > 0 ? "§a✔ " : e.met() ? "§e? " : "§8✘ ";
+            String mark = DexState.mark(e);
             String colour = isSelected ? "§6§l" : hover ? "§e" : readable ? "§7" : "§8";
             g.drawString(font, mark + colour + trim(e.name(), LIST_W - 22), listX + 3, ly, 0xFFFFFFFF);
             if (readable && !isSelected && rowVisible) {

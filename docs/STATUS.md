@@ -51,6 +51,14 @@ hand.
 
 ## Built, not yet verified in game
 
+- **Seasonal genera as bonus dex entries** (2026-09-17, unreleased; Sable's ruling, extending the
+  advancements one). `Bestiary.bonus` = `spawn().seasonal()`; concealed until met, then starred and
+  outside every total. The screen learns which rows are bonus from a **new optional channel**, `zombiemod:dex_bonus`; `DexPayload` is untouched and the version is still `"1"`, because a version mismatch is a failed join, not a fallback (see CLAUDE.md - the first draft got this wrong).
+  Probed on 1.21.11 through the real command and the real snapshot: Jack absent with 59 counted,
+  then present, `bonus=true`, header `1 of 59 slain, 1 met, +1 bonus`, row `✔ Jack ★ x1`; payload
+  codec round-trips with no leftover bytes. **Unseen:** the screen's footer and star. **Unrun:** a
+  real 3.5.1 client against this server, and the reverse - the argument that both still connect is
+  read straight off NeoForge's negotiator source, but nobody has joined with mismatched jars.
 - **Advancements** (2026-09-17, unreleased). 23 shipped (25 until Sable ruled the same day that
   nothing may need a real-world date: the two seasonal ones went, and `met_all`/`killed_all` now
   measure against year-round genera only - probed: false at 58 of 59, both granted at 59 with Jack

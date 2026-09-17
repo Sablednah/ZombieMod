@@ -119,8 +119,26 @@ public final class Bestiary extends SavedData {
      * only built for someone who can actually receive it.
      */
     public void push(ServerPlayer player) {
+        // The stars first, so that by the time the roster lands the client already knows which
+        // of its rows do not count. Both are handled in order on the client's main thread.
+        com.sablednah.zombiemod.net.Net.sendIfAble(player,
+                com.sablednah.zombiemod.net.DexBonusPayload.TYPE, () -> bonusSnapshot(player));
         com.sablednah.zombiemod.net.Net.sendIfAble(player,
                 com.sablednah.zombiemod.net.DexPayload.TYPE, () -> snapshot(player));
+    }
+
+    /** The bonus genera this player's dex currently shows - unmet ones are concealed, so not those. */
+    public com.sablednah.zombiemod.net.DexBonusPayload bonusSnapshot(ServerPlayer player) {
+        List<Identifier> ids = new ArrayList<>();
+        player.level().registryAccess()
+                .lookupOrThrow(com.sablednah.zombiemod.ZombieModRegistries.GENUS)
+                .listElements().forEach(holder -> {
+                    Identifier id = holder.key().identifier();
+                    if (bonus(holder.value()) && !concealed(player.getUUID(), id, holder.value())) {
+                        ids.add(id);
+                    }
+                });
+        return new com.sablednah.zombiemod.net.DexBonusPayload(ids);
     }
 
     /** The whole roster with this player's progress against it. */
@@ -169,7 +187,8 @@ public final class Bestiary extends SavedData {
     /**
      * Should this genus be absent from this player's roster - list, book, screen and totals alike?
      *
-     * <p>Two ladders. Weight-0 genera can be hidden wholesale ({@code hideUnspawnable}), becoming
+     * <p>A seasonal genus is hidden until met, always, and no config reaches that - see
+     * {@link #bonus}. Beyond it, two ladders. Weight-0 genera can be hidden wholesale ({@code hideUnspawnable}), becoming
      * discoveries rather than spoilers, and by default reappear once met. The {@code hidden} list
      * conceals by name regardless of weight, and only its {@code hiddenRevealedWhenMet} subset ever
      * comes back — anything else stays a rumour even after you have killed it, which is the server
@@ -184,7 +203,20 @@ public final class Bestiary extends SavedData {
         if (ZombieModConfig.BESTIARY_HIDE_UNSPAWNABLE.get() && genus.weight() <= 0) {
             return !(earned && ZombieModConfig.BESTIARY_UNSPAWNABLE_MET.get());
         }
-        return false;
+        // A seasonal genus is a bonus, and a bonus you have not found is not a gap. Listed as
+        // missing it would sit in the dex for fifty weeks a year as the one row nobody can fill.
+        return bonus(genus) && !earned;
+    }
+
+    /**
+     * Whether this genus is a bonus entry: real, collectable, and never part of "all of them".
+     *
+     * <p>Seasonal genera - anything gated on the real-world calendar. They appear in a dex once
+     * met, marked, and outside the total; the same rule the advancements follow, for the same
+     * reason. Nobody should have to play on a particular day to finish something.
+     */
+    public static boolean bonus(com.sablednah.zombiemod.core.Genus genus) {
+        return genus.spawn().seasonal();
     }
 
     // ------------------------------------------------------------------ reading
