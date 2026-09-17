@@ -265,6 +265,10 @@ Who has met what, and who has killed what. The record is kept in the world's sav
 complete whether or not any of it is mirrored to a scoreboard — so turning the per-genus view on
 later shows a history that was being kept all along, rather than starting from zero.
 
+Seasonal genera (Jack, Krampus, anything a datapack gates on the calendar) are **bonus entries**:
+absent from a player's dex until met, then shown with a ★ and counted separately, never toward the
+total. The dex can always be finished whatever the date. No setting controls this.
+
 | Setting | Default | What it does |
 |---|---|---|
 | `enabled` | `true` | Record kills and encounters at all. |

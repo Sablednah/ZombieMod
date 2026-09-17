@@ -288,13 +288,19 @@ public final class ZombieModCommands {
             }
             rows.add(new Row(holder.value().name().orElse(id.getPath()),
                     bestiary.hasMet(player.getUUID(), id),
-                    bestiary.killsOf(player.getUUID(), id)));
+                    bestiary.killsOf(player.getUUID(), id),
+                    Bestiary.bonus(holder.value())));
         });
         rows.sort(java.util.Comparator.comparing(Row::name, String.CASE_INSENSITIVE_ORDER));
 
-        long slain = rows.stream().filter(r -> r.kills() > 0).count();
-        long met = rows.stream().filter(Row::met).count();
-        String header = slain + " of " + rows.size() + " slain, " + met + " met";
+        // Seasonal genera are bonus entries: listed once met, starred, and outside every total, so
+        // the dex can be finished on any day of the year. An unmet one is not in `rows` at all.
+        long slain = rows.stream().filter(r -> !r.bonus() && r.kills() > 0).count();
+        long met = rows.stream().filter(r -> !r.bonus() && r.met()).count();
+        long total = rows.stream().filter(r -> !r.bonus()).count();
+        long bonus = rows.size() - total;
+        String header = slain + " of " + total + " slain, " + met + " met"
+                + (bonus > 0 ? ", +" + bonus + " bonus" : "");
 
         if (!asBook) {
             source.sendSuccess(() -> Component.literal("ZombieDex").withStyle(ChatFormatting.GOLD)
@@ -478,7 +484,7 @@ public final class ZombieModCommands {
     }
 
     /** One line of the checklist. */
-    private record Row(String name, boolean met, int kills) {}
+    private record Row(String name, boolean met, int kills, boolean bonus) {}
 
     /**
      * One checklist row, told which palette to use.
@@ -494,6 +500,9 @@ public final class ZombieModCommands {
                 : row.met() ? Component.literal("? ").withStyle(met)
                         : Component.literal("\u2718 ").withStyle(unmet);
         out.append(Component.literal(stripCodes(row.name())).withStyle(name));
+        if (row.bonus()) {
+            out.append(Component.literal(" \u2605").withStyle(ChatFormatting.LIGHT_PURPLE));
+        }
         if (row.kills() > 0) {
             out.append(Component.literal(" x" + row.kills()).withStyle(count));
         }

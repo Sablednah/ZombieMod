@@ -1458,6 +1458,13 @@ sees without keeping a second, unmodded instance around to check.
 Any book named `ZombieDex` works, not just the one the command hands out — so an anvil rename or a
 loot table can hand one out too.
 
+**Seasonal genera are bonus entries.** Anything whose spawn rules carry a `zombiemod:date` condition
+— Jack and Krampus today, and whatever a datapack gates on the calendar — is left out of the dex
+until you meet it, then appears with a ★ and is tallied on its own: `12 of 59 slain, 20 met, +1
+bonus`. It never counts toward the total, in chat, the book, the screen or the advancements, so the
+dex can be finished on any day of the year and an unfound Krampus is not a gap that sits there until
+December. No setting controls this.
+
 ### Reading an entry
 
 ```
@@ -1639,7 +1646,8 @@ Queen, Herobrine, the Weeping Zombie, the Colossus) stay hidden until earned.
 **Nothing in the tab needs a particular week of the year.** Seasonal genera — anything whose spawn
 rules carry a `zombiemod:date` condition, which today means Jack and Krampus — have no advancement of
 their own and are left out of what *Seen It All* and *Extinction Event* are measured against, so
-finishing the set never means being online at Christmas. That is read off each genus's own spawn
+finishing the set never means being online at Christmas. The ZombieDex treats them the same way, as
+starred bonus entries outside its total. That is read off each genus's own spawn
 rules, so a datapack's Easter zombie is excused without anybody listing it. Meeting one still counts
 toward the numbered steps, because that can only help.
 

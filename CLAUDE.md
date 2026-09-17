@@ -386,7 +386,9 @@ Grepping for the character alone is not enough, and that gap hid three real case
 2026-08-26: a string written `\\u00a7c` contains no section character in the source, but javac
 decodes the escape and the running mod emits one. Confirm every hit is a comment, a
 `GuiGraphics.drawString` on the client (where section codes *are* the correct mechanism), or a
-regex that strips them. Legitimate hits today are `client/DexScreen.java` (font rendering),
+regex that strips them. Legitimate hits today are `client/DexScreen.java` and `client/DexState.java`
+(font rendering; `DexState` builds the screen's tally line and row marks so that what the dex
+*counts* is written once, not once per Minecraft version),
 `Bounties` (action bar) and `HordeDirector` (boss-bar name) — all client-rendered only.
 
 ### Command permissions: nodes whose defaults are the levels — and two Brigadier traps
@@ -442,6 +444,23 @@ never for `not`; `SpawnRules.seasonal()` is any one of the ANDed conditions. `Fe
 genera out of the roster `met_all`/`killed_all` measure against (they still count toward the
 numbered steps - that only helps), and `make-advancements.py` refuses to build if a shipped
 advancement names one. Apply the same rule to anything else that judges completeness.
+
+**The ZombieDex follows the same rule**: `Bestiary.bonus(genus)` is `spawn().seasonal()`, such a
+genus is `concealed` until met whatever the config says, and once met it is starred and excluded
+from the total in chat, book and screen. `Feats.dex` still needs its own year-round filter, because
+a *met* seasonal genus is no longer concealed.
+
+**A released payload's shape is frozen, and the registrar version is not an escape hatch.** Wanting
+a `bonus` flag on `DexPayload.Entry`, both obvious moves are wrong. Add the field and a 3.5.1 client
+mis-decodes the first dex it is sent. Bump `registrar("1")` to warn it off and it is worse:
+**`optional()` forgives a channel being *absent*, not a version that *differs*.**
+`NetworkComponentNegotiator` drops an optional channel the other side lacks, but for a channel both
+sides have it compares versions and a mismatch **fails the whole negotiation - the player cannot
+join.** (Read in `net/neoforged/neoforge/network/negotiation/`; I had it backwards from memory and
+had already written the changelog.) So new information goes on a **new channel id** at the same
+version - `DexBonusPayload`, `zombiemod:dex_bonus` - which an old peer simply does not have. Both
+mixed pairings then degrade to "as before". Send the small one first so the client knows which rows
+do not count before the roster lands.
 
 Two traps from proving it:
 

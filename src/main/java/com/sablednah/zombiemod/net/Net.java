@@ -40,6 +40,10 @@ public final class Net {
                 // dedicated server never loads one. No @OnlyIn and no DistExecutor needed.
                 (payload, context) -> context.enqueueWork(
                         () -> com.sablednah.zombiemod.client.DexState.accept(payload)));
+        // Same version, new channel - never a new version of an old one. See DexBonusPayload.
+        registrar.playToClient(DexBonusPayload.TYPE, DexBonusPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(
+                        () -> com.sablednah.zombiemod.client.DexState.acceptBonus(payload)));
     }
 
     /** Send, if this player is one of the few who can hear it. */
