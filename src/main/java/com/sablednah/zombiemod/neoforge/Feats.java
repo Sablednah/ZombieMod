@@ -38,7 +38,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
  * <pre>
  *   zombiemod:meet/&lt;genus&gt;          zombiemod:kill/&lt;genus&gt;        (and bare: zombiemod:kill)
  *   zombiemod:met_count/&lt;n&gt;         zombiemod:killed_count/&lt;n&gt;    distinct genera, from the dex
- *   zombiemod:met_all                zombiemod:killed_all           the whole roster you can see
+ *   zombiemod:met_all                zombiemod:killed_all           the year-round roster you can see
  *   zombiemod:defuse/&lt;genus&gt;        killed with its fuse lit, before it went off
  *   zombiemod:corpse/own             zombiemod:corpse/other         whose player zombie you put down
  *   zombiemod:ritual/&lt;ritual&gt;       zombiemod:horde_cleared/&lt;horde&gt;   zombiemod:cured/&lt;entity type&gt;
@@ -93,31 +93,44 @@ public final class Feats {
     /**
      * The dex moved. Counts are distinct genera, and "all" is the roster this player can see - a
      * genus a server has concealed is not held against anybody.
+     *
+     * <p><b>Nor is one that only exists for a week of the real year.</b> A seasonal genus still
+     * counts toward the numbered steps if you have met it, because that only ever helps; but it is
+     * left out of what "all" is measured against, or finishing the set would mean being online at
+     * Christmas. Seasonal is read off the genus's own spawn rules, so a pack's Easter zombie is
+     * excused without anybody listing it.
      */
     public static void dex(ServerPlayer player) {
         if (!listening(player) || !(player.level() instanceof ServerLevel level)) {
             return;
         }
         Bestiary bestiary = Bestiary.get(level);
-        int[] tally = new int[3]; // roster, met, killed
+        int[] tally = new int[5]; // year-round roster, met of it, killed of it, met at all, killed at all
         level.registryAccess().lookupOrThrow(com.sablednah.zombiemod.ZombieModRegistries.GENUS)
                 .listElements().forEach(holder -> {
                     Identifier id = holder.key().identifier();
                     if (bestiary.concealed(player.getUUID(), id, holder.value())) {
                         return;
                     }
-                    tally[0]++;
-                    if (bestiary.hasMet(player.getUUID(), id)) {
-                        tally[1]++;
+                    boolean yearRound = !holder.value().spawn().seasonal();
+                    boolean met = bestiary.hasMet(player.getUUID(), id);
+                    boolean killed = bestiary.killsOf(player.getUUID(), id) > 0;
+                    if (yearRound) {
+                        tally[0]++;
                     }
-                    if (bestiary.killsOf(player.getUUID(), id) > 0) {
-                        tally[2]++;
+                    if (met) {
+                        tally[3]++;
+                        tally[1] += yearRound ? 1 : 0;
+                    }
+                    if (killed) {
+                        tally[4]++;
+                        tally[2] += yearRound ? 1 : 0;
                     }
                 });
-        for (int step : metSteps.headSet(tally[1], true)) {
+        for (int step : metSteps.headSet(tally[3], true)) {
             award(player, MET_COUNT + step);
         }
-        for (int step : killedSteps.headSet(tally[2], true)) {
+        for (int step : killedSteps.headSet(tally[4], true)) {
             award(player, KILLED_COUNT + step);
         }
         if (tally[0] > 0 && tally[1] >= tally[0]) {

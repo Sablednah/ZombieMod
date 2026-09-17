@@ -435,6 +435,14 @@ file of ours and would show the key. Icons are vanilla items; a genus's face is 
 the genus file's own `head` as its `minecraft:profile`, copied by `scripts/make-advancements.py`.
 **Regenerate rather than hand-edit**, and re-run it when a genus changes its face.
 
+**Nothing shipped may need a particular week of the real year** - Sable's rule, 2026-09-17: no
+point making somebody play at Christmas to finish a set. "Seasonal" is derived, not listed:
+`SpawnCondition.seasonal()` is true for `zombiemod:date`, for an `any_of` whose every branch is, and
+never for `not`; `SpawnRules.seasonal()` is any one of the ANDed conditions. `Feats.dex` leaves those
+genera out of the roster `met_all`/`killed_all` measure against (they still count toward the
+numbered steps - that only helps), and `make-advancements.py` refuses to build if a shipped
+advancement names one. Apply the same rule to anything else that judges completeness.
+
 Two traps from proving it:
 
 - **`PlayerAdvancements.award` refuses anything `instanceof FakePlayer`** - a NeoForge patch, and it

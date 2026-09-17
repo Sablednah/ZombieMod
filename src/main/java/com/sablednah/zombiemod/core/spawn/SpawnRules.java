@@ -49,6 +49,11 @@ public record SpawnRules(List<EntitySpawnReason> reasons, List<SpawnCondition> c
             SpawnCondition.CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(SpawnRules::conditions))
             .apply(i, SpawnRules::new));
 
+    /** Any one is enough: the conditions are ANDed, so a single calendar gate gates the genus. */
+    public boolean seasonal() {
+        return conditions.stream().anyMatch(SpawnCondition::seasonal);
+    }
+
     /**
      * Do this genus's positional conditions hold here, ignoring spawn reason?
      *

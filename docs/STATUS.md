@@ -51,9 +51,12 @@ hand.
 
 ## Built, not yet verified in game
 
-- **Advancements** (2026-09-17, unreleased). 25 shipped under `data/zombiemod/advancement/`, granted
+- **Advancements** (2026-09-17, unreleased). 23 shipped (25 until Sable ruled the same day that
+  nothing may need a real-world date: the two seasonal ones went, and `met_all`/`killed_all` now
+  measure against year-round genera only - probed: false at 58 of 59, both granted at 59 with Jack
+  and Krampus never met) under `data/zombiemod/advancement/`, granted
   by criterion *name* through `neoforge/Feats` - no trigger type of our own. **Proven headlessly on
-  1.21.11 and on 26.2**, through the real handlers with a genuine `ServerPlayer`: all 25 files load
+  1.21.11 and on 26.2**, through the real handlers with a genuine `ServerPlayer`: all the files load
   on both (player-head icons included, which was the 26.x worry); the root on the first hit; kill
   grants; *Bomb Disposal* granted for a lit Boomer and **not** for an unlit one; `met_count/10`
   false at nine and true at ten; login catch-up restoring two revoked advancements; a fake player

@@ -66,7 +66,7 @@ trouble.
 | **Mutation** | A genus becomes a different genus on a trigger — wounded, on fire, in water, in the wrong dimension. |
 | **Player corpses** | Die and your corpse gets up wearing your real skin and carrying your things. Kill it to get them back. Admins get a recovery ledger for when it goes in the lava. Off by default. |
 | **ZombieDex** | A per-player bestiary — in chat, as a written book that works on a vanilla client, on scoreboards, and on a proper screen for players who do have the mod. Entries unlock by meeting things. |
-| **Advancements** | A ZombieMod tab of 25: fill the dex, kill the bosses, and the niche ones — kill a Boomer after the fuse is lit, run down a Coward, put your own corpse back in the ground. Plain vanilla advancements, so they work on an unmodded client and in Better Advancements, and datapacks can add their own. |
+| **Advancements** | A ZombieMod tab of 23: fill the dex, kill the bosses, and the niche ones — kill a Boomer after the fuse is lit, run down a Coward, put your own corpse back in the ground. None of them needs a seasonal zombie, so the set can always be finished. Plain vanilla advancements, so they work on an unmodded client and in Better Advancements, and datapacks can add their own. |
 | **Proximity spawning** | Zombies placed just out of sight around each player, ignoring vanilla's spawn table entirely. The thing that made the 1.8 plugin's world feel *occupied*. Off by default. |
 | **Bounties** | Per genus. Paid into the server's economy via [SableCraft Standards](https://github.com/Sablednah/SableCraft-Standards) if it is installed, and tallied to a scoreboard everywhere else — so the reward is real on a server with nothing else added. |
 

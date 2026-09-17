@@ -311,7 +311,7 @@ true secret, which is a strong choice: a player can kill it and find no record.
 
 ## `[advancements]`
 
-A ZombieMod tab in the vanilla advancements screen — 25 advancements for filling the ZombieDex,
+A ZombieMod tab in the vanilla advancements screen — 23 advancements for filling the ZombieDex,
 killing bosses, and niche feats like killing a Boomer after its fuse is lit. These are ordinary
 vanilla advancements: they work on an unmodded client and in screen replacements such as Better
 Advancements. The tab stays hidden from a player until they meet their first genus.
@@ -320,7 +320,9 @@ Advancements. The tab stays hidden from a player until they meet their first gen
 |---|---|---|
 | `enabled` | `true` | Grant them at all. Off, and nothing is granted and the tab never appears. |
 
-Dex progress a player already has is caught up when they log in. The ones that count genera need
+Seasonal genera (Jack, Krampus, or anything a datapack gates on the calendar) are never required:
+they have no advancement of their own and do not count toward the two "every genus" challenges. Dex
+progress a player already has is caught up when they log in. The ones that count genera need
 `[bestiary] enabled`; kills, rituals, hordes and the rest do not. Datapacks can override the shipped
 files under `data/zombiemod/advancement/` or add their own — the README lists the criterion names.
 
