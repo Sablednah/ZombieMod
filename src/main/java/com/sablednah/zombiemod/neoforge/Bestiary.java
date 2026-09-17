@@ -106,6 +106,8 @@ public final class Bestiary extends SavedData {
         if (met.computeIfAbsent(player.getUUID(), k -> new LinkedHashSet<>()).add(genus)) {
             setDirty();
             push(player);
+            Feats.fire(player, "meet", genus.toString());
+            Feats.dex(player);
         }
     }
 
@@ -159,6 +161,9 @@ public final class Bestiary extends SavedData {
         setDirty();
         publish(player, genus, mine, firstOfThisGenus);
         push(player);
+        if (firstOfThisGenus) {
+            Feats.dex(player);
+        }
     }
 
     /**

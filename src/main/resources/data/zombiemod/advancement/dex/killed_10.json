@@ -1,0 +1,29 @@
+{
+  "parent": "zombiemod:dex/killed_1",
+  "display": {
+    "icon": {
+      "id": "minecraft:diamond_sword"
+    },
+    "title": {
+      "text": "Thinning the Herd"
+    },
+    "description": {
+      "text": "Kill 10 different genera."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "zombiemod:killed_count/10": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "zombiemod:killed_count/10"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

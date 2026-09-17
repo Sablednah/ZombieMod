@@ -60,6 +60,7 @@ public class ZombieMod {
         NeoForge.EVENT_BUS.register(new RitualHandler());
         NeoForge.EVENT_BUS.register(new LootHandler());
         NeoForge.EVENT_BUS.register(new PlayerZombies());
+        NeoForge.EVENT_BUS.register(new com.sablednah.zombiemod.neoforge.Feats());
         NeoForge.EVENT_BUS.register(new ProximitySpawner());
         NeoForge.EVENT_BUS.register(new HordeDirector());
         // Permission nodes. Plain NeoForge, not a compat seam: LuckPerms and Standards are both

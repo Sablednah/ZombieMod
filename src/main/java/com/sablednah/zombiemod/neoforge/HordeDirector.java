@@ -440,6 +440,11 @@ public final class HordeDirector {
             }
             level.playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 1.0F, 1.0F);
+            // By registry id, which the spec does not carry: its own name is display text.
+            Feats.fire(player, "horde_cleared", level.registryAccess()
+                    .lookupOrThrow(com.sablednah.zombiemod.ZombieModRegistries.HORDE).listElements()
+                    .filter(h -> h.value() == active.spec)
+                    .map(h -> h.key().identifier().toString()).findFirst().orElse(null));
         }
         LOG.info("ZombieMod: horde '{}' {} for {} ({} placed)", active.spec.name(),
                 cleared ? "cleared" : "ended", active.player.getName().getString(), active.placed);

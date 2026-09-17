@@ -1,0 +1,29 @@
+{
+  "parent": "zombiemod:dex/killed_1",
+  "display": {
+    "icon": {
+      "id": "minecraft:goat_horn"
+    },
+    "title": {
+      "text": "Last One Standing"
+    },
+    "description": {
+      "text": "Clear a horde, to the last straggler."
+    },
+    "frame": "goal",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "zombiemod:horde_cleared": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "zombiemod:horde_cleared"
+    ]
+  ],
+  "sends_telemetry_event": false
+}

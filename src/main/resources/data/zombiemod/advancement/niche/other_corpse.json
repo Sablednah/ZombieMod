@@ -1,0 +1,29 @@
+{
+  "parent": "zombiemod:niche/own_corpse",
+  "display": {
+    "icon": {
+      "id": "minecraft:bundle"
+    },
+    "title": {
+      "text": "Finders Keepers"
+    },
+    "description": {
+      "text": "Put down somebody else's corpse. What you do with their things is between you and them."
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "criteria": {
+    "zombiemod:corpse/other": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "requirements": [
+    [
+      "zombiemod:corpse/other"
+    ]
+  ],
+  "sends_telemetry_event": false
+}
