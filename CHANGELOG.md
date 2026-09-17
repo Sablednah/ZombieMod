@@ -33,6 +33,18 @@ world alone.
   inventory. On by default and does nothing without Corpse; `playerZombies.corpseMod = false`
   switches it off. `/zombiemod status` shows the link and counts bodies laid.
 
+### Changed
+
+- **Seasonal genera are bonus entries in the ZombieDex.** Jack and Krampus — and anything a datapack
+  gates on the calendar — no longer count toward the dex's total. They stay out of your dex until
+  you meet one, then appear with a ★ and are tallied on their own (`12 of 59 slain, 20 met, +1
+  bonus`), in chat, in the book and on the screen alike. Nobody has to play at Christmas to finish
+  the set. Kills you already have are kept.
+- **Mixed versions still play together.** The star and the corrected total on the illustrated
+  screen arrive on a new, optional channel rather than by changing the existing one, so a 3.5.1
+  client on a newer server - or the reverse - still connects and still gets its dex; it simply
+  counts a seasonal genus like any other, as it always did.
+
 ### Fixed
 
 - **Corpse and player zombies used to collide.** With both installed, Corpse left an empty body
