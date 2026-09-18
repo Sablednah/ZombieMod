@@ -230,6 +230,27 @@ Jack/Krampus) and the roster carousel's `$portraits` array - a *second*, separat
 genus needs a portrait, the raw shot needs the **same camera distance** as this batch or the whole set
 needs reprocessing together - see the site repo's `[[screenshot-relative-scale]]` memory.
 
+## 3.6.0 (2026-09-18) — for the site session: three player-facing additions
+
+Version facts: bump to 3.6.0 wherever a version shows. Requirements matrix unchanged. Genus count
+unchanged (61). Three things a player can see, each with a README section to build from:
+
+1. **Advancements** — a ZombieMod tab of **23** vanilla advancements (stock client, Better
+   Advancements). README *Advancements* has the list by group, the "granted by criterion name"
+   design, and the table of names a datapack can use. Worth a page or a section on the ZombieDex
+   page; the criterion-name table belongs wherever the genus-file reference lives, since it is for
+   pack authors. Seasonal genera are never required.
+2. **Corpse mod support** — README *Player zombies → With the Corpse mod*. Belongs beside FTB Chunks
+   and CityWorld in whatever "plays well with others" list the site has. Two config keys to mention:
+   `playerZombies.enabled` must be on (it is off by default) and `playerZombies.corpseMod` (default
+   on).
+3. **Seasonal genera are bonus dex entries** — README *ZombieDex*, the "Seasonal genera are bonus
+   entries" paragraph. One sentence on the ZombieDex page: Jack and Krampus show with a ★ once
+   met and never count toward the total.
+
+New config keys: `[advancements] enabled`, `[playerZombies] corpseMod`. Both in
+`CURSEFORGE-CONFIGURATION.md` already.
+
 ## 3.5.1 (2026-09-14) — for the site session: probably nothing to change
 
 A one-fix patch. Another mod's fake player (a mob grinder, a deployer) killing a genus crashed the

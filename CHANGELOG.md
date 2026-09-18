@@ -7,7 +7,9 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone.
 
-## Unreleased
+## 3.6.0
+
+*2026-09-18.* Two stages of one death, a tab of advancements, and nobody has to play at Christmas.
 
 ### Added
 

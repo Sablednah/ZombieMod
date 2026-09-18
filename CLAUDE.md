@@ -9,10 +9,10 @@ configurable custom zombie types. The port was built in place at the repo root. 
 complete and the 1.8 reference tree has been removed — see *Reading the original Bukkit plugin*
 below for how to get it back when you need it.
 
-**Shipping as 3.5.1** (2026-09-14): 61 genera, on GitHub and CurseForge, and on Modrinth as
-`zombiemod-reforged` (submitted 2026-08-31, still awaiting first moderation on 2026-09-14; the
-3.5.x versions uploaded into the draft without complaint). A jar per Minecraft version,
-three of them.
+**Shipping as 3.6.0** (2026-09-18): 61 genera and 23 advancements, on GitHub and CurseForge, and
+on Modrinth as `zombiemod-reforged` (submitted 2026-08-31, still awaiting first moderation on
+2026-09-14; every version since has uploaded into the draft without complaint). A jar per
+Minecraft version, three of them.
 
 This is the **fourth** Bukkit→NeoForge port in a series. `../MobHealth-Forge` is the canonical
 template and `../CityWorld-ReForged/PORTING.md` is the richest source of verified 1.21.11 API notes.
