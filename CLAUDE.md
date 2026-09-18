@@ -72,7 +72,7 @@ export PATH="$JAVA_HOME/bin:$PATH"
 ./gradlew compileJava   # fast inner loop
 ./gradlew build         # -> build/libs/zombiemod-<version>.jar
 ./gradlew runServer     # headless dedicated server; needs run/eula.txt, pass no --args
-./deploy.sh             # build + copy into the CurseForge test instance
+./deploy.sh [instance]  # THE way a jar enters a CurseForge instance; --check to look only
 ```
 
 - **The dev server runs on port 25567**, set in `build.gradle`, so it cannot collide with a
@@ -92,8 +92,22 @@ export PATH="$JAVA_HOME/bin:$PATH"
   `ps aux | grep neoform`. Ordinary builds after that are fast.
 - If Gradle genuinely hangs on `:compileJava` with no CPU and no class files, that's the known WSL2
   `/mnt/d` degradation: `wsl --shutdown` from Windows PowerShell, reopen, rebuild.
-- **Close Minecraft before `./deploy.sh`** — a running instance holds the jar open, Windows refuses
-  the replace, and you end up testing a stale jar. `deploy.sh` checks and fails loudly.
+- **A jar goes into an instance through `./deploy.sh <instance>` and nothing else.** Not `cp`, not
+  `mv`, not "just refreshing" a jar whose name has not changed - that last one is the dangerous
+  case. This file used to say that a running game holds the jar open so Windows refuses the
+  replace and the copy fails loudly. **That was never true**, and believing it hung Sable's game on
+  2026-09-17: Windows refuses to *unlink* an open file but lets its *bytes* be replaced, so a plain
+  `cp` over the jar of a running game succeeds, the JVM reads the new bytes through the old jar's
+  zip index, and the next class it loads fails with `ZipException: invalid LOC header` - a
+  "Preparing world" hang that looks exactly like a mod bug. `deploy.sh` asks Windows whether a game
+  JVM is running from that instance (`--gameDir ...\Instances\<name>` on its command line) and
+  refuses; swaps via temp name + remove + rename, never over the top; picks the jar by the
+  instance's Minecraft version, not by which file is newest; checks the jar's build stamp against
+  that branch's head; and refuses to leave two zombiemod jars. If it says `game: running`, stop -
+  there is no safe workaround. Three things its detector depends on, all found against a real
+  running game: the instance name must *end* at the match (`26.2` is a prefix of `26.2.test`); a
+  Java service in session 0 returns an empty command line without elevation and must be ignored,
+  not read as "cannot tell"; and `--check` costs nothing, so look first.
 - Versions/metadata live in `gradle.properties` and expand into
   `src/main/templates/META-INF/neoforge.mods.toml` at build time. Never edit a generated mods.toml.
 
@@ -386,7 +400,7 @@ Grepping for the character alone is not enough, and that gap hid three real case
 2026-08-26: a string written `\\u00a7c` contains no section character in the source, but javac
 decodes the escape and the running mod emits one. Confirm every hit is a comment, a
 `GuiGraphics.drawString` on the client (where section codes *are* the correct mechanism), or a
-regex that strips them. Legitimate hits today are `client/DexScreen.java` and `client/DexState.java`
+regex that strips them. Legitimate hits today are `Bestiary.stripCodes` (a stripping regex), `client/DexScreen.java` and `client/DexState.java`
 (font rendering; `DexState` builds the screen's tally line and row marks so that what the dex
 *counts* is written once, not once per Minecraft version),
 `Bounties` (action bar) and `HordeDirector` (boss-bar name) — all client-rendered only.

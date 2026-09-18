@@ -1945,7 +1945,7 @@ export JAVA_HOME=/path/to/jdk21
 ./gradlew compileJava   # fast inner loop
 ./gradlew build         # jar in build/libs/zombiemod-<version>.jar
 ./gradlew runServer     # dev dedicated server on port 25567 (needs run/eula.txt)
-./deploy.sh             # build and copy into a CurseForge test instance
+./deploy.sh [instance]  # build and place the jar in a CurseForge instance - refuses if its game is running
 ```
 
 The first build after touching `src/main/resources/META-INF/accesstransformer.cfg` takes **10+
