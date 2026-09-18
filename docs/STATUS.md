@@ -744,6 +744,14 @@ testable*). Reported by Chronicler, reproduced and verified with a FakePlayer pr
 `v3.5.1`, CurseForge files 8882552–8882554, Modrinth versions `WcwZs9Qv`, `7lzrnNI0`, `RNxHJ70E`
 into the same draft. The 1.21.11 jar is in Sable's test instance.
 
+**3.6.0 shipped 2026-09-18** — "Two stages of one death": Corpse mod support (confirmed in play by
+Sable on 26.2 the day it was built), the tab of 23 advancements, seasonal genera as bonus entries,
+and `deploy.sh` refusing to write under a running game - the last because a hand-copied jar hung
+Sable's game that evening, which is the story told in CLAUDE.md. GitHub release `v3.6.0`, CurseForge
+files 8915240–8915242, Modrinth versions `U8X1DYCc`, `VGdpCw0a`, `uoCg1MfD` into the still-unreviewed
+draft. Both store uploads ran from the release automatically and cleanly. Built from `193914a`
+(master), `4e5f950` (mc26.1), `5f96927` (mc26.2).
+
 A month of play on 3.4.x closed most of the open list in one sitting:
 
 - ~~**Watch the Undertow meet somebody.**~~ "Undertow its good." What it found was not the weight
