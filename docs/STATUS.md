@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-09-14 (3.5.1, across three Minecraft versions).
+Last updated 2026-09-18 (3.6.0, across three Minecraft versions).
 
 **Counts here are now taken off the source, not off prose.** They had drifted — this file said 56
 genera, 12 goal types, 22 abilities, 12 conditions and 3 hordes, and every one of those was wrong.
@@ -51,7 +51,7 @@ hand.
 
 ## Built, not yet verified in game
 
-- **Seasonal genera as bonus dex entries** (2026-09-17, unreleased; Sable's ruling, extending the
+- **Seasonal genera as bonus dex entries** (2026-09-17, shipped in 3.6.0; Sable's ruling, extending the
   advancements one). `Bestiary.bonus` = `spawn().seasonal()`; concealed until met, then starred and
   outside every total. The screen learns which rows are bonus from a **new optional channel**, `zombiemod:dex_bonus`; `DexPayload` is untouched and the version is still `"1"`, because a version mismatch is a failed join, not a fallback (see CLAUDE.md - the first draft got this wrong).
   Probed on 1.21.11 through the real command and the real snapshot: Jack absent with 59 counted,
@@ -59,7 +59,7 @@ hand.
   codec round-trips with no leftover bytes. **Unseen:** the screen's footer and star. **Unrun:** a
   real 3.5.1 client against this server, and the reverse - the argument that both still connect is
   read straight off NeoForge's negotiator source, but nobody has joined with mismatched jars.
-- **Advancements** (2026-09-17, unreleased). 23 shipped (25 until Sable ruled the same day that
+- **Advancements** (2026-09-17, shipped in 3.6.0). 23 shipped (25 until Sable ruled the same day that
   nothing may need a real-world date: the two seasonal ones went, and `met_all`/`killed_all` now
   measure against year-round genera only - probed: false at 58 of 59, both granted at 59 with Jack
   and Krampus never met) under `data/zombiemod/advancement/`, granted
@@ -72,7 +72,7 @@ hand.
   the tab, its layout, the icons, the toasts, the wording, Better Advancements. Never exercised at
   all: `corpse/own|other`, `ritual`, `horde_cleared` and `cured` - each is one line at a site that
   was already known to run, but none has been watched granting anything.
-- ~~The Corpse mod integration~~ (2026-09-17, unreleased) — **confirmed in play**, see the end of this entry. A slain player zombie lays a
+- ~~The Corpse mod integration~~ (2026-09-17, shipped in 3.6.0) — **confirmed in play**, see the end of this entry. A slain player zombie lays a
   Corpse body instead of dropping items, and the empty body Corpse leaves at the death spot is
   refused entry. **Proven headlessly against the real `corpse-neoforge-1.21.11-1.1.16` jar**, with a
   `FakePlayer` subclass running the real death path so both mods' own handlers fired: empty body
@@ -623,6 +623,7 @@ from it at build time, so never edit the generated file.
 | `3.4.1` | 2026-09-11 | Room to breathe: genera stop being persistent, so they despawn and count toward vanilla's mob cap again (one world had reached 2,000+). A boss bar no longer crashes the server when a player leaves a living boss's range. Abilities, proximity spawning and hordes ignore vanished players. Build stamps in the jar and the startup log. The ZombieDex key moves from J to Z, off JourneyMap's. |
 | `3.5.0` | 2026-09-14 | Handing over the keys: six `zombiemod.*` permission nodes through NeoForge's PermissionAPI, defaulting to the op levels the commands always needed, so a storyteller can be given hordes and spawning without `/stop`. A `zombiemod:in_water` spawn condition, and the Undertow carries it - it had been proximity-spawning on dry land. |
 | `3.5.1` | 2026-09-14 | Nobody on the other end: another mod's fake player (a grinder, a deployer) killing a genus crashed the server, because the ZombieDex update asked its dummy connection for a channel it never had. Fake players are skipped. Reported by Chronicler, which had the same fault. |
+| `3.6.0` | 2026-09-18 | Two stages of one death: with the Corpse mod installed a slain player zombie lays a Corpse body holding what it carried, and the empty body Corpse left at the death spot is gone. A ZombieMod tab of 23 vanilla advancements, granted by criterion name so packs can add their own. Seasonal genera are bonus entries in the dex and never required by an advancement. `deploy.sh` refuses to write under a running game. |
 
 **Publishing to GitHub publishes to CurseForge**, via `.github/workflows/curseforge.yml`. Proven on
 every release so far.
