@@ -143,8 +143,10 @@ export JAVA_HOME=/mnt/d/Repos/sable/CityWorld-ReForged/tools/jdk25   # ZombieMod
 ```
 
 ZombieMod borrows a JDK rather than bundling one, and now needs two: MobHealth's `tools/jdk21` for
-the 1.21 line and CityWorld's `tools/jdk25` for 26.x. `deploy.sh` should prefer the newest present,
-the way CityWorld's does, and let an existing `JAVA_HOME` win.
+the 1.21 line and CityWorld's `tools/jdk25` for 26.x. `deploy.sh` picks the one for the branch it
+is building and lets an existing `JAVA_HOME` win; given an instance name it builds only when the
+checked-out branch is that instance's, and otherwise insists the jar on disk was built from that
+branch's head.
 
 ## What to stress-test on a new version
 
