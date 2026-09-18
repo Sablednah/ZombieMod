@@ -10,7 +10,7 @@ and spawn a genus without also being handed `/stop`.
 The genus list, the whole bestiary, and turning your own observer mode off need no permission at
 all, because they are player features rather than staff tools.
 
-Correct for **3.5.1**, and identical on all three supported Minecraft versions.
+Correct for **3.6.0** (unchanged since 3.5.0), and identical on all three supported Minecraft versions.
 
 ## The nodes
 
