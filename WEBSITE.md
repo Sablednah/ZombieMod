@@ -60,7 +60,7 @@ description. Anything else breaks links that already exist. Trailing slash inclu
 | GitHub | `https://github.com/Sablednah/ZombieMod` |
 | Latest release | `https://github.com/Sablednah/ZombieMod/releases/latest` |
 | Direct jar | the `zombiemod-3.1.1.jar` asset on that release |
-| Modrinth | not created yet — leave the link out rather than pointing at a 404 |
+| Modrinth | none — Modrinth refused the project (2026-09-29). Do not link it |
 
 **Note for a future release, not for the site:** the jar's own `displayURL` points at GitHub rather
 than at this site, so the Homepage button in the mods list goes to the repo. Worth pointing at
