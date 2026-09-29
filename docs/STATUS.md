@@ -640,51 +640,9 @@ every release so far.
   authors list by default. The authoritative view is
   `https://authors.curseforge.com/#/projects/1658560/files`, not the public Files tab.
 
-**Modrinth is live and awaiting first moderation** (2026-08-31). The project is
-[`zombiemod-reforged`](https://modrinth.com/mod/zombiemod-reforged), id **`PVD9M9Jj`**, carrying the
-icon, nine captioned gallery images and all three 3.4.0 jars as separate versions
-(`3.4.0+mc1.21.11`, `3.4.0+mc26.1.2`, `3.4.0+mc26.2`). Submitted from the website with an **AI-use
-declaration**, which the API cannot supply — see below. It stays private until moderation passes.
-
-**Still "Under review" on 2026-09-09**, nine days in, and so are CityWorld ReForged and MobHealth
-ReForged on the same account — so this is Modrinth's queue, not a second artwork rejection. The
-public API answers **404** for a project in this state, which is indistinguishable from a rejected
-or deleted one; the author dashboard at <https://modrinth.com/dashboard/projects> is the only place
-that says which. Do not read a 404 as a refusal.
-
-**Still under review on 2026-09-14**, fourteen days in — confirmed on the dashboard, which showed
-"Under review" with the project touched "9 minutes ago" by the 3.5.0 upload. That run added all
-three jars to the draft as versions (`4oEru7u8`, `E2xFnW1X`, `ba7oqVfG`) without complaint, so the
-pipeline is proven end to end; only the human queue is outstanding.
-
-The machinery is three scripts driven by `.github/workflows/modrinth.yml`:
-`create-project` (private draft + icon + gallery), `upload-versions` (a Modrinth version per jar,
-automatic on every GitHub release), and `submit-for-review`, which only *checks* the draft is ready
-and sends you to the website. The token lives only as the `MODRINTH_TOKEN` repository
-secret and is never needed on the dev box. Everything that could be checked without it has been —
-required fields, categories, licence, loader, all three game versions, the gallery captions and the
-icon size — against the live API and its published spec. Full notes in
-[`../RELEASE.md`](../RELEASE.md).
-
-Five things that were expensive to learn, three of them costing a workflow run each:
-
-- **Modrinth runs a no-generative-AI policy over artwork, and the shield lockup tripped it.** The
-  slime banner did not. So Modrinth's icon is `docs/modrinth-icon.png` — the banner padded to a
-  512×512 square, 44 KB — and *not* the shield that CurseForge uses. Do not unify them.
-- **`environment` does exist on v2, but on the *version*, not the project.** The project still needs
-  the deprecated `client_side`/`server_side` pair, which are still required fields, so both go.
-  (This corrects what this file said before.) Environment is Server **Required**, Client
-  **Optional** — the field people filter on, and the costliest to get wrong.
-- **Modrinth caps icons at 256 KiB**, which is why no full-size lockup can ever be the icon.
-- **`initial_versions` and `is_draft` are marked deprecated and are still required on create.**
-  Omitting them gives a 400 that phrases a missing field as a JSON parse error. The published spec
-  is not authoritative on what the live endpoint demands.
-- **A version's `project_id` is the base62 id, not the slug** — `zombiemod-reforged` has a hyphen,
-  and the 400 names neither the field nor the slug. Every *path* takes `{id|slug}` interchangeably,
-  which is what makes the body field look safe.
-- **Submit for review on the website.** The form asks for an AI-use declaration that v2 does not
-  expose at all — zero mentions in the spec — so an API submission answers it with nothing, on the
-  platform that had already rejected our artwork under that policy.
+**Modrinth refused the project on 2026-09-29** — every SableCraft project, for AI-generated content
+— after a month in review. ZombieMod is not published there, and the Modrinth workflow, scripts and
+icon were removed the same day. The notes on Modrinth's v2 API survive in git history in RELEASE.md.
 
 ### The materials, and what is deliberately not in them
 
@@ -692,7 +650,7 @@ Four files in the **repo root**, matching `../CityWorld-ReForged`:
 
 | File | What it is |
 |---|---|
-| `CURSEFORGE.md` | The store description — covers everything, links out for depth. Used for Modrinth too; do not fork it. |
+| `CURSEFORGE.md` | The store description — covers everything, links out for depth. Do not fork it. |
 | `CURSEFORGE-CONFIGURATION.md` | Every setting in all nine config sections. |
 | `CURSEFORGE-COMMANDS.md` | Every command. |
 | `NODES.md` | Permissions. The answer is that there are no named nodes — only vanilla command levels — which is exactly why it needed writing down. |
@@ -714,10 +672,9 @@ and must not be normalised), and the near-miss where Colossus and Rusted Warden 
 ### Artwork
 
 `docs/main-logo.png` is the square CurseForge icon (1035×1035), `docs/slime-logo-850.png` the banner
-at CurseForge's 850px description-image limit, `docs/modrinth-icon.png` the 44 KB Modrinth icon
-(regenerated by `scripts/make-modrinth-icon.py`), and `night-`/`Stone-`/`survival-logo.png` are
+at CurseForge's 850px description-image limit, and `night-`/`Stone-`/`survival-logo.png` are
 variants held back for updates and themed events. `docs/main-logo-icon.png` is the shield lockup
-squared to 512×512 — kept, but **unusable on Modrinth**, whose no-generative-AI review rejected it.
+squared to 512×512.
 
 All of them arrived with a **magenta chroma-key background rather than alpha**, which would have
 shown as a solid magenta square wherever they were used. Keyed out on the magenta-ness axis
@@ -776,8 +733,7 @@ A month of play on 3.4.x closed most of the open list in one sitting:
    whether they need to aim it at a player.
 2. ~~**The website.**~~ Done the same afternoon: the site session picked up `WEBSITE.md`'s 3.5.0
    section unprompted, rebuilt the permissions page from NODES.md and verified it from origin.
-3. **Modrinth moderation.** Submitted 2026-08-31; nothing to do but wait. If it comes back on the
-   artwork, the fallback is a further-simplified wordmark — the shield is already known to fail.
+3. ~~**Modrinth moderation.**~~ Refused 2026-09-29, along with every other SableCraft project.
 4. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
