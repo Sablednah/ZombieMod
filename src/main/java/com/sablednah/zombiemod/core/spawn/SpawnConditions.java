@@ -11,10 +11,10 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import com.sablednah.zombiemod.platform.Times;
+import com.sablednah.zombiemod.platform.Codecs;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -38,7 +38,7 @@ public final class SpawnConditions {
         public static final Identifier TYPE = id("biome");
 
         public static final MapCodec<InBiome> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                RegistryCodecs.homogeneousList(Registries.BIOME).fieldOf("biomes").forGetter(InBiome::biomes))
+                Codecs.holderSet(Registries.BIOME).fieldOf("biomes").forGetter(InBiome::biomes))
                 .apply(i, InBiome::new));
 
         @Override

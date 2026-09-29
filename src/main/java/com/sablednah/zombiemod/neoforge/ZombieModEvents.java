@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.mojang.logging.LogUtils;
+import com.sablednah.zombiemod.platform.EntityState;
 import com.sablednah.zombiemod.platform.Msg;
 import com.sablednah.zombiemod.ZombieModConfig;
 import com.sablednah.zombiemod.ZombieModRegistries;
@@ -523,7 +524,7 @@ public final class ZombieModEvents {
             event.getEntity().setItemInHand(event.getHand(),
                     new net.minecraft.world.item.ItemStack(net.minecraft.world.item.Items.BUCKET));
         }
-        event.getEntity().swing(event.getHand(), true);
+        EntityState.swing(event.getEntity(), event.getHand());
         // Consume it, or the click falls through to whatever the mob does with a right-click.
         event.setCancellationResult(net.minecraft.world.InteractionResult.SUCCESS);
         event.setCanceled(true);

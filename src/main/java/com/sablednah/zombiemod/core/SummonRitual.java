@@ -5,9 +5,10 @@ import java.util.List;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import com.sablednah.zombiemod.platform.Codecs;
+
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
@@ -56,7 +57,7 @@ public record SummonRitual(
 
         public static final Codec<PatternBlock> CODEC = RecordCodecBuilder.create(i -> i.group(
                 Codec.INT.listOf(3, 3).fieldOf("offset").forGetter(PatternBlock::offset),
-                RegistryCodecs.homogeneousList(Registries.BLOCK).fieldOf("block").forGetter(PatternBlock::block))
+                Codecs.holderSet(Registries.BLOCK).fieldOf("block").forGetter(PatternBlock::block))
                 .apply(i, PatternBlock::new));
 
         public int x() {
@@ -78,8 +79,8 @@ public record SummonRitual(
             ResourceKey::identifier);
 
     public static final Codec<SummonRitual> CODEC = RecordCodecBuilder.create(i -> i.group(
-            RegistryCodecs.homogeneousList(Registries.BLOCK).fieldOf("block").forGetter(SummonRitual::block),
-            RegistryCodecs.homogeneousList(Registries.ITEM).fieldOf("item").forGetter(SummonRitual::item),
+            Codecs.holderSet(Registries.BLOCK).fieldOf("block").forGetter(SummonRitual::block),
+            Codecs.holderSet(Registries.ITEM).fieldOf("item").forGetter(SummonRitual::item),
             GENUS_KEY.fieldOf("genus").forGetter(SummonRitual::genus),
             Codec.BOOL.optionalFieldOf("consume", true).forGetter(SummonRitual::consume),
             Codec.BOOL.optionalFieldOf("replace_block", false).forGetter(SummonRitual::replaceBlock),

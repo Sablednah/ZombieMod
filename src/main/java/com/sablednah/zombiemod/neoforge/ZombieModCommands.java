@@ -11,6 +11,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
+import com.sablednah.zombiemod.platform.Drops;
 import com.sablednah.zombiemod.platform.Msg;
 import com.sablednah.zombiemod.BuildInfo;
 import com.sablednah.zombiemod.ZombieModConfig;
@@ -356,7 +357,7 @@ public final class ZombieModCommands {
         book.set(DataComponents.WRITTEN_BOOK_CONTENT, new WrittenBookContent(
                 Filterable.passThrough("ZombieDex"), player.getGameProfile().name(), 0, pages, false));
         if (!player.getInventory().add(book)) {
-            player.drop(book, false);
+            Drops.atFeet(player, book);
         }
         source.sendSuccess(() -> Component.literal(header).withStyle(ChatFormatting.GOLD), false);
         return (int) slain;
@@ -770,7 +771,7 @@ public final class ZombieModCommands {
         for (ItemStack stack : entry.items()) {
             ItemStack copy = stack.copy();
             if (!target.getInventory().add(copy)) {
-                target.drop(copy, false);
+                Drops.atFeet(target, copy);
             }
         }
         CorpseLedger.get(source.getLevel()).claim(entry.id());
