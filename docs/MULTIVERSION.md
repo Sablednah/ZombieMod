@@ -3,22 +3,23 @@
 Measured, not estimated. Every number here came from compiling and *running* the mod against the
 version in question.
 
-Last updated 2026-08-26. **All three versions build the whole mod and run.**
+Last updated 2026-09-29. **All four versions build the whole mod and run.**
 
 ## The shape of it
 
-| | 1.21.11 | 26.1.2 | 26.2 |
-|---|---|---|---|
-| Branch | `master` | `mc26.1` | `mc26.2` |
-| NeoForge | 21.11.42 | 26.1.2.95 | 26.2.0.59 |
-| moddev plugin | 2.0.141 | 2.0.144 | 2.0.144 |
-| Java | 21 (`java-runtime-delta`) | **25** (`java-runtime-epsilon`) | **25** |
-| Builds & runs | yes | yes | yes |
-| Confirmed in play | yes | **yes** (2026-08-26) | **yes** (2026-08-26) |
+| | 1.21.11 | 26.1.2 | 26.2 | 26.3 |
+|---|---|---|---|---|
+| Branch | `master` | `mc26.1` | `mc26.2` | `mc26.3` |
+| NeoForge | 21.11.42 | 26.1.2.95 | 26.2.0.59 | 26.3.0.33-**beta** |
+| moddev plugin | 2.0.141 | 2.0.144 | 2.0.144 | 2.0.147 |
+| Java | 21 (`java-runtime-delta`) | **25** (`java-runtime-epsilon`) | **25** | **25** |
+| Builds & runs | yes | yes | yes | yes |
+| Confirmed in play | yes | **yes** (2026-08-26) | **yes** (2026-08-26) | not yet — headless only (2026-09-29) |
 
 **A branch per Minecraft version**, as CityWorld and LegendQuest both do. Each branch differs from
 `master` only in `gradle.properties` (three lines), `build.gradle` (plugin version, Java toolchain),
-and the bodies of the seams below.
+the bodies of the seams below, the client GUI files, and — **from 26.3 only** — the loot tables
+(see *26.3* below).
 
 **ZombieMod bundles no JDK and now needs two.** MobHealth's `tools/jdk21` for the 1.21 line and
 CityWorld's `tools/jdk25` for 26.x:
@@ -29,7 +30,7 @@ export JAVA_HOME=/mnt/d/Repos/sable/CityWorld-ReForged/tools/jdk25
 ./gradlew build --offline
 ```
 
-Jars are named `zombiemod-<ver>+mc<mc>.jar`, so three files cannot be confused in a mods folder.
+Jars are named `zombiemod-<ver>+mc<mc>.jar`, so four files cannot be confused in a mods folder.
 (`master` still produces a plain name — worth aligning before the next multi-version release.)
 
 ## The platform seam, and why it exists
@@ -49,6 +50,14 @@ concern** rather than the twenty-odd call sites the drift is spread across.
 | `Bars` | `ServerBossEvent` ctor | gained a leading `UUID` |
 | `Saves` | `SavedDataType` name | an `Identifier`, not a `String` |
 | `Colours` | `ChatFormatting.COLOR_CODEC`, `getName()`, `isColor()` — **26.2 only** | codec by enum name; `TeamColor` when painting |
+| `Codecs` | `net.minecraft.core.RegistryCodecs.homogeneousList` — **26.3 only** | `core.registries.codec.RegistryCodecs.holderSet` |
+| `Drops` | `Player.drop(stack, bool)` — **26.3 only** | gained a `Prediction`; `SERVER_ONLY` |
+| `EntityState` | `hurtMarked`, `setInvulnerable`, `swing(hand, bool)`, `randomTeleport(x, y, z, bool)` — **26.3 only** | `syncVelocity`, `setPermanentlyInvulnerable`, `swing(hand, SwingAnimation.DEFAULT, true)`, `randomTeleport(..., state -> false)` |
+
+Outside `platform/`, two 26.3 edits are glue rather than seams: `ZombieModRegistries` registers
+through `NewDatapackRegistryEvent.worldRegistry` (was `DataPackRegistryEvent.NewRegistry`'s
+`dataPackRegistry` — same semantics; the new `reloadableRegistry` was deliberately not taken), and the
+client key binding's `InputConstants.Type.KEYSYM` is `KEYBOARD`.
 
 **`platform` is not `compat`.** `compat` is for *other mods* — FTB Chunks, CityWorld, Standards — and
 everything in it is reflective and inert when they are absent. `platform` is for *Minecraft* moving
@@ -79,6 +88,29 @@ took the whole world with it.
 
 **Equipment applies on every spawn**, which is why the warning is deduplicated; a line per spawn
 would bury what it is trying to say.
+
+## 26.3: the two changes that compile fine and break anyway
+
+**SDL renumbers the mouse.** 26.3 replaced GLFW with SDL, which calls the left button **1** and right
+**3** where GLFW said 0 and 1. The dex's `mouseClicked` compared against a literal `0`, so on 26.3 the
+screen would have drawn perfectly and every hotspot would have been dead — and it compiles. Found by
+Standards (Factions' panel, same bug) before it reached us. The fix is on **every** branch:
+`InputConstants.MOUSE_BUTTON_LEFT` is 0 on the GLFW lines and 1 on 26.3, so the named constant is the
+one expression right everywhere. **Any platform-supplied integer compared against a literal is a
+latent version break.**
+
+**Loot tables speak a new dialect, and an old-dialect table stops the server.** `functions` →
+`modifier` (`function` → `type`), `conditions` → one `condition` (`all_of` when several;
+`condition` → `type`), and a bare `{min, max}` range needs `"type": "minecraft:uniform"`. So the 59
+tables in `data/zombiemod/loot_table/` are **the one piece of data that differs by branch**. Author on
+`master` as always, then run `python3 scripts/loot-to-26.3.py` on `mc26.3` — it is idempotent, reads
+the rules off vanilla's own 26.3 tables, and leaves `predicate` ranges alone. `DexDrops` needed no
+change: it walks for `type` ending `item` plus a `name`, which both dialects share. Genus, ritual,
+horde and advancement JSON are unchanged.
+
+**Datapack registries load concurrently on 26.3** (CityWorld's finding: a codec that looks up another
+registry mid-decode can fail the whole load). Ours do not, so all 61 genera load unchanged — but it is
+the first thing to suspect if a new codec reads another registry.
 
 ## The 26.x GUI: a rename table, not a redesign
 
@@ -117,9 +149,10 @@ all over CityWorld and costs us nothing.
 
 Roughly an hour, most of it waiting on builds.
 
-1. **Branch from `master`, do not cherry-pick onto an old branch.** `mc26.1` was branched before the
-   seams existed and fought every cherry-pick; rebranching and re-applying the retarget took five
-   minutes and was clean.
+1. **Branch from the newest version branch, not from an old one.** `mc26.1` was branched before
+   the seams existed and fought every cherry-pick; rebranching and re-applying the retarget took five
+   minutes and was clean. `mc26.3` branched from `mc26.2`, which carries the 26.x GUI already — the
+   shared files are identical to `master` either way, so the newest branch is the shorter step.
 2. Retarget `gradle.properties` (3 lines) and `build.gradle` (plugin, toolchain).
 3. Build. Everything that breaks in `platform/` is a seam body to fill in; anything breaking
    *outside* `platform/` is a new drift that wants a new seam.
@@ -127,7 +160,9 @@ Roughly an hour, most of it waiting on builds.
    have hit these APIs already. One diff from a mod that has done the port beats an afternoon of
    guessing at javap output — that is how the GUI table above was found.
 5. Run it, do not just build it. The item-components failure compiled, built a jar, and started a
-   server before falling over.
+   server before falling over. On 26.3 the loot dialect and the SDL mouse would both have compiled.
+6. **A new seam goes on every branch**, with each branch's own body, so the call sites stay identical
+   — then `git diff --name-only mc<prev> mc<new>` should list only the files meant to differ.
 
 ## Reproducing the measurement
 
