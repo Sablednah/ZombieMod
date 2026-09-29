@@ -7,15 +7,14 @@
         {
           "type": "minecraft:item",
           "name": "minecraft:redstone",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": {
-                "min": 4.0,
-                "max": 8.0
-              }
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 4.0,
+              "max": 8.0
             }
-          ]
+          }
         }
       ]
     },
@@ -25,15 +24,14 @@
         {
           "type": "minecraft:item",
           "name": "minecraft:iron_ingot",
-          "functions": [
-            {
-              "function": "minecraft:set_count",
-              "count": {
-                "min": 2.0,
-                "max": 4.0
-              }
+          "modifier": {
+            "type": "minecraft:set_count",
+            "count": {
+              "type": "minecraft:uniform",
+              "min": 2.0,
+              "max": 4.0
             }
-          ]
+          }
         }
       ]
     },
@@ -43,12 +41,10 @@
         {
           "type": "minecraft:item",
           "name": "minecraft:diamond",
-          "conditions": [
-            {
-              "condition": "minecraft:random_chance",
-              "chance": 0.25
-            }
-          ]
+          "condition": {
+            "type": "minecraft:random_chance",
+            "chance": 0.25
+          }
         }
       ]
     }

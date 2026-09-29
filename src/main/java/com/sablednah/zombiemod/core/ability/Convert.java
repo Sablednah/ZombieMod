@@ -8,9 +8,9 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import com.sablednah.zombiemod.platform.Tags;
 import com.sablednah.zombiemod.platform.Types;
+import com.sablednah.zombiemod.platform.Codecs;
 
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
@@ -59,7 +59,7 @@ public record Convert(int interval, float chance, HolderSet<EntityType<?>> victi
     public static final MapCodec<Convert> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
             Codec.INT.optionalFieldOf("interval", 1).forGetter(Convert::interval),
             Codec.FLOAT.optionalFieldOf("chance", 1.0F).forGetter(Convert::chance),
-            RegistryCodecs.homogeneousList(Registries.ENTITY_TYPE).fieldOf("victims")
+            Codecs.holderSet(Registries.ENTITY_TYPE).fieldOf("victims")
                     .forGetter(Convert::victims),
             Identifier.CODEC.optionalFieldOf("genus").forGetter(Convert::genus),
             Codec.INT.optionalFieldOf("max_nearby", 8).forGetter(Convert::maxNearby),

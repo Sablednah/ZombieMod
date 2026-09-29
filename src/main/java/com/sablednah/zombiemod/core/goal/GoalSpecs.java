@@ -302,7 +302,7 @@ public final class GoalSpecs {
 
         public static final MapCodec<SeekBlocks> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
                 priorityField(6).forGetter(SeekBlocks::priority),
-                net.minecraft.core.RegistryCodecs.homogeneousList(
+                com.sablednah.zombiemod.platform.Codecs.holderSet(
                         net.minecraft.core.registries.Registries.BLOCK)
                         .fieldOf("blocks").forGetter(SeekBlocks::blocks),
                 com.mojang.serialization.Codec.DOUBLE.optionalFieldOf("speed", 1.0D)

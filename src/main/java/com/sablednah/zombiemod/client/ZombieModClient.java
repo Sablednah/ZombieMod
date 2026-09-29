@@ -44,7 +44,7 @@ public final class ZombieModClient {
     // Only fresh installs see this - options.txt saves every binding, defaults included, so anyone
     // who ran an earlier version keeps whatever they had until they rebind it in Controls.
     private static final KeyMapping OPEN_DEX = new KeyMapping(
-            "key.zombiemod.dex", InputConstants.Type.KEYSYM, InputConstants.KEY_Z,
+            "key.zombiemod.dex", InputConstants.Type.KEYBOARD, InputConstants.KEY_Z,
             KeyMapping.Category.MISC);
 
     public ZombieModClient(IEventBus modEventBus, ModContainer container) {

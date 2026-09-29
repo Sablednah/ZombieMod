@@ -7,7 +7,7 @@ import com.sablednah.zombiemod.core.SummonRitual;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
-import net.neoforged.neoforge.registries.DataPackRegistryEvent;
+import net.neoforged.neoforge.registries.NewDatapackRegistryEvent;
 
 /**
  * Registry keys owned by ZombieMod.
@@ -34,10 +34,10 @@ public final class ZombieModRegistries {
      * harmless today (nothing client-side reads them yet) and required the moment the optional
      * client mod wants to know what it is looking at.
      */
-    static void register(DataPackRegistryEvent.NewRegistry event) {
-        event.dataPackRegistry(GENUS, Genus.CODEC, Genus.CODEC);
-        event.dataPackRegistry(RITUAL, SummonRitual.CODEC, SummonRitual.CODEC);
-        event.dataPackRegistry(HORDE, HordeSpec.CODEC, HordeSpec.CODEC);
+    static void register(NewDatapackRegistryEvent event) {
+        event.worldRegistry(GENUS, Genus.CODEC, Genus.CODEC);
+        event.worldRegistry(RITUAL, SummonRitual.CODEC, SummonRitual.CODEC);
+        event.worldRegistry(HORDE, HordeSpec.CODEC, HordeSpec.CODEC);
     }
 
     private ZombieModRegistries() {}
