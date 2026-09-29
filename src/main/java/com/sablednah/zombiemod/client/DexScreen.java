@@ -531,7 +531,10 @@ public final class DexScreen extends Screen {
         if (super.mouseClicked(event, doubled)) {
             return true;
         }
-        if (event.button() != 0) {
+        // The named constant, never a literal 0: 26.3 swapped GLFW for SDL, which numbers left as 1,
+        // and a literal made every hotspot dead while the screen drew perfectly. The constant is
+        // right on every line - 0 under GLFW, 1 under SDL.
+        if (event.button() != com.mojang.blaze3d.platform.InputConstants.MOUSE_BUTTON_LEFT) {
             return false;
         }
         for (Hot hot : hotspots) {

@@ -8,6 +8,8 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import com.sablednah.zombiemod.platform.BlockTypes;
+import com.sablednah.zombiemod.platform.Codecs;
+import com.sablednah.zombiemod.platform.EntityState;
 import com.sablednah.zombiemod.platform.Types;
 
 import net.minecraft.core.Holder;
@@ -436,7 +438,7 @@ public final class Abilities {
                 victim.hurtServer(level, level.damageSources().mobAttack(mob), damage);
                 Vec3 v = victim.getDeltaMovement();
                 victim.setDeltaMovement(v.x, v.y + knockup, v.z);
-                victim.hurtMarked = true; // or the client never sees the launch
+                EntityState.syncVelocity(victim); // or the client never sees the launch
             }
             level.sendParticles(ParticleTypes.EXPLOSION, mob.getX(), mob.getY(), mob.getZ(), 8,
                     radius / 3, 0.2D, radius / 3, 0.0D);
@@ -485,7 +487,7 @@ public final class Abilities {
             }
             Vec3 toward = new Vec3(victim.getX() - mob.getX(), 0.0D, victim.getZ() - mob.getZ()).normalize();
             mob.setDeltaMovement(toward.x * power, lift, toward.z * power);
-            mob.hurtMarked = true;
+            EntityState.syncVelocity(mob);
         }
     }
 
@@ -662,7 +664,7 @@ public final class Abilities {
                 Vec3 toward = new Vec3(mob.getX() - victim.getX(), 0.0D, mob.getZ() - victim.getZ()).normalize();
                 Vec3 v = victim.getDeltaMovement();
                 victim.setDeltaMovement(v.x + toward.x * power, v.y + 0.15D, v.z + toward.z * power);
-                victim.hurtMarked = true;
+                EntityState.syncVelocity(victim);
             }
         }
     }
@@ -755,7 +757,7 @@ public final class Abilities {
             Vec3 from = mob.position();
             // randomTeleport is what the enderman uses: it walks down to solid ground and refuses
             // to land in water or inside a block, so we don't have to hunt for a safe spot.
-            if (!mob.randomTeleport(destination.x, destination.y, destination.z, false)) {
+            if (!EntityState.randomTeleport(mob, destination.x, destination.y, destination.z)) {
                 return;
             }
 
@@ -833,7 +835,7 @@ public final class Abilities {
         public static final MapCodec<BreakBlocks> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
                 Abilities.<BreakBlocks>intervalField(30),
                 Abilities.<BreakBlocks>chanceField(0.8F),
-                net.minecraft.core.RegistryCodecs.homogeneousList(net.minecraft.core.registries.Registries.BLOCK)
+                Codecs.holderSet(net.minecraft.core.registries.Registries.BLOCK)
                         .fieldOf("allowed").forGetter(BreakBlocks::allowed),
                 Codec.DOUBLE.optionalFieldOf("reach", 2.0D).forGetter(BreakBlocks::reach),
                 Codec.BOOL.optionalFieldOf("infest", false).forGetter(BreakBlocks::infest),
@@ -1232,7 +1234,7 @@ public final class Abilities {
                     net.minecraft.world.effect.MobEffects.INVISIBILITY,
                     net.minecraft.world.effect.MobEffectInstance.INFINITE_DURATION, 0, false, false, false));
             guardian.setSilent(true);
-            guardian.setInvulnerable(true);
+            EntityState.setInvulnerable(guardian, true);
             guardian.setNoAi(true);
             guardian.setNoGravity(true);
             guardian.snapTo(mob.getX(), mob.getEyeY() - 0.2D, mob.getZ(), mob.getYRot(), 0.0F);
