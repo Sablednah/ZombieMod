@@ -3,7 +3,7 @@
 What works, what's untested, what's left. Kept honest — "verified" means someone watched it happen
 in game, not that it compiled.
 
-Last updated 2026-09-18 (3.6.0, across three Minecraft versions).
+Last updated 2026-09-29 (3.6.1, across four Minecraft versions).
 
 **Counts here are now taken off the source, not off prose.** They had drifted — this file said 56
 genera, 12 goal types, 22 abilities, 12 conditions and 3 hordes, and every one of those was wrong.
@@ -624,6 +624,7 @@ from it at build time, so never edit the generated file.
 | `3.5.0` | 2026-09-14 | Handing over the keys: six `zombiemod.*` permission nodes through NeoForge's PermissionAPI, defaulting to the op levels the commands always needed, so a storyteller can be given hordes and spawning without `/stop`. A `zombiemod:in_water` spawn condition, and the Undertow carries it - it had been proximity-spawning on dry land. |
 | `3.5.1` | 2026-09-14 | Nobody on the other end: another mod's fake player (a grinder, a deployer) killing a genus crashed the server, because the ZombieDex update asked its dummy connection for a channel it never had. Fake players are skipped. Reported by Chronicler, which had the same fault. |
 | `3.6.0` | 2026-09-18 | Two stages of one death: with the Corpse mod installed a slain player zombie lays a Corpse body holding what it carried, and the empty body Corpse left at the death spot is gone. A ZombieMod tab of 23 vanilla advancements, granted by criterion name so packs can add their own. Seasonal genera are bonus entries in the dex and never required by an advancement. `deploy.sh` refuses to write under a running game. |
+| `3.6.1` | 2026-09-29 | Minecraft 26.3, a fourth jar (NeoForge 26.3 is beta). Nothing changes on the other three; loot tables are the one per-branch data, see MULTIVERSION.md. |
 
 **Publishing to GitHub publishes to CurseForge**, via `.github/workflows/curseforge.yml`. Proven on
 every release so far.

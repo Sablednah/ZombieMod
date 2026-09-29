@@ -9,8 +9,8 @@ configurable custom zombie types. The port was built in place at the repo root. 
 complete and the 1.8 reference tree has been removed — see *Reading the original Bukkit plugin*
 below for how to get it back when you need it.
 
-**Shipping as 3.6.0** (2026-09-18): 61 genera and 23 advancements, on GitHub and CurseForge. A jar
-per Minecraft version, three of them — a fourth, 26.3, is built and awaiting play-testing. **Not on
+**Shipping as 3.6.1** (2026-09-29): 61 genera and 23 advancements, on GitHub and CurseForge. A jar
+per Minecraft version, four of them — 26.3 joined in 3.6.1, on a NeoForge beta. **Not on
 Modrinth** — it refused every SableCraft project for AI-generated content on 2026-09-29, and the
 Modrinth publishing was removed; see RELEASE.md.
 

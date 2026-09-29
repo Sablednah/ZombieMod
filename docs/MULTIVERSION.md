@@ -3,7 +3,7 @@
 Measured, not estimated. Every number here came from compiling and *running* the mod against the
 version in question.
 
-Last updated 2026-09-29. **All four versions build the whole mod and run.**
+Last updated 2026-09-29. **All four versions build the whole mod and run, and all four are confirmed in play.**
 
 ## The shape of it
 
@@ -14,7 +14,7 @@ Last updated 2026-09-29. **All four versions build the whole mod and run.**
 | moddev plugin | 2.0.141 | 2.0.144 | 2.0.144 | 2.0.147 |
 | Java | 21 (`java-runtime-delta`) | **25** (`java-runtime-epsilon`) | **25** | **25** |
 | Builds & runs | yes | yes | yes | yes |
-| Confirmed in play | yes | **yes** (2026-08-26) | **yes** (2026-08-26) | not yet — headless only (2026-09-29) |
+| Confirmed in play | yes | **yes** (2026-08-26) | **yes** (2026-08-26) | **yes** (2026-09-29) |
 
 **A branch per Minecraft version**, as CityWorld and LegendQuest both do. Each branch differs from
 `master` only in `gradle.properties` (three lines), `build.gradle` (plugin version, Java toolchain),
