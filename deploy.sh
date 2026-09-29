@@ -61,6 +61,7 @@ case "$MC" in
     1.21.11) BRANCH=master ;;
     26.1*) BRANCH=mc26.1 ;;
     26.2*) BRANCH=mc26.2 ;;
+    26.3*) BRANCH=mc26.3 ;;
     *) echo "!! No ZombieMod branch builds for Minecraft $MC" >&2; exit 1 ;;
 esac
 
