@@ -9,10 +9,9 @@ configurable custom zombie types. The port was built in place at the repo root. 
 complete and the 1.8 reference tree has been removed — see *Reading the original Bukkit plugin*
 below for how to get it back when you need it.
 
-**Shipping as 3.6.0** (2026-09-18): 61 genera and 23 advancements, on GitHub and CurseForge, and
-on Modrinth as `zombiemod-reforged` (submitted 2026-08-31, still awaiting first moderation on
-2026-09-14; every version since has uploaded into the draft without complaint). A jar per
-Minecraft version, three of them.
+**Shipping as 3.6.0** (2026-09-18): 61 genera and 23 advancements, on GitHub and CurseForge. A jar
+per Minecraft version, three of them. **Not on Modrinth** — it refused every SableCraft project for
+AI-generated content on 2026-09-29, and the Modrinth publishing was removed; see RELEASE.md.
 
 This is the **fourth** Bukkit→NeoForge port in a series. `../MobHealth-Forge` is the canonical
 template and `../CityWorld-ReForged/PORTING.md` is the richest source of verified 1.21.11 API notes.
@@ -39,14 +38,14 @@ one of them:
 | [docs/MULTIVERSION.md](docs/MULTIVERSION.md) | **Read first for anything version-related.** The measured three-version matrix; the source when a requirements table disagrees |
 | [docs/STATUS.md](docs/STATUS.md) | Where the project actually is, and the backlog in the order to do it |
 | [docs/BALANCE.md](docs/BALANCE.md) | The balance model and its deliberate exceptions |
-| [RELEASE.md](RELEASE.md) | Every store field, the gallery order, and the publishing traps — CurseForge *and* Modrinth |
-| [CURSEFORGE.md](CURSEFORGE.md) | The store description. Used verbatim for both stores; **do not fork it** |
+| [RELEASE.md](RELEASE.md) | Every store field, the gallery order, and the publishing traps |
+| [CURSEFORGE.md](CURSEFORGE.md) | The store description. Used verbatim; **do not fork it** |
 | [NODES.md](NODES.md) | Permissions. See *Command permissions* below |
 | [WEBSITE.md](WEBSITE.md) | Handover to the sablecraft.co.uk session |
 
-**Publishing is automated from a GitHub release.** Publishing one uploads to CurseForge *and*
-Modrinth, each reading a jar's Minecraft version from its `+mc` filename suffix. Creating a new store
-project is the only manual part. See RELEASE.md before touching either workflow.
+**Publishing is automated from a GitHub release.** Publishing one uploads to CurseForge, reading
+each jar's Minecraft version from its `+mc` filename suffix. Creating the store project is the only
+manual part. See RELEASE.md before touching the workflow.
 
 ## Build & run
 
@@ -318,8 +317,8 @@ That second command is the real health check for the branches: if anything outsi
 set appears, the branches have drifted and one of them is missing work.
 
 **They had, and it was the docs** (found 2026-09-14). The branches were in step on code and genera
-after 3.4.1 but three releases behind on `CHANGELOG.md`, `README.md`, `CLAUDE.md`, `NODES.md`, the
-Modrinth scripts and the Modrinth workflow — nobody had counted docs, because nothing player-facing
+after 3.4.1 but three releases behind on `CHANGELOG.md`, `README.md`, `CLAUDE.md`, `NODES.md`, and the
+then-current store scripts and workflow — nobody had counted docs, because nothing player-facing
 depended on them. Before syncing, prove each differing file is merely *behind* rather than
 *deliberately different*, or the sync will overwrite a branch-specific edit:
 
