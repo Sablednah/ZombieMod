@@ -7,10 +7,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.sablednah.zombiemod.core.spawn.SpawnCondition;
+import com.sablednah.zombiemod.platform.Codecs;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.RegistryCodecs;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -124,7 +124,7 @@ public final class MutationTriggers {
         public static final Identifier TYPE = id("touching");
 
         public static final MapCodec<Touching> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
-                RegistryCodecs.homogeneousList(Registries.BLOCK).fieldOf("blocks").forGetter(Touching::blocks),
+                Codecs.holderSet(Registries.BLOCK).fieldOf("blocks").forGetter(Touching::blocks),
                 Codec.BOOL.optionalFieldOf("below", true).forGetter(Touching::below))
                 .apply(i, Touching::new));
 
