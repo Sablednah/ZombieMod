@@ -53,8 +53,8 @@ and testable statement is *players do not need it*.
 
 | Field | Value |
 |---|---|
-| Tag | `v3.6.0` |
-| Title | `3.6.0 — Two stages of one death` |
+| Tag | `v3.6.1` |
+| Title | `3.6.1 — Minecraft 26.3` |
 | Body | The `## 3.6.0` section of [`CHANGELOG.md`](CHANGELOG.md), plus the requirements table below |
 | Attach | every `build/libs/zombiemod-<ver>+mc<mc>.jar`, one per supported version — the CurseForge upload reads the `+mc` suffix to label each |
 
@@ -68,6 +68,7 @@ Requirements block to append to the release body:
 > | 1.21.11 | 21.11.42+ | 21 |
 > | 26.1.2 | 26.1.2.95+ | 25 |
 > | 26.2 | 26.2.0.59+ | 25 |
+> | 26.3 | 26.3.0.33+ (NeoForge beta) | 25 |
 >
 > Install on the server. Your players do not need the mod — a stock client can join and meet every
 > genus. Installing it client-side too is optional and adds the ZombieDex screen.
@@ -96,7 +97,7 @@ releases after the branches appeared.
 **Categories:** Mobs, Server Utility, Adventure and RPG.
 **Modloader:** NeoForge · **Release type:** Release.
 **Game version:** not typed in — the upload script reads it from each jar's `+mc` filename suffix,
-so a release carrying three jars is tagged for three Minecraft versions without anyone choosing.
+so a release carrying four jars is tagged for four Minecraft versions without anyone choosing.
 
 ---
 
@@ -224,12 +225,12 @@ has no create-project endpoint. Make it on the website first.
 
 ## Before you publish
 
-- [ ] `./gradlew build` and confirm the jars are `zombiemod-3.6.0+mc<version>.jar`, one per supported Minecraft version
+- [ ] `./gradlew build` and confirm the jars are `zombiemod-3.6.1+mc<version>.jar`, one per supported Minecraft version
 - [ ] Redeploy to the test instance if it still has the pre-balance jar
 - [ ] Create the CurseForge project **on the website** and note its numeric project ID (its upload
       API cannot create one)
 - [ ] Add `CURSEFORGE_TOKEN` (secret) and `CURSEFORGE_PROJECT_ID` (variable) to the repo
-- [ ] Push `master`, `mc26.1`, `mc26.2` and the `v3.6.0` tag
+- [ ] Push `master`, `mc26.1`, `mc26.2`, `mc26.3` and the `v3.6.1` tag
 - [ ] **GitHub release first** — it triggers the CurseForge upload, and the store pages link back to it
 - [ ] Check `https://authors.curseforge.com/#/projects/<id>/files`, not the public Files tab
 - [ ] Upload the gallery in the order above

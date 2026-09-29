@@ -7,6 +7,26 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone.
 
+## 3.6.1
+
+*2026-09-29.* Minecraft 26.3.
+
+### Added
+
+- **Minecraft 26.3.** A fourth jar, `zombiemod-3.6.1+mc26.3.jar`, for NeoForge 26.3 — which is still
+  a **beta** on NeoForge's side, so treat that line accordingly. Everything is there: all 61 genera,
+  hordes, rituals, the ZombieDex, advancements and loot. Take the jar that matches your server.
+
+### Notes
+
+- **Nothing changes on 1.21.11, 26.1.2 or 26.2.** Those jars are rebuilt so all four carry the same
+  version; the only code change on them is invisible.
+- **Datapack authors on 26.3:** Minecraft 26.3 changed the loot-table format (`functions` became
+  `modifier`, `conditions` became `condition`, and a `{min, max}` range needs
+  `"type": "minecraft:uniform"`). ZombieMod's own tables are converted. A genus pointing at a loot
+  table of your own needs that table in the 26.3 format on a 26.3 server — an old-format table stops
+  the server from starting, which is vanilla's rule rather than ours.
+
 ## 3.6.0
 
 *2026-09-18.* Two stages of one death, a tab of advancements, and nobody has to play at Christmas.
