@@ -22,11 +22,12 @@ original plugin's source was removed at this release and remains in the git hist
 | License | MIT |
 | Side | Install on the server. **Players do not need the mod** — a stock client can join and meet every genus. Installing it client-side too is optional and adds the ZombieDex screen. |
 
-> **3.6.0.** 61 genera, every ability from the 1.8 plugin rebuilt, and the great majority of it
-> confirmed in play. New in this release: a **ZombieMod tab of 23 advancements** (plain vanilla ones,
-> so they work on a stock client and in Better Advancements), **Corpse mod support** — a slain
-> player zombie goes down as a Corpse body holding your things — and **seasonal genera as bonus
-> entries**, so the dex and the advancements can be finished on any day of the year. See
+> **3.6.1.** 61 genera, every ability from the 1.8 plugin rebuilt, and the great majority of it
+> confirmed in play. New in this release: **Minecraft 26.3**, a fourth jar beside 1.21.11, 26.1.2
+> and 26.2. New in 3.6.0: a **ZombieMod tab of 23 advancements** (plain vanilla ones, so they work
+> on a stock client and in Better Advancements), **Corpse mod support** — a slain player zombie goes
+> down as a Corpse body holding your things — and **seasonal genera as bonus entries**, so the dex
+> and the advancements can be finished on any day of the year. See
 > [Status](#status) for what is verified and what is waiting on a situation to arise, or
 > [`CHANGELOG.md`](CHANGELOG.md) for the full list.
 
@@ -821,7 +822,8 @@ already inside the zombie — so its history entry for a player-zombie death is 
 ledger entry's id, so the two can be matched. And Corpse adds an entity of its own, so a server
 running it needs Corpse on every client regardless of anything ZombieMod does.
 
-Linked by reflection against Corpse 1.1.16 (Minecraft 1.21.11 and 26.1.2) and 1.1.19 (26.2), and
+Linked by reflection against Corpse 1.1.16 (Minecraft 1.21.11 and 26.1.2) and 1.1.19 (26.2) — not
+yet tried against a 26.3 Corpse — and
 completely inert without it. If Corpse ever changes shape, the zombie goes back to dropping items.
 
 ## Faces

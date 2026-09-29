@@ -156,6 +156,7 @@ take no damage while remaining a completely normal target, and `/zombiemod horde
 | 1.21.11 | 21.11.42+ | 21 |
 | 26.1.2 | 26.1.2.95+ | 25 |
 | 26.2 | 26.2.0.59+ | 25 |
+| 26.3 | 26.3.0.33+ (NeoForge beta) | 25 |
 
 There is **a jar per Minecraft version**, named for the one it was built against — take the one that
 matches your server.
