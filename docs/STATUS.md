@@ -710,6 +710,13 @@ files 8915240–8915242, Modrinth versions `U8X1DYCc`, `VGdpCw0a`, `uoCg1MfD` in
 draft. Both store uploads ran from the release automatically and cleanly. Built from `193914a`
 (master), `4e5f950` (mc26.1), `5f96927` (mc26.2).
 
+**3.6.1 shipped 2026-09-29** — Minecraft 26.3, a fourth jar, on NeoForge 26.3.0.33-beta. Confirmed
+in play by Sable the same day (dex clicks, Z key, loot, teleports; the Charger's knockback looked dead
+only because observer mode blocks the damage that knockback rides on). GitHub release `v3.6.1`,
+CurseForge files 9008549–9008552, all four uploaded from the release automatically. Built from
+`e3a4e0f` (master), `197c48e` (mc26.1), `747875a` (mc26.2), `586dcc4` (mc26.3). The Modrinth
+publishing was removed the same morning, after Modrinth refused every SableCraft project.
+
 A month of play on 3.4.x closed most of the open list in one sitting:
 
 - ~~**Watch the Undertow meet somebody.**~~ "Undertow its good." What it found was not the weight
