@@ -230,6 +230,15 @@ Jack/Krampus) and the roster carousel's `$portraits` array - a *second*, separat
 genus needs a portrait, the raw shot needs the **same camera distance** as this batch or the whole set
 needs reprocessing together - see the site repo's `[[screenshot-relative-scale]]` memory.
 
+## 3.6.1 (2026-09-29) — for the site session: a fourth Minecraft version
+
+Version facts: bump to 3.6.1 wherever a version shows. **The requirements matrix gains a row** —
+`26.3 | 26.3.0.33+ (NeoForge beta) | Java 25` — so anywhere that names the supported lines (the hub
+card names 1.21.11, 26.1.2 and 26.2 today) now names four. Worth saying NeoForge 26.3 is a beta.
+Genus count unchanged (61), no new features: nothing else on the site needs to move.
+
+**Modrinth:** Modrinth refused every SableCraft project on 2026-09-29. Link none of them there.
+
 ## 3.6.0 (2026-09-18) — for the site session: three player-facing additions
 
 Version facts: bump to 3.6.0 wherever a version shows. Requirements matrix unchanged. Genus count
