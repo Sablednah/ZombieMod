@@ -10,14 +10,15 @@ complete and the 1.8 reference tree has been removed — see *Reading the origin
 below for how to get it back when you need it.
 
 **Shipping as 3.6.0** (2026-09-18): 61 genera and 23 advancements, on GitHub and CurseForge. A jar
-per Minecraft version, three of them. **Not on Modrinth** — it refused every SableCraft project for
-AI-generated content on 2026-09-29, and the Modrinth publishing was removed; see RELEASE.md.
+per Minecraft version, three of them — a fourth, 26.3, is built and awaiting play-testing. **Not on
+Modrinth** — it refused every SableCraft project for AI-generated content on 2026-09-29, and the
+Modrinth publishing was removed; see RELEASE.md.
 
 This is the **fourth** Bukkit→NeoForge port in a series. `../MobHealth-Forge` is the canonical
 template and `../CityWorld-ReForged/PORTING.md` is the richest source of verified 1.21.11 API notes.
 Read those before inventing anything.
 
-**`master`'s targets** — the other two branches differ, see [docs/MULTIVERSION.md](docs/MULTIVERSION.md):
+**`master`'s targets** — the other branches differ, see [docs/MULTIVERSION.md](docs/MULTIVERSION.md):
 
 | | |
 |---|---|
@@ -49,7 +50,7 @@ manual part. See RELEASE.md before touching the workflow.
 
 ## Build & run
 
-**This mod ships for three Minecraft versions, one per branch** — see
+**This mod ships for four Minecraft versions, one per branch** — see
 [docs/MULTIVERSION.md](docs/MULTIVERSION.md), which is the file to read before touching any of it.
 
 | Branch | Minecraft | JDK |
@@ -57,6 +58,7 @@ manual part. See RELEASE.md before touching the workflow.
 | `master` | 1.21.11 | 21 — `/mnt/d/Repos/sable/MobHealth-Forge/tools/jdk21` |
 | `mc26.1` | 26.1.2 | **25** — `/mnt/d/Repos/sable/CityWorld-ReForged/tools/jdk25` |
 | `mc26.2` | 26.2 | **25** — same |
+| `mc26.3` | 26.3 | **25** — same. NeoForge is still **beta** on this line |
 
 Fixes go on **`master` first** and cherry-pick forward; that is what the `platform/` seam layer is
 for, and cherry-picks have been conflict-free apart from the seams themselves. 26.x needs Java 25
@@ -299,15 +301,16 @@ are allowed to differ:
 git checkout master -- <the shared paths>
 ```
 
-Everything except `build.gradle`, `gradle.properties`, `platform/*` and the client GUI files should
-be **identical to master** on every branch. So the reliable move is to take the shared files from
+Everything except `build.gradle`, `gradle.properties`, `platform/*`, the client GUI files, and on
+`mc26.3` the loot tables (a different dialect — `scripts/loot-to-26.3.py`) should be **identical to
+master** on every branch. So the reliable move is to take the shared files from
 master outright rather than replay a commit and hope.
 
 **Verify with something countable, not with the exit code.** Counting genus files across branches is
 what actually caught it:
 
 ```bash
-for b in master mc26.1 mc26.2; do
+for b in master mc26.1 mc26.2 mc26.3; do
   echo "$b $(git ls-tree -r --name-only $b -- src/main/resources/data/zombiemod/zombiemod/genus | wc -l)"
 done
 git diff --name-only master mc26.2      # every line should be a file that is *meant* to differ
