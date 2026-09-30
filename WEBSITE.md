@@ -230,6 +230,13 @@ Jack/Krampus) and the roster carousel's `$portraits` array - a *second*, separat
 genus needs a portrait, the raw shot needs the **same camera distance** as this batch or the whole set
 needs reprocessing together - see the site repo's `[[screenshot-relative-scale]]` memory.
 
+## 3.6.2 (2026-09-30) — for the site session: the 26.3 row narrows
+
+Version facts: bump to 3.6.2. **The 26.3 requirements row is now `26.3.0.33 – 26.3.0.36 (NeoForge
+beta; not .37+)`**: NeoForge .37 renamed part of its config API and most mods with a config fail
+on it. Worth one plain line wherever 26.3 is offered: *stay on NeoForge 26.3.0.36-beta for now*.
+Nothing else changes.
+
 ## 3.6.1 (2026-09-29) — for the site session: a fourth Minecraft version
 
 Version facts: bump to 3.6.1 wherever a version shows. **The requirements matrix gains a row** —

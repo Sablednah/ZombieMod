@@ -10,7 +10,7 @@ Last updated 2026-09-29. **All four versions build the whole mod and run, and al
 | | 1.21.11 | 26.1.2 | 26.2 | 26.3 |
 |---|---|---|---|---|
 | Branch | `master` | `mc26.1` | `mc26.2` | `mc26.3` |
-| NeoForge | 21.11.42 | 26.1.2.95 | 26.2.0.59 | 26.3.0.33-**beta** |
+| NeoForge | 21.11.42 | 26.1.2.95 | 26.2.0.59 | 26.3.0.33-**beta**, runs on **.33–.36 only** |
 | moddev plugin | 2.0.141 | 2.0.144 | 2.0.144 | 2.0.147 |
 | Java | 21 (`java-runtime-delta`) | **25** (`java-runtime-epsilon`) | **25** | **25** |
 | Builds & runs | yes | yes | yes | yes |
@@ -111,6 +111,24 @@ horde and advancement JSON are unchanged.
 **Datapack registries load concurrently on 26.3** (CityWorld's finding: a codec that looks up another
 registry mid-decode can fail the whole load). Ours do not, so all 61 genera load unchanged — but it is
 the first thing to suspect if a new codec reads another registry.
+
+## 26.3: capped at NeoForge .36 until it goes stable
+
+**NeoForge 26.3.0.37-beta renamed two config types** (FML 12.0.7 → 12.0.8): `ModConfig.Type.COMMON`
+became `LOCAL` and `SERVER` became `SYNCED` (`CLIENT` and `STARTUP` kept their names). Any mod that
+registers a `COMMON` or `SERVER` config — ours, most SableCraft mods, JourneyMap — dies at load on .37+
+with `NoSuchFieldError: ModConfig$Type ...`. CityWorld, whose only config is `STARTUP`, is unaffected.
+Found 2026-09-30 when Sable's 26.3 instance moved to .39.
+
+Sable's decision: **cap `mc26.3` at `[26.3,26.3.0.37-beta)`** in `neo_version_range` until NeoForge 26.3
+has a stable release, then port and lift the cap. The port is one line here —
+`ZombieMod.java`'s `registerConfig(ModConfig.Type.SERVER, …)` becomes `SYNCED` — plus moving
+`neo_version` and the range. Building against .37+ early would break the jar on .33–.36, where
+everything else still is.
+
+⚠ **Write the bound as `37-beta`.** Maven orders `26.3.0.37-beta` *before* `26.3.0.37`, so
+`[26.3,26.3.0.37)` still admits .37-beta. Checked with maven-artifact's `VersionRange`: .33-beta and
+.36-beta in; .37-beta, .39-beta and .40 out.
 
 ## The 26.x GUI: a rename table, not a redesign
 
