@@ -7,6 +7,20 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone.
 
+## 3.6.2
+
+*2026-09-30.* Hold at NeoForge 26.3.0.36.
+
+### Changed
+
+- **The 26.3 jar now says which NeoForge it needs: 26.3.0.33 up to 26.3.0.36.** NeoForge
+  26.3.0.37-beta renamed part of its config API, so mods with a common or server config — this
+  one, JourneyMap and many others — fail to load on .37 and later with
+  `NoSuchFieldError: ModConfig$Type`. On those builds you now get a clear "needs an older NeoForge"
+  message instead of that crash. **Stay on NeoForge 26.3.0.36-beta** until NeoForge 26.3 has a
+  stable release; ZombieMod will follow it then.
+- Nothing changes on 1.21.11, 26.1.2 or 26.2; those jars are rebuilt to keep all four on one version.
+
 ## 3.6.1
 
 *2026-09-29.* Minecraft 26.3.
