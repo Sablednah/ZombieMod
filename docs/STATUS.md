@@ -711,6 +711,11 @@ files 8915240–8915242, Modrinth versions `U8X1DYCc`, `VGdpCw0a`, `uoCg1MfD` in
 draft. Both store uploads ran from the release automatically and cleanly. Built from `193914a`
 (master), `4e5f950` (mc26.1), `5f96927` (mc26.2).
 
+**3.6.2 shipped 2026-09-30** — the 26.3 jar capped at NeoForge `[26.3,26.3.0.37-beta)`, after .37
+renamed `ModConfig.Type` (see MULTIVERSION.md). GitHub release `v3.6.2`, CurseForge files
+9022357–9022361. **Open: lift the cap when NeoForge 26.3 goes stable** — rename `Type.SERVER` to
+`SYNCED` in `ZombieMod.java`, move `neo_version`, drop the upper bound, re-run the probe.
+
 **3.6.1 shipped 2026-09-29** — Minecraft 26.3, a fourth jar, on NeoForge 26.3.0.33-beta. Confirmed
 in play by Sable the same day (dex clicks, Z key, loot, teleports; the Charger's knockback looked dead
 only because observer mode blocks the damage that knockback rides on). GitHub release `v3.6.1`,
