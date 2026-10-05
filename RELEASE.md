@@ -234,7 +234,8 @@ has no create-project endpoint. Make it on the website first.
 - [ ] **GitHub release first** — it triggers the CurseForge upload, and the store pages link back to it
 - [ ] Check `https://authors.curseforge.com/#/projects/<id>/files`, not the public Files tab
 - [ ] Upload the gallery in the order above
-- [ ] Hand `WEBSITE.md` to the sablecraft.co.uk session; **Cloudflare must be purged** before the
+- [ ] Append a dated brief to `WEBSITE.md` (untracked, shared with the site session, which writes
+      its own "done" sections back into it) and tell the sablecraft.co.uk session; **Cloudflare must be purged** before the
       pages are visible
 
 ## After
