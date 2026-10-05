@@ -43,7 +43,7 @@ one of them:
 | [RELEASE.md](RELEASE.md) | Every store field, the gallery order, and the publishing traps |
 | [CURSEFORGE.md](CURSEFORGE.md) | The store description. Used verbatim; **do not fork it** |
 | [NODES.md](NODES.md) | Permissions. See *Command permissions* below |
-| [WEBSITE.md](WEBSITE.md) | Handover to the sablecraft.co.uk session |
+| `WEBSITE.md` | **Two-way** handover with the sablecraft.co.uk session: we write a dated brief per release, the site session writes back what it built. **Not tracked in git** (gitignored) — it is a shared working file, so read it from disk, append, never rewrite the other side's sections |
 
 **Publishing is automated from a GitHub release.** Publishing one uploads to CurseForge, reading
 each jar's Minecraft version from its `+mc` filename suffix. Creating the store project is the only
