@@ -34,3 +34,8 @@
 
 # Claude Code local settings
 /.claude/settings.local.json
+
+# Shared working file with the sablecraft.co.uk session: both sides append to it (our release briefs,
+# its "done" reports), so it is a conversation, not source. Untracked since 2026-10-05; its earlier
+# history is still in git.
+/WEBSITE.md
