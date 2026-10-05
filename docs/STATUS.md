@@ -657,7 +657,7 @@ Four files in the **repo root**, matching `../CityWorld-ReForged`:
 | `CURSEFORGE-COMMANDS.md` | Every command. |
 | `NODES.md` | Permissions. The answer is that there are no named nodes — only vanilla command levels — which is exactly why it needed writing down. |
 | `RELEASE.md` | Every store field, the gallery order, and the publishing traps. |
-| `WEBSITE.md` | Handover to the sablecraft.co.uk session. |
+| `WEBSITE.md` | Two-way handover with the sablecraft.co.uk session — both write to it. Gitignored since 2026-10-05. |
 
 **Two deliberate departures, both for the same reason — a second copy drifts.**
 
