@@ -712,11 +712,13 @@ files 8915240–8915242, Modrinth versions `U8X1DYCc`, `VGdpCw0a`, `uoCg1MfD` in
 draft. Both store uploads ran from the release automatically and cleanly. Built from `193914a`
 (master), `4e5f950` (mc26.1), `5f96927` (mc26.2).
 
-**3.6.3, 2026-10-08** — the 26.3 jar moved to NeoForge `[26.3.0.58-beta,26.4)` at Sable's call
+**3.6.3 shipped 2026-10-08** — the 26.3 jar moved to NeoForge `[26.3.0.58-beta,26.4)` at Sable's call
 (his release line is on .58), without waiting for a stable 26.3. The config rename is behind a new
 seam, `platform/Configs`; the file name is pinned to `zombiemod-server.toml` so existing settings
 carry over (LegendQuest's tip). Verified on a .58 dev server: all 61 genera load and the existing
-`config/zombiemod-server.toml` is the file loaded, byte-for-byte unchanged, with no `-synced.toml`.
+`config/zombiemod-server.toml` is the file loaded, byte-for-byte unchanged, with no `-synced.toml`. GitHub release `v3.6.3`, CurseForge files 9101948–9101951, uploaded from
+the release automatically. Built from `1b2fe83` (master), `117496d` (mc26.1), `8faef8d` (mc26.2),
+`ae40304` (mc26.3). No instance has been redeployed.
 
 **3.6.2 shipped 2026-09-30** — the 26.3 jar capped at NeoForge `[26.3,26.3.0.37-beta)`, after .37
 renamed `ModConfig.Type` (see MULTIVERSION.md). GitHub release `v3.6.2`, CurseForge files
