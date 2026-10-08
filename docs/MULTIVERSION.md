@@ -10,7 +10,7 @@ Last updated 2026-09-29. **All four versions build the whole mod and run, and al
 | | 1.21.11 | 26.1.2 | 26.2 | 26.3 |
 |---|---|---|---|---|
 | Branch | `master` | `mc26.1` | `mc26.2` | `mc26.3` |
-| NeoForge | 21.11.42 | 26.1.2.95 | 26.2.0.59 | 26.3.0.33-**beta**, runs on **.33–.36 only** |
+| NeoForge | 21.11.42 | 26.1.2.95 | 26.2.0.59 | 26.3.0.58-**beta**, runs on **.58+** (`[26.3.0.58-beta,26.4)`) |
 | moddev plugin | 2.0.141 | 2.0.144 | 2.0.144 | 2.0.147 |
 | Java | 21 (`java-runtime-delta`) | **25** (`java-runtime-epsilon`) | **25** | **25** |
 | Builds & runs | yes | yes | yes | yes |
@@ -52,6 +52,7 @@ concern** rather than the twenty-odd call sites the drift is spread across.
 | `Colours` | `ChatFormatting.COLOR_CODEC`, `getName()`, `isColor()` — **26.2 only** | codec by enum name; `TeamColor` when painting |
 | `Codecs` | `net.minecraft.core.RegistryCodecs.homogeneousList` — **26.3 only** | `core.registries.codec.RegistryCodecs.holderSet` |
 | `Drops` | `Player.drop(stack, bool)` — **26.3 only** | gained a `Prediction`; `SERVER_ONLY` |
+| `Configs` | `ModConfig.Type.SERVER` — **26.3 only** (NeoForge .37+) | `SYNCED`, with the file name `zombiemod-server.toml` given explicitly |
 | `EntityState` | `hurtMarked`, `setInvulnerable`, `swing(hand, bool)`, `randomTeleport(x, y, z, bool)` — **26.3 only** | `syncVelocity`, `setPermanentlyInvulnerable`, `swing(hand, SwingAnimation.DEFAULT, true)`, `randomTeleport(..., state -> false)` |
 
 Outside `platform/`, two 26.3 edits are glue rather than seams: `ZombieModRegistries` registers
@@ -112,23 +113,26 @@ horde and advancement JSON are unchanged.
 registry mid-decode can fail the whole load). Ours do not, so all 61 genera load unchanged — but it is
 the first thing to suspect if a new codec reads another registry.
 
-## 26.3: capped at NeoForge .36 until it goes stable
+## 26.3: on NeoForge .58, past the config rename
 
 **NeoForge 26.3.0.37-beta renamed two config types** (FML 12.0.7 → 12.0.8): `ModConfig.Type.COMMON`
 became `LOCAL` and `SERVER` became `SYNCED` (`CLIENT` and `STARTUP` kept their names). Any mod that
-registers a `COMMON` or `SERVER` config — ours, most SableCraft mods, JourneyMap — dies at load on .37+
-with `NoSuchFieldError: ModConfig$Type ...`. CityWorld, whose only config is `STARTUP`, is unaffected.
-Found 2026-09-30 when Sable's 26.3 instance moved to .39.
+registers a `COMMON` or `SERVER` config dies at load on the other side of the rename with
+`NoSuchFieldError: ModConfig$Type ...` — in both directions, so no one jar spans .36 and .37.
+3.6.2 capped at `[26.3,26.3.0.37-beta)`; on 2026-10-08 Sable moved the release line to .58, and
+`mc26.3` now builds against 26.3.0.58-beta with `[26.3.0.58-beta,26.4)` (3.6.3). Players on .33–.36
+keep 3.6.2.
 
-Sable's decision: **cap `mc26.3` at `[26.3,26.3.0.37-beta)`** in `neo_version_range` until NeoForge 26.3
-has a stable release, then port and lift the cap. The port is one line here —
-`ZombieMod.java`'s `registerConfig(ModConfig.Type.SERVER, …)` becomes `SYNCED` — plus moving
-`neo_version` and the range. Building against .37+ early would break the jar on .33–.36, where
-everything else still is.
+**The file name has to be given explicitly.** The default name is `<modid>-<type>.toml`, so a bare
+`SYNCED` would write a fresh `zombiemod-synced.toml` and silently drop every server's settings.
+`platform/Configs` registers `SYNCED` with `"zombiemod-server.toml"`, which keeps the old file (tip from
+the LegendQuest session; the sibling mods do the same with `-common.toml` for `LOCAL`). The location
+is unchanged — `config/` — but the per-world override folder NeoForge reads moved from
+`<world>/serverconfig/` to `<world>/syncedconfig/`; nothing in the mod can fix that, so it is in the
+changelog.
 
-⚠ **Write the bound as `37-beta`.** Maven orders `26.3.0.37-beta` *before* `26.3.0.37`, so
-`[26.3,26.3.0.37)` still admits .37-beta. Checked with maven-artifact's `VersionRange`: .33-beta and
-.36-beta in; .37-beta, .39-beta and .40 out.
+⚠ **Maven orders `26.3.0.37-beta` *before* `26.3.0.37`**, so a bound written without `-beta` lands one
+side of the suffix you did not mean. Checked with maven-artifact's `VersionRange` for the old cap.
 
 ## The 26.x GUI: a rename table, not a redesign
 
