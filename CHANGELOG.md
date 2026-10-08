@@ -5,7 +5,21 @@ All notable changes to the NeoForge rewrite of ZombieMod.
 Zombie types are **datapack files**, so `/reload` picks up changes to them without a restart. The
 settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
-world alone.
+world alone (`syncedconfig/` on Minecraft 26.3).
+
+## 3.6.3
+
+*2026-10-08.* Minecraft 26.3 moves to NeoForge 26.3.0.58.
+
+### Changed
+
+- **The 26.3 jar now runs on NeoForge 26.3.0.58 and later** instead of .33–.36. NeoForge renamed
+  part of its config API in .37, which is why 3.6.2 had to stay behind; this release follows it
+  across. If you are still on NeoForge .33–.36, stay on 3.6.2.
+- **Your settings carry over.** The file is still `config/zombiemod-server.toml`. One thing moves on
+  26.3, and it is NeoForge's change, not ours: a per-world override now lives in
+  `saves/<world>/syncedconfig/` instead of `serverconfig/`. If you kept one, move it across.
+- Nothing changes on 1.21.11, 26.1.2 or 26.2; those jars are rebuilt to keep all four on one version.
 
 ## 3.6.2
 
