@@ -626,6 +626,7 @@ from it at build time, so never edit the generated file.
 | `3.6.0` | 2026-09-18 | Two stages of one death: with the Corpse mod installed a slain player zombie lays a Corpse body holding what it carried, and the empty body Corpse left at the death spot is gone. A ZombieMod tab of 23 vanilla advancements, granted by criterion name so packs can add their own. Seasonal genera are bonus entries in the dex and never required by an advancement. `deploy.sh` refuses to write under a running game. |
 | `3.6.1` | 2026-09-29 | Minecraft 26.3, a fourth jar (NeoForge 26.3 is beta). Nothing changes on the other three; loot tables are the one per-branch data, see MULTIVERSION.md. |
 | `3.6.2` | 2026-09-30 | The 26.3 jar capped at NeoForge 26.3.0.36: .37-beta renamed `ModConfig.Type` and every mod with a config fails there. Lift the cap when NeoForge 26.3 goes stable. |
+| `3.6.3` | 2026-10-08 | The 26.3 jar moves to NeoForge 26.3.0.58+: `platform/Configs` registers `SYNCED` under the old file name, so settings carry over. |
 
 **Publishing to GitHub publishes to CurseForge**, via `.github/workflows/curseforge.yml`. Proven on
 every release so far.
@@ -711,10 +712,15 @@ files 8915240–8915242, Modrinth versions `U8X1DYCc`, `VGdpCw0a`, `uoCg1MfD` in
 draft. Both store uploads ran from the release automatically and cleanly. Built from `193914a`
 (master), `4e5f950` (mc26.1), `5f96927` (mc26.2).
 
+**3.6.3, 2026-10-08** — the 26.3 jar moved to NeoForge `[26.3.0.58-beta,26.4)` at Sable's call
+(his release line is on .58), without waiting for a stable 26.3. The config rename is behind a new
+seam, `platform/Configs`; the file name is pinned to `zombiemod-server.toml` so existing settings
+carry over (LegendQuest's tip). Verified on a .58 dev server: all 61 genera load and the existing
+`config/zombiemod-server.toml` is the file loaded, byte-for-byte unchanged, with no `-synced.toml`.
+
 **3.6.2 shipped 2026-09-30** — the 26.3 jar capped at NeoForge `[26.3,26.3.0.37-beta)`, after .37
 renamed `ModConfig.Type` (see MULTIVERSION.md). GitHub release `v3.6.2`, CurseForge files
-9022357–9022361. **Open: lift the cap when NeoForge 26.3 goes stable** — rename `Type.SERVER` to
-`SYNCED` in `ZombieMod.java`, move `neo_version`, drop the upper bound, re-run the probe.
+9022357–9022361. The cap was lifted in 3.6.3.
 
 **3.6.1 shipped 2026-09-29** — Minecraft 26.3, a fourth jar, on NeoForge 26.3.0.33-beta. Confirmed
 in play by Sable the same day (dex clicks, Z key, loot, teleports; the Charger's knockback looked dead

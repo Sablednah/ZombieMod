@@ -16,7 +16,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
@@ -42,7 +41,7 @@ public class ZombieMod {
     public ZombieMod(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(ZombieModRegistries::register);
         modEventBus.addListener(com.sablednah.zombiemod.net.Net::register);
-        modContainer.registerConfig(ModConfig.Type.SERVER, ZombieModConfig.SPEC);
+        com.sablednah.zombiemod.platform.Configs.registerServer(modContainer, ZombieModConfig.SPEC);
 
         com.sablednah.zombiemod.core.ability.Convert.setRaiser(
                 com.sablednah.zombiemod.neoforge.Conversions::raise);
