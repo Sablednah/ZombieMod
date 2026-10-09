@@ -53,8 +53,8 @@ and testable statement is *players do not need it*.
 
 | Field | Value |
 |---|---|
-| Tag | `v3.6.3` |
-| Title | `3.6.3 — NeoForge 26.3.0.58` |
+| Tag | `v3.6.4` |
+| Title | `3.6.4 — Leave it be` |
 | Body | The `## 3.6.0` section of [`CHANGELOG.md`](CHANGELOG.md), plus the requirements table below |
 | Attach | every `build/libs/zombiemod-<ver>+mc<mc>.jar`, one per supported version — the CurseForge upload reads the `+mc` suffix to label each |
 
@@ -225,12 +225,12 @@ has no create-project endpoint. Make it on the website first.
 
 ## Before you publish
 
-- [ ] `./gradlew build` and confirm the jars are `zombiemod-3.6.3+mc<version>.jar`, one per supported Minecraft version
+- [ ] `./gradlew build` and confirm the jars are `zombiemod-3.6.4+mc<version>.jar`, one per supported Minecraft version
 - [ ] Redeploy to the test instance if it still has the pre-balance jar
 - [ ] Create the CurseForge project **on the website** and note its numeric project ID (its upload
       API cannot create one)
 - [ ] Add `CURSEFORGE_TOKEN` (secret) and `CURSEFORGE_PROJECT_ID` (variable) to the repo
-- [ ] Push `master`, `mc26.1`, `mc26.2`, `mc26.3` and the `v3.6.3` tag
+- [ ] Push `master`, `mc26.1`, `mc26.2`, `mc26.3` and the `v3.6.4` tag
 - [ ] **GitHub release first** — it triggers the CurseForge upload, and the store pages link back to it
 - [ ] Check `https://authors.curseforge.com/#/projects/<id>/files`, not the public Files tab
 - [ ] Upload the gallery in the order above
