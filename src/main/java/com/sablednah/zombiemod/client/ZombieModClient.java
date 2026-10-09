@@ -49,6 +49,7 @@ public final class ZombieModClient {
 
     public ZombieModClient(IEventBus modEventBus, ModContainer container) {
         modEventBus.addListener(this::onRegisterKeys);
+        ZombieDragons.init(modEventBus);
         NeoForge.EVENT_BUS.register(this);
     }
 

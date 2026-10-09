@@ -101,4 +101,9 @@ public final class Types {
     public static EntityType<?> zombieHorse() {
         return of("zombie_horse");
     }
+
+    // The Zombie Dragon's base, and the renderer it replaces.
+    public static EntityType<?> enderDragon() {
+        return of("ender_dragon");
+    }
 }

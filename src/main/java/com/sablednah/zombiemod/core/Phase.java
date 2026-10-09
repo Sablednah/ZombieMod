@@ -29,6 +29,8 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
  * @param title       announced once on entering; supports &-codes for colour
  * @param announce    how to announce it
  * @param announceRadius how far the announcement carries
+ * @param onEnter     abilities fired once, on entering - a wave of minions, a shockwave, a roar.
+ *                    Their interval and chance are ignored; entering is the trigger
  */
 public record Phase(
         double belowHealth,
@@ -37,7 +39,8 @@ public record Phase(
         Optional<Holder<SoundEvent>> sound,
         Optional<String> title,
         Announce announce,
-        double announceRadius) {
+        double announceRadius,
+        List<Ability> onEnter) {
 
     public static final Codec<Phase> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.DOUBLE.fieldOf("below_health").forGetter(Phase::belowHealth),
@@ -47,6 +50,7 @@ public record Phase(
             BuiltInRegistries.SOUND_EVENT.holderByNameCodec().optionalFieldOf("sound").forGetter(Phase::sound),
             Codec.STRING.optionalFieldOf("title").forGetter(Phase::title),
             Announce.CODEC.optionalFieldOf("announce", Announce.ACTION_BAR).forGetter(Phase::announce),
-            Codec.DOUBLE.optionalFieldOf("announce_radius", 64.0D).forGetter(Phase::announceRadius))
+            Codec.DOUBLE.optionalFieldOf("announce_radius", 64.0D).forGetter(Phase::announceRadius),
+            Ability.CODEC.listOf().optionalFieldOf("on_enter", List.of()).forGetter(Phase::onEnter))
             .apply(i, Phase::new));
 }

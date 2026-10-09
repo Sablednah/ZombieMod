@@ -10,7 +10,7 @@ import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.player.Player;
 
 /** Resolves an {@link Abilities.Target} to the entities an ability should act on. */
-final class Targets {
+public final class Targets {
 
     static List<LivingEntity> of(Abilities.Target target, ServerLevel level, Mob mob, double radius) {
         return switch (target) {
@@ -46,7 +46,7 @@ final class Targets {
      * the mob's target at all, so target-level guards do nothing for it: it asks who is standing
      * nearby, and a vanished admin was answering.
      */
-    static List<LivingEntity> nearbyPlayers(ServerLevel level, Mob mob, double radius) {
+    public static List<LivingEntity> nearbyPlayers(ServerLevel level, Mob mob, double radius) {
         // One field read on Standards' side, and false on virtually every server - so the
         // per-player call below is skipped entirely in the ordinary case.
         boolean anyVanished = StandardsVanish.anyVanished();

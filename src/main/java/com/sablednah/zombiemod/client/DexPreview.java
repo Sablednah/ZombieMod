@@ -96,6 +96,10 @@ public final class DexPreview {
         // starts at 0 and only climbs. The value itself is only ever a seed for item model variation
         // here, so any stable number does.
         living.setId(NEXT_DOLL_ID.getAndDecrement());
+        // A dragon in the dex is the Zombie Dragon - there is no other dragon genus to draw.
+        if (living instanceof net.minecraft.world.entity.boss.enderdragon.EnderDragon) {
+            ZombieDragons.mark(living.getId());
+        }
 
         // NO scale attribute, deliberately. renderEntityInInventoryFollowsAngle divides the render
         // state's boundingBoxHeight by its scale and then forces that scale to 1, so the attribute

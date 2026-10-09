@@ -496,9 +496,14 @@ public final class Abilities {
      *
      * <p>{@code max_nearby} is not optional politeness — a breeder without a cap is a server-killing
      * exponential, and the one thing a datapack author will forget.
+     *
+     * <p>{@code near_target} puts them around whatever the caster is fighting instead of around the
+     * caster. Either way, a spot in mid-air - a flying caster, a target on a pillar's edge - is
+     * dropped to the ground below it, and a spot with no ground at all (the End's void) is skipped
+     * rather than filled with mobs that fall out of the world.
      */
     public record Summon(int interval, float chance, EntityType<?> entity, int count, int maxNearby,
-            double radius, Optional<Identifier> genus) implements Ability {
+            double radius, Optional<Identifier> genus, boolean nearTarget) implements Ability {
 
         public static final Identifier TYPE = id("summon");
 
@@ -522,7 +527,8 @@ public final class Abilities {
                 Codec.INT.optionalFieldOf("count", 1).forGetter(Summon::count),
                 Codec.INT.optionalFieldOf("max_nearby", 6).forGetter(Summon::maxNearby),
                 Codec.DOUBLE.optionalFieldOf("radius", 8.0D).forGetter(Summon::radius),
-                Identifier.CODEC.optionalFieldOf("genus").forGetter(Summon::genus))
+                Identifier.CODEC.optionalFieldOf("genus").forGetter(Summon::genus),
+                Codec.BOOL.optionalFieldOf("near_target", false).forGetter(Summon::nearTarget))
                 .apply(i, Summon::new));
 
         @Override
@@ -553,14 +559,32 @@ public final class Abilities {
             if (nearby >= maxNearby) {
                 return;
             }
+            net.minecraft.world.entity.Entity centre = nearTarget && mob.getTarget() != null ? mob.getTarget() : mob;
+            // Spread wider around a target, so a wave surrounds the player rather than stacking on them.
+            double spread = centre == mob ? 3.0D : 8.0D;
             for (int n = 0; n < count && nearby + n < maxNearby; n++) {
+                Vec3 at = null;
+                for (int attempt = 0; attempt < 6 && at == null; attempt++) {
+                    double x = centre.getX() + (mob.getRandom().nextDouble() - 0.5D) * spread;
+                    double z = centre.getZ() + (mob.getRandom().nextDouble() - 0.5D) * spread;
+                    if (centre.onGround() && centre == mob) {
+                        at = new Vec3(x, mob.getY(), z);
+                        break;
+                    }
+                    int ground = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.MOTION_BLOCKING,
+                            net.minecraft.util.Mth.floor(x), net.minecraft.util.Mth.floor(z));
+                    if (ground > level.getMinY()) {
+                        at = new Vec3(x, ground, z);
+                    }
+                }
+                if (at == null) {
+                    continue; // nothing but void here
+                }
                 var spawned = entity.create(level, net.minecraft.world.entity.EntitySpawnReason.REINFORCEMENT);
                 if (spawned == null) {
                     return;
                 }
-                spawned.snapTo(mob.getX() + (mob.getRandom().nextDouble() - 0.5D) * 3.0D, mob.getY(),
-                        mob.getZ() + (mob.getRandom().nextDouble() - 0.5D) * 3.0D,
-                        mob.getRandom().nextFloat() * 360.0F, 0.0F);
+                spawned.snapTo(at.x, at.y, at.z, mob.getRandom().nextFloat() * 360.0F, 0.0F);
                 level.addFreshEntity(spawned);
                 if (genus.isPresent() && spawned instanceof Mob spawnedMob) {
                     dresser.accept(spawnedMob, genus.get());
