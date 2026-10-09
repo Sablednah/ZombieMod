@@ -1,3 +1,8 @@
 {
-  "key.zombiemod.dex": "Open ZombieDex"
+  "key.zombiemod.dex": "Open ZombieDex",
+  "subtitles.zombiemod.zombie_dragon.roar": "Zombie Dragon roars",
+  "subtitles.zombiemod.zombie_dragon.growl": "Zombie Dragon growls",
+  "subtitles.zombiemod.zombie_dragon.breath": "Zombie Dragon rasps",
+  "subtitles.zombiemod.zombie_dragon.death_fake": "Zombie Dragon collapses",
+  "subtitles.zombiemod.zombie_dragon.rise": "Zombie Dragon rises"
 }

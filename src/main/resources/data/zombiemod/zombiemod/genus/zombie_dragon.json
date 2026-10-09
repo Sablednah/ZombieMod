@@ -81,6 +81,13 @@
   ],
   "dragon": {
     "interlude": 160,
+    "sounds": {
+      "death_fake": "zombiemod:zombie_dragon.death_fake",
+      "rise": "zombiemod:zombie_dragon.rise",
+      "roar": "zombiemod:zombie_dragon.roar",
+      "growl": "zombiemod:zombie_dragon.growl",
+      "breath": "zombiemod:zombie_dragon.breath"
+    },
     "breath": {
       "particle": "minecraft:item_slime",
       "effects": [
