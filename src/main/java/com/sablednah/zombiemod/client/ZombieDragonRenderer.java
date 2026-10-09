@@ -47,6 +47,12 @@ public class ZombieDragonRenderer extends EnderDragonRenderer {
         super.extractRenderState(entity, state, partialTicks);
         if (state instanceof State ours) {
             ours.zombie = ZombieDragons.isZombie(entity.getId());
+            // Lying dead before it rises: let vanilla draw its own beams and dissolve, which it
+            // only does for a dragon with a death time - and this one's health never reached zero.
+            float fake = ZombieDragons.fakeDeathTime(entity.getId(), partialTicks);
+            if (fake > 0.0F) {
+                state.deathTime = fake;
+            }
         }
     }
 
