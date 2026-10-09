@@ -134,6 +134,23 @@ changelog.
 ⚠ **Maven orders `26.3.0.37-beta` *before* `26.3.0.37`**, so a bound written without `-beta` lands one
 side of the suffix you did not mean. Checked with maven-artifact's `VersionRange` for the old cap.
 
+## The dragon renderer: three shapes of one call
+
+`client/ZombieDragonRenderer` re-implements vanilla's dragon `submit` for the Zombie Dragon only, so it
+is a per-branch file like the rest of `client/`. What moved:
+
+| | 1.21.11 | 26.1 / 26.2 | 26.3 |
+|---|---|---|---|
+| `CameraRenderState` | `renderer.state` | `renderer.state.level` | `renderer.state.level` |
+| Base pass | `RenderTypes.entityCutoutNoCull(tex)` (gone in 26.1) | the `Identifier` overload | the `Identifier` overload |
+| `submitModel` tail | `..., color, sprite, outline, crumbling` | same | `..., color, sprite, outline` - no crumbling |
+| `collector.order(n)` | used by vanilla | not used | not used |
+| Rotation | `mulPose(Axis.YP.rotationDegrees(..))` | same | `rotateDegrees(Axis.YP, ..)` |
+| Name tag | `submitNameTag` | `submitNameDisplay` | `submitNameDisplay` |
+
+The server half (`neoforge/ZombieDragon`) is identical on all four, including the death flow, which
+differs per version underneath it - see CLAUDE.md.
+
 ## The 26.x GUI: a rename table, not a redesign
 
 This was misjudged once and cost a day of treating the dex screen as design work. It is a rename

@@ -561,6 +561,34 @@ Proven with a temporary `DollProbe` on `ServerStartedEvent` that built every gen
 `bbHeight`/`getScale`/the derived box against the renderer's actual placement. Pure arithmetic, so it
 needed no renderer — worth rebuilding if that geometry is touched again.
 
+### The Ender Dragon: one entity, two deaths, and no goal ticking
+
+`neoforge/ZombieDragon`. Four things that are not obvious and cost a probe each to establish:
+
+- **The dragon never ticks its goal selector.** `EnderDragon.aiStep` does not call `super`; its AI is
+  a phase machine. Every ability and phase here rides goals, so on a dragon they silently do nothing.
+  `ZombieDragon` ticks a risen dragon's `goalSelector` itself, which is what makes the ordinary genus
+  fields work on it. Any other base with its own AI loop will need the same.
+- **Refuse the first death at `LivingDeathEvent`, and heal in the same call.** A killing blow reaches
+  `die()` on every version we ship, *before* vanilla's dying flight, drops and kill credit. After
+  the event, 1.21.11-26.1 check `isDeadOrDying()` in `reallyHurt` and 26.2+ run `handleKillingBlow`;
+  health back at 1 means both find a living dragon. Cancelling without healing leaves health at 0
+  and `tickDeath` starts next tick.
+- **The same entity is the whole trick.** `EnderDragonFight` follows its dragon by UUID, so portal,
+  egg, XP and "Free the End" come from vanilla on the real death. Nothing is held back by us.
+- **The fight's boss bar is found by type, not name** - the fight class itself is `EndDragonFight` on
+  1.21.11 and `EnderDragonFight` on 26.x, and the bar field is private. Its name follows the
+  dragon's custom name on its own; the colour and the name are reset on the real death, or the next
+  crystal-summoned dragon inherits them.
+
+The client side replaces vanilla's dragon renderer (`client/ZombieDragonRenderer`, per branch) and
+hands every non-zombie dragon, and a zombie one while dying, straight to `super`. The rot art is ours,
+generated against the vanilla UV *layout* only by `scripts/make-dragon-rot.py`, drawn translucent over
+the vanilla skin, so no Mojang texture is redistributed. Re-run the headless probe after touching any of it: spawn a dragon in a force-loaded End, `hurtServer` it from a
+`FakePlayer`, and read health, `INTERLUDE`, the tag and the goal count at fixed ticks. Put a test
+cloud at the victim's feet - a cloud's box is half a block tall, and one a block too high proves
+nothing (that cost a run).
+
 ### Cancelling an interaction client-side does not cancel the server's half
 
 `PlayerInteractEvent.RightClickItem` fires on both sides independently. Cancelling on the client only
