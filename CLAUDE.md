@@ -582,9 +582,10 @@ needed no renderer — worth rebuilding if that geometry is touched again.
   crystal-summoned dragon inherits them.
 
 The client side replaces vanilla's dragon renderer (`client/ZombieDragonRenderer`, per branch) and
-hands every non-zombie dragon, and a zombie one while dying, straight to `super`. The rot art is ours,
-generated against the vanilla UV *layout* only by `scripts/make-dragon-rot.py`, drawn translucent over
-the vanilla skin, so no Mojang texture is redistributed. Re-run the headless probe after touching any of it: spawn a dragon in a force-loaded End, `hurtServer` it from a
+hands every non-zombie dragon, and a zombie one while dying, straight to `super`. The rot is Sable's own
+painted skin (2026-10-09), opaque on every pixel the model uses, drawn over the vanilla skin through a
+translucent render type - so it would also take a partly transparent overlay.
+`scripts/make-dragon-rot.py` made the first, procedural one and still makes the green eyes. Re-run the headless probe after touching any of it: spawn a dragon in a force-loaded End, `hurtServer` it from a
 `FakePlayer`, and read health, `INTERLUDE`, the tag and the goal count at fixed ticks. Put a test
 cloud at the victim's feet - a cloud's box is half a block tall, and one a block too high proves
 nothing (that cost a run).
