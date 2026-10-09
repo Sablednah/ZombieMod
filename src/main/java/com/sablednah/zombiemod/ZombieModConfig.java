@@ -60,6 +60,8 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.BooleanValue BESTIARY_HIDE_UNSPAWNABLE;
     public static final ModConfigSpec.BooleanValue BESTIARY_UNSPAWNABLE_MET;
     public static final ModConfigSpec.BooleanValue ADVANCEMENTS;
+    public static final ModConfigSpec.BooleanValue ZOMBIE_DRAGON;
+    public static final ModConfigSpec.ConfigValue<String> ZOMBIE_DRAGON_GENUS;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> BESTIARY_HIDDEN;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> BESTIARY_HIDDEN_MET;
 
@@ -491,6 +493,26 @@ public final class ZombieModConfig {
                         "ban happens: it then covers bans applied from the console or while the server was",
                         "down, and un-banning somebody quietly puts them back in the pool.")
                 .define("skipBanned", true);
+
+        b.pop();
+
+        b.comment("The Zombie Dragon: the Ender Dragon gets back up.",
+                "",
+                "With this on, the first time an Ender Dragon dies it does not stay dead. It falls,",
+                "lies still for a few seconds, and rises as the Zombie Dragon - a genus on the same",
+                "dragon, so the exit portal, the egg and the experience all wait for the real death.",
+                "Off by default: it changes the End fight, which nobody should get by surprise.",
+                "",
+                "The dragon carries the scoreboard tag zombiemod.zombie_dragon once it has risen,",
+                "for other mods and datapacks to react to. Players with ZombieMod installed see it",
+                "rotting; a vanilla client sees the green bar, the name and the particles.").push("zombieDragon");
+
+        ZOMBIE_DRAGON = b.comment("Let the dragon rise again.")
+                .define("enabled", false);
+
+        ZOMBIE_DRAGON_GENUS = b.comment("Which genus it rises as. Its 'dragon' block sets the breath, sounds and",
+                        "how long it lies dead; its abilities and phases are the minions.")
+                .define("genus", "zombiemod:zombie_dragon");
 
         b.pop();
         SPEC = b.build();
