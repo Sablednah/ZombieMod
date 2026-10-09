@@ -3,6 +3,8 @@ package com.sablednah.zombiemod.client;
 import com.sablednah.zombiemod.ZombieMod;
 import com.sablednah.zombiemod.platform.Types;
 
+import it.unimi.dsi.fastutil.ints.Int2LongMap;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.client.Minecraft;
@@ -31,6 +33,10 @@ import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 public final class ZombieDragons {
 
     private static final IntSet ZOMBIES = new IntOpenHashSet();
+    /** Dragons lying dead before they rise, and the client game time they fell at. */
+    private static final Int2LongMap DYING = new Int2LongOpenHashMap();
+    /** Vanilla's dissolve finishes at 200; stop short of it, so the body never vanishes entirely. */
+    private static final float DEATH_CAP = 170.0F;
 
     private static final Identifier OWN_ROT = Identifier.fromNamespaceAndPath(ZombieMod.MOD_ID,
             "textures/entity/zombie_dragon_rot.png");
@@ -61,6 +67,7 @@ public final class ZombieDragons {
 
     private static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
         ZOMBIES.clear();
+        DYING.clear();
         // Looked up again next time, so a resource pack swapped between sessions is noticed.
         rot = null;
         eyes = null;
@@ -69,11 +76,35 @@ public final class ZombieDragons {
     private static void onLeave(EntityLeaveLevelEvent event) {
         if (event.getLevel().isClientSide()) {
             ZOMBIES.remove(event.getEntity().getId());
+            DYING.remove(event.getEntity().getId());
         }
     }
 
     public static void mark(int entityId) {
-        ZOMBIES.add(entityId);
+        accept(entityId, true);
+    }
+
+    public static void accept(int entityId, boolean risen) {
+        if (risen) {
+            DYING.remove(entityId);
+            ZOMBIES.add(entityId);
+        } else if (Minecraft.getInstance().level != null) {
+            ZOMBIES.remove(entityId);
+            DYING.put(entityId, Minecraft.getInstance().level.getGameTime());
+        }
+    }
+
+    /**
+     * How far into vanilla's death animation to draw a dragon lying dead, or 0 for one that isn't.
+     * The renderer hands this to vanilla as the dragon's death time, and vanilla draws its own beams
+     * and dissolve.
+     */
+    static float fakeDeathTime(int entityId, float partialTicks) {
+        if (!DYING.containsKey(entityId) || Minecraft.getInstance().level == null) {
+            return 0.0F;
+        }
+        float elapsed = Minecraft.getInstance().level.getGameTime() - DYING.get(entityId) + partialTicks;
+        return Math.max(1.0F, Math.min(DEATH_CAP, elapsed));
     }
 
     public static boolean isZombie(int entityId) {
