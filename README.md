@@ -399,7 +399,7 @@ First firings are staggered per mob, so a horde that spawned together doesn't ac
 | `zombiemod:shockwave` | `radius`, `damage`, `knockup` — launch and hurt everything nearby |
 | `zombiemod:leap` | `range`, `power`, `lift` — pounce at the victim |
 | `zombiemod:pull` | `range`, `power` — drag nearby players toward it |
-| `zombiemod:summon` | `entity`, `count`, `max_nearby`, `radius` — spawn reinforcements |
+| `zombiemod:summon` | `entity` or `genus`, `count`, `max_nearby`, `radius`, `near_target` — spawn reinforcements. `near_target` puts them around whatever the caster is fighting; a spot in mid-air drops to the ground below, and the void is skipped |
 | `zombiemod:alert` | `radius`, `who`, `max_alerted` — hand your target to everything nearby |
 | `zombiemod:break_blocks` | `allowed`, `reach`, `infest` — chew through walls when the path is blocked |
 | `zombiemod:projectile` | `projectile`, `range`, `power`, `inaccuracy` — fire something |
@@ -673,6 +673,15 @@ health crosses a line read as broken rather than escalating.
 
 `announce_radius` defaults to 64 blocks. `sound` plays once on entry regardless.
 
+`on_enter` is a list of abilities fired **once**, on entering — a wave rather than a stream. Their
+`interval` and `chance` are ignored; entering is the trigger:
+
+```json
+{ "below_health": 0.66,
+  "on_enter": [ { "type": "zombiemod:summon", "genus": "zombiemod:walker", "count": 6,
+                  "max_nearby": 40, "radius": 96.0, "near_target": true } ] }
+```
+
 ### Loot
 
 ```json
@@ -741,6 +750,53 @@ its own loot table.
 
 **Or your own mod/plugin**, by running the command or spawning the mob and calling
 `GenusApplier.assign`.
+
+## The Zombie Dragon
+
+**Off by default** — it changes the End fight. Turn it on with `zombieDragon.enabled = true` in
+`zombiemod-server.toml`.
+
+The first time an Ender Dragon dies, it doesn't stay dead. It falls, sinks onto the podium and lies
+still for a few seconds, then rises as the **Zombie Dragon**: 400 health, armoured, a green boss bar,
+rot breath, and the dead of the End answering it. Kill it again and it is over — the exit portal,
+the egg and the experience arrive then, and not before, because it was the same dragon all along.
+
+It is the genus `zombiemod:zombie_dragon` (choose another with `zombieDragon.genus`), on the vanilla
+`minecraft:ender_dragon`. So everything about it is an ordinary genus file you can override:
+
+| Field | In the shipped one |
+|---|---|
+| `health`, `attributes` | 400, armour 10, toughness 4 |
+| `abilities` | the trickle: a `summon` of Ender Zombies near the player it is fighting, every 15 seconds |
+| `phases[].on_enter` | the waves: walkers and runners at 2/3 health; runners, a Tank and a Screamer at 1/3 |
+| `loot` | `zombiemod:entities/zombie_dragon` — a **Zombie Dragon Heart** (`custom_data` `{"threadwork":{"part":"zombie_dragon_heart"}}`) and rotten flesh. It drops at the killer's feet, since the dragon usually dies over the void |
+| `dragon` | the parts only a dragon needs, below |
+
+```json
+"dragon": {
+  "interlude": 160,
+  "sounds": { "death_fake": "mypack:dragon.fall", "rise": "mypack:dragon.rise",
+              "roar": "mypack:dragon.roar", "breath": "mypack:dragon.breath" },
+  "breath": {
+    "particle": "minecraft:item_slime",
+    "effects": [ { "effect": "minecraft:poison", "duration": 100, "amplifier": 1 },
+                 { "effect": "minecraft:wither", "duration": 60 } ],
+    "infect": { "chance": 0.25, "duration": 2400 }
+  }
+}
+```
+
+- `interlude` — ticks it lies dead.
+- `sounds` — optional, by cue. Plain ids, so they may name another mod's sounds; any id the server
+  does not know falls back to the vanilla dragon's.
+- `breath` — replaces what its breath clouds do. `infect` is the same infection a bite gives (milk
+  still cures it), rolled twice a second for whatever stands in the cloud.
+
+**For other mods and datapacks:** the risen dragon carries the scoreboard tag
+`zombiemod.zombie_dragon`. A player with ZombieMod installed sees it rotting; a vanilla client sees
+the green bar, the name, the particles and the breath. The rot can be re-skinned by a resource pack
+providing `threadwork:textures/entity/zombie_dragon_rot.png` (and `_eyes.png`), 256x256 on the
+vanilla dragon's UV map — the rot is drawn translucent over the vanilla skin.
 
 ## Player zombies
 
