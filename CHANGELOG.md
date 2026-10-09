@@ -7,6 +7,20 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone (`syncedconfig/` on Minecraft 26.3).
 
+## Unreleased
+
+### Added
+
+- **The Zombie Dragon** (off by default; `zombieDragon.enabled`). The first time an Ender Dragon
+  dies, it falls, lies still on the podium, and rises again as the Zombie Dragon: 400 health,
+  armoured, rot breath that poisons, withers and infects, a trickle of Ender Zombies and two waves of
+  the dead as it weakens. The portal, egg and experience wait for the real death. Players with
+  ZombieMod installed see it rotting; everyone sees the green bar. It drops a Zombie Dragon Heart at
+  the killer's feet. See the README.
+- **Phases can fire abilities once, on entering** (`on_enter`) — a wave instead of a stream.
+- **`summon` can place its mobs around the target** (`near_target`), and no longer drops a flying
+  caster's minions out of the sky: a mid-air spot goes to the ground below, and the void is skipped.
+
 ## 3.6.4
 
 *2026-10-09.* Leave it be.
