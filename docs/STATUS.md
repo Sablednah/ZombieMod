@@ -713,10 +713,11 @@ files 8915240–8915242, Modrinth versions `U8X1DYCc`, `VGdpCw0a`, `uoCg1MfD` in
 draft. Both store uploads ran from the release automatically and cleanly. Built from `193914a`
 (master), `4e5f950` (mc26.1), `5f96927` (mc26.2).
 
-**3.6.4, 2026-10-09** — the `zombiemod.noroll` tag, asked for by the CrawlSpace session. Their
+**3.6.4 shipped 2026-10-09** — the `zombiemod.noroll` tag, asked for by the CrawlSpace session. Their
 bosses, packs, minions and split copies carry it; their ordinary dungeon mobs now go through
 `EventHooks.finalizeMobSpawn` so genera can roll on them (a direct `Mob.finalizeSpawn` fires no
-`FinalizeSpawnEvent`, so before that CrawlSpace mobs were never rolled at all).
+`FinalizeSpawnEvent`, so before that CrawlSpace mobs were never rolled at all). GitHub `v3.6.4`, CurseForge files
+9111453–9111457. Deployed to the `26.3` instance only.
 
 **3.6.3 shipped 2026-10-08** — the 26.3 jar moved to NeoForge `[26.3.0.58-beta,26.4)` at Sable's call
 (his release line is on .58), without waiting for a stable 26.3. The config rename is behind a new
