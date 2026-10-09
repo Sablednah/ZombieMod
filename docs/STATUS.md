@@ -713,6 +713,17 @@ files 8915240–8915242, Modrinth versions `U8X1DYCc`, `VGdpCw0a`, `uoCg1MfD` in
 draft. Both store uploads ran from the release automatically and cleanly. Built from `193914a`
 (master), `4e5f950` (mc26.1), `5f96927` (mc26.2).
 
+**The Zombie Dragon, 2026-10-09 — built on all four branches, unreleased, unplayed.** ZARP's
+brief, with Sable's numbers relayed by the ZARP session: 400 health ("make it hard"), the texture
+(yes - "a signature moment"), rot breath, waves at 2/3 and 1/3, and Voidlings throughout (ZARP's
+datapack overrides the genus to put `zarp:voidling` in the trickle). Contract with ZARP/Threadwork:
+tag `zombiemod.zombie_dragon`, config `zombieDragon.enabled`, heart custom_data
+`{"threadwork":{"part":"zombie_dragon_heart"}}` (ZARP's loot override adds the `item_model`; ours
+can't, since a stock server has no Threadwork model), sounds `threadwork:zombie_dragon.*` optional.
+Proven headlessly on 1.21.11 and 26.3 by a temporary probe (fall, interlude, rise, wave, breath,
+infection, real death, drops at killer). **Not yet seen by anyone**: the rot texture in a real
+client, the sinking onto the podium, the green bar, a real End fight with crystals and portal.
+
 **3.6.4 shipped 2026-10-09** — the `zombiemod.noroll` tag, asked for by the CrawlSpace session. Their
 bosses, packs, minions and split copies carry it; their ordinary dungeon mobs now go through
 `EventHooks.finalizeMobSpawn` so genera can roll on them (a direct `Mob.finalizeSpawn` fires no
