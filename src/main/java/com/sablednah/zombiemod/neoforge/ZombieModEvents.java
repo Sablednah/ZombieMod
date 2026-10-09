@@ -171,7 +171,7 @@ public final class ZombieModEvents {
         // crowns with its own name, health and boss bar - adds this scoreboard tag before calling
         // finalizeSpawn. A plain string, so neither side compiles against the other. Checked before
         // the claim rules too: a mob somebody deliberately placed is not ours to cancel either.
-        if (mob.getTags().contains(NO_ROLL_TAG)) {
+        if (com.sablednah.zombiemod.platform.EntityState.hasTag(mob, NO_ROLL_TAG)) {
             return;
         }
         if (mob.getPersistentData().getString(GenusApplier.GENUS_TAG).isPresent()) {
