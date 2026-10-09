@@ -57,4 +57,13 @@ public final class EntityState {
     public static boolean randomTeleport(LivingEntity entity, double x, double y, double z) {
         return entity.randomTeleport(x, y, z, false, state -> false);
     }
+
+    /**
+     * Whether the entity carries a scoreboard tag (the {@code /tag} kind, not a registry tag).
+     *
+     * <p><b>Differs per version.</b> {@code getTags()} on 1.21.11; {@code entityTags()} on 26.1+.
+     */
+    public static boolean hasTag(Entity entity, String tag) {
+        return entity.entityTags().contains(tag);
+    }
 }
