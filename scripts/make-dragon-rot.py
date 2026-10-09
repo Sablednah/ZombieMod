@@ -1,4 +1,7 @@
-"""Generate ZombieMod's Zombie Dragon rot overlay and eyes from the vanilla UV *layout* only.
+"""Generate a Zombie Dragon rot overlay and eyes from the vanilla UV *layout* only.
+
+The shipped rot is now Sable's painted skin; this made the first, procedural one and is kept for
+the eyes, which it still produces. Don't write its rot output over the shipped file.
 
 The vanilla texture is read for which pixels are used (alpha, and which are bone-grey); none of its
 colours reach the output, so nothing of Mojang's is redistributed. Seeded, so a re-run is identical.
