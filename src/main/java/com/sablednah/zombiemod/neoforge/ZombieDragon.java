@@ -16,7 +16,6 @@ import com.sablednah.zombiemod.net.Net;
 import com.sablednah.zombiemod.net.ZombieDragonPayload;
 import com.sablednah.zombiemod.platform.EntityState;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
@@ -29,6 +28,7 @@ import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.RandomSource;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.BossEvent;
@@ -40,7 +40,6 @@ import net.minecraft.world.entity.boss.enderdragon.phases.EnderDragonPhase;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.alchemy.PotionContents;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -81,6 +80,10 @@ public final class ZombieDragon {
     static final String BREATH_TAG = "zombiemod.rot_breath";
     /** Ticks left lying dead; present only during the interlude, and saved, so a restart resumes it. */
     static final String INTERLUDE = "zombiemod:dragon_interlude";
+    /** Present while it makes vanilla's dying flight to the podium, before the interlude starts. */
+    static final String FALLING = "zombiemod:dragon_falling";
+    /** Longest the dying flight may take before it is cut short where it is. */
+    private static final int FLIGHT_LIMIT = 300;
     /** How many phase thresholds it has roared at, so a reload does not roar them all again. */
     private static final String PHASES_ROARED = "zombiemod:dragon_roared";
 
@@ -112,8 +115,9 @@ public final class ZombieDragon {
         return dragon.getPersistentData().getString(GenusApplier.GENUS_TAG).isPresent();
     }
 
+    /** Anywhere between the first death and the rise: the dying flight or the interlude. */
     private static boolean lyingDead(EnderDragon dragon) {
-        return dragon.getPersistentData().contains(INTERLUDE);
+        return dragon.getPersistentData().contains(FALLING) || dragon.getPersistentData().contains(INTERLUDE);
     }
 
     private static Optional<DragonSpec> spec(ServerLevel level, EnderDragon dragon) {
@@ -148,21 +152,44 @@ public final class ZombieDragon {
         fall(level, dragon);
     }
 
-    /** The fake death: stop, go limp, sink onto the podium, and play the death that isn't. */
+    /**
+     * The fake death, part one: vanilla's own dying flight.
+     *
+     * <p>The dragon is put in its {@code DYING} phase with its AI left on, so it flies to the podium
+     * shedding explosions exactly as it would for real - the client draws those itself, off the synced
+     * phase. Its AI must stay on: the dragon interpolates its position on the client inside the same
+     * {@code aiStep} branch that runs its AI, so a dragon with {@code NoAi} set and moved by the server
+     * freezes for everyone and then snaps to wherever it ended up. That was the first build.
+     */
     private static void fall(ServerLevel level, EnderDragon dragon) {
+        dragon.setHealth(1.0F);
+        EntityState.setInvulnerable(dragon, true);
+        dragon.getPersistentData().putInt(FALLING, 0);
+        dragon.getPhaseManager().setPhase(EnderDragonPhase.DYING);
+        LOG.info("ZombieMod: the Ender Dragon falls");
+    }
+
+    /**
+     * The fake death, part two: it has reached the podium, which is where vanilla would start the
+     * light beams and the dissolve. It holds still from here (nothing moves it, so freezing the AI is
+     * safe now) while the server sends the explosions, and a client with ZombieMod is told to draw
+     * vanilla's own beams and dissolve for it.
+     */
+    private static void land(ServerLevel level, EnderDragon dragon) {
         Optional<DragonSpec> spec = genus(level).flatMap(holder -> holder.value().dragon());
         int interlude = spec.map(DragonSpec::interlude).orElse(160);
 
+        dragon.getPersistentData().remove(FALLING);
         dragon.setHealth(1.0F);
-        EntityState.setInvulnerable(dragon, true);
         dragon.getPhaseManager().setPhase(EnderDragonPhase.HOVERING);
         dragon.setNoAi(true);
         dragon.setDeltaMovement(Vec3.ZERO);
         dragon.getPersistentData().putInt(INTERLUDE, Math.max(20, interlude));
 
-        // Heard across the island, like vanilla's own dragon death.
+        // Heard across the island, like vanilla's own dragon death - which also starts here.
         cue(level, dragon, spec, "death_fake", 1.0F, SoundEvents.ENDER_DRAGON_DEATH, 20.0F, 1.0F, 512.0D);
-        LOG.info("ZombieMod: the Ender Dragon falls - and lies still ({} ticks)", interlude);
+        tell(level, dragon, false);
+        LOG.info("ZombieMod: the Ender Dragon lies still ({} ticks)", interlude);
     }
 
     // ------------------------------------------------------------------ ticking
@@ -171,6 +198,9 @@ public final class ZombieDragon {
     public void onDragonTick(EntityTickEvent.Pre event) {
         if (!(event.getEntity() instanceof EnderDragon dragon) || !(dragon.level() instanceof ServerLevel level)) {
             return;
+        }
+        if (dragon.getPersistentData().contains(FALLING)) {
+            return; // vanilla flies it; the Post tick below watches for the landing
         }
         if (lyingDead(dragon)) {
             interlude(level, dragon);
@@ -193,25 +223,39 @@ public final class ZombieDragon {
         }
     }
 
+    /**
+     * The landing. Vanilla's death phase sets health to 0 on reaching the podium, and {@code tickDeath}
+     * would start next tick - the real death. Caught here, after the dragon's own tick and before the
+     * health is synced, so neither the server's death nor a client's ever begins.
+     */
+    @SubscribeEvent
+    public void onDragonTickPost(EntityTickEvent.Post event) {
+        if (!(event.getEntity() instanceof EnderDragon dragon) || !(dragon.level() instanceof ServerLevel level)
+                || !dragon.getPersistentData().contains(FALLING)) {
+            return;
+        }
+        int flown = dragon.getPersistentData().getIntOr(FALLING, 0) + 1;
+        dragon.getPersistentData().putInt(FALLING, flown);
+        if (dragon.getHealth() <= 0.0F || flown >= FLIGHT_LIMIT
+                || dragon.getPhaseManager().getCurrentPhase().getPhase() != EnderDragonPhase.DYING) {
+            land(level, dragon);
+        }
+    }
+
     private static void interlude(ServerLevel level, EnderDragon dragon) {
         int left = dragon.getPersistentData().getIntOr(INTERLUDE, 0) - 1;
         dragon.setHealth(Math.max(1.0F, dragon.getHealth()));
 
-        // Sink onto the podium, if there is one: a dead dragon does not hover.
-        BlockPos origin = dragon.getFightOrigin();
-        BlockPos top = level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                new BlockPos(origin.getX(), 0, origin.getZ()));
-        if (top.getY() > level.getMinY()) {
-            Vec3 rest = new Vec3(top.getX() + 0.5D, top.getY() + 2.0D, top.getZ() + 0.5D);
-            Vec3 here = dragon.position();
-            if (here.distanceToSqr(rest) > 0.25D) {
-                Vec3 next = here.lerp(rest, 0.06D);
-                dragon.setPos(next.x, next.y, next.z);
-            }
-        }
-
-        if (left % 4 == 0) {
-            puff(level, dragon, ParticleTypes.LARGE_SMOKE, 6, 3.0D);
+        // Vanilla's death, as the server can send it: a constant crackle of explosions round the body,
+        // and the big bursts at the end.
+        RandomSource random = dragon.getRandom();
+        level.sendParticles(ParticleTypes.EXPLOSION,
+                dragon.getX() + (random.nextFloat() - 0.5D) * 8.0D, dragon.getY() + 2.0D + (random.nextFloat() - 0.5D) * 4.0D,
+                dragon.getZ() + (random.nextFloat() - 0.5D) * 8.0D, 1, 0.0D, 0.0D, 0.0D, 0.0D);
+        if (left < 30 && left % 3 == 0) {
+            level.sendParticles(ParticleTypes.EXPLOSION_EMITTER,
+                    dragon.getX() + (random.nextFloat() - 0.5D) * 8.0D, dragon.getY() + 2.0D + (random.nextFloat() - 0.5D) * 4.0D,
+                    dragon.getZ() + (random.nextFloat() - 0.5D) * 8.0D, 1, 0.0D, 0.0D, 0.0D, 0.0D);
         }
         if (left < 60 && left % 2 == 0) {
             // The stirring: rot first, then the thing getting up out of it.
@@ -224,6 +268,14 @@ public final class ZombieDragon {
             return;
         }
         rise(level, dragon);
+    }
+
+    /** Tell every client with ZombieMod what to draw: dying (beams and dissolve) or risen (the rot). */
+    private static void tell(ServerLevel level, EnderDragon dragon, boolean risen) {
+        ZombieDragonPayload payload = new ZombieDragonPayload(dragon.getId(), risen);
+        for (ServerPlayer player : level.players()) {
+            Net.sendIfAble(player, payload);
+        }
     }
 
     private static void rise(ServerLevel level, EnderDragon dragon) {
@@ -252,10 +304,7 @@ public final class ZombieDragon {
         puff(level, dragon, ParticleTypes.ITEM_SLIME, 80, 6.0D);
         puff(level, dragon, ParticleTypes.SCULK_SOUL, 30, 5.0D);
 
-        ZombieDragonPayload payload = new ZombieDragonPayload(dragon.getId());
-        for (ServerPlayer player : level.players()) {
-            Net.sendIfAble(player, payload);
-        }
+        tell(level, dragon, true);
         LOG.info("ZombieMod: the Ender Dragon rises as {}", holder.get().key().identifier());
     }
 
@@ -348,9 +397,13 @@ public final class ZombieDragon {
     /** Anyone who starts seeing a risen dragon - logging in, coming through the portal - is told. */
     @SubscribeEvent
     public void onStartTracking(PlayerEvent.StartTracking event) {
-        if (event.getTarget() instanceof EnderDragon dragon && risen(dragon)
-                && event.getEntity() instanceof ServerPlayer player) {
-            Net.sendIfAble(player, new ZombieDragonPayload(dragon.getId()));
+        if (!(event.getTarget() instanceof EnderDragon dragon) || !(event.getEntity() instanceof ServerPlayer player)) {
+            return;
+        }
+        if (risen(dragon)) {
+            Net.sendIfAble(player, new ZombieDragonPayload(dragon.getId(), true));
+        } else if (dragon.getPersistentData().contains(INTERLUDE)) {
+            Net.sendIfAble(player, new ZombieDragonPayload(dragon.getId(), false));
         }
     }
 

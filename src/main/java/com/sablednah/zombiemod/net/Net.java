@@ -46,7 +46,7 @@ public final class Net {
                         () -> com.sablednah.zombiemod.client.DexState.acceptBonus(payload)));
         registrar.playToClient(ZombieDragonPayload.TYPE, ZombieDragonPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(
-                        () -> com.sablednah.zombiemod.client.ZombieDragons.mark(payload.entityId())));
+                        () -> com.sablednah.zombiemod.client.ZombieDragons.accept(payload.entityId(), payload.risen())));
     }
 
     /** Send, if this player is one of the few who can hear it. */

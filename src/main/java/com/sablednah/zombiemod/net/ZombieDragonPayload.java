@@ -16,15 +16,21 @@ import net.minecraft.resources.Identifier;
  * to anyone who starts tracking it afterwards. A vanilla client never agrees the channel and simply
  * sees the vanilla dragon, which is the right way for a cosmetic to fail.
  *
+ * <p>Two states, because the fake death is drawn too: {@code risen == false} is "it is lying dead -
+ * draw vanilla's death beams and dissolve", which vanilla's renderer only does for a dragon whose
+ * health is actually zero.
+ *
  * @param entityId the dragon's network id in the receiver's level
+ * @param risen    false while it lies dead, true once it is the Zombie Dragon
  */
-public record ZombieDragonPayload(int entityId) implements CustomPacketPayload {
+public record ZombieDragonPayload(int entityId, boolean risen) implements CustomPacketPayload {
 
     public static final Type<ZombieDragonPayload> TYPE =
             new Type<>(Identifier.fromNamespaceAndPath(ZombieMod.MOD_ID, "zombie_dragon"));
 
     public static final StreamCodec<ByteBuf, ZombieDragonPayload> STREAM_CODEC =
-            StreamCodec.composite(ByteBufCodecs.VAR_INT, ZombieDragonPayload::entityId, ZombieDragonPayload::new);
+            StreamCodec.composite(ByteBufCodecs.VAR_INT, ZombieDragonPayload::entityId,
+                    ByteBufCodecs.BOOL, ZombieDragonPayload::risen, ZombieDragonPayload::new);
 
     @Override
     public Type<ZombieDragonPayload> type() {
