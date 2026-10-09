@@ -22,6 +22,7 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerBossEvent;
@@ -80,6 +81,8 @@ public final class ZombieDragon {
     static final String BREATH_TAG = "zombiemod.rot_breath";
     /** Ticks left lying dead; present only during the interlude, and saved, so a restart resumes it. */
     static final String INTERLUDE = "zombiemod:dragon_interlude";
+    /** How many phase thresholds it has roared at, so a reload does not roar them all again. */
+    private static final String PHASES_ROARED = "zombiemod:dragon_roared";
 
     private static Field barField;
     private static boolean barFieldSearched;
@@ -157,14 +160,8 @@ public final class ZombieDragon {
         dragon.setDeltaMovement(Vec3.ZERO);
         dragon.getPersistentData().putInt(INTERLUDE, Math.max(20, interlude));
 
-        Optional<SoundEvent> custom = sound(spec, "death_fake");
-        if (custom.isPresent()) {
-            level.playSound(null, dragon.getX(), dragon.getY(), dragon.getZ(), custom.get(),
-                    SoundSource.HOSTILE, 20.0F, 1.0F);
-        } else {
-            // Vanilla's own dragon death: a global event, heard across the dimension.
-            level.globalLevelEvent(1028, dragon.blockPosition(), 0);
-        }
+        // Heard across the island, like vanilla's own dragon death.
+        cue(level, dragon, spec, "death_fake", 1.0F, SoundEvents.ENDER_DRAGON_DEATH, 20.0F, 1.0F, 512.0D);
         LOG.info("ZombieMod: the Ender Dragon falls - and lies still ({} ticks)", interlude);
     }
 
@@ -182,6 +179,7 @@ public final class ZombieDragon {
         if (risen(dragon)) {
             if (dragon.isAlive()) {
                 hunt(level, dragon);
+                voice(level, dragon);
                 dragon.goalSelector.tick();
             }
             return;
@@ -250,11 +248,7 @@ public final class ZombieDragon {
         });
 
         Optional<DragonSpec> spec = holder.get().value().dragon();
-        Optional<SoundEvent> rise = sound(spec, "rise");
-        level.playSound(null, dragon.getX(), dragon.getY(), dragon.getZ(),
-                rise.orElse(SoundEvents.ENDER_DRAGON_GROWL), SoundSource.HOSTILE, 20.0F, rise.isPresent() ? 1.0F : 0.6F);
-        sound(spec, "roar").ifPresent(roar -> level.playSound(null, dragon.getX(), dragon.getY(), dragon.getZ(),
-                roar, SoundSource.HOSTILE, 20.0F, 1.0F));
+        cue(level, dragon, spec, "rise", 1.0F, SoundEvents.ENDER_DRAGON_GROWL, 20.0F, 0.6F, 512.0D);
         puff(level, dragon, ParticleTypes.ITEM_SLIME, 80, 6.0D);
         puff(level, dragon, ParticleTypes.SCULK_SOUL, 30, 5.0D);
 
@@ -319,8 +313,10 @@ public final class ZombieDragon {
             cloud.setCustomParticle(breath.particle());
             cloud.addTag(BREATH_TAG);
         });
-        spec(level, dragon).flatMap(s -> sound(Optional.of(s), "breath")).ifPresent(sound ->
-                level.playSound(null, cloud.getX(), cloud.getY(), cloud.getZ(), sound, SoundSource.HOSTILE, 4.0F, 1.0F));
+        if (EntityState.hasTag(cloud, BREATH_TAG)) {
+            cueAt(level, spec(level, dragon), "breath", cloud.getX(), cloud.getY(), cloud.getZ(), 1.0F,
+                    null, 0.0F, 0.0F, 64.0D);
+        }
     }
 
     @SubscribeEvent
@@ -360,10 +356,78 @@ public final class ZombieDragon {
 
     // ------------------------------------------------------------------ helpers
 
-    /** A sound from the genus's {@code dragon.sounds}, if it names one and the server knows it. */
-    private static Optional<SoundEvent> sound(Optional<DragonSpec> spec, String cue) {
-        return spec.map(s -> s.sounds().get(cue))
-                .flatMap(id -> BuiltInRegistries.SOUND_EVENT.getOptional(id));
+    /**
+     * Growls now and then, and roars - at random, and on crossing each phase threshold, which is
+     * when the waves arrive. Vanilla clients already growl on their own (the dragon's growl is played
+     * client-side), so none of this has a fallback.
+     */
+    private static void voice(ServerLevel level, EnderDragon dragon) {
+        if (dragon.tickCount % 20 != 0) {
+            return;
+        }
+        Optional<DragonSpec> spec = spec(level, dragon);
+        var genus = GenusApplier.genusOf(dragon, level);
+        if (genus.isPresent() && dragon.getMaxHealth() > 0.0F) {
+            double fraction = dragon.getHealth() / dragon.getMaxHealth();
+            int crossed = (int) genus.get().value().phases().stream()
+                    .filter(phase -> fraction <= phase.belowHealth()).count();
+            int heard = dragon.getPersistentData().getIntOr(PHASES_ROARED, 0);
+            if (crossed > heard) {
+                dragon.getPersistentData().putInt(PHASES_ROARED, crossed);
+                cue(level, dragon, spec, "roar", 1.0F, null, 0.0F, 0.0F, 256.0D);
+                return;
+            }
+        }
+        float roll = level.getRandom().nextFloat();
+        if (roll < 1.0F / 30.0F) {
+            cue(level, dragon, spec, "roar", 0.9F + level.getRandom().nextFloat() * 0.2F, null, 0.0F, 0.0F, 256.0D);
+        } else if (roll < 1.0F / 30.0F + 1.0F / 10.0F) {
+            cue(level, dragon, spec, "growl", 0.9F + level.getRandom().nextFloat() * 0.2F, null, 0.0F, 0.0F, 160.0D);
+        }
+    }
+
+    private static void cue(ServerLevel level, EnderDragon dragon, Optional<DragonSpec> spec, String cue,
+            float pitch, SoundEvent fallback, float fallbackVolume, float fallbackPitch, double range) {
+        cueAt(level, spec, cue, dragon.getX(), dragon.getY(), dragon.getZ(), pitch, fallback, fallbackVolume,
+                fallbackPitch, range);
+    }
+
+    /**
+     * Plays one of the genus's {@code dragon.sounds}, chosen per listener.
+     *
+     * <p><b>Our own sounds are never registered</b>, deliberately. A {@code SoundEvent} in the registry
+     * travels to clients as a registry number, and a vanilla client has no such number - an
+     * unregistered one travels as its id instead ({@code Holder.direct}), which a client with our
+     * {@code sounds.json} plays and a vanilla client would only shrug at. So a listener with ZombieMod
+     * installed gets the id; anyone else gets the vanilla {@code fallback}, if the cue has one. An id
+     * another mod <em>has</em> registered (Threadwork's) is sent as-is to everybody: that mod's
+     * players already have it.
+     */
+    private static void cueAt(ServerLevel level, Optional<DragonSpec> spec, String cue, double x, double y, double z,
+            float pitch, SoundEvent fallback, float fallbackVolume, float fallbackPitch, double range) {
+        Identifier id = spec.map(s -> s.sounds().get(cue)).orElse(null);
+        Optional<? extends Holder<SoundEvent>> registered = id == null ? Optional.empty()
+                : BuiltInRegistries.SOUND_EVENT.get(id);
+        Holder<SoundEvent> direct = id == null ? null : Holder.direct(SoundEvent.createVariableRangeEvent(id));
+        long seed = level.getRandom().nextLong();
+        for (ServerPlayer player : level.players()) {
+            if (player.distanceToSqr(x, y, z) > range * range) {
+                continue;
+            }
+            if (registered.isPresent()) {
+                send(player, registered.get(), x, y, z, 1.0F, pitch, seed);
+            } else if (direct != null && Net.listening(player)) {
+                send(player, direct, x, y, z, 1.0F, pitch, seed);
+            } else if (fallback != null) {
+                send(player, BuiltInRegistries.SOUND_EVENT.wrapAsHolder(fallback), x, y, z, fallbackVolume,
+                        fallbackPitch, seed);
+            }
+        }
+    }
+
+    private static void send(ServerPlayer player, Holder<SoundEvent> sound, double x, double y, double z,
+            float volume, float pitch, long seed) {
+        player.connection.send(new ClientboundSoundPacket(sound, SoundSource.HOSTILE, x, y, z, volume, pitch, seed));
     }
 
     private static void puff(ServerLevel level, EnderDragon dragon, ParticleOptions particle, int count, double spread) {

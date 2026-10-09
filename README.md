@@ -775,8 +775,9 @@ It is the genus `zombiemod:zombie_dragon` (choose another with `zombieDragon.gen
 ```json
 "dragon": {
   "interlude": 160,
-  "sounds": { "death_fake": "mypack:dragon.fall", "rise": "mypack:dragon.rise",
-              "roar": "mypack:dragon.roar", "breath": "mypack:dragon.breath" },
+  "sounds": { "death_fake": "zombiemod:zombie_dragon.death_fake", "rise": "zombiemod:zombie_dragon.rise",
+              "roar": "zombiemod:zombie_dragon.roar", "growl": "zombiemod:zombie_dragon.growl",
+              "breath": "zombiemod:zombie_dragon.breath" },
   "breath": {
     "particle": "minecraft:item_slime",
     "effects": [ { "effect": "minecraft:poison", "duration": 100, "amplifier": 1 },
@@ -787,8 +788,10 @@ It is the genus `zombiemod:zombie_dragon` (choose another with `zombieDragon.gen
 ```
 
 - `interlude` — ticks it lies dead.
-- `sounds` — optional, by cue. Plain ids, so they may name another mod's sounds; any id the server
-  does not know falls back to the vanilla dragon's.
+- `sounds` — by cue, and the shipped ones are the Zombie Dragon's own. It roars on crossing each
+  phase threshold and now and then, and growls between. Players with ZombieMod hear these; players
+  without it hear the vanilla dragon's death and growl at the fall and the rise, and its usual
+  growling otherwise. Another mod's registered sound ids work too, heard by everyone who has it.
 - `breath` — replaces what its breath clouds do. `infect` is the same infection a bite gives (milk
   still cures it), rolled twice a second for whatever stands in the cloud.
 
