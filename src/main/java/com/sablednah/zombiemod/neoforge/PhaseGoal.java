@@ -125,5 +125,13 @@ final class PhaseGoal extends Goal {
         phase.sound().ifPresent(sound -> level.playSound(null, mob.getX(), mob.getY(), mob.getZ(),
                 sound.value(), SoundSource.HOSTILE, 1.4F, 0.8F));
         phase.title().ifPresent(text -> announce(level, phase, Announce.format(text)));
+        for (com.sablednah.zombiemod.core.ability.Ability ability : phase.onEnter()) {
+            try {
+                ability.run(level, mob);
+            } catch (Exception e) {
+                com.mojang.logging.LogUtils.getLogger().error("ZombieMod phase ability {} failed on {}",
+                        ability.type(), mob.getType(), e);
+            }
+        }
     }
 }

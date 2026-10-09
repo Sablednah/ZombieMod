@@ -62,6 +62,7 @@ public class ZombieMod {
         NeoForge.EVENT_BUS.register(new com.sablednah.zombiemod.neoforge.Feats());
         NeoForge.EVENT_BUS.register(new ProximitySpawner());
         NeoForge.EVENT_BUS.register(new HordeDirector());
+        NeoForge.EVENT_BUS.register(new com.sablednah.zombiemod.neoforge.ZombieDragon());
         // Permission nodes. Plain NeoForge, not a compat seam: LuckPerms and Standards are both
         // handlers for this same API, so registering here is all either of them needs.
         NeoForge.EVENT_BUS.addListener(ZombieModPermissions::onGatherNodes);
