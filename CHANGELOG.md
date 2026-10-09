@@ -7,6 +7,14 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone (`syncedconfig/` on Minecraft 26.3).
 
+## Unreleased
+
+### Added
+
+- **Other mods can keep a mob vanilla.** A mob carrying the scoreboard tag `zombiemod.noroll` when
+  it spawns is never turned into a ZombieMod zombie type, and claim rules leave it alone. CrawlSpace
+  uses it for its dungeon bosses; any mod or datapack can do the same.
+
 ## 3.6.3
 
 *2026-10-08.* Minecraft 26.3 moves to NeoForge 26.3.0.58.

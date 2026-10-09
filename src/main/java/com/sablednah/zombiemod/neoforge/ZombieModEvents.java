@@ -131,6 +131,9 @@ public final class ZombieModEvents {
                 hordes.isEmpty() ? "" : " - " + String.join(", ", hordes), rituals);
     }
 
+    /** Scoreboard tag another mod sets on a mob to keep it out of the genus roll. Public contract. */
+    public static final String NO_ROLL_TAG = "zombiemod.noroll";
+
     @SubscribeEvent
     public void onFinalizeSpawn(FinalizeSpawnEvent event) {
         // getLevel() is a ServerLevelAccessor, which during chunk generation is a WorldGenRegion
@@ -164,6 +167,13 @@ public final class ZombieModEvents {
         }
         ServerLevel level = event.getLevel().getLevel();
         Mob mob = event.getEntity();
+        // Another mod placing a mob it means to keep vanilla - CrawlSpace's lair bosses, which it
+        // crowns with its own name, health and boss bar - adds this scoreboard tag before calling
+        // finalizeSpawn. A plain string, so neither side compiles against the other. Checked before
+        // the claim rules too: a mob somebody deliberately placed is not ours to cancel either.
+        if (mob.getTags().contains(NO_ROLL_TAG)) {
+            return;
+        }
         if (mob.getPersistentData().getString(GenusApplier.GENUS_TAG).isPresent()) {
             return; // already ours (e.g. spawned by command, which assigns before adding)
         }
