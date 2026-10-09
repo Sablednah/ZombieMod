@@ -627,6 +627,7 @@ from it at build time, so never edit the generated file.
 | `3.6.1` | 2026-09-29 | Minecraft 26.3, a fourth jar (NeoForge 26.3 is beta). Nothing changes on the other three; loot tables are the one per-branch data, see MULTIVERSION.md. |
 | `3.6.2` | 2026-09-30 | The 26.3 jar capped at NeoForge 26.3.0.36: .37-beta renamed `ModConfig.Type` and every mod with a config fails there. Lift the cap when NeoForge 26.3 goes stable. |
 | `3.6.3` | 2026-10-08 | The 26.3 jar moves to NeoForge 26.3.0.58+: `platform/Configs` registers `SYNCED` under the old file name, so settings carry over. |
+| `3.6.4` | 2026-10-09 | A mob tagged `zombiemod.noroll` at spawn is never given a genus or cancelled by claim rules — CrawlSpace's bosses use it. Read through `EntityState.hasTag` (`getTags()` became `entityTags()` on 26.1+). |
 
 **Publishing to GitHub publishes to CurseForge**, via `.github/workflows/curseforge.yml`. Proven on
 every release so far.
@@ -711,6 +712,11 @@ Sable's game that evening, which is the story told in CLAUDE.md. GitHub release 
 files 8915240–8915242, Modrinth versions `U8X1DYCc`, `VGdpCw0a`, `uoCg1MfD` into the still-unreviewed
 draft. Both store uploads ran from the release automatically and cleanly. Built from `193914a`
 (master), `4e5f950` (mc26.1), `5f96927` (mc26.2).
+
+**3.6.4, 2026-10-09** — the `zombiemod.noroll` tag, asked for by the CrawlSpace session. Their
+bosses, packs, minions and split copies carry it; their ordinary dungeon mobs now go through
+`EventHooks.finalizeMobSpawn` so genera can roll on them (a direct `Mob.finalizeSpawn` fires no
+`FinalizeSpawnEvent`, so before that CrawlSpace mobs were never rolled at all).
 
 **3.6.3 shipped 2026-10-08** — the 26.3 jar moved to NeoForge `[26.3.0.58-beta,26.4)` at Sable's call
 (his release line is on .58), without waiting for a stable 26.3. The config rename is behind a new
