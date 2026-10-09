@@ -25,9 +25,9 @@ import net.minecraft.world.effect.MobEffects;
  *
  * @param interlude ticks the dragon lies dead before it rises
  * @param sounds    optional sound ids by cue: {@code death_fake}, {@code rise}, {@code roar},
- *                  {@code growl}, {@code breath}. Ids, not registry holders, so a datapack can name
- *                  a sound another mod may not register yet; one that does not resolve falls back
- *                  to the vanilla dragon's
+ *                  {@code growl}, {@code breath}. Ids, not registry holders: ours are deliberately
+ *                  unregistered (see {@code ZombieDragon.cueAt}), and a datapack may name another
+ *                  mod's. A listener without the sound hears the vanilla dragon's where there is one
  * @param breath    what its breath clouds become; absent leaves them vanilla
  */
 public record DragonSpec(int interlude, Map<String, Identifier> sounds, Optional<Breath> breath) {

@@ -1,0 +1,33 @@
+{
+  "zombie_dragon.roar": {
+    "subtitle": "subtitles.zombiemod.zombie_dragon.roar",
+    "sounds": [
+      { "name": "zombiemod:zombie_dragon/roar1", "attenuation_distance": 64 },
+      { "name": "zombiemod:zombie_dragon/roar2", "attenuation_distance": 64 },
+      { "name": "zombiemod:zombie_dragon/roar3", "attenuation_distance": 64 }
+    ]
+  },
+  "zombie_dragon.growl": {
+    "subtitle": "subtitles.zombiemod.zombie_dragon.growl",
+    "sounds": [
+      { "name": "zombiemod:zombie_dragon/growl1", "attenuation_distance": 48 },
+      { "name": "zombiemod:zombie_dragon/growl2", "attenuation_distance": 48 },
+      { "name": "zombiemod:zombie_dragon/growl3", "attenuation_distance": 48 }
+    ]
+  },
+  "zombie_dragon.breath": {
+    "subtitle": "subtitles.zombiemod.zombie_dragon.breath",
+    "sounds": [
+      { "name": "zombiemod:zombie_dragon/breath1", "attenuation_distance": 32 },
+      { "name": "zombiemod:zombie_dragon/breath2", "attenuation_distance": 32 }
+    ]
+  },
+  "zombie_dragon.death_fake": {
+    "subtitle": "subtitles.zombiemod.zombie_dragon.death_fake",
+    "sounds": [ { "name": "zombiemod:zombie_dragon/death_fake", "attenuation_distance": 96 } ]
+  },
+  "zombie_dragon.rise": {
+    "subtitle": "subtitles.zombiemod.zombie_dragon.rise",
+    "sounds": [ { "name": "zombiemod:zombie_dragon/rise", "attenuation_distance": 96 } ]
+  }
+}
