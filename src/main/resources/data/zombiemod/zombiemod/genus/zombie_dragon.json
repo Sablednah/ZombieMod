@@ -1,0 +1,100 @@
+{
+  "name": "&2Zombie Dragon",
+  "description": "You killed it. It did not stay killed. Everything that died in the End came back with it.",
+  "base": "minecraft:ender_dragon",
+  "weight": 0,
+  "health": 400.0,
+  "attributes": {
+    "minecraft:armor": 10.0,
+    "minecraft:armor_toughness": 4.0
+  },
+  "clear_goals": true,
+  "abilities": [
+    {
+      "type": "zombiemod:summon",
+      "genus": "zombiemod:ender",
+      "interval": 300,
+      "chance": 1.0,
+      "count": 2,
+      "max_nearby": 8,
+      "radius": 96.0,
+      "near_target": true
+    }
+  ],
+  "phases": [
+    {
+      "below_health": 0.66,
+      "title": "&2The dead answer it",
+      "announce": "title",
+      "announce_radius": 256.0,
+      "on_enter": [
+        {
+          "type": "zombiemod:summon",
+          "genus": "zombiemod:walker",
+          "count": 6,
+          "max_nearby": 40,
+          "radius": 96.0,
+          "near_target": true
+        },
+        {
+          "type": "zombiemod:summon",
+          "genus": "zombiemod:runner",
+          "count": 3,
+          "max_nearby": 40,
+          "radius": 96.0,
+          "near_target": true
+        }
+      ]
+    },
+    {
+      "below_health": 0.33,
+      "title": "&2It calls the rest of them",
+      "announce": "title",
+      "announce_radius": 256.0,
+      "on_enter": [
+        {
+          "type": "zombiemod:summon",
+          "genus": "zombiemod:runner",
+          "count": 4,
+          "max_nearby": 40,
+          "radius": 96.0,
+          "near_target": true
+        },
+        {
+          "type": "zombiemod:summon",
+          "genus": "zombiemod:tank",
+          "count": 1,
+          "max_nearby": 40,
+          "radius": 96.0,
+          "near_target": true
+        },
+        {
+          "type": "zombiemod:summon",
+          "genus": "zombiemod:screamer",
+          "count": 1,
+          "max_nearby": 40,
+          "radius": 96.0,
+          "near_target": true
+        }
+      ]
+    }
+  ],
+  "dragon": {
+    "interlude": 160,
+    "breath": {
+      "particle": "minecraft:item_slime",
+      "effects": [
+        { "effect": "minecraft:poison", "duration": 100, "amplifier": 1 },
+        { "effect": "minecraft:wither", "duration": 60, "amplifier": 0 }
+      ],
+      "infect": {
+        "chance": 0.25,
+        "duration": 2400
+      }
+    }
+  },
+  "loot": {
+    "table": "zombiemod:entities/zombie_dragon",
+    "replace": true
+  }
+}

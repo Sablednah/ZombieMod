@@ -196,6 +196,11 @@ public final class Bestiary extends SavedData {
      */
     public boolean concealed(UUID player, Identifier id, com.sablednah.zombiemod.core.Genus genus) {
         boolean earned = hasMet(player, id) || killsOf(player, id) > 0;
+        // The Zombie Dragon with the feature off is a genus nobody can meet. Counted, it would sit in
+        // every dex as the one row that can never be filled.
+        if (ZombieDragon.unreachable(id)) {
+            return !earned;
+        }
         String sid = id.toString();
         if (ZombieModConfig.BESTIARY_HIDDEN.get().contains(sid)) {
             return !(earned && ZombieModConfig.BESTIARY_HIDDEN_MET.get().contains(sid));

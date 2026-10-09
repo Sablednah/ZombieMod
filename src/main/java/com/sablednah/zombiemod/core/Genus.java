@@ -90,10 +90,10 @@ public record Genus(
      */
     public record Encounter(Optional<BossSpec> boss, List<Phase> phases, Optional<LootSpec> loot,
             Optional<Integer> xp, Optional<Double> bounty,
-            List<com.sablednah.zombiemod.core.mutate.MutationSpec> mutations) {
+            List<com.sablednah.zombiemod.core.mutate.MutationSpec> mutations, Optional<DragonSpec> dragon) {
 
         public static final Encounter NONE = new Encounter(Optional.empty(), List.of(),
-                Optional.empty(), Optional.empty(), Optional.empty(), List.of());
+                Optional.empty(), Optional.empty(), Optional.empty(), List.of(), Optional.empty());
 
         public static final com.mojang.serialization.MapCodec<Encounter> MAP_CODEC =
                 RecordCodecBuilder.mapCodec(i -> i.group(
@@ -103,7 +103,8 @@ public record Genus(
                         Codec.INT.optionalFieldOf("xp").forGetter(Encounter::xp),
                         Codec.DOUBLE.optionalFieldOf("bounty").forGetter(Encounter::bounty),
                         com.sablednah.zombiemod.core.mutate.MutationSpec.CODEC.listOf()
-                                .optionalFieldOf("mutations", List.of()).forGetter(Encounter::mutations))
+                                .optionalFieldOf("mutations", List.of()).forGetter(Encounter::mutations),
+                        DragonSpec.CODEC.optionalFieldOf("dragon").forGetter(Encounter::dragon))
                         .apply(i, Encounter::new));
     }
 
@@ -312,6 +313,11 @@ public record Genus(
 
     public Optional<Double> bounty() {
         return encounter.bounty();
+    }
+
+    /** The Zombie Dragon's extras; only read for an {@code ender_dragon} base. */
+    public Optional<DragonSpec> dragon() {
+        return encounter.dragon();
     }
 
     /**
