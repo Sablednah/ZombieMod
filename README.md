@@ -399,7 +399,7 @@ First firings are staggered per mob, so a horde that spawned together doesn't ac
 | `zombiemod:shockwave` | `radius`, `damage`, `knockup` — launch and hurt everything nearby |
 | `zombiemod:leap` | `range`, `power`, `lift` — pounce at the victim |
 | `zombiemod:pull` | `range`, `power` — drag nearby players toward it |
-| `zombiemod:summon` | `entity` or `genus`, `count`, `max_nearby`, `radius`, `near_target` — spawn reinforcements. `near_target` puts them around whatever the caster is fighting; a spot in mid-air drops to the ground below, and the void is skipped |
+| `zombiemod:summon` | `entity` or `genus`, `count`, `max_nearby`, `radius`, `near_target` — spawn reinforcements. With only a `genus`, it spawns that genus's `base`; with neither, a zombie. `near_target` puts them around whatever the caster is fighting; a spot in mid-air drops to the ground below, and the void is skipped |
 | `zombiemod:alert` | `radius`, `who`, `max_alerted` — hand your target to everything nearby |
 | `zombiemod:break_blocks` | `allowed`, `reach`, `infest` — chew through walls when the path is blocked |
 | `zombiemod:projectile` | `projectile`, `range`, `power`, `inaccuracy` — fire something |
