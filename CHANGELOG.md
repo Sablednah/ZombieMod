@@ -21,6 +21,12 @@ world alone (`syncedconfig/` on Minecraft 26.3).
 - **`summon` can place its mobs around the target** (`near_target`), and no longer drops a flying
   caster's minions out of the sky: a mid-air spot goes to the ground below, and the void is skipped.
 
+### Fixed
+
+- **`summon` with a `genus` and no `entity` spawned a zombie** whatever the genus's base was, so a
+  summoned enderman genus came out as zombies wearing its name. It now spawns the genus's own
+  `base`; an explicit `entity` still wins. Reported from the ZARP pack.
+
 ## 3.6.4
 
 *2026-10-09.* Leave it be.
