@@ -52,6 +52,9 @@ public class ZombieMod {
                             com.sablednah.zombiemod.neoforge.GenusApplier.assign(mob, holder);
                             com.sablednah.zombiemod.neoforge.GenusApplier.applyAi(mob, holder.value());
                         }));
+        com.sablednah.zombiemod.core.ability.Abilities.Summon.setBases((level, genusId) ->
+                level.registryAccess().lookupOrThrow(ZombieModRegistries.GENUS)
+                        .getOptional(genusId).map(com.sablednah.zombiemod.core.Genus::base));
 
         com.sablednah.zombiemod.compat.StandardsEconomy.install();
 

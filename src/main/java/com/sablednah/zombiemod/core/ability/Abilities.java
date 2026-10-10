@@ -501,8 +501,11 @@ public final class Abilities {
      * caster. Either way, a spot in mid-air - a flying caster, a target on a pillar's edge - is
      * dropped to the ground below it, and a spot with no ground at all (the End's void) is skipped
      * rather than filled with mobs that fall out of the world.
+     *
+     * <p>{@code entity} defaults to the genus's own {@code base}, then to a zombie. An explicit
+     * {@code entity} still wins, so a genus can be worn by something other than its usual body.
      */
-    public record Summon(int interval, float chance, EntityType<?> entity, int count, int maxNearby,
+    public record Summon(int interval, float chance, Optional<EntityType<?>> entity, int count, int maxNearby,
             double radius, Optional<Identifier> genus, boolean nearTarget) implements Ability {
 
         public static final Identifier TYPE = id("summon");
@@ -519,11 +522,25 @@ public final class Abilities {
             dresser = dress;
         }
 
+        /** A genus's {@code base}, looked up in the live registry. Injected beside the dresser. */
+        private static java.util.function.BiFunction<ServerLevel, Identifier, Optional<EntityType<?>>> bases =
+                (level, id) -> Optional.empty();
+
+        public static void setBases(
+                java.util.function.BiFunction<ServerLevel, Identifier, Optional<EntityType<?>>> lookup) {
+            bases = lookup;
+        }
+
+        /** What actually spawns: the named entity, else the genus's base, else a zombie. */
+        private EntityType<?> body(ServerLevel level) {
+            return entity.or(() -> genus.flatMap(id -> bases.apply(level, id))).orElseGet(Types::zombie);
+        }
+
         public static final MapCodec<Summon> CODEC = RecordCodecBuilder.mapCodec(i -> i.group(
                 Abilities.<Summon>intervalField(200),
                 Abilities.<Summon>chanceField(0.25F),
                 BuiltInRegistries.ENTITY_TYPE.byNameCodec()
-                        .optionalFieldOf("entity", Types.zombie()).forGetter(Summon::entity),
+                        .optionalFieldOf("entity").forGetter(Summon::entity),
                 Codec.INT.optionalFieldOf("count", 1).forGetter(Summon::count),
                 Codec.INT.optionalFieldOf("max_nearby", 6).forGetter(Summon::maxNearby),
                 Codec.DOUBLE.optionalFieldOf("radius", 8.0D).forGetter(Summon::radius),
@@ -539,7 +556,8 @@ public final class Abilities {
         @Override
         public String describe() {
             String what = genus.map(g -> g.getPath().replace('_', ' '))
-                    .orElse(pretty(BuiltInRegistries.ENTITY_TYPE.getKey(entity)).toLowerCase());
+                    .orElse(pretty(BuiltInRegistries.ENTITY_TYPE.getKey(entity.orElseGet(Types::zombie)))
+                            .toLowerCase());
             return "Calls up " + count + " " + what
                     + (count == 1 ? "" : "s") + ", up to " + maxNearby + " at once.";
         }
@@ -547,13 +565,14 @@ public final class Abilities {
 
         @Override
         public void run(ServerLevel level, Mob mob) {
+            EntityType<?> body = body(level);
             // With a genus set the cap counts that genus, not the raw entity type - a hive capped
             // on "zombies nearby" would starve itself in any crowd of ordinary dead.
             java.util.function.Predicate<net.minecraft.world.entity.LivingEntity> kin =
                     genus.<java.util.function.Predicate<net.minecraft.world.entity.LivingEntity>>map(
                             id -> e -> e instanceof Mob m && m.getPersistentData()
                                     .getString("zombiemod:genus").map(id.toString()::equals).orElse(false))
-                            .orElse(e -> e.getType() == entity);
+                            .orElse(e -> e.getType() == body);
             int nearby = level.getEntitiesOfClass(net.minecraft.world.entity.LivingEntity.class,
                     mob.getBoundingBox().inflate(radius), kin).size();
             if (nearby >= maxNearby) {
@@ -580,7 +599,7 @@ public final class Abilities {
                 if (at == null) {
                     continue; // nothing but void here
                 }
-                var spawned = entity.create(level, net.minecraft.world.entity.EntitySpawnReason.REINFORCEMENT);
+                var spawned = body.create(level, net.minecraft.world.entity.EntitySpawnReason.REINFORCEMENT);
                 if (spawned == null) {
                     return;
                 }
