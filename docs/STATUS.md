@@ -726,6 +726,11 @@ infection, real death, drops at killer). Played through by Sable on 26.2 in ZARP
 sounds and the Voidlings as endermen all confirmed. The first build froze the fake death with NoAi and
 snapped the dragon to the fountain; fixed by letting vanilla's DYING phase fly it.
 
+**3.7.0 shipped 2026-10-10** — the Zombie Dragon, after Sable played it through in ZARP on 26.2, plus
+`summon` spawning a genus's own base (ZARP's voidlings had come out as zombies). GitHub `v3.7.0`,
+CurseForge files 9123358–9123361. Built from `3ea6bd0` (master), `87e56a2` (mc26.1), `15b9a9f`
+(mc26.2), `75188fd` (mc26.3). The ZARP instance has the identical code as test build `621a6615`.
+
 **3.6.4 shipped 2026-10-09** — the `zombiemod.noroll` tag, asked for by the CrawlSpace session. Their
 bosses, packs, minions and split copies carry it; their ordinary dungeon mobs now go through
 `EventHooks.finalizeMobSpawn` so genera can roll on them (a direct `Mob.finalizeSpawn` fires no
