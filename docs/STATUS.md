@@ -627,6 +627,7 @@ from it at build time, so never edit the generated file.
 | `3.6.1` | 2026-09-29 | Minecraft 26.3, a fourth jar (NeoForge 26.3 is beta). Nothing changes on the other three; loot tables are the one per-branch data, see MULTIVERSION.md. |
 | `3.6.2` | 2026-09-30 | The 26.3 jar capped at NeoForge 26.3.0.36: .37-beta renamed `ModConfig.Type` and every mod with a config fails there. Lift the cap when NeoForge 26.3 goes stable. |
 | `3.6.3` | 2026-10-08 | The 26.3 jar moves to NeoForge 26.3.0.58+: `platform/Configs` registers `SYNCED` under the old file name, so settings carry over. |
+| `3.7.0` | 2026-10-10 | The Zombie Dragon (off by default): the dragon's first death is faked through vanilla's own dying flight, it lies on the podium and rises as a 400-health genus with rot breath, an Ender Zombie trickle and two waves. Client renderer per branch, sounds sent per listener and never registered. Phases gained `on_enter`; `summon` gained `near_target` and now spawns a genus's own base. |
 | `3.6.4` | 2026-10-09 | A mob tagged `zombiemod.noroll` at spawn is never given a genus or cancelled by claim rules — CrawlSpace's bosses use it. Read through `EntityState.hasTag` (`getTags()` became `entityTags()` on 26.1+). |
 
 **Publishing to GitHub publishes to CurseForge**, via `.github/workflows/curseforge.yml`. Proven on
@@ -713,7 +714,7 @@ files 8915240–8915242, Modrinth versions `U8X1DYCc`, `VGdpCw0a`, `uoCg1MfD` in
 draft. Both store uploads ran from the release automatically and cleanly. Built from `193914a`
 (master), `4e5f950` (mc26.1), `5f96927` (mc26.2).
 
-**The Zombie Dragon, 2026-10-09 — built on all four branches, unreleased, unplayed.** ZARP's
+**The Zombie Dragon — shipped in 3.7.0, 2026-10-10, played by Sable in the ZARP pack.** ZARP's
 brief, with Sable's numbers relayed by the ZARP session: 400 health ("make it hard"), the texture
 (yes - "a signature moment"), rot breath, waves at 2/3 and 1/3, and Voidlings throughout (ZARP's
 datapack overrides the genus to put `zarp:voidling` in the trickle). Contract with ZARP/Threadwork:
@@ -721,8 +722,9 @@ tag `zombiemod.zombie_dragon`, config `zombieDragon.enabled`, heart custom_data
 `{"threadwork":{"part":"zombie_dragon_heart"}}` (ZARP's loot override adds the `item_model`; ours
 can't, since a stock server has no Threadwork model), sounds `threadwork:zombie_dragon.*` optional.
 Proven headlessly on 1.21.11 and 26.3 by a temporary probe (fall, interlude, rise, wave, breath,
-infection, real death, drops at killer). **Not yet seen by anyone**: the rot texture in a real
-client, the sinking onto the podium, the green bar, a real End fight with crystals and portal.
+infection, real death, drops at killer). Played through by Sable on 26.2 in ZARP (2026-10-10): the fake death (dying flight and beams), his painted texture, his
+sounds and the Voidlings as endermen all confirmed. The first build froze the fake death with NoAi and
+snapped the dragon to the fountain; fixed by letting vanilla's DYING phase fly it.
 
 **3.6.4 shipped 2026-10-09** — the `zombiemod.noroll` tag, asked for by the CrawlSpace session. Their
 bosses, packs, minions and split copies carry it; their ordinary dungeon mobs now go through
