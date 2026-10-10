@@ -7,7 +7,9 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone (`syncedconfig/` on Minecraft 26.3).
 
-## Unreleased
+## 3.7.0
+
+*2026-10-10.* It gets back up.
 
 ### Added
 
