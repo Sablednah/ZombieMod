@@ -784,7 +784,13 @@ A month of play on 3.4.x closed most of the open list in one sitting:
 4. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
-5. **Two suggestions from the ZARP pack (2026-10-11), awaiting Sable's call.** In a CityWorld vault,
+5. ~~**Two suggestions from the ZARP pack (2026-10-11).**~~ **Both done 2026-10-15, unreleased.**
+   (a) became `spawn.weights` — a place-dependent weight that replaces the base where its conditions
+   hold — and the shipped vault_dweller is 6 anywhere, 250 in `VaultLot`/`RoadThroughVaultLot`.
+   (b) the `Lot`/`Context` suffix is optional, and `CityClassCheck` warns at start on any class
+   CityWorld lacks. Proven headlessly on an apocalypse CityWorld world: 250 in all 9 vault chunks
+   around 3 entrances, 6 in all 18 neighbours; `Hospital`/`Highrise` silent, three misspellings warned
+   with the right suggestion each. The original note, for the record: In a CityWorld vault,
    `vault_dweller` (weight 6, depth ≥ 10, light ≤ 7) competes with ~340 weight of anywhere-genera plus
    `vanillaWeight` 40, so it is under 2% of vault zombies; ZARP overrides it in data (weight 250, lot
    classes `VaultLot`/`RoadThroughVaultLot`, depth ≥ 8). (a) Make the shipped one vault-heavy - but a

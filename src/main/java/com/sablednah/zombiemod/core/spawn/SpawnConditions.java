@@ -479,7 +479,8 @@ public final class SpawnConditions {
      * Which district: {@code HIGHRISE}, {@code FARM}, {@code NATURE}, {@code INDUSTRIAL} and the
      * rest, or the context class name for finer grain.
      *
-     * <p>This is the coarse "what kind of place is this", and the one most genera want.
+     * <p>This is the coarse "what kind of place is this", and the one most genera want. A class may
+     * leave off its {@code Context} suffix - {@code Highrise} matches {@code HighriseContext}.
      */
     public record CityDistrict(List<String> districts, List<String> classes) implements SpawnCondition {
 
@@ -498,7 +499,8 @@ public final class SpawnConditions {
         @Override
         public boolean test(Level level, BlockPos pos) {
             return com.sablednah.zombiemod.compat.CityWorld.lotAt(level, pos)
-                    .filter(lot -> matches(districts, lot.context()) && matches(classes, lot.contextClass()))
+                    .filter(lot -> matches(districts, lot.context())
+                            && matchesClass(classes, lot.contextClass(), CONTEXT_SUFFIX))
                     .isPresent();
         }
     }
@@ -506,6 +508,10 @@ public final class SpawnConditions {
     /**
      * Which lot: {@code ROAD} for something that hunts the streets, {@code STRUCTURE} for something
      * that lives indoors, or a named schematic for something that haunts one specific building.
+     *
+     * <p>A class may leave off its {@code Lot} suffix - {@code Hospital} matches {@code HospitalLot}.
+     * Whole names only past that: {@code Vault} is {@code VaultLot}, not every lot with a vault in
+     * it, because a substring match would quietly widen as CityWorld gains lots.
      */
     public record CityLot(List<String> styles, List<String> classes, List<String> schematics)
             implements SpawnCondition {
@@ -527,7 +533,7 @@ public final class SpawnConditions {
         public boolean test(Level level, BlockPos pos) {
             return com.sablednah.zombiemod.compat.CityWorld.lotAt(level, pos)
                     .filter(lot -> matches(styles, lot.style())
-                            && matches(classes, lot.lotClass())
+                            && matchesClass(classes, lot.lotClass(), LOT_SUFFIX)
                             && matches(schematics, lot.schematic()))
                     .isPresent();
         }
@@ -571,6 +577,28 @@ public final class SpawnConditions {
             return true;
         }
         return actual != null && wanted.stream().anyMatch(w -> w.equalsIgnoreCase(actual));
+    }
+
+    public static final String LOT_SUFFIX = "Lot";
+    public static final String CONTEXT_SUFFIX = "Context";
+
+    /**
+     * {@link #matches}, but a wanted name may leave off the suffix every class of its kind carries.
+     *
+     * <p>Because a datapack author writes what the thing is called - "Hospital" - and the class is
+     * {@code HospitalLot}. A name that matched nothing used to be silent, and the genus simply never
+     * spawned there; ZARP's patient spent a day like that.
+     */
+    public static boolean matchesClass(List<String> wanted, String actual, String suffix) {
+        if (wanted.isEmpty()) {
+            return true;
+        }
+        return actual != null && wanted.stream().anyMatch(w -> classMatches(w, actual, suffix));
+    }
+
+    /** One wanted name against one class name, suffix optional, case ignored. */
+    public static boolean classMatches(String wanted, String actual, String suffix) {
+        return wanted.equalsIgnoreCase(actual) || (wanted + suffix).equalsIgnoreCase(actual);
     }
 
     /** Inverts a condition — "anywhere but the Nether", "not in daylight". */

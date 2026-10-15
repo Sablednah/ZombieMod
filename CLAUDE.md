@@ -732,9 +732,20 @@ builds, a `MapCodec`, and a line in the matching `*Types` registry. `SpawnCondit
 is deliberately **public**: the interesting conditions (CityWorld's wilderness-vs-city, a claim
 mod's protected chunks) live outside this mod and must not become hard dependencies.
 
-**`city_lot`/`city_district` `classes` match the whole simple class name** - `HospitalLot`, never
-`Hospital` - and a name that matches nothing is not an error, so the genus just never spawns there
-(ZARP's patient, 2026-10-11). Check a class name against CityWorld's source before shipping one.
+**`city_lot`/`city_district` `classes` match the simple class name, suffix optional** (`Hospital`
+for `HospitalLot`, `Highrise` for `HighriseContext`; `SpawnConditions.matchesClass`). Before
+2026-10-15 it was the whole name only, and a name matching nothing was silent - ZARP's patient never
+spawned. A name matching nothing is still not an error, but `CityClassCheck` warns at server start:
+it re-encodes every genus and horde to JSON through its own codec and walks that, so a condition in
+a spot nobody listed (placed weights, behaviours, mutation `where`) is still found. The known names
+come from the loader's scan of CityWorld's jar (`ModFileScanData`, parent chains up to `PlatLot` and
+`DataContext`) - the same API on FML 4 and 12, so no seam - which means it tracks whichever
+CityWorld is installed rather than a list here going stale.
+
+**`spawn.weights` (`SpawnRules.PlacedWeight`) is the base weight, place by place**, and every draw
+must roll on `Genus.weightAt(level, pos)`, never `weight()` - computed once per candidate and kept,
+so the total and the walk cannot disagree. Four draws: `rollGenus`, `SpawnPlacement.weighted`,
+`ProximitySpawner`, `Conversions.weighted`. A base of 0 stays 0 whatever the placed weights say.
 
 `SpawnRules` keeps `reasons` as a plain field rather than a condition, because spawn reason isn't a
 property of the *place* and needs a restrictive default — an empty condition list has to mean
