@@ -1,7 +1,11 @@
 package com.sablednah.zombiemod.compat;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import com.mojang.logging.LogUtils;
 
@@ -47,7 +51,67 @@ public final class CityWorld {
     private static Method naturePercent;
     private static Method schematicName;
 
+    private static Set<String> lotClasses;
+    private static Set<String> contextClasses;
+
+    private static final String PLAT_LOT = "me/daddychurchill/CityWorld/Plats/PlatLot";
+    private static final String DATA_CONTEXT = "me/daddychurchill/CityWorld/Context/DataContext";
+
     private CityWorld() {}
+
+    /**
+     * Simple names of every lot class CityWorld has - what a {@code city_lot} {@code classes} entry
+     * can match. Empty without CityWorld.
+     *
+     * <p>Read from the loader's scan of CityWorld's jar rather than from CityWorld itself, so it costs
+     * CityWorld no API and tracks whatever lots the installed version actually has: a list written
+     * down here would go stale the first time a lot was added or renamed, which is the very mistake
+     * it exists to catch.
+     */
+    public static synchronized Set<String> lotClasses() {
+        if (lotClasses == null) {
+            scan();
+        }
+        return lotClasses;
+    }
+
+    /** As {@link #lotClasses}, for {@code city_district}'s context classes. */
+    public static synchronized Set<String> contextClasses() {
+        if (contextClasses == null) {
+            scan();
+        }
+        return contextClasses;
+    }
+
+    /** Subclasses of {@code PlatLot} and {@code DataContext}, by walking each class's parent chain. */
+    private static void scan() {
+        lotClasses = new HashSet<>();
+        contextClasses = new HashSet<>();
+        if (!available()) {
+            return;
+        }
+        try {
+            Map<String, String> parents = new HashMap<>();
+            for (var data : ModList.get().getModFileById("cityworld").getFile().getScanResult().getClasses()) {
+                parents.put(data.clazz().getInternalName(),
+                        data.parent() == null ? null : data.parent().getInternalName());
+            }
+            for (String name : parents.keySet()) {
+                for (String up = parents.get(name); up != null; up = parents.get(up)) {
+                    if (up.equals(PLAT_LOT) || up.equals(DATA_CONTEXT)) {
+                        String simple = name.substring(Math.max(name.lastIndexOf('/'), name.lastIndexOf('$')) + 1);
+                        (up.equals(PLAT_LOT) ? lotClasses : contextClasses).add(simple);
+                        break;
+                    }
+                }
+            }
+        } catch (RuntimeException e) {
+            // Only ever used to warn. Not knowing the names must never cost anything else.
+            LOG.debug("ZombieMod: could not list CityWorld's classes ({})", e.toString());
+            lotClasses.clear();
+            contextClasses.clear();
+        }
+    }
 
     /** True if CityWorld is present and its API answered as expected. */
     public static synchronized boolean available() {

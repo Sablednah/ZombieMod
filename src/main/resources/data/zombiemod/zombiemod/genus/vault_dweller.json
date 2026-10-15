@@ -59,6 +59,20 @@
         "type": "zombiemod:light",
         "max": 7
       }
+    ],
+    "weights": [
+      {
+        "weight": 250,
+        "conditions": [
+          {
+            "type": "zombiemod:city_lot",
+            "classes": [
+              "VaultLot",
+              "RoadThroughVaultLot"
+            ]
+          }
+        ]
+      }
     ]
   },
   "clear_goals": true,
