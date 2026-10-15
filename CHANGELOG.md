@@ -7,6 +7,24 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone (`syncedconfig/` on Minecraft 26.3).
 
+## Unreleased
+
+### Added
+
+- **A genus can be more (or less) common in particular places** — `spawn.weights`, a list of
+  weights each with its own conditions; the first that holds replaces the genus's `weight` there.
+  See *Spawning* in the README.
+- **A warning at startup for a CityWorld class name that matches nothing.** With CityWorld
+  installed, any `city_lot` or `city_district` `classes` entry CityWorld has no class for is named
+  in the log, with the genus or horde it is in and the nearest real name.
+
+### Changed
+
+- **The Vault Dweller lives in the vaults.** Still an occasional find deep underground anywhere
+  (weight 6); inside a CityWorld vault it is weight 250, most of what you will meet there.
+- **CityWorld class names may leave off their suffix** — `"Hospital"` matches `HospitalLot`,
+  `"Highrise"` matches `HighriseContext`. Full names still work.
+
 ## 3.7.0
 
 *2026-10-10.* It gets back up.

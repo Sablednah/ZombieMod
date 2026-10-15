@@ -37,7 +37,8 @@ import net.minecraft.world.item.component.ResolvableProfile;
  * @param name          display name shown above the mob; absent means no name tag
  * @param base          which vanilla mob to dress up (zombie, husk, drowned, …)
  * @param weight        relative spawn frequency against other genera for the same base mob;
- *                      0 means "never spawn naturally, command/spawner only"
+ *                      0 means "never spawn naturally, command/spawner only". {@code spawn}'s
+ *                      {@code weights} can replace it place by place; the draws ask {@link #weightAt}
  * @param health        max health, or absent to keep the vanilla value
  * @param damage        attack damage, or absent to keep the vanilla value
  * @param speed         movement speed <em>multiplier</em> on the vanilla base, as in the old configs
@@ -263,6 +264,11 @@ public record Genus(
         return holder.value().weight() > 0
                 && (com.sablednah.zombiemod.ZombieModConfig.BUILTIN_GENERA.get()
                         || !holder.key().identifier().getNamespace().equals("zombiemod"));
+    }
+
+    /** {@link #weight}, or what {@code spawn.weights} makes it at {@code pos}. What every draw rolls on. */
+    public int weightAt(net.minecraft.world.level.Level level, net.minecraft.core.BlockPos pos) {
+        return spawn.weightAt(weight, level, pos);
     }
 
     public boolean invisible() {

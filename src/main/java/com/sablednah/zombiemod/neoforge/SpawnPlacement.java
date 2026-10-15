@@ -57,23 +57,29 @@ final class SpawnPlacement {
     static Optional<Holder.Reference<Genus>> weighted(HolderLookup.RegistryLookup<Genus> lookup,
             ServerLevel level, BlockPos at, RandomSource random) {
         List<Holder.Reference<Genus>> eligible = new ArrayList<>();
+        List<Integer> weights = new ArrayList<>();
         int total = 0;
         for (Holder.Reference<Genus> holder : lookup.listElements().toList()) {
             Genus genus = holder.value();
             if (!Genus.drawable(holder) || !genus.spawn().allows(level, at, EntitySpawnReason.NATURAL)) {
                 continue;
             }
+            int weight = genus.weightAt(level, at);
+            if (weight <= 0) {
+                continue;
+            }
             eligible.add(holder);
-            total += genus.weight();
+            weights.add(weight);
+            total += weight;
         }
         if (eligible.isEmpty()) {
             return Optional.empty();
         }
         int roll = random.nextInt(total);
-        for (Holder.Reference<Genus> holder : eligible) {
-            roll -= holder.value().weight();
+        for (int i = 0; i < eligible.size(); i++) {
+            roll -= weights.get(i);
             if (roll < 0) {
-                return Optional.of(holder);
+                return Optional.of(eligible.get(i));
             }
         }
         return Optional.empty();

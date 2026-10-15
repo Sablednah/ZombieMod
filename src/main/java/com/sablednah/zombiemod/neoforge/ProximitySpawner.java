@@ -146,14 +146,20 @@ public final class ProximitySpawner {
         // Weighted among genera that both want to spawn naturally and accept this spot. Passing
         // NATURAL means a genus restricted to spawners or breeding is not dragged in by this.
         List<Holder.Reference<Genus>> eligible = new ArrayList<>();
+        List<Integer> weights = new ArrayList<>();
         int total = 0;
         for (Holder.Reference<Genus> holder : lookup.listElements().toList()) {
             Genus genus = holder.value();
             if (genus.weight() <= 0 || !genus.spawn().allows(level, at, EntitySpawnReason.NATURAL)) {
                 continue;
             }
+            int weight = genus.weightAt(level, at);
+            if (weight <= 0) {
+                continue;
+            }
             eligible.add(holder);
-            total += genus.weight();
+            weights.add(weight);
+            total += weight;
         }
         if (eligible.isEmpty()) {
             COUNTERS.noGenus++;
@@ -162,10 +168,10 @@ public final class ProximitySpawner {
 
         int roll = random.nextInt(total);
         Holder.Reference<Genus> chosen = null;
-        for (Holder.Reference<Genus> holder : eligible) {
-            roll -= holder.value().weight();
+        for (int i = 0; i < eligible.size(); i++) {
+            roll -= weights.get(i);
             if (roll < 0) {
-                chosen = holder;
+                chosen = eligible.get(i);
                 break;
             }
         }
