@@ -784,6 +784,15 @@ A month of play on 3.4.x closed most of the open list in one sitting:
 4. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
+5. **Two suggestions from the ZARP pack (2026-10-11), awaiting Sable's call.** In a CityWorld vault,
+   `vault_dweller` (weight 6, depth ≥ 10, light ≤ 7) competes with ~340 weight of anywhere-genera plus
+   `vanillaWeight` 40, so it is under 2% of vault zombies; ZARP overrides it in data (weight 250, lot
+   classes `VaultLot`/`RoadThroughVaultLot`, depth ≥ 8). (a) Make the shipped one vault-heavy - but a
+   genus has one weight, and lot-binding it would remove it from servers without CityWorld, so it
+   would need a second, CityWorld-only genus or an override pack. (b) `city_lot` `classes` compare
+   whole class names (`HospitalLot`, not `Hospital`), which silently matched nothing for ZARP's
+   patient; tolerate a missing `Lot` suffix, or warn at load on a class CityWorld does not have.
+   (b) is cheap and safe; (a) is design. ZARP needs neither.
 
 
 ## Known limitations
