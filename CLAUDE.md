@@ -732,6 +732,10 @@ builds, a `MapCodec`, and a line in the matching `*Types` registry. `SpawnCondit
 is deliberately **public**: the interesting conditions (CityWorld's wilderness-vs-city, a claim
 mod's protected chunks) live outside this mod and must not become hard dependencies.
 
+**`city_lot`/`city_district` `classes` match the whole simple class name** - `HospitalLot`, never
+`Hospital` - and a name that matches nothing is not an error, so the genus just never spawns there
+(ZARP's patient, 2026-10-11). Check a class name against CityWorld's source before shipping one.
+
 `SpawnRules` keeps `reasons` as a plain field rather than a condition, because spawn reason isn't a
 property of the *place* and needs a restrictive default — an empty condition list has to mean
 "anywhere", but an unspecified reason set must not mean "every reason".
