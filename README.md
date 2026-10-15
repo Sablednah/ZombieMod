@@ -263,13 +263,35 @@ horde of itself.
 | `zombiemod:date` | `from`, `to` as `MM-DD` — the server's real-world date, inclusive, and the range may wrap the year (`12-18` to `01-02`). `dateOverride` in the server config pretends it is another day, and `/zombiemod status` says which seasonal genera are in |
 | `zombiemod:in_claim` | `value` (default `true`) — inside an FTB Chunks claim. Always `false` without FTB. |
 | `zombiemod:city_district` | `districts` — CityWorld district types. Always fails without CityWorld. See [CityWorld districts](#cityworld-districts). |
-| `zombiemod:city_lot` | `lots` — CityWorld lot styles. Same. |
+| `zombiemod:city_lot` | `styles`, `classes`, `schematics` — CityWorld lot styles, lot classes, named buildings. Same. |
 | `zombiemod:city_nature` | `min`, `max` — CityWorld's wilderness-to-dense-city grading. Same. |
 | `zombiemod:any_of` | `conditions` — passes if any nested condition passes |
 | `zombiemod:not` | `condition` — inverts one |
 
 Sixteen in all, of which `any_of` and `not` are combinators rather than places, and four
 (`in_claim` and the three `city_*`) come alive only when the mod they read is installed.
+
+**Conditions decide *whether*; `weights` decide *how often*.** A genus has one `weight`, but `spawn`
+can carry a list of weights that replace it in particular places — tried in order, the first whose
+conditions all hold wins, and anywhere none does the genus keeps its own:
+
+```json
+"weight": 6,
+"spawn": {
+  "conditions": [ { "type": "zombiemod:depth", "min": 10 } ],
+  "weights": [
+    { "weight": 250, "conditions": [
+      { "type": "zombiemod:city_lot", "classes": ["VaultLot", "RoadThroughVaultLot"] }
+    ] }
+  ]
+}
+```
+
+That is the shipped Vault Dweller: an occasional find underground in any world, and most of what you
+meet inside a CityWorld vault. Doing that with a condition would have meant choosing — bind it to the
+vault and it vanishes from every server without CityWorld. A placed weight may be lower than the base
+as well as higher. It does not admit a genus anywhere its `conditions` refuse, and it does not wake a
+`"weight": 0` genus: that still means "never drawn".
 
 Conditions are a **registry**, not a fixed list, so another mod can contribute its own types via
 `SpawnConditionTypes.register`. That's how CityWorld integration is planned to work — a
@@ -984,6 +1006,15 @@ conditions, and (through `where`) mutation triggers:
 Names are matched case-insensitively, so `"highrise"` works as well as shouting the enum constant.
 An omitted list means "don't care", which is how one condition asks about a district, a class, or
 both.
+
+`classes` are CityWorld's own class names, and the suffix is optional: `"Hospital"` matches
+`HospitalLot`, `"Highrise"` matches `HighriseContext`. Whole names otherwise — `"Vault"` is `VaultLot`
+and not `RoadThroughVaultLot`. A name CityWorld has no class for can never match, so with CityWorld
+installed the server log says so at startup, naming the genus or horde and suggesting the nearest:
+
+```
+ZombieMod: genus mypack:patient - city_lot class "Hosptal" is not one CityWorld has, so it will never match. Close: [HospitalLot]
+```
 
 **Without CityWorld these never match.** Failing closed is the only defensible default: a genus that
 says it belongs in a highrise district is opting into CityWorld, and treating an unanswerable

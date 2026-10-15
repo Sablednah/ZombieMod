@@ -107,7 +107,11 @@ public final class ZombieModEvents {
                     if (!g.abilities().isEmpty()) {
                         sb.append(", ").append(g.abilities().size()).append(" abil");
                     }
-                    return sb.append(", weight ").append(g.weight()).append(')').toString();
+                    sb.append(", weight ").append(g.weight());
+                    for (var placed : g.spawn().weights()) {
+                        sb.append('/').append(placed.weight());
+                    }
+                    return sb.append(')').toString();
                 })
                 .sorted()
                 .toList();
@@ -129,6 +133,8 @@ public final class ZombieModEvents {
                 .lookupOrThrow(ZombieModRegistries.RITUAL).listElementIds().count();
         LOG.info("ZombieMod: {} hordes{}, {} rituals", hordes.size(),
                 hordes.isEmpty() ? "" : " - " + String.join(", ", hordes), rituals);
+
+        CityClassCheck.run(event.getServer());
     }
 
     /** Scoreboard tag another mod sets on a mob to keep it out of the genus roll. Public contract. */
@@ -677,6 +683,7 @@ public final class ZombieModEvents {
 
         HolderLookup.RegistryLookup<Genus> lookup = level.registryAccess().lookupOrThrow(ZombieModRegistries.GENUS);
         List<Holder.Reference<Genus>> candidates = new ArrayList<>();
+        List<Integer> weights = new ArrayList<>();
         int total = ZombieModConfig.VANILLA_WEIGHT.get();
 
         for (Holder.Reference<Genus> holder : lookup.listElements().toList()) {
@@ -687,8 +694,13 @@ public final class ZombieModEvents {
             if (!genus.spawn().allows(level, pos, reason)) {
                 continue;
             }
+            int weight = genus.weightAt(level, pos);
+            if (weight <= 0) {
+                continue;
+            }
             candidates.add(holder);
-            total += genus.weight();
+            weights.add(weight);
+            total += weight;
         }
         if (candidates.isEmpty() || total <= 0) {
             return Optional.empty();
@@ -696,10 +708,10 @@ public final class ZombieModEvents {
 
         RandomSource random = level.getRandom();
         int roll = random.nextInt(total);
-        for (Holder.Reference<Genus> holder : candidates) {
-            roll -= holder.value().weight();
+        for (int i = 0; i < candidates.size(); i++) {
+            roll -= weights.get(i);
             if (roll < 0) {
-                return Optional.of(holder);
+                return Optional.of(candidates.get(i));
             }
         }
         return Optional.empty(); // the roll landed in the vanilla slice - leave this mob alone
