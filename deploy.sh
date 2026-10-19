@@ -40,6 +40,14 @@ done
 
 INSTANCE="$INSTANCES/$NAME"
 MODS="$INSTANCE/mods"
+# A family convention: an instance whose root holds .sablecraft-no-deploy takes released CurseForge
+# jars only (a modpack's export refers to CurseForge file ids), so it is never deployed to, even when
+# named outright. Every sibling deploy.sh honoured it; this one did not, and on 2026-10-15 it put an
+# unreleased build into LegendQuest ZARP.
+if [ -e "$INSTANCE/.sablecraft-no-deploy" ]; then
+    echo "!! '$NAME' is marked .sablecraft-no-deploy (released jars only). Not deploying." >&2
+    exit 1
+fi
 if [ ! -d "$MODS" ]; then
     echo "!! Instance mods folder not found: $MODS" >&2
     exit 1
