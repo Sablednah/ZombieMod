@@ -79,6 +79,24 @@ public final class ZombieModEvents {
      * parse is dropped by the registry loader, and without this line an empty registry and a
      * working one look exactly the same from the console.
      */
+    /**
+     * Everything static that belongs to one world, forgotten when its server stops.
+     *
+     * <p>The game outlives the world. Quit to the title screen and open another, and every static
+     * here is still holding the first one's state - keyed, in singleplayer, by a player UUID that is
+     * the same in both. Found by ZARP's audit (2026-10-20) after Threadwork lost a tutorial that
+     * way; here it was the horde cooldown. Saved data needs none of this: it is per world already.
+     */
+    @SubscribeEvent
+    public void onServerStopped(net.neoforged.neoforge.event.server.ServerStoppedEvent event) {
+        HordeDirector.forgetSession();
+        BossBars.forgetSession();
+        MobDrops.forgetSession();
+        com.sablednah.zombiemod.core.ItemSpec.forgetSession();
+        ProximitySpawner.COUNTERS.reset();
+        CLAIMS.reset();
+    }
+
     @SubscribeEvent
     public void onServerStarted(ServerStartedEvent event) {
         // Once a start is often enough: the window is days, and a server that never restarts is

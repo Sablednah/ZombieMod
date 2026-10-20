@@ -47,6 +47,11 @@ public record ItemSpec(Identifier id, DataComponentPatch components) {
     /** Keyed by genus + slot + id, so the same mistake is only ever reported once. */
     private static final Set<String> REPORTED = ConcurrentHashMap.newKeySet();
 
+    /** A new world may carry the same mistake; say so again there. */
+    public static void forgetSession() {
+        REPORTED.clear();
+    }
+
     /** The bare form: {@code "minecraft:iron_sword"}. */
     private static final Codec<ItemSpec> BARE =
             Identifier.CODEC.xmap(id -> new ItemSpec(id, DataComponentPatch.EMPTY), ItemSpec::id);
