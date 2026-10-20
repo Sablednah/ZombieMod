@@ -170,6 +170,11 @@ public final class MobDrops {
     }
 
     private static boolean mayShowGenus(ServerPlayer player, Identifier id) {
+        // The Corpse drops what the dead player was carrying, never its table, so a list of
+        // "drops" for it is wrong on every page. Whichever genus the config makes the corpse.
+        if (id.toString().equals(ZombieModConfig.PLAYER_ZOMBIE_GENUS.get())) {
+            return false;
+        }
         var holder = player.level().registryAccess().lookupOrThrow(ZombieModRegistries.GENUS)
                 .get(ResourceKey.create(ZombieModRegistries.GENUS, id));
         if (holder.isEmpty()) {
