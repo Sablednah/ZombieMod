@@ -181,6 +181,7 @@ public final class Bestiary extends SavedData {
         push(player);
         if (firstOfThisGenus) {
             Feats.dex(player);
+            MobDrops.unlockGenus(player, genus);
         }
     }
 
