@@ -192,6 +192,18 @@ public final class HordeDirector {
         return true;
     }
 
+    /**
+     * A server stopping ends every horde and forgets every cooldown. Both are keyed by player UUID,
+     * which in singleplayer is the same in every world, and the cooldown is a <em>game time</em> -
+     * so world A's finish stamped into world B, whose clock starts near zero, blocked natural
+     * hordes there until B's clock overtook A's.
+     */
+    static void forgetSession() {
+        RUNNING.values().forEach(active -> active.bar.removeAllPlayers());
+        RUNNING.clear();
+        LAST_FINISHED.clear();
+    }
+
     public static boolean stop(ServerPlayer player) {
         Active active = RUNNING.remove(player.getUUID());
         if (active == null) {
