@@ -17,9 +17,17 @@ Last updated 2026-09-29. **All four versions build the whole mod and run, and al
 | Confirmed in play | yes | **yes** (2026-08-26) | **yes** (2026-08-26) | **yes** (2026-09-29) |
 
 **A branch per Minecraft version**, as CityWorld and LegendQuest both do. Each branch differs from
-`master` only in `gradle.properties` (three lines), `build.gradle` (plugin version, Java toolchain),
-the bodies of the seams below, the client GUI files, and — **from 26.3 only** — the loot tables
-(see *26.3* below).
+`master` only in `gradle.properties` (three lines, plus the JEI version), `build.gradle` (plugin
+version, Java toolchain), the bodies of the seams below, the client GUI files (including
+`client/jei/MobDropsDrawing`), and — **from 26.3 only** — the loot tables (see *26.3* below).
+
+**JEI**, compile-only, for the Mob Drops category. The oldest version seen in a real instance, so the
+plugin uses no API a player's JEI lacks; the API it uses is identical across all four apart from
+`draw`'s GUI class.
+
+| | 1.21.11 | 26.1.2 | 26.2 | 26.3 |
+|---|---|---|---|---|
+| `jei_version` | 27.17.0.50 | 29.47.0.111 (no instance has 26.1 JEI; the latest) | 30.29.0.201 | 31.9.0.61 |
 
 **ZombieMod bundles no JDK and now needs two.** MobHealth's `tools/jdk21` for the 1.21 line and
 CityWorld's `tools/jdk25` for 26.x:

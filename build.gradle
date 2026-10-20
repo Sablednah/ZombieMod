@@ -25,6 +25,8 @@ sourceSets.main.resources {
 
 repositories {
     // Add additional repositories here if required by dependencies below.
+    // JEI, for the optional Mob Drops category. Compile-only: the jar never contains or needs it.
+    maven { url = 'https://maven.blamejared.com/' }
 }
 
 base {
@@ -98,6 +100,10 @@ configurations {
 
 dependencies {
     // (mod/library dependencies go here)
+    // SOFT dependency: only client/jei may import mezz.jei, and JEI loads that by its annotation, so
+    // nothing of it runs without JEI. The oldest JEI seen in a real instance, not the newest, so the
+    // plugin cannot reach for API a player's JEI lacks. Versions in gradle.properties, per branch.
+    compileOnly "mezz.jei:jei-${jei_minecraft_version}-neoforge-api:${jei_version}"
 }
 
 // ---------------------------------------------------------------------------
