@@ -15,6 +15,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.LivingEntity;
 
+import org.joml.Matrix3x2f;
+import org.joml.Vector2f;
+
 /**
  * The drawn part of a Mob Drops page: the doll on the left, the name across the top.
  *
@@ -51,8 +54,18 @@ abstract class MobDropsDrawing implements IRecipeCategory<MobDropsPayload.Entry>
         int headPx = Math.round((h / 2.0F - 0.0625F) * size);
         int half = Math.max(footPx, headPx) + 2;
         int centerY = boxH - footPx;
-        InventoryScreen.extractEntityInInventoryFollowsMouse(g, 1, centerY - half, boxW, centerY + half,
-                size, 0.0625F, (float) mouseX, (float) mouseY, doll);
+        // In screen space, not recipe space. JEI moves the pose to wherever this recipe sits, but
+        // an entity is drawn as a picture-in-picture whose box is taken as raw screen coordinates
+        // and never put through the pose - so a box given in recipe space lands at the top left of
+        // the screen, outside JEI's scissor, and no doll appears at all. The dex never saw this
+        // because it draws with an untouched pose.
+        Matrix3x2f pose = g.pose();
+        Vector2f from = pose.transformPosition(1, centerY - half, new Vector2f());
+        Vector2f to = pose.transformPosition(boxW, centerY + half, new Vector2f());
+        Vector2f mouse = pose.transformPosition((float) mouseX, (float) mouseY, new Vector2f());
+        float scale = (float) Math.hypot(pose.m00(), pose.m01());
+        InventoryScreen.extractEntityInInventoryFollowsMouse(g, Math.round(from.x), Math.round(from.y), Math.round(to.x),
+                Math.round(to.y), Math.max(1, Math.round(size * scale)), 0.0625F, mouse.x, mouse.y, doll);
     }
 
     private static LivingEntity doll(MobDropsPayload.Entry entry) {
