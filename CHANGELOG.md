@@ -26,6 +26,10 @@ world alone (`syncedconfig/` on Minecraft 26.3).
 
 ### Changed
 
+- **Block-breaking abilities ask about each block.** Breakers, infesters and anything that replaces
+  a block now post NeoForge's `LivingDestroyBlockEvent` per block, so a protection mod can guard
+  particular blocks or structures from them, not only switch mob griefing off entirely. A refused
+  block is skipped and the next one tried.
 - **The Vault Dweller lives in the vaults.** Still an occasional find deep underground anywhere
   (weight 6); inside a CityWorld vault it is weight 250, most of what you will meet there.
 - **CityWorld class names may leave off their suffix** — `"Hospital"` matches `HospitalLot`,
