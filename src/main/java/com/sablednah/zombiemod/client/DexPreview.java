@@ -62,9 +62,41 @@ public final class DexPreview {
         return fresh;
     }
 
+    private static final Map<net.minecraft.world.entity.EntityType<?>, LivingEntity> TYPES = new HashMap<>();
+
+    /**
+     * A plain vanilla mob, for JEI's mob drops. Same rules as a genus doll: rebuilt when the level
+     * changes, and given an id before it is ever drawn. Null for anything not living.
+     */
+    public static LivingEntity ofType(net.minecraft.world.entity.EntityType<?> type) {
+        Minecraft mc = Minecraft.getInstance();
+        LivingEntity cached = TYPES.get(type);
+        if (cached != null && cached.level() == mc.level) {
+            return cached;
+        }
+        TYPES.remove(type);
+        if (mc.level == null) {
+            return null;
+        }
+        LivingEntity living;
+        try {
+            if (!(type.create(mc.level, EntitySpawnReason.COMMAND) instanceof LivingEntity made)) {
+                return null;
+            }
+            living = made;
+        } catch (RuntimeException e) {
+            // Somebody's modded mob that will not be built bare. Its row just has no picture.
+            return null;
+        }
+        living.setId(NEXT_DOLL_ID.getAndDecrement());
+        TYPES.put(type, living);
+        return living;
+    }
+
     /** Dropped whenever the world changes, since the entities belong to a level. */
     public static void clear() {
         CACHE.clear();
+        TYPES.clear();
     }
 
     /** The player-corpse genus wears the viewer; identified by id since the client cannot read

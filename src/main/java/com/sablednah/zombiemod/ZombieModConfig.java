@@ -64,6 +64,8 @@ public final class ZombieModConfig {
     public static final ModConfigSpec.ConfigValue<String> ZOMBIE_DRAGON_GENUS;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> BESTIARY_HIDDEN;
     public static final ModConfigSpec.ConfigValue<List<? extends String>> BESTIARY_HIDDEN_MET;
+    public static final ModConfigSpec.BooleanValue MOB_DROPS;
+    public static final ModConfigSpec.BooleanValue MOB_DROPS_KILLED_ONLY;
 
     public static final ModConfigSpec.ConfigValue<List<? extends String>> GHOST_NAMES;
     public static final ModConfigSpec.BooleanValue GHOST_REMEMBER;
@@ -513,6 +515,31 @@ public final class ZombieModConfig {
         ZOMBIE_DRAGON_GENUS = b.comment("Which genus it rises as. Its 'dragon' block sets the breath, sounds and",
                         "how long it lies dead; its abilities and phases are the minions.")
                 .define("genus", "zombiemod:zombie_dragon");
+
+        b.pop();
+
+        b.comment("Mob drops: a \"Mob Drops\" category in JEI, for players who have both mods.",
+                "",
+                "Look up an item's sources in JEI (R) and it lists the mobs and genera that drop it,",
+                "with the chance per kill and how many. Every mob with a loot table is covered,",
+                "and a genus shows its own table plus its base mob's, unless it replaces them -",
+                "the same as in play. Chances are before Looting. Drops added by other mods' loot",
+                "modifiers rather than a loot table are not shown.",
+                "",
+                "A player without JEI, or without ZombieMod on their client, gets nothing extra.").push("mobDrops");
+
+        MOB_DROPS = b.comment("Send drop lists to players' JEI at all.")
+                .define("enabled", true);
+
+        MOB_DROPS_KILLED_ONLY = b.comment(
+                        "Only what this player has killed. A mob appears in JEI the moment you first",
+                        "kill one. Vanilla mobs go by your kill statistics, so kills from before this",
+                        "setting existed count; genera go by the bestiary, so with the bestiary off",
+                        "genera never appear while this is on.",
+                        "",
+                        "Decided here on the server, not in the client's JEI: an entry you have not",
+                        "earned is never sent, so there is nothing on the client to reveal.")
+                .define("killedOnly", true);
 
         b.pop();
         SPEC = b.build();

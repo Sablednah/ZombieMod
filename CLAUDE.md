@@ -302,7 +302,8 @@ are allowed to differ:
 git checkout master -- <the shared paths>
 ```
 
-Everything except `build.gradle`, `gradle.properties`, `platform/*`, the client GUI files, and on
+Everything except `build.gradle`, `gradle.properties`, `platform/*`, the client GUI files (including
+`client/jei/MobDropsDrawing`), and on
 `mc26.3` the loot tables (a different dialect — `scripts/loot-to-26.3.py`) should be **identical to
 master** on every branch. So the reliable move is to take the shared files from
 master outright rather than replay a commit and hope.
@@ -895,3 +896,40 @@ non-op is refused every gated branch and admitted to `bestiary`, `list` and `obs
 with `PlayerList.op` it is admitted to all of them; deopped it is refused again; and the console
 source parses and executes `status`, `config` and `spawn <genus> <pos>` throughout. Both directions,
 because a gate that refuses everything looks identical to one that works.
+
+**JEI is the one integration on the client side** (`client/jei/`, the Mob Drops category, built
+2026-10-20 on ZARP's request). Only `client/jei` may import `mezz.jei`; JEI loads
+`MobDropsJeiPlugin` by its `@JeiPlugin` annotation, so without JEI nothing of it runs. Compiled
+`compileOnly` from maven.blamejared.com against the **oldest** JEI seen in one of Sable's instances
+(versions in each branch's `gradle.properties`), so the plugin cannot call API a player's JEI lacks.
+Four things that are not obvious:
+
+- **The server decides what is visible, by what it sends.** `neoforge/MobDrops` reads every entity
+  type's table and every genus's (own table, plus the base's unless `replace`), and with
+  `killedOnly` sends only killed ones: vanilla by `Stats.ENTITY_KILLED`, genera by the bestiary,
+  and never a genus `Bestiary.concealed` hides. A full set at login and on `/reload`
+  (`OnDatapackSyncEvent` with a null player), one entry per first kill (`LivingDeathEvent` for the
+  type; `Bestiary.kill` for a genus, after the kill is recorded so `concealed` agrees). `MobDropsPayload`
+  is its own channel, so its shape is free **only until it ships** - after that it is frozen like
+  the dex's.
+- **Recipes arrive after JEI starts, and JEI rebuilds its runtime on every reload**, discarding
+  runtime-added recipes. So nothing is registered up front; `onRuntimeAvailable` adds the whole of
+  `MobDropsState` and listens for changes. JEI has no remove, only hide: a recipe that comes back
+  equal is unhidden, not added twice.
+- **The loot reader walks the tables as JSON** (encoded through `LootTable.DIRECT_CODEC`, like
+  `DexDrops`), in **both** dialects - 26.3's `modifier`/`condition`/typed ranges and the older
+  `functions`/`conditions` - so the file is shared. Chances are "at least one per kill, before
+  Looting": pool weights, rolls, `random_chance*`, and count ranges that start at or below zero
+  (wither skeleton coal is -1..1, so one in three). A condition about the particular mob or death
+  (`entity_properties`, `damage_source_properties`, anything unmodelled) makes the drop
+  **situational** - listed last, flagged - because treating it as met put "Always: Lava Chicken
+  disc" on every zombie. `killed_by_player` is met.
+- **`client/jei/MobDropsDrawing` is a per-branch GUI file**: `IRecipeCategory.draw` takes the GUI
+  class, so it is `GuiGraphics`/`drawString`/`renderEntity...` on master and
+  `GuiGraphicsExtractor`/`text`/`extractEntity...` on 26.x. Everything else in `client/jei` is
+  shared. The dolls come from `DexPreview` (`of` for a genus, `ofType` for a vanilla mob), which
+  gives each one an entity id first - 26.2 crashes drawing a bare entity without one.
+
+Proven headlessly (a probe on `ServerStartedEvent`): 63 mobs and 62 genera read in under 100 ms, the
+full payload 28 KB and round-trips through its codec. Glowstone dust comes from the Glowing One,
+the Volatile and the witch. The client half, JEI itself, can only be seen in game.
