@@ -932,4 +932,5 @@ Four things that are not obvious:
 
 Proven headlessly (a probe on `ServerStartedEvent`): 63 mobs and 62 genera read in under 100 ms, the
 full payload 28 KB and round-trips through its codec. Glowstone dust comes from the Glowing One,
-the Volatile and the witch. The client half, JEI itself, can only be seen in game.
+the Volatile and the witch. **Confirmed in play 2026-10-20** in ZARP (26.2, JEI 30.47): the tab shows,
+drops are right, unkilled mobs are absent. Live unlock on a first kill not yet specifically checked.
