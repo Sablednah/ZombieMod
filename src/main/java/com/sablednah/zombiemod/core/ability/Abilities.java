@@ -63,6 +63,17 @@ public final class Abilities {
         return net.neoforged.neoforge.event.EventHooks.canEntityGrief(level, mob);
     }
 
+    /**
+     * May this mob destroy this particular block? Posts NeoForge's {@code LivingDestroyBlockEvent},
+     * which a protection mod cancels for blocks it guards - Threadwork does for ZARP's quest
+     * structures. Every ability that removes or replaces a block asks this, after
+     * {@link #canGrief}: the first is "griefing at all", this is "this block".
+     */
+    private static boolean mayDestroy(Mob mob, net.minecraft.core.BlockPos pos,
+            net.minecraft.world.level.block.state.BlockState state) {
+        return net.neoforged.neoforge.event.EventHooks.onEntityDestroyBlock(mob, pos, state);
+    }
+
     /** Shared timing fields, so every ability spells them the same way. */
     private static <T extends Ability> RecordCodecBuilder<T, Integer> intervalField(int fallback) {
         return Codec.INT.optionalFieldOf("interval", fallback).forGetter(Ability::interval);
@@ -944,7 +955,14 @@ public final class Abilities {
             }
 
             for (net.minecraft.core.BlockPos candidate : candidates) {
-                if (!allowed.contains(BlockTypes.holderOf(level.getBlockState(candidate)))) {
+                var state = level.getBlockState(candidate);
+                if (!allowed.contains(BlockTypes.holderOf(state))) {
+                    continue;
+                }
+                // Per block, not just per mob. canGrief asks "may this mob grief at all"; this
+                // asks "may it break THIS block", which is the question a protected structure or a
+                // claim mod needs to answer. Refused, it tries the next candidate.
+                if (!mayDestroy(mob, candidate, state)) {
                     continue;
                 }
                 if (infest) {
@@ -1063,7 +1081,12 @@ public final class Abilities {
             for (LivingEntity victim : Targets.of(target, level, mob, radius)) {
                 net.minecraft.core.BlockPos at = victim.blockPosition();
                 // air_only by default: webbing someone in is fair, replacing their floor is not.
-                if (airOnly && !level.getBlockState(at).isAir()) {
+                var state = level.getBlockState(at);
+                if (airOnly && !state.isAir()) {
+                    continue;
+                }
+                // Replacing a real block destroys it, so it gets the same per-block veto.
+                if (!state.isAir() && !mayDestroy(mob, at, state)) {
                     continue;
                 }
                 level.setBlockAndUpdate(at, block.defaultBlockState());

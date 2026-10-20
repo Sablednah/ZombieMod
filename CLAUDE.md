@@ -721,7 +721,10 @@ true, so the pair leaves like a vanilla zombie horseman would.
 ### Changing the world
 
 Anything that breaks or places blocks must go through
-`EventHooks.canEntityGrief(level, entity)`, never `getGameRules().get(GameRules.MOB_GRIEFING)`. The
+`EventHooks.canEntityGrief(level, entity)`, never `getGameRules().get(GameRules.MOB_GRIEFING)` - and,
+for each block it removes or replaces, `EventHooks.onEntityDestroyBlock` (`Abilities.mayDestroy`;
+added 2026-10-20 for ZARP, whose Threadwork cancels `LivingDestroyBlockEvent` round its quest
+structures; proven both ways headlessly, break and infest). The
 gamerule check compiles, works, and silently ignores every land-protection mod on the server,
 because the hook is what fires `EntityMobGriefingEvent` for them to veto. The hook falls back to the
 gamerule when nothing objects, so it is strictly the better call.
