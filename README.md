@@ -20,7 +20,7 @@ original plugin's source was removed at this release and remains in the git hist
 | Loader | NeoForge 21.11.42+ |
 | Java | 21 |
 | License | MIT |
-| Side | Install on the server. **Players do not need the mod** — a stock client can join and meet every genus. Installing it client-side too is optional and adds the ZombieDex screen. |
+| Side | Install on the server. **Players do not need the mod** — a stock client can join and meet every genus. Installing it client-side too is optional and adds the ZombieDex screen, and a Mob Drops category in JEI. |
 
 > **3.7.0.** 61 genera, every ability from the 1.8 plugin rebuilt, and the great majority of it
 > confirmed in play. New in 3.7.0: **the Zombie Dragon** (off by default) - the Ender Dragon's
@@ -1722,6 +1722,28 @@ these are additions. The rule is that a genus should leave behind **what it was*
 wheat and seeds and occasionally its hoe, Commuter paper and the odd emerald, Blight coal and
 charcoal, Bramble moss and vines, Breaker cobble and iron nuggets, Frost snowballs, Bogman clay and
 lily pads, Sleeper a serious pile of iron and sometimes a golden apple.
+
+### Mob drops in JEI
+
+With ZombieMod and [JEI](https://www.curseforge.com/minecraft/mc-mods/jei) both on the client, JEI
+gets a **Mob Drops** category. Look up where an item comes from (R) and it lists the genera and mobs
+that drop it — glowstone dust shows the Glowing One, the Volatile and the vanilla witch — each with
+its doll, its name, and everything else it drops. Hover a drop for the chance per kill and how many.
+
+- **Every mob with a loot table**, vanilla and modded, as well as every genus. A genus shows its own
+  table plus its base mob's, unless its loot has `replace: true` — the same as in play.
+- **Only what you have killed**, by default (`mobDrops.killedOnly`). A mob appears the moment you
+  first kill one. Vanilla mobs go by your kill statistics, so old kills count; genera go by the
+  ZombieDex, and a genus the dex hides stays hidden here too. The server decides: an entry you have
+  not earned is never sent, so a client has nothing to reveal.
+- **Chances are per kill, before Looting**, read from the tables rather than sampled, so a 2.5%
+  drop is there to be found. Drops that depend on the particular mob — a baby zombie riding a
+  chicken, a sheep's colour, a raid captain — are listed last and marked *only in some
+  circumstances*, with the chance for one that qualifies.
+- Not shown: drops added by other mods' loot modifiers rather than a loot table, and equipment a mob
+  happens to be wearing.
+
+Without JEI, or for a player without ZombieMod on their client, nothing changes.
 
 ## Advancements
 

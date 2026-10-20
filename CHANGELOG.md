@@ -11,6 +11,12 @@ world alone (`syncedconfig/` on Minecraft 26.3).
 
 ### Added
 
+- **Mob Drops in JEI.** With ZombieMod and JEI on the client, looking up an item's sources lists
+  every genus and mob that drops it, with its doll, the chance per kill and how many. Covers every
+  mob with a loot table, not only genera. By default you only see what you have killed
+  (`mobDrops.killedOnly`), and new kills appear straight away. JEI is optional; without it nothing
+  changes. See *Mob drops in JEI* in the README.
+
 - **A genus can be more (or less) common in particular places** — `spawn.weights`, a list of
   weights each with its own conditions; the first that holds replaces the genus's `weight` there.
   See *Spawning* in the README.
