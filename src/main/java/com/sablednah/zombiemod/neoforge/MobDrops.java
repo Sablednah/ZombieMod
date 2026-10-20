@@ -106,6 +106,18 @@ public final class MobDrops {
         }
     }
 
+    /**
+     * Forget everything when a server stops. The tables are rebuilt for a new server anyway, but
+     * {@code SENT} is keyed by player UUID - the same in every singleplayer world - so world A's
+     * "already sent" must not stop world B's first kill from appearing.
+     */
+    static synchronized void forgetSession() {
+        SENT.clear();
+        builtFor = null;
+        genera = Map.of();
+        mobs = Map.of();
+    }
+
     // ------------------------------------------------------------------ sending
 
     /** Everything this player may see, replacing whatever their client held. */

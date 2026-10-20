@@ -29,6 +29,12 @@ final class BossBars {
 
     private BossBars() {}
 
+    /** Bars belong to one server's mobs; the next world opened in this game must not inherit them. */
+    static void forgetSession() {
+        BARS.values().forEach(ServerBossEvent::removeAllPlayers);
+        BARS.clear();
+    }
+
     /** Create or refresh the bar for this mob: title, progress, and who can currently see it. */
     static void update(Mob mob, BossSpec spec) {
         ServerBossEvent bar = BARS.computeIfAbsent(mob.getId(), id -> {

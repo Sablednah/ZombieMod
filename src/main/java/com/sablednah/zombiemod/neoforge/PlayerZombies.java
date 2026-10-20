@@ -91,6 +91,12 @@ public final class PlayerZombies {
     private UUID expectingBodyOf;
     private long expectingAt;
 
+    /** A body expected in one world is not expected in the next opened in this game. */
+    @SubscribeEvent
+    public void onServerStopped(net.neoforged.neoforge.event.server.ServerStoppedEvent event) {
+        expectingBodyOf = null;
+    }
+
     @SubscribeEvent
     public void onDrops(LivingDropsEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
