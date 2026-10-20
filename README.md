@@ -1740,8 +1740,8 @@ its doll, its name, and everything else it drops. Hover a drop for the chance pe
   drop is there to be found. Drops that depend on the particular mob — a baby zombie riding a
   chicken, a sheep's colour, a raid captain — are listed last and marked *only in some
   circumstances*, with the chance for one that qualifies.
-- Not shown: drops added by other mods' loot modifiers rather than a loot table, and equipment a mob
-  happens to be wearing.
+- Not shown: the Corpse, which drops what its player was carrying rather than a table; drops added
+  by other mods' loot modifiers rather than a loot table; and equipment a mob happens to be wearing.
 
 Without JEI, or for a player without ZombieMod on their client, nothing changes.
 
