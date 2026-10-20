@@ -2,11 +2,14 @@
 # Put a built ZombieMod jar into a CurseForge instance's mods/ folder - and refuse to, if that
 # instance's game is running.
 #
-# Usage: ./deploy.sh [--check] [--no-build] [instance name]
+# Usage: ./deploy.sh [--check] [--no-build] [--test-build] [instance name]
 #
 #   ./deploy.sh                      build this branch, deploy to "MobHealth - Forge"
 #   ./deploy.sh 26.2                 deploy the jar for that instance's Minecraft version
 #   ./deploy.sh --check 26.2         say what would happen, touch nothing
+#   ./deploy.sh --test-build "LegendQuest ZARP"
+#                                    deploy into a .sablecraft-no-deploy instance anyway - only on
+#                                    Sable's say-so, for testing between releases
 #
 # The jar is chosen by the INSTANCE's Minecraft version, not by which file is newest: build/libs
 # holds one jar per branch, and the newest is merely whichever branch was built last.
@@ -28,11 +31,13 @@ INSTANCES="${ZOMBIEMOD_INSTANCES:-/mnt/c/Users/darre/curseforge/minecraft/Instan
 
 CHECK=0
 BUILD=1
+TEST_BUILD=0
 NAME="MobHealth - Forge"
 for arg in "$@"; do
     case "$arg" in
         --check) CHECK=1 ;;
         --no-build) BUILD=0 ;;
+        --test-build) TEST_BUILD=1 ;;
         -*) echo "!! Unknown option: $arg" >&2; exit 2 ;;
         *) NAME="$arg" ;;
     esac
@@ -44,9 +49,16 @@ MODS="$INSTANCE/mods"
 # jars only (a modpack's export refers to CurseForge file ids), so it is never deployed to, even when
 # named outright. Every sibling deploy.sh honoured it; this one did not, and on 2026-10-15 it put an
 # unreleased build into LegendQuest ZARP.
+# Sable's rule (2026-10-20): the marker is enforced hard for a release; between releases a test jar
+# may go in when he asks, and --test-build is that ask, typed per run. A modpack export taken while
+# a test jar is in would point at no CurseForge file, so put a release back before exporting.
 if [ -e "$INSTANCE/.sablecraft-no-deploy" ]; then
-    echo "!! '$NAME' is marked .sablecraft-no-deploy (released jars only). Not deploying." >&2
-    exit 1
+    if [ "$TEST_BUILD" -ne 1 ]; then
+        echo "!! '$NAME' is marked .sablecraft-no-deploy (released jars only). Not deploying." >&2
+        echo "!! For a test jar Sable has asked for: --test-build" >&2
+        exit 1
+    fi
+    echo ">> '$NAME' is .sablecraft-no-deploy - deploying a TEST build on request (--test-build)."
 fi
 if [ ! -d "$MODS" ]; then
     echo "!! Instance mods folder not found: $MODS" >&2
