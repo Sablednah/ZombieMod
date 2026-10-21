@@ -53,9 +53,9 @@ and testable statement is *players do not need it*.
 
 | Field | Value |
 |---|---|
-| Tag | `v3.7.0` |
-| Title | `3.7.0 — It gets back up` |
-| Body | The `## 3.7.0` section of [`CHANGELOG.md`](CHANGELOG.md), plus the requirements table below |
+| Tag | `v3.8.0` |
+| Title | `3.8.0 — What they leave behind` |
+| Body | The `## 3.8.0` section of [`CHANGELOG.md`](CHANGELOG.md), plus the requirements table below |
 | Attach | every `build/libs/zombiemod-<ver>+mc<mc>.jar`, one per supported version — the CurseForge upload reads the `+mc` suffix to label each |
 
 Requirements block to append to the release body:
@@ -71,7 +71,8 @@ Requirements block to append to the release body:
 > | 26.3 | 26.3.0.58+ (NeoForge beta) | 25 |
 >
 > Install on the server. Your players do not need the mod — a stock client can join and meet every
-> genus. Installing it client-side too is optional and adds the ZombieDex screen.
+> genus. Installing it client-side too is optional and adds the ZombieDex screen, and a Mob Drops
+> category if you have JEI.
 
 Keep this table, `CURSEFORGE.md`'s and [`docs/MULTIVERSION.md`](docs/MULTIVERSION.md)'s in step —
 MULTIVERSION.md is the measured one, so it is the source. All three said 1.21.11 alone for two
@@ -85,7 +86,7 @@ releases after the branches appeared.
 |---|---|
 | Summary | The one-liner |
 | Description | [`CURSEFORGE.md`](CURSEFORGE.md) |
-| Changelog | The `## 3.7.0` section of [`CHANGELOG.md`](CHANGELOG.md) |
+| Changelog | The `## 3.8.0` section of [`CHANGELOG.md`](CHANGELOG.md) |
 | Project icon | `docs/main-logo.png` — 1035×1035, square |
 | Header/banner | `docs/slime-logo-850.png` — 850px wide, the description limit |
 | Licence | MIT |
@@ -225,12 +226,12 @@ has no create-project endpoint. Make it on the website first.
 
 ## Before you publish
 
-- [ ] `./gradlew build` and confirm the jars are `zombiemod-3.7.0+mc<version>.jar`, one per supported Minecraft version
+- [ ] `./gradlew build` and confirm the jars are `zombiemod-3.8.0+mc<version>.jar`, one per supported Minecraft version
 - [ ] Redeploy to the test instance if it still has the pre-balance jar
 - [ ] Create the CurseForge project **on the website** and note its numeric project ID (its upload
       API cannot create one)
 - [ ] Add `CURSEFORGE_TOKEN` (secret) and `CURSEFORGE_PROJECT_ID` (variable) to the repo
-- [ ] Push `master`, `mc26.1`, `mc26.2`, `mc26.3` and the `v3.7.0` tag
+- [ ] Push `master`, `mc26.1`, `mc26.2`, `mc26.3` and the `v3.8.0` tag
 - [ ] **GitHub release first** — it triggers the CurseForge upload, and the store pages link back to it
 - [ ] Check `https://authors.curseforge.com/#/projects/<id>/files`, not the public Files tab
 - [ ] Upload the gallery in the order above

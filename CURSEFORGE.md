@@ -138,6 +138,9 @@ Raise it for a mostly-vanilla world, drop it to 0 and a genus claims every eligi
   despawn, safe from lava and hoppers. Optional, and inert without it.
 - **CityWorld** — genera that key off districts, lots and wildness, so Commuters haunt the high
   streets and Harvesters work the farms. Also optional, also inert without it.
+- **JEI** — a **Mob Drops** category: look up an item and see every genus and mob that drops it,
+  with the chance per kill and how many. By default only what you have killed. Needs ZombieMod on
+  the client as well; optional, and inert without JEI.
 
 ## Commands
 
@@ -163,7 +166,7 @@ matches your server.
 
 **Install on the server. That is all.** No dependencies, and nothing your players have to do —
 they can join on a stock client from the Mojang launcher and meet every one of the sixty-one.
-Installing it client-side as well is optional and adds the ZombieDex screen; people with and without
+Installing it client-side as well is optional and adds the ZombieDex screen (and Mob Drops in JEI); people with and without
 it play together on the same server.
 
 ## Credits and licence
