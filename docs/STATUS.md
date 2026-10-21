@@ -727,6 +727,13 @@ infection, real death, drops at killer). Played through by Sable on 26.2 in ZARP
 sounds and the Voidlings as endermen all confirmed. The first build froze the fake death with NoAi and
 snapped the dragon to the fountain; fixed by letting vanilla's DYING phase fly it.
 
+**3.8.0 shipped 2026-10-21** — JEI Mob Drops (asked for by ZARP; tab, drops, killed-only, dolls and
+live unlock all confirmed by Sable in ZARP on 26.2), `spawn.weights`, CityWorld class tolerance and
+warning, per-block destroy events, and the per-world static reset. GitHub `v3.8.0`, CurseForge files
+9278851 (1.21.11), 9278854 (26.1.2), 9278856 (26.2), 9278858 (26.3). Built from `597b14b` (master),
+`83d0307` (mc26.1), `b49b5ee` (mc26.2), `6f5b943` (mc26.3). ZARP is on test build `163ef8b7`, the same
+code bar the version number and docs; it takes the CurseForge file now, as `.sablecraft-no-deploy` says.
+
 **3.7.0 shipped 2026-10-10** — the Zombie Dragon, after Sable played it through in ZARP on 26.2, plus
 `summon` spawning a genus's own base (ZARP's voidlings had come out as zombies). GitHub `v3.7.0`,
 CurseForge files 9123358–9123361. Built from `3ea6bd0` (master), `87e56a2` (mc26.1), `15b9a9f`
