@@ -7,7 +7,9 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone (`syncedconfig/` on Minecraft 26.3).
 
-## Unreleased
+## 3.8.0
+
+*2026-10-21.* What they leave behind.
 
 ### Added
 
@@ -15,8 +17,8 @@ world alone (`syncedconfig/` on Minecraft 26.3).
   every genus and mob that drops it, with its doll, the chance per kill and how many. Covers every
   mob with a loot table, not only genera. By default you only see what you have killed
   (`mobDrops.killedOnly`), and new kills appear straight away. JEI is optional; without it nothing
-  changes. See *Mob drops in JEI* in the README.
-
+  changes. See *Mob drops in JEI* in the README. The Corpse is left out: it drops what its player
+  was carrying, not a table.
 - **A genus can be more (or less) common in particular places** — `spawn.weights`, a list of
   weights each with its own conditions; the first that holds replaces the genus's `weight` there.
   See *Spawning* in the README.
@@ -34,6 +36,13 @@ world alone (`syncedconfig/` on Minecraft 26.3).
   (weight 6); inside a CityWorld vault it is weight 250, most of what you will meet there.
 - **CityWorld class names may leave off their suffix** — `"Hospital"` matches `HospitalLot`,
   `"Highrise"` matches `HighriseContext`. Full names still work.
+
+### Fixed
+
+- **Hordes in a second world.** Quit to the title screen and open another world in the same game,
+  and natural hordes could stay away from it for days of play: the horde cooldown was remembered
+  from the first world, in its time. Everything ZombieMod keeps between ticks now resets when a
+  world closes. Found by the ZARP pack's audit.
 
 ## 3.7.0
 
