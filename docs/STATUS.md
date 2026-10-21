@@ -628,6 +628,7 @@ from it at build time, so never edit the generated file.
 | `3.6.2` | 2026-09-30 | The 26.3 jar capped at NeoForge 26.3.0.36: .37-beta renamed `ModConfig.Type` and every mod with a config fails there. Lift the cap when NeoForge 26.3 goes stable. |
 | `3.6.3` | 2026-10-08 | The 26.3 jar moves to NeoForge 26.3.0.58+: `platform/Configs` registers `SYNCED` under the old file name, so settings carry over. |
 | `3.7.0` | 2026-10-10 | The Zombie Dragon (off by default): the dragon's first death is faked through vanilla's own dying flight, it lies on the podium and rises as a 400-health genus with rot breath, an Ender Zombie trickle and two waves. Client renderer per branch, sounds sent per listener and never registered. Phases gained `on_enter`; `summon` gained `near_target` and now spawns a genus's own base. |
+| `3.8.0` | 2026-10-21 | Mob Drops in JEI: every mob's and genus's drops read from the tables, chance and count, killed-only by default and decided on the server. `spawn.weights` (Vault Dweller common in CityWorld vaults), CityWorld class suffixes optional plus a startup warning, per-block `LivingDestroyBlockEvent` for breaking abilities, and per-world statics reset when a server stops (the horde cooldown). |
 | `3.6.4` | 2026-10-09 | A mob tagged `zombiemod.noroll` at spawn is never given a genus or cancelled by claim rules — CrawlSpace's bosses use it. Read through `EntityState.hasTag` (`getTags()` became `entityTags()` on 26.1+). |
 
 **Publishing to GitHub publishes to CurseForge**, via `.github/workflows/curseforge.yml`. Proven on
@@ -784,7 +785,7 @@ A month of play on 3.4.x closed most of the open list in one sitting:
 4. **Spawn density** via `neoforge:add_spawns` biome modifiers. Example in
    [`examples/add_spawns_biome_modifier.json`](examples/add_spawns_biome_modifier.json), deliberately
    not enabled.
-5. ~~**Two suggestions from the ZARP pack (2026-10-11).**~~ **Both done 2026-10-15, unreleased.**
+5. ~~**Two suggestions from the ZARP pack (2026-10-11).**~~ **Both done 2026-10-15, shipped in 3.8.0.**
    (a) became `spawn.weights` — a place-dependent weight that replaces the base where its conditions
    hold — and the shipped vault_dweller is 6 anywhere, 250 in `VaultLot`/`RoadThroughVaultLot`.
    (b) the `Lot`/`Context` suffix is optional, and `CityClassCheck` warns at start on any class
