@@ -141,6 +141,9 @@ Raise it for a mostly-vanilla world, drop it to 0 and a genus claims every eligi
 - **JEI** — a **Mob Drops** category: look up an item and see every genus and mob that drops it,
   with the chance per kill and how many. By default only what you have killed. Needs ZombieMod on
   the client as well; optional, and inert without JEI.
+- **CrawlSpace, and any mod that spawns its own mobs** — a small public API turns another mod's mob
+  into a genus, so CrawlSpace's dungeons can hold Harvesters in the labs and Breakers in the
+  bunkers. Called by reflection; neither mod needs the other.
 
 ## Commands
 

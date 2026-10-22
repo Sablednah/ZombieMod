@@ -7,13 +7,16 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone (`syncedconfig/` on Minecraft 26.3).
 
-## Unreleased
+## 3.9.0
+
+*2026-10-22.* In other hands.
 
 ### Added
 
 - **An API for other mods** — `com.sablednah.zombiemod.api.ZombieModApi`: `applyGenus`, `create`
   and `genusOf`, so a mod that spawns its own mobs (CrawlSpace's dungeons, for ZARP) can make them
-  genera. Plain vanilla types, callable by reflection. See *For other mods* in the README.
+  genera. Plain vanilla types, callable by reflection. See *For other mods* in the README. CrawlSpace is the first to
+  use it: its dungeon mobs and bosses can name a genus.
 
 ## 3.8.0
 
