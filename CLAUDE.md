@@ -948,4 +948,6 @@ because the join event builds it otherwise and building twice doubles a non-`cle
 goals; and it refuses a mob that already has a *different* genus, because `assign` is a set of
 writes, not a reset (see `Mutations`). Spawn conditions are deliberately not consulted. Proven
 headlessly: create-then-add and add-then-apply give the same goal count, re-applying is a no-op, and
-wrong type, unknown and different genus all refuse.
+wrong type, unknown and different genus all refuse. **First caller: CrawlSpace** (main `56cde19`, 2026-10-22,
+owned by the LegendQuest session), which applies straight after `EntityType.create`, before
+`finalizeSpawn` and its own boss dressing - tested by that session on 1.21.11 against `d32ef77`.
