@@ -728,6 +728,12 @@ infection, real death, drops at killer). Played through by Sable on 26.2 in ZARP
 sounds and the Voidlings as endermen all confirmed. The first build froze the fake death with NoAi and
 snapped the dragon to the fountain; fixed by letting vanilla's DYING phase fly it.
 
+**3.9.0 shipped 2026-10-22** — `api/ZombieModApi` for other mods; CrawlSpace (main `56cde19`, owned by
+the LegendQuest session) calls it, tested by that session on 1.21.11. GitHub `v3.9.0`, CurseForge
+files 9292814 (1.21.11), 9292815 (26.1.2), 9292817 (26.2), 9292819 (26.3). Built from `7f1f3ea`
+(master), `6fa6b4d` (mc26.1), `d72167a` (mc26.2), `70c0372` (mc26.3). ZARP is on test build
+`9fb8e063`, the same code; it takes the CurseForge file now.
+
 **3.8.0 shipped 2026-10-21** — JEI Mob Drops (asked for by ZARP; tab, drops, killed-only, dolls and
 live unlock all confirmed by Sable in ZARP on 26.2), `spawn.weights`, CityWorld class tolerance and
 warning, per-block destroy events, and the per-world static reset. GitHub `v3.8.0`, CurseForge files
