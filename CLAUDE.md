@@ -939,3 +939,13 @@ the Volatile and the witch. **Confirmed in play 2026-10-20** in ZARP (26.2, JEI 
 drops are right, unkilled mobs are absent, and (after the screen-space fix) the dolls draw. Live
 unlock confirmed too: a first cow kill put the cow under beef at once. The genus named by `playerZombies.genus` is
 never sent: a corpse drops its player's things, not a table.
+
+**`api/ZombieModApi` is the public entry point for other mods** (2026-10-22, for ZARP/CrawlSpace):
+`applyGenus(Mob, Identifier)`, `create(ServerLevel, Identifier, EntitySpawnReason)`, `genusOf(Mob)`.
+Its signatures are a contract - vanilla types only, reached by reflection - so change behind them,
+never them. Two rules it encodes: AI is built by `applyGenus` only when the mob `isAddedToLevel()`,
+because the join event builds it otherwise and building twice doubles a non-`clear_goals` genus's
+goals; and it refuses a mob that already has a *different* genus, because `assign` is a set of
+writes, not a reset (see `Mutations`). Spawn conditions are deliberately not consulted. Proven
+headlessly: create-then-add and add-then-apply give the same goal count, re-applying is a no-op, and
+wrong type, unknown and different genus all refuse.
