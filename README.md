@@ -2053,6 +2053,28 @@ Known limitations worth knowing before you write a genus:
   guardian beam, the creeper-style swell, the bow draw) and sometimes there isn't. See
   [`docs/TROPES.md`](docs/TROPES.md).
 
+## For other mods: the API
+
+`com.sablednah.zombiemod.api.ZombieModApi` turns a mob your mod spawns into a genus. Every type in
+it is vanilla, so call it by reflection or compile against it `compileOnly`; nothing breaks when
+ZombieMod is absent. The signatures are a public contract.
+
+| Method | Does |
+|---|---|
+| `boolean applyGenus(Mob mob, Identifier genus)` | Dresses an existing mob as the genus: attributes, gear, head, name, glow, goals, abilities. `false`, changing nothing, if the genus is unknown, its `base` is not the mob's type, or the mob already belongs to a different genus. `true` if it now is that genus (also when it already was). |
+| `Optional<Mob> create(ServerLevel level, Identifier genus, EntitySpawnReason reason)` | Makes the genus's base mob and dresses it. Not added to the level. |
+| `Optional<Identifier> genusOf(Mob mob)` | Which genus a mob is, if any. |
+
+- **The genus's spawn conditions do not apply.** You decided where it goes.
+- **Server thread only**, never from world generation.
+- **Before `finalizeSpawn`** is the safe order: ZombieMod gives a random genus at `finalizeSpawn` to a
+  mob that has none, and then `applyGenus` would refuse. (Reasons a genus never spawns on, like
+  `STRUCTURE`, and mobs tagged `zombiemod.noroll`, are never rolled, so after is fine for those.)
+- **Before or after `addFreshEntity`** both work: before, the AI is built when it joins the level;
+  after, `applyGenus` builds it there and then.
+
+Everything else follows from the genus: the dex, kills, bounties, boss bars, Mob Drops.
+
 ## Building from source
 
 Requires JDK 21. Standard NeoForge ModDevGradle setup:
