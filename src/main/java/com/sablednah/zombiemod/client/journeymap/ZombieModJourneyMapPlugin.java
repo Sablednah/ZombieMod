@@ -1,6 +1,5 @@
 package com.sablednah.zombiemod.client.journeymap;
 
-import com.sablednah.zombiemod.ZombieModRegistries;
 import com.sablednah.zombiemod.client.GenusSightings;
 
 import journeymap.api.v2.client.IClientAPI;
@@ -10,14 +9,11 @@ import journeymap.api.v2.client.event.EntityRadarUpdateEvent;
 import journeymap.api.v2.common.JourneyMapPlugin;
 import journeymap.api.v2.common.event.ClientEventRegistry;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Mob;
 
 /**
- * JourneyMap: a genus shows on the map with its own face and its own name.
+ * JourneyMap: a genus shows on the map with its own face.
  *
  * <p>The one place {@code journeymap.*} may be imported. JourneyMap finds this by its annotation and
  * only when JourneyMap is installed, so without it nothing here loads. The API it uses
@@ -56,20 +52,7 @@ public final class ZombieModJourneyMapPlugin implements IClientPlugin {
         if (face != null) {
             wrapped.setEntityIconLocation(face);
         }
-        // Its own name if it has one - a corpse is "Corpse <player>" - and the genus's otherwise.
-        wrapped.setCustomName(mob.hasCustomName() ? mob.getCustomName() : genusName(genus));
-    }
-
-    private static Component genusName(Identifier id) {
-        var level = Minecraft.getInstance().level;
-        if (level != null) {
-            var holder = level.registryAccess().lookup(ZombieModRegistries.GENUS)
-                    .flatMap(l -> l.get(ResourceKey.create(ZombieModRegistries.GENUS, id)));
-            if (holder.isPresent() && holder.get().value().displayName().isPresent()) {
-                return holder.get().value().displayName().get();
-            }
-        }
-        String path = id.getPath().replace('_', ' ');
-        return Component.literal(Character.toUpperCase(path.charAt(0)) + path.substring(1));
+        // The icon only. JourneyMap already labels a genus by the name it carries, and leaving
+        // the name to it keeps its own show/hide setting for mob names working.
     }
 }
