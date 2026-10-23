@@ -126,6 +126,7 @@ public final class ZombieModClient {
     public void onLoggingOut(net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent.LoggingOut event) {
         DexState.clear();
         MobDropsState.clear();
+        GenusSightings.clear();
     }
 
     /**

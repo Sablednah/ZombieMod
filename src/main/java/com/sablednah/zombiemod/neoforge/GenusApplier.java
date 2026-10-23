@@ -66,6 +66,10 @@ public final class GenusApplier {
     public static void assign(Mob mob, Holder.Reference<Genus> holder) {
         Genus genus = holder.value();
         mob.getPersistentData().putString(GENUS_TAG, holder.key().identifier().toString());
+        // Already in view of someone: tracking will not start again, so they are told now.
+        if (mob.isAddedToLevel()) {
+            GenusSightings.announce(mob);
+        }
 
         setBase(mob, Attributes.MAX_HEALTH, genus.health());
         genus.health().ifPresent(h -> mob.setHealth(h.floatValue()));
