@@ -29,6 +29,13 @@ plugin uses no API a player's JEI lacks; the API it uses is identical across all
 |---|---|---|---|---|
 | `jei_version` | 27.17.0.50 | 29.47.0.111 (no instance has 26.1 JEI; the latest) | 30.29.0.201 | 31.9.0.61 |
 
+**JourneyMap API**, compile-only, for map faces - the same artifact and versions Factions and
+CityWorld use. The entity-radar part we use is identical in all four, so `client/journeymap` is shared.
+
+| | 1.21.11 | 26.1.2 | 26.2 | 26.3 |
+|---|---|---|---|---|
+| `journeymap_api_version` | 2.0.0-1.21.11 | 2.0.0-26.1 | 26.2-2.0.0 | 26.3-2.0.0 |
+
 **ZombieMod bundles no JDK and now needs two.** MobHealth's `tools/jdk21` for the 1.21 line and
 CityWorld's `tools/jdk25` for 26.x:
 

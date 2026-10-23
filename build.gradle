@@ -104,6 +104,10 @@ dependencies {
     // nothing of it runs without JEI. The oldest JEI seen in a real instance, not the newest, so the
     // plugin cannot reach for API a player's JEI lacks. Versions in gradle.properties, per branch.
     compileOnly "mezz.jei:jei-${jei_minecraft_version}-neoforge-api:${jei_version}"
+    // SOFT dependency, the same shape: only client/journeymap may import journeymap.*, and
+    // JourneyMap loads that by its @JourneyMapPlugin annotation. The API is identical across all
+    // four of its builds that we use; the version string is per branch, in gradle.properties.
+    compileOnly "info.journeymap:journeymap-api-neoforge:${journeymap_api_version}"
 }
 
 // ---------------------------------------------------------------------------
