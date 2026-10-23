@@ -1752,9 +1752,9 @@ Without JEI, or for a player without ZombieMod on their client, nothing changes.
 
 With ZombieMod and [JourneyMap](https://www.curseforge.com/minecraft/mc-mods/journeymap) on the
 client, a genus on the minimap and the full map shows **its own face** — the head it is wearing,
-face and hat layer — and **its name**: the mob's own name if it has one (a corpse is *Corpse
-&lt;player&gt;*), otherwise the genus's. The Ghost and the Corpse show the real player they are
-wearing. Ordinary mobs, and mobs other mods have named, are left exactly as JourneyMap draws them.
+face and hat layer — instead of a generic zombie. The Ghost and the Corpse show the real player
+they are wearing. Names are JourneyMap's own, so its setting for showing mob names still applies.
+Ordinary mobs are left exactly as JourneyMap draws them.
 
 Faces are fetched once per skin from Mojang's texture server — the same place your game already
 fetches every player head from — and until one arrives, or if you are offline, the map keeps its
