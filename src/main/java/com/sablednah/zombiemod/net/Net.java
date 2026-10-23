@@ -47,6 +47,9 @@ public final class Net {
         registrar.playToClient(ZombieDragonPayload.TYPE, ZombieDragonPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(
                         () -> com.sablednah.zombiemod.client.ZombieDragons.accept(payload.entityId(), payload.risen())));
+        registrar.playToClient(GenusSightingPayload.TYPE, GenusSightingPayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(
+                        () -> com.sablednah.zombiemod.client.GenusSightings.accept(payload)));
         registrar.playToClient(MobDropsPayload.TYPE, MobDropsPayload.STREAM_CODEC,
                 (payload, context) -> context.enqueueWork(
                         () -> com.sablednah.zombiemod.client.MobDropsState.accept(payload)));

@@ -7,6 +7,15 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone (`syncedconfig/` on Minecraft 26.3).
 
+## Unreleased
+
+### Added
+
+- **Faces on the map, with JourneyMap.** With ZombieMod and JourneyMap on the client, a genus shows
+  on the minimap and full map with its own face and its name, instead of a generic zombie icon.
+  Other mobs are untouched. Optional; without JourneyMap nothing changes. See *Faces on the map* in
+  the README.
+
 ## 3.9.0
 
 *2026-10-22.* In other hands.

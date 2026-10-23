@@ -951,3 +951,22 @@ headlessly: create-then-add and add-then-apply give the same goal count, re-appl
 wrong type, unknown and different genus all refuse. **First caller: CrawlSpace** (main `56cde19`, 2026-10-22,
 owned by the LegendQuest session), which applies straight after `EntityType.create`, before
 `finalizeSpawn` and its own boss dressing - tested by that session on 1.21.11 against `d32ef77`.
+
+**JourneyMap: genus faces and names on the map** (`client/journeymap/`, 2026-10-23). Only that
+package may import `journeymap.*`; JourneyMap loads `ZombieModJourneyMapPlugin` by its
+`@JourneyMapPlugin` annotation, so it never loads without JourneyMap. Three things:
+
+- **The client cannot tell a genus from a vanilla mob** - the genus key is persistent data, which
+  never syncs. `GenusSightingPayload` (its own channel) tells it, per mob, on
+  `PlayerEvent.StartTracking`, and `GenusApplier.assign` announces to nearby players when an
+  already-added mob is given a genus (the API, a summon). The client map is keyed by entity id,
+  which never repeats in a session, so only a disconnect clears it. Only genera are touched; a
+  name-tagged cow stays as JourneyMap draws it.
+- **The face is read off the head the mob wears**, not the genus file, so the Ghost and Corpse show
+  their real player. `SkinUrls` (no client classes, so it can be probed on a dedicated server - a
+  class naming a texture cannot even load there) finds the skin URL in the profile encoded through
+  `ResolvableProfile.CODEC`, avoiding the profile accessors that moved across versions; `MapFaces`
+  fetches it once per hash from `textures.minecraft.net` only, on one daemon thread, crops face plus
+  hat to 32x32 and registers a `DynamicTexture` on the main thread. Probed: 51 of 52 shipped heads
+  give a URL (Herobrine is name-only), and the HTTPS fetch returns a 64x64 PNG.
+- **The rendering itself is unseen from here** - it needs a client with JourneyMap.
