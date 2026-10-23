@@ -12,8 +12,8 @@ world alone (`syncedconfig/` on Minecraft 26.3).
 ### Added
 
 - **Faces on the map, with JourneyMap.** With ZombieMod and JourneyMap on the client, a genus shows
-  on the minimap and full map with its own face and its name, instead of a generic zombie icon.
-  Other mobs are untouched. Optional; without JourneyMap nothing changes. See *Faces on the map* in
+  on the minimap and full map with its own face instead of a generic zombie icon. Names stay
+  JourneyMap's, under its own setting. Other mobs are untouched. Optional; without JourneyMap nothing changes. See *Faces on the map* in
   the README.
 
 ## 3.9.0

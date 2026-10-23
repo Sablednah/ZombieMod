@@ -952,7 +952,9 @@ wrong type, unknown and different genus all refuse. **First caller: CrawlSpace**
 owned by the LegendQuest session), which applies straight after `EntityType.create`, before
 `finalizeSpawn` and its own boss dressing - tested by that session on 1.21.11 against `d32ef77`.
 
-**JourneyMap: genus faces and names on the map** (`client/journeymap/`, 2026-10-23). Only that
+**JourneyMap: genus faces on the map** (`client/journeymap/`, 2026-10-23). The icon only: JourneyMap
+already labels a genus by its synced custom name, and an override would bypass its show/hide
+setting for mob names (Sable checked, same day). Only that
 package may import `journeymap.*`; JourneyMap loads `ZombieModJourneyMapPlugin` by its
 `@JourneyMapPlugin` annotation, so it never loads without JourneyMap. Three things:
 
