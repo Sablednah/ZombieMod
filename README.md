@@ -435,7 +435,7 @@ First firings are staggered per mob, so a horde that spawned together doesn't ac
 | `zombiemod:beam` | `range`, `damage`, `duration`, `elder` — a real guardian beam, from anything |
 | `zombiemod:ray` | `range`, `damage`, `particle`, `density`, `ignite` — a hitscan beam drawn with particles |
 | `zombiemod:adapt` | `resistance`, `max_adaptations` — learn what hurt it and stop taking it |
-| `zombiemod:teleport` | `mode`, `range`, `distance`, `only_when_unseen`, `min_distance`, `on_projectile`, `vanish_chance` — see below |
+| `zombiemod:teleport` | `mode`, `range`, `distance`, `only_when_unseen`, `min_distance`, `on_projectile`, `dodge_projectiles`, `vanish_chance` — see below |
 | `zombiemod:particles` | `particle`, `count`, `spread` |
 | `zombiemod:sound` | `sound`, `volume`, `pitch` |
 
@@ -579,6 +579,7 @@ The rest of the options compose into stalking behaviour:
 | `only_when_unseen` | Won't blink while you're looking at it — so it closes every time you turn away. |
 | `min_distance` | Always blinks if you get closer than this, overriding everything above. Cornering it is exactly when it shouldn't be standing there. |
 | `on_projectile` | Blinks the instant it's shot, outside the interval. Melee deliberately doesn't trigger it — get close enough to swing and it has to wear the hit. |
+| `dodge_projectiles` | The enderman's answer: a projectile does **no damage** and it teleports somewhere random nearby (up to `range` across, 32 up or down). Melee still lands. The Ender Zombie has it. |
 | `vanish_chance` | Sometimes it just leaves instead. |
 
 "Looking at it" is a ~53° cone plus line of sight, so it's about what's on your screen rather than
