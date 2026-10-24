@@ -9,6 +9,11 @@ world alone (`syncedconfig/` on Minecraft 26.3).
 
 ## Unreleased
 
+### Changed
+
+- **The Ender Zombie dodges arrows like an enderman.** A projectile does no damage and it teleports
+  away; melee still lands. New `dodge_projectiles` option on the teleport ability, for any genus.
+
 ### Added
 
 - **Faces on the map, with JourneyMap.** With ZombieMod and JourneyMap on the client, a genus shows
