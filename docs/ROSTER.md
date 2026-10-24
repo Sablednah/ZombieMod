@@ -83,7 +83,7 @@ switches the whole shipped roster off for servers running their own.
 
 | Genus | Weight | Idea |
 |-------|-------:|------|
-| **Ender Zombie** | 4 | Teleports **behind you, already facing you**, every few seconds. The tell isn't seeing it move — it's the sound at your back. A 1.8 favourite, rebuilt. |
+| **Ender Zombie** | 4 | Teleports **behind you, already facing you**, every few seconds. The tell isn't seeing it move — it's the sound at your back. And like an enderman, **arrows never land**: shoot it and it is somewhere else. Bring a sword. A 1.8 favourite, rebuilt. |
 | **Weeping Zombie** | *0* | The same trick with `only_when_unseen`: it will not blink while you're looking at it, so it closes every time you turn around. **Weight 0 — summon it deliberately**, it's too mean to meet by accident. |
 
 ### Herobrine

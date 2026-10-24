@@ -80,7 +80,8 @@
       "mode": "behind",
       "range": 24.0,
       "distance": 2.0,
-      "only_when_unseen": false
+      "only_when_unseen": false,
+      "dodge_projectiles": true
     },
     {
       "type": "zombiemod:particles",

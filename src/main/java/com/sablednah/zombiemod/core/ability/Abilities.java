@@ -737,7 +737,8 @@ public final class Abilities {
      * on by default is genuinely unpleasant.
      */
     public record Teleport(int interval, float chance, Mode mode, double range, double distance,
-            boolean onlyWhenUnseen, double minDistance, boolean onProjectile, float vanishChance)
+            boolean onlyWhenUnseen, double minDistance, boolean onProjectile, float vanishChance,
+            boolean dodgeProjectiles)
             implements Ability {
 
         public static final Identifier TYPE = id("teleport");
@@ -759,7 +760,8 @@ public final class Abilities {
                 Codec.BOOL.optionalFieldOf("only_when_unseen", false).forGetter(Teleport::onlyWhenUnseen),
                 Codec.DOUBLE.optionalFieldOf("min_distance", 0.0D).forGetter(Teleport::minDistance),
                 Codec.BOOL.optionalFieldOf("on_projectile", false).forGetter(Teleport::onProjectile),
-                Codec.FLOAT.optionalFieldOf("vanish_chance", 0.0F).forGetter(Teleport::vanishChance))
+                Codec.FLOAT.optionalFieldOf("vanish_chance", 0.0F).forGetter(Teleport::vanishChance),
+                Codec.BOOL.optionalFieldOf("dodge_projectiles", false).forGetter(Teleport::dodgeProjectiles))
                 .apply(i, Teleport::new));
 
         @Override
@@ -769,11 +771,12 @@ public final class Abilities {
 
         @Override
         public String describe() {
-            return switch (mode) {
+            String move = switch (mode) {
                 case BEHIND -> "Vanishes and reappears behind you.";
                 case TOWARD -> "Closes the distance without crossing it.";
                 case AWAY -> "Blinks away, up to " + trim(range) + " blocks.";
             };
+            return dodgeProjectiles ? move + " Arrows never land: it is gone before they arrive." : move;
         }
 
 
@@ -839,10 +842,43 @@ public final class Abilities {
         @Override
         public float onHurt(ServerLevel level, Mob mob, net.minecraft.world.damagesource.DamageSource source,
                 float amount) {
-            if (onProjectile && source.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE)) {
+            if (!source.is(net.minecraft.tags.DamageTypeTags.IS_PROJECTILE)) {
+                return amount;
+            }
+            if (dodgeProjectiles) {
+                dodge(level, mob);
+                return 0.0F;
+            }
+            if (onProjectile) {
                 run(level, mob);
             }
             return amount;
+        }
+
+        /**
+         * What an enderman does when shot: takes nothing, and is somewhere else. Up to 64 random
+         * spots within {@code range} across and 32 up or down, the first that is safe ground - the
+         * same search vanilla's {@code EnderMan.teleport} makes, and like it the shot does no damage
+         * even if every spot is refused. Somewhere random rather than {@code mode}'s spot on
+         * purpose: shooting it should send it away, not put it at your back.
+         */
+        private void dodge(ServerLevel level, Mob mob) {
+            Vec3 from = mob.position();
+            net.minecraft.util.RandomSource random = mob.getRandom();
+            for (int attempt = 0; attempt < 64; attempt++) {
+                double x = from.x + (random.nextDouble() - 0.5D) * 2.0D * range;
+                double y = from.y + (random.nextInt(64) - 32);
+                double z = from.z + (random.nextDouble() - 0.5D) * 2.0D * range;
+                if (EntityState.randomTeleport(mob, x, y, z)) {
+                    level.playSound(null, from.x, from.y, from.z, SoundEvents.ENDERMAN_TELEPORT,
+                            SoundSource.HOSTILE, 1.0F, 1.0F);
+                    level.playSound(null, mob.getX(), mob.getY(), mob.getZ(), SoundEvents.ENDERMAN_TELEPORT,
+                            SoundSource.HOSTILE, 1.0F, 1.0F);
+                    level.sendParticles(ParticleTypes.PORTAL, from.x, from.y + 1.0D, from.z,
+                            24, 0.4D, 0.6D, 0.4D, 0.1D);
+                    return;
+                }
+            }
         }
 
         /** Leave, with the sound and particles but without the corpse. */
