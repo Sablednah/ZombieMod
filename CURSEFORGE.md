@@ -29,10 +29,6 @@ Not a mob pack — a **cast**. Every one of these is in the box:
   that will not melee you at all, and a 120 HP **Tank** that only lives deep underground.
 - **Fungal** — the **Clicker**, near-blind at ten blocks and hits like a truck. The **Stalker**,
   which stands dead still and watches from forty-eight blocks and never once approaches.
-- **Herobrine.** Weight 1, rare on purpose, zero damage, no attack goal. He watches. He only moves
-  while you are facing away, he leaves if you get within six blocks, he blinks the instant an arrow
-  lands, and a quarter of the time he simply is not there any more. He cannot hurt you. That is the
-  point.
 - **The wall-eaters** — a **Breaker** that chews through dirt, glass, doors and planks when it cannot
   reach you, and a **Big Breaker** that eats deepslate too, so hiding in the deep dark stops being
   hiding.
