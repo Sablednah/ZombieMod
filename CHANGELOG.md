@@ -7,19 +7,22 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone (`syncedconfig/` on Minecraft 26.3).
 
-## Unreleased
+## 3.10.0
 
-### Changed
-
-- **The Ender Zombie dodges arrows like an enderman.** A projectile does no damage and it teleports
-  away; melee still lands. New `dodge_projectiles` option on the teleport ability, for any genus.
+*2026-10-26.* Gone before it lands.
 
 ### Added
 
 - **Faces on the map, with JourneyMap.** With ZombieMod and JourneyMap on the client, a genus shows
   on the minimap and full map with its own face instead of a generic zombie icon. Names stay
-  JourneyMap's, under its own setting. Other mobs are untouched. Optional; without JourneyMap nothing changes. See *Faces on the map* in
-  the README.
+  JourneyMap's, under its own setting. Other mobs are untouched. Optional; without JourneyMap
+  nothing changes. See *Faces on the map* in the README.
+
+### Changed
+
+- **The Ender Zombie dodges projectiles like an enderman.** Arrows, tridents and modded guns do no
+  damage and it teleports away; melee still lands. New `dodge_projectiles` option on the teleport
+  ability, for any genus.
 
 ## 3.9.0
 
