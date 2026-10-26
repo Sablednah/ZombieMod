@@ -22,8 +22,9 @@ original plugin's source was removed at this release and remains in the git hist
 | License | MIT |
 | Side | Install on the server. **Players do not need the mod** — a stock client can join and meet every genus. Installing it client-side too is optional and adds the ZombieDex screen, and a Mob Drops category in JEI. |
 
-> **3.9.0.** 61 genera, every ability from the 1.8 plugin rebuilt, and the great majority of it
-> confirmed in play. New in 3.9.0: **an API for other mods** - another mod's mobs can be genera,
+> **3.10.0.** 61 genera, every ability from the 1.8 plugin rebuilt, and the great majority of it
+> confirmed in play. New in 3.10.0: **faces on the map with JourneyMap**, and **Ender Zombies that
+> dodge arrows** like endermen. New in 3.9.0: **an API for other mods** - another mod's mobs can be genera,
 > as CrawlSpace's dungeons now are. New in 3.8.0: **Mob Drops in JEI** - look up an item and see which genus or
 > mob drops it, with the odds, limited by default to what you have killed - and **place-dependent
 > spawn weights**. New in 3.7.0: **the Zombie Dragon** (off by default) - the Ender Dragon's
