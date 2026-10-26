@@ -729,6 +729,13 @@ infection, real death, drops at killer). Played through by Sable on 26.2 in ZARP
 sounds and the Voidlings as endermen all confirmed. The first build froze the fake death with NoAi and
 snapped the dragon to the fountain; fixed by letting vanilla's DYING phase fly it.
 
+**3.10.0 shipped 2026-10-26** — JourneyMap genus faces (icon only) and the Ender Zombie's
+`dodge_projectiles`. The dodge is confirmed by Sable in ZARP (guns stopped working on it); JourneyMap
+names were checked and handed back to JourneyMap, but the **faces themselves are not yet confirmed in
+play**. GitHub `v3.10.0`, CurseForge files 9331831 (1.21.11), 9331832 (26.1.2), 9331834 (26.2),
+9331836 (26.3). Built from `79f4386` (master), `004d721` (mc26.1), `f5327b2` (mc26.2), `6289525`
+(mc26.3). ZARP is on test build `f39a6028`, the same code.
+
 **3.9.0 shipped 2026-10-22** — `api/ZombieModApi` for other mods; CrawlSpace (main `56cde19`, owned by
 the LegendQuest session) calls it, tested by that session on 1.21.11. GitHub `v3.9.0`, CurseForge
 files 9292814 (1.21.11), 9292815 (26.1.2), 9292817 (26.2), 9292819 (26.3). Built from `7f1f3ea`
