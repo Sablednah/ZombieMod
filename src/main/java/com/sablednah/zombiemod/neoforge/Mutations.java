@@ -108,7 +108,8 @@ public final class Mutations {
         // still finds it, and so GenusApplier can overwrite the genus id cleanly.
         fresh.getPersistentData().merge(old.getPersistentData());
         GenusApplier.assign(fresh, genus);
-        GenusApplier.applyAi(fresh, genus.value());
+        // No applyAi here: addFreshEntity's join event builds the AI from the genus tag, and building
+        // it twice doubled every goal and ability of a genus that keeps vanilla's goals.
         fresh.getPersistentData().putLong(MUTATED_TAG, level.getGameTime());
 
         if (spec.keepHealth()) {

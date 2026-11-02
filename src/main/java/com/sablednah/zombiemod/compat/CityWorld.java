@@ -6,12 +6,15 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.mojang.logging.LogUtils;
 
 import org.slf4j.Logger;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.neoforged.fml.ModList;
@@ -34,6 +37,15 @@ import net.neoforged.fml.ModList;
  * {@code naturePercent}, the generator's own grading from dense city to wilderness. Every value read
  * here is a String, a primitive or an enum read via {@code toString}, so no CityWorld class ever
  * needs to be on our classpath.
+ *
+ * <p><b>Never plans on the caller's thread</b> when CityWorld can avoid it (6.12+). CityWorld keeps its
+ * plans in memory only, so after a restart the first {@code lotAt} for each platmap plans it right
+ * there - tens of milliseconds to seconds - and at the exploration frontier it joins a worldgen
+ * worker's plan already in flight and waits out the rest. Every spawn draw asks, four or five times
+ * over, so on the server thread that was ZARP's 55-second stall (2026-11-02). Now a draw reads only
+ * what is already planned, asks for the rest off-thread, and treats "not known yet" as no lot - a
+ * plain mob for a moment rather than a frozen server. Answers are memoised per chunk, since a plan
+ * never changes once made.
  */
 public final class CityWorld {
 
@@ -44,6 +56,9 @@ public final class CityWorld {
     private static boolean warned;
 
     private static Method lotAt;
+    /** CityWorld 6.12+; null on an older one, which falls back to the blocking {@link #lotAt}. */
+    private static Method lotAtIfPlanned;
+    private static Method lotAtAsync;
     private static Method contextFamily;
     private static Method contextClass;
     private static Method lotStyle;
@@ -53,6 +68,16 @@ public final class CityWorld {
 
     private static Set<String> lotClasses;
     private static Set<String> contextClasses;
+
+    /** "Planned, and there is no lot here" - distinct from not knowing yet, which is no entry. */
+    private static final Object NO_LOT = new Object();
+    /**
+     * Chunks remembered per dimension before that dimension's memo starts again. A 128-chunk square
+     * of answers; a long journey refills it rather than growing without end.
+     */
+    private static final int MEMO_LIMIT = 16_384;
+    /** Per dimension, per chunk: a {@link Lot}, {@link #NO_LOT}, or the pending future. */
+    private static final Map<ResourceKey<Level>, Map<Long, Object>> MEMO = new ConcurrentHashMap<>();
 
     private static final String PLAT_LOT = "me/daddychurchill/CityWorld/Plats/PlatLot";
     private static final String DATA_CONTEXT = "me/daddychurchill/CityWorld/Context/DataContext";
@@ -119,7 +144,9 @@ public final class CityWorld {
             checked = true;
             available = link();
             if (available) {
-                LOG.info("ZombieMod: CityWorld detected - district-aware spawning available.");
+                LOG.info("ZombieMod: CityWorld detected - district-aware spawning available{}.",
+                        nonBlocking() ? "" : " (an older CityWorld: the first lookup in each place "
+                                + "plans it on the spot - 6.12 or later avoids that)");
             }
         }
         return available;
@@ -139,6 +166,8 @@ public final class CityWorld {
             lotClass = info.getMethod("lotClass");
             naturePercent = info.getMethod("naturePercent");
             schematicName = info.getMethod("schematicName");
+            lotAtIfPlanned = optional(api, "lotAtIfPlanned");
+            lotAtAsync = optional(api, "lotAtAsync");
             return true;
         } catch (ReflectiveOperationException | RuntimeException e) {
             LOG.warn("ZombieMod: CityWorld is installed but its API did not match - "
@@ -147,29 +176,73 @@ public final class CityWorld {
         }
     }
 
+    private static Method optional(Class<?> api, String name) {
+        try {
+            return api.getMethod(name, ServerLevel.class, BlockPos.class);
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    private static boolean nonBlocking() {
+        return lotAtIfPlanned != null && lotAtAsync != null;
+    }
+
+    /** Forget every remembered answer. A new world may reuse the dimension keys of the last. */
+    public static void forgetSession() {
+        MEMO.clear();
+    }
+
     /**
-     * What CityWorld planned for the chunk containing {@code pos}.
+     * What CityWorld planned for the chunk containing {@code pos}, if it is known yet.
      *
-     * <p>Empty for a non-CityWorld level, which is the common case and not an error.
+     * <p>Empty for a non-CityWorld level, which is the common case and not an error - and also, with
+     * CityWorld 6.12+, for a place whose plan is not made yet. That is asked for off-thread and the
+     * answer is here on a later call; meanwhile the city conditions fail closed, which gives an
+     * ordinary mob. Safe to call from any thread: it never plans and never waits, except on a
+     * CityWorld too old to offer that, where it is the old blocking lookup, memoised.
      */
     public static Optional<Lot> lotAt(Level level, BlockPos pos) {
         if (!available() || !(level instanceof ServerLevel server)) {
             return Optional.empty();
         }
+        // Packed by hand rather than through ChunkPos, whose helpers have moved between versions.
+        long chunk = ((long) (pos.getX() >> 4) & 0xFFFFFFFFL) | ((long) (pos.getZ() >> 4) << 32);
+        Map<Long, Object> memo = MEMO.computeIfAbsent(server.dimension(), k -> new ConcurrentHashMap<>());
+        Object known = memo.get(chunk);
+        if (known instanceof Lot lot) {
+            return Optional.of(lot);
+        }
+        if (known == NO_LOT) {
+            return Optional.empty();
+        }
         try {
-            Object result = lotAt.invoke(null, server, pos);
-            if (!(result instanceof Optional<?> maybe) || maybe.isEmpty()) {
-                return Optional.empty();
+            Object answer;
+            if (!nonBlocking()) {
+                answer = lotAt.invoke(null, server, pos);
+            } else if (known instanceof CompletableFuture<?> pending) {
+                if (!pending.isDone()) {
+                    return Optional.empty();
+                }
+                answer = settled(pending);
+            } else {
+                answer = lotAtIfPlanned.invoke(null, server, pos);
+                if (!(answer instanceof Optional<?> maybe) || maybe.isEmpty()) {
+                    // Not planned yet, or planned with no lot here: the future tells the two apart.
+                    // CityWorld shares one per platmap, so this is cheap even when it is not new.
+                    if (!(lotAtAsync.invoke(null, server, pos) instanceof CompletableFuture<?> future)) {
+                        return Optional.empty();
+                    }
+                    if (!future.isDone()) {
+                        remember(memo, chunk, future);
+                        return Optional.empty();
+                    }
+                    answer = settled(future);
+                }
             }
-            Object info = maybe.get();
-            Object schematic = schematicName.invoke(info);
-            return Optional.of(new Lot(
-                    String.valueOf(contextFamily.invoke(info)),
-                    String.valueOf(contextClass.invoke(info)),
-                    String.valueOf(lotStyle.invoke(info)),
-                    String.valueOf(lotClass.invoke(info)),
-                    ((Number) naturePercent.invoke(info)).doubleValue(),
-                    schematic == null ? null : String.valueOf(schematic)));
+            Optional<Lot> lot = read(answer);
+            remember(memo, chunk, lot.isPresent() ? lot.get() : NO_LOT);
+            return lot;
         } catch (ReflectiveOperationException | RuntimeException e) {
             if (!warned) {
                 warned = true;
@@ -177,6 +250,38 @@ public final class CityWorld {
             }
             return Optional.empty();
         }
+    }
+
+    /** A finished future's answer; a failed plan counts as no lot rather than being asked forever. */
+    private static Object settled(CompletableFuture<?> future) {
+        if (future.isCompletedExceptionally()) {
+            LOG.debug("ZombieMod: CityWorld could not plan a place; treating it as no lot");
+            return Optional.empty();
+        }
+        return future.join();
+    }
+
+    private static void remember(Map<Long, Object> memo, long chunk, Object value) {
+        if (memo.size() >= MEMO_LIMIT) {
+            memo.clear();
+        }
+        memo.put(chunk, value);
+    }
+
+    /** CityWorld's {@code Optional<LotInfo>}, read into our own record. */
+    private static Optional<Lot> read(Object result) throws ReflectiveOperationException {
+        if (!(result instanceof Optional<?> maybe) || maybe.isEmpty()) {
+            return Optional.empty();
+        }
+        Object info = maybe.get();
+        Object schematic = schematicName.invoke(info);
+        return Optional.of(new Lot(
+                String.valueOf(contextFamily.invoke(info)),
+                String.valueOf(contextClass.invoke(info)),
+                String.valueOf(lotStyle.invoke(info)),
+                String.valueOf(lotClass.invoke(info)),
+                ((Number) naturePercent.invoke(info)).doubleValue(),
+                schematic == null ? null : String.valueOf(schematic)));
     }
 
     /**

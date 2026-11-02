@@ -40,6 +40,9 @@ public final class SeekBlocksGoal extends MoveToBlockGoal {
     private final Map<BlockPos, Integer> unreachable = new HashMap<>();
     private int age;
     private int patience;
+    /** Empty searches in a row; see {@link #findNearestBlock}. */
+    private int misses;
+    private static final int MAX_BACKOFF = 3;
 
     public SeekBlocksGoal(PathfinderMob mob, HolderSet<Block> wanted, double speed, int range,
             int verticalRange, boolean onlyWhenIdle) {
@@ -100,7 +103,26 @@ public final class SeekBlocksGoal extends MoveToBlockGoal {
      */
     @Override
     protected int nextStartTick(PathfinderMob mob) {
-        return reducedTickDelay(50 + mob.getRandom().nextInt(50));
+        return reducedTickDelay((50 + mob.getRandom().nextInt(50)) << Math.min(misses, MAX_BACKOFF));
+    }
+
+    /**
+     * Each search is thousands of block reads, and a mob with nothing near it found nothing last
+     * time either. So every empty search doubles the wait before the next, up to eight times the
+     * eager rate - still within vanilla's own pace - and finding something resets it. (ZARP's audit,
+     * 2026-11-02: forty Blights in a city with the moss already gone were searching all day.)
+     */
+    @Override
+    protected boolean findNearestBlock() {
+        boolean found = super.findNearestBlock();
+        if (found) {
+            misses = 0;
+        } else {
+            misses++;
+            // canUse set the wait before searching; stretch it now the search has come up empty.
+            nextStartTick = nextStartTick(mob);
+        }
+        return found;
     }
 
     /** Which block it is currently walking towards, for diagnostics. */

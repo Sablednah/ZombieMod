@@ -34,7 +34,7 @@ final class SpawnPlacement {
             int x = (int) (centre.getX() + Math.cos(angle) * distance);
             int z = (int) (centre.getZ() + Math.sin(angle) * distance);
 
-            if (!level.isLoaded(new BlockPos(x, centre.getY(), z))) {
+            if (!com.sablednah.zombiemod.core.spawn.SpawnConditions.answerable(level, x, z)) {
                 continue;
             }
             int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z);
