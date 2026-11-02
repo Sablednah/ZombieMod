@@ -454,15 +454,24 @@ public final class SpawnConditions {
      * area" with no crash and no log line. That is not hypothetical — CityWorld populates chunks
      * from inside generation, and it hung exactly like that.
      *
-     * <p>{@code hasChunkAt} answers from what is already loaded and never blocks, so asking first
-     * costs a lookup and removes the whole class of hang.
+     * <p>{@code getChunkNow} answers only with a chunk that is already fully loaded, and never blocks,
+     * so asking first costs a lookup and removes the whole class of hang. Not {@code hasChunkAt}, which
+     * this used to be: that is only a ticket check, so a chunk still loading or generating passed it
+     * and the read that followed waited for it to finish (ZARP's audit, 2026-11-02). And off the
+     * server thread {@code getChunkNow} is always null, so a draw made from a worldgen thread fails
+     * closed instead of asking the chunk system anything.
      *
      * <p>Callers <b>fail closed</b> when this is false: an unanswerable condition is treated as not
      * met, so the genus does not spawn and you get an ordinary mob. Failing open would let a genus
      * ignore its own rules precisely when we cannot check them, which is the worse of the two.
      */
-    private static boolean answerable(Level level, BlockPos pos) {
-        return level.hasChunkAt(pos);
+    public static boolean answerable(Level level, BlockPos pos) {
+        return answerable(level, pos.getX(), pos.getZ());
+    }
+
+    /** {@link #answerable} for a column. */
+    public static boolean answerable(Level level, int x, int z) {
+        return level.getChunkSource().getChunkNow(x >> 4, z >> 4) != null;
     }
 
     // ---------------------------------------------------------------- CityWorld
