@@ -21,16 +21,16 @@
   "spawn": {
     "conditions": [
       {
+        "type": "zombiemod:light",
+        "max": 7
+      },
+      {
         "type": "zombiemod:city_district",
         "districts": [
           "HIGHRISE",
           "MIDRISE",
           "LOWRISE"
         ]
-      },
-      {
-        "type": "zombiemod:light",
-        "max": 7
       }
     ]
   },

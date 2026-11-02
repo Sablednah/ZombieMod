@@ -23,6 +23,10 @@
   "spawn": {
     "conditions": [
       {
+        "type": "zombiemod:light",
+        "max": 7
+      },
+      {
         "type": "zombiemod:any_of",
         "conditions": [
           {
@@ -41,10 +45,6 @@
             "biomes": "#minecraft:is_jungle"
           }
         ]
-      },
-      {
-        "type": "zombiemod:light",
-        "max": 7
       }
     ]
   },

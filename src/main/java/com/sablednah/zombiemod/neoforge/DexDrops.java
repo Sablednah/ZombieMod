@@ -39,15 +39,32 @@ public final class DexDrops {
         if (table == LootTable.EMPTY) {
             return List.of();
         }
+        // Remembered per table instance, which is per reload: /reload builds new tables, and the old
+        // ones and their answers go with them. Every kill sends a modded client its whole dex, and
+        // encoding each killed genus's table to JSON every time was 5-20 ms a kill for a veteran,
+        // times a horde (ZARP's audit, 2026-11-02).
+        synchronized (CACHE) {
+            List<String> known = CACHE.get(table);
+            if (known != null) {
+                return known;
+            }
+        }
         var ops = server.registryAccess().createSerializationContext(JsonOps.INSTANCE);
-        return LootTable.DIRECT_CODEC.encodeStart(ops, table).result()
+        List<String> ids = LootTable.DIRECT_CODEC.encodeStart(ops, table).result()
                 .map(json -> {
                     Set<String> items = new LinkedHashSet<>();
                     walk(json, items);
                     return List.copyOf(items);
                 })
                 .orElse(List.of());
+        synchronized (CACHE) {
+            CACHE.put(table, ids);
+        }
+        return ids;
     }
+
+    /** Weak and by identity, so a table dropped by a reload takes its answer with it. */
+    private static final java.util.Map<LootTable, List<String>> CACHE = new java.util.WeakHashMap<>();
 
     private static void walk(JsonElement element, Set<String> into) {
         if (element.isJsonObject()) {

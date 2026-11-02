@@ -238,7 +238,7 @@ public final class ProximitySpawner {
 
             // Never reach into unloaded chunks: generating terrain because someone walked around is
             // how a spawner becomes a performance complaint.
-            if (!level.isLoaded(new BlockPos(x, player.getBlockY(), z))) {
+            if (!com.sablednah.zombiemod.core.spawn.SpawnConditions.answerable(level, x, z)) {
                 continue;
             }
 

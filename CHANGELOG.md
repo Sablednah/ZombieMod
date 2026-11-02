@@ -7,6 +7,24 @@ settings in `zombiemod-server.toml` are a **server** config, and it lives at
 `config/zombiemod-server.toml`. A copy under `saves/<world>/serverconfig/` overrides it for that
 world alone (`syncedconfig/` on Minecraft 26.3).
 
+## Unreleased
+
+### Fixed
+
+- **No more server stalls from CityWorld lookups.** The city district, lot and wildness spawn
+  conditions asked CityWorld on the server thread for every spawn, and after a restart that could
+  make CityWorld plan the area on the spot - up to tens of seconds of "Can't keep up" at the edge of
+  explored land. With CityWorld 6.12 or later the lookup never waits: a place not yet known gives an
+  ordinary mob for a moment while CityWorld works it out in the background. Answers are remembered
+  either way, so older CityWorld versions also ask far less often.
+- **Spawning no longer waits on chunks that are still loading.** The loaded check was satisfied by a
+  chunk that was only on its way, and the next read then waited for it.
+- **A mutated mob got its AI twice** - every goal and ability doubled for a genus that keeps
+  vanilla's goals.
+- **Lighter on the server**: the ZombieDex no longer re-reads loot tables on every kill; block-seeking
+  genera search less often after finding nothing; player noises are checked at most twice a second
+  per player; city genera check light before asking CityWorld.
+
 ## 3.10.0
 
 *2026-10-26.* Gone before it lands.
