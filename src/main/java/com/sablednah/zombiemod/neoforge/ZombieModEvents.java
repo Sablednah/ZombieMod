@@ -95,6 +95,8 @@ public final class ZombieModEvents {
         com.sablednah.zombiemod.core.ItemSpec.forgetSession();
         ProximitySpawner.COUNTERS.reset();
         CLAIMS.reset();
+        com.sablednah.zombiemod.compat.CityWorld.forgetSession();
+        HEARD.clear();
     }
 
     @SubscribeEvent
@@ -607,6 +609,11 @@ public final class ZombieModEvents {
      * the valley says where the arrow is, not where you are. (Walking to investigate a remote noise
      * would be the honest response, and is future work, not a lie worth telling meanwhile.)
      */
+    /** Ticks between noise checks for one player; see {@link #onNoise}. */
+    private static final long NOISE_GAP = 10;
+    /** Per player: the game time of the last noise acted on, and whether it was loud. */
+    private static final java.util.Map<java.util.UUID, long[]> HEARD = new java.util.HashMap<>();
+
     @SubscribeEvent
     public void onNoise(net.neoforged.neoforge.event.VanillaGameEvent event) {
         if (!(event.getLevel() instanceof ServerLevel level)
@@ -624,6 +631,17 @@ public final class ZombieModEvents {
         if (player.position().distanceToSqr(at) > 16.0D) {
             return;
         }
+        // Once per player per half second, unless this one is louder than the last. Every step,
+        // landing and block hit is a game event, and each one here is a 96-block entity query; and
+        // what is noticed is the player, not the noise, so a burst of them says nothing the first
+        // did not. A loud one still gets through after a quiet one, so a sprint is never masked by
+        // the footstep before it. (ZARP's audit, 2026-11-02.)
+        long now = level.getGameTime();
+        long[] last = HEARD.get(player.getUUID());
+        if (last != null && now - last[0] < NOISE_GAP && (last[1] != 0 || !loud)) {
+            return;
+        }
+        HEARD.put(player.getUUID(), new long[] {now, loud ? 1 : 0});
         var reach = new net.minecraft.world.phys.AABB(at, at).inflate(48.0D);
         for (Mob mob : level.getEntitiesOfClass(Mob.class, reach,
                 m -> m.getPersistentData().getString(GenusApplier.GENUS_TAG).isPresent())) {

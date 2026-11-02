@@ -21,14 +21,14 @@
   "spawn": {
     "conditions": [
       {
+        "type": "zombiemod:light",
+        "max": 7
+      },
+      {
         "type": "zombiemod:city_district",
         "districts": [
           "FARM"
         ]
-      },
-      {
-        "type": "zombiemod:light",
-        "max": 7
       }
     ]
   },

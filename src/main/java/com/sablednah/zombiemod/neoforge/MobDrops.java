@@ -257,7 +257,8 @@ public final class MobDrops {
         mobs = m;
         genera = g;
         builtFor = owner;
-        LOG.debug("ZombieMod: mob drops read for {} mobs and {} genera in {} ms", m.size(), g.size(),
+        // INFO: once per reload, and the one place its cost on the server thread can be read.
+        LOG.info("ZombieMod: mob drops read for {} mobs and {} genera in {} ms", m.size(), g.size(),
                 (System.nanoTime() - start) / 1_000_000);
     }
 
