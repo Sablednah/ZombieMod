@@ -17,6 +17,7 @@
     }
   },
   "spawn": {
+    "hordes": false,
     "conditions": [
       {
         "type": "zombiemod:dimension",

@@ -9,6 +9,13 @@ world alone (`syncedconfig/` on Minecraft 26.3).
 
 ## Unreleased
 
+### Changed
+
+- **Cowards no longer turn up in hordes.** A horde ends when its last mob falls, and a Coward runs,
+  so a wave could finish as a chase across the map after the one that got away. Waves that draw at
+  random now pass it over; it still spawns on its own as before. Any genus can opt out the same way
+  with `"hordes": false` in its `spawn` block, and a wave that names a genus outright still gets it.
+
 ### Fixed
 
 - **No more server stalls from CityWorld lookups.** The city district, lot and wildness spawn

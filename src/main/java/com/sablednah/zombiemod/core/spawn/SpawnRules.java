@@ -29,12 +29,18 @@ import net.minecraft.world.level.Level;
  * vault - without a second genus, and without binding it to a mod that a server may not have. A
  * condition would have had to choose between those two.
  *
+ * <p>{@code hordes} is whether an unnamed horde wave may draw this genus. A horde ends only when
+ * its last mob falls, so a genus that never closes with the player - the Coward runs - turns the end
+ * of a wave into a chase across the map. Such a genus still spawns as normal; only the horde draw
+ * passes it over, and a wave that names it outright still gets it.
+ *
  * @param reasons    which spawn reasons this genus may ride
  * @param conditions positional tests, all of which must pass
  * @param weights    place-dependent weights, tried in order; the first that applies replaces the base
+ * @param hordes     may an unnamed horde wave draw it
  */
 public record SpawnRules(List<EntitySpawnReason> reasons, List<SpawnCondition> conditions,
-        List<PlacedWeight> weights) {
+        List<PlacedWeight> weights, boolean hordes) {
 
     /**
      * A weight that applies only where its conditions all hold.
@@ -72,7 +78,7 @@ public record SpawnRules(List<EntitySpawnReason> reasons, List<SpawnCondition> c
             List.of(EntitySpawnReason.NATURAL, EntitySpawnReason.CHUNK_GENERATION, EntitySpawnReason.SPAWNER);
 
     /** No positional restrictions, default reasons. */
-    public static final SpawnRules ANY = new SpawnRules(DEFAULT_REASONS, List.of(), List.of());
+    public static final SpawnRules ANY = new SpawnRules(DEFAULT_REASONS, List.of(), List.of(), true);
 
     private static final Codec<EntitySpawnReason> REASON = Codec.STRING.xmap(
             s -> EntitySpawnReason.valueOf(s.toUpperCase(Locale.ROOT)),
@@ -81,7 +87,8 @@ public record SpawnRules(List<EntitySpawnReason> reasons, List<SpawnCondition> c
     public static final Codec<SpawnRules> CODEC = RecordCodecBuilder.create(i -> i.group(
             REASON.listOf().optionalFieldOf("reasons", DEFAULT_REASONS).forGetter(SpawnRules::reasons),
             SpawnCondition.CODEC.listOf().optionalFieldOf("conditions", List.of()).forGetter(SpawnRules::conditions),
-            PlacedWeight.CODEC.listOf().optionalFieldOf("weights", List.of()).forGetter(SpawnRules::weights))
+            PlacedWeight.CODEC.listOf().optionalFieldOf("weights", List.of()).forGetter(SpawnRules::weights),
+            Codec.BOOL.optionalFieldOf("hordes", true).forGetter(SpawnRules::hordes))
             .apply(i, SpawnRules::new));
 
     /** Any one is enough: the conditions are ANDed, so a single calendar gate gates the genus. */
