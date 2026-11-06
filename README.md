@@ -1134,6 +1134,11 @@ Hordes are a datapack registry too, at `data/<pack>/zombiemod/horde/<name>.json`
 story with a middle. A wave can name specific `genera` or leave it out and draw from the weighted
 table as usual, and `conditions` are the same ones that gate spawning.
 
+**A genus can stay out of that draw** with `"hordes": false` in its `spawn` block. A horde ends only
+when its last mob falls, so one that never closes with you turns the end of a wave into a chase: the
+shipped Coward runs, and is left out for exactly that reason. It still spawns everywhere else as
+normal, and a wave that names it in `genera` still gets it.
+
 `delay` is ticks after the previous wave landed. **`on_clear` makes a wave arrive the moment the
 previous one is dead**, so clearing the field fast earns the next wave rather than standing about
 waiting for a timer — which is what turns three waves into one escalating fight. The `delay` stays on
