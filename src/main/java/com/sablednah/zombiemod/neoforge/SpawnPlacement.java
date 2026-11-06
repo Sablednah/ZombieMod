@@ -53,7 +53,10 @@ final class SpawnPlacement {
                 && level.getFluidState(pos).isEmpty();
     }
 
-    /** Weighted among genera that accept this spot as a natural spawn. */
+    /**
+     * An unnamed horde wave's draw: weighted among genera that accept this spot as a natural spawn
+     * and do not opt out of hordes ({@code spawn.hordes}).
+     */
     static Optional<Holder.Reference<Genus>> weighted(HolderLookup.RegistryLookup<Genus> lookup,
             ServerLevel level, BlockPos at, RandomSource random) {
         List<Holder.Reference<Genus>> eligible = new ArrayList<>();
@@ -61,7 +64,8 @@ final class SpawnPlacement {
         int total = 0;
         for (Holder.Reference<Genus> holder : lookup.listElements().toList()) {
             Genus genus = holder.value();
-            if (!Genus.drawable(holder) || !genus.spawn().allows(level, at, EntitySpawnReason.NATURAL)) {
+            if (!Genus.drawable(holder) || !genus.spawn().hordes()
+                    || !genus.spawn().allows(level, at, EntitySpawnReason.NATURAL)) {
                 continue;
             }
             int weight = genus.weightAt(level, at);
