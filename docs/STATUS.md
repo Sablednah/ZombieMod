@@ -730,6 +730,13 @@ infection, real death, drops at killer). Played through by Sable on 26.2 in ZARP
 sounds and the Voidlings as endermen all confirmed. The first build froze the fake death with NoAi and
 snapped the dragon to the fountain; fixed by letting vanilla's DYING phase fly it.
 
+**3.10.1 shipped 2026-11-07** — the server-thread audit (CityWorld lookups never block, real
+chunk-ready checks, a mutated mob's AI built once) and `spawn.hordes`, which keeps the Coward out of
+random horde waves (Sable: "they just scatter and make it too hard to finish the wave"). Tested by
+Sable in ZARP on test build `e99239aa`, the same code. GitHub `v3.10.1`, CurseForge files 9493741
+(1.21.11), 9493742 (26.1.2), 9493745 (26.2), 9493747 (26.3). Built from `6d15025` (master),
+`daa3e24` (mc26.1), `80166fd` (mc26.2), `55cf556` (mc26.3).
+
 **3.10.0 shipped 2026-10-26** — JourneyMap genus faces (icon only) and the Ender Zombie's
 `dodge_projectiles`. The dodge is confirmed by Sable in ZARP (guns stopped working on it); JourneyMap
 names were checked and handed back to JourneyMap, but the **faces themselves are not yet confirmed in
